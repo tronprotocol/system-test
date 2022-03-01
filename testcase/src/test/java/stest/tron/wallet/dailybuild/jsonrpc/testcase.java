@@ -16,7 +16,6 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.CoreConnectionPNames;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.junit.Assert;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
