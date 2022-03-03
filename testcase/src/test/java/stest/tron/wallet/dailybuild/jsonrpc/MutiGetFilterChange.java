@@ -21,7 +21,7 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.JsonRpcBase;
 
-public class testcase {
+public class MutiGetFilterChange {
   AtomicInteger atomicInteger = new AtomicInteger(0);
   ConcurrentHashSet<String> concurrentHashSet = new ConcurrentHashSet();
   String[] topicsArray = {
@@ -32,8 +32,8 @@ public class testcase {
       "0x6c86e7a89f0fde45c330133fa5d6057c"
   };
 
-  @Test(enabled = true, threadPoolSize = 7, invocationCount = 7)
-  public void test06JsonRpcApiTestForEthEstimateGas() throws Exception {
+  @Test(enabled = false, threadPoolSize = 7, invocationCount = 7)
+  public void test01MutiForEthGetFilterChange() throws Exception {
 
     System.out.println(Thread.currentThread().getName().substring(Thread.currentThread().getName().length()-1));
 
@@ -79,8 +79,8 @@ public class testcase {
   }
 
 
-  @Test
-  public void aaaaa() throws Exception {
+  @Test(enabled = false)
+  public void test02MutiForCreateTopic() throws Exception {
     MyThread event1 = new MyThread("0xc1212face8030981dba8c87177346bcc");
     MyThread event2 = new MyThread("0xf82da7256633956a39e9e83bab6409b0");
     MyThread event3 = new MyThread("0x89843c4c1d868e4db77ea1e45aedd4fd");
@@ -100,12 +100,12 @@ public class testcase {
     t5.start();
   }
 
-    class MyThread implements Runnable{ // 实现Runnable接口，作为线程的实现类
-      private String topics ;       // 表示线程的名称
+    class MyThread implements Runnable{
+      private String topics ;
       public MyThread(String topics){
-               this.topics = topics ;      // 通过构造方法配置name属性
+               this.topics = topics ;
            }
-      public void run(){  // 覆写run()方法，作为线程 的操作主体
+      public void run(){
 
         JsonArray param = new JsonArray();
         param.add(this.topics);
