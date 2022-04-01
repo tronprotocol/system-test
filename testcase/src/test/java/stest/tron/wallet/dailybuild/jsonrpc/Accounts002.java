@@ -908,7 +908,9 @@ public class Accounts002 extends JsonRpcBase {
   public void test34JsonRpcApiTestForWeb3ClientVersion() throws Exception {
     String javaFullVersion = System.getProperty("java.version");
     logger.info("javaFullVersion:" + javaFullVersion);
-    String javaVersion = javaFullVersion.substring(0, javaFullVersion.indexOf(".",javaFullVersion.indexOf(".")+1 ));
+    String javaVersion =
+        javaFullVersion.substring(
+            0, javaFullVersion.indexOf(".", javaFullVersion.indexOf(".") + 1));
     logger.info("javaVersion:" + javaVersion);
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("web3_clientVersion", params);

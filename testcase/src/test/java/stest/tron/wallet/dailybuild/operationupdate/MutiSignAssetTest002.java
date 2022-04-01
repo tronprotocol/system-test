@@ -275,7 +275,7 @@ public class MutiSignAssetTest002 {
         blockingStubFull, permissionKeyString);
 
     Assert.assertNotNull(txid);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     balanceAfter = PublicMethed.queryAccount(participateAddress, blockingStubFull)
@@ -288,6 +288,7 @@ public class MutiSignAssetTest002 {
     logger.info("energyFee: " + energyFee);
     logger.info("netFee: " + netFee);
     logger.info("fee: " + fee);
+
 
     Assert.assertEquals(balanceBefore - balanceAfter, fee + 10);
     Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
