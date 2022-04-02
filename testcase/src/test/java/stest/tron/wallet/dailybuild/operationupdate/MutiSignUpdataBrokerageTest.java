@@ -51,7 +51,7 @@ public class MutiSignUpdataBrokerageTest {
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
 
-  
+
 
   /**
    * constructor.
@@ -114,6 +114,7 @@ public class MutiSignUpdataBrokerageTest {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertEquals(PublicMethed.getBrokerage(witness001Address, blockingStubFull), 20L);
     Assert.assertTrue(PublicMethedForMutiSign
         .updateBrokerage(witness001Address, 70, witnessKey001, 2, permissionKeyString,
             blockingStubFull));

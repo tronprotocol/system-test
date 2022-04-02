@@ -134,9 +134,9 @@ public class PublicMethed {
   // private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   public static Map<Long, ShieldNoteInfo> utxoMapNote = new ConcurrentHashMap();
   public static List<ShieldNoteInfo> spendUtxoList = new ArrayList<>();
-  //private static List<WalletFile> walletFile = new ArrayList<>();
+  // private static List<WalletFile> walletFile = new ArrayList<>();
   private static ShieldWrapper shieldWrapper = new ShieldWrapper();
-  //Wallet wallet = new Wallet();
+  // Wallet wallet = new Wallet();
   public static volatile Integer witnessNum;
 
   /** constructor. */
@@ -167,7 +167,7 @@ public class PublicMethed {
       Long frozenDay,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    ////Wallet.setAddressPreFixByte()();
+    //// Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -234,7 +234,7 @@ public class PublicMethed {
       Long frozenDay,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    ////Wallet.setAddressPreFixByte()();
+    //// Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1035,8 +1035,6 @@ public class PublicMethed {
     return null;
   }
 
-
-
   /** constructor. */
   public static Boolean sendcoinDelayed(
       byte[] to,
@@ -1080,7 +1078,6 @@ public class PublicMethed {
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
-
 
   /** constructor. */
   public static String sendcoinDelayedGetTxid(
@@ -1128,9 +1125,6 @@ public class PublicMethed {
             CommonParameter.getInstance().isECKeyCryptoEngine(),
             transaction.getRawData().toByteArray()));
   }
-
-
-
 
   /** constructor. */
   public static Return sendcoin2(
@@ -1728,7 +1722,7 @@ public class PublicMethed {
       String priKey,
       HashMap<byte[], Long> witnessMap,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1778,7 +1772,7 @@ public class PublicMethed {
       String priKey,
       HashMap<Long, Long> parametersMap,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1824,7 +1818,7 @@ public class PublicMethed {
       long id,
       boolean isAddApproval,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1865,7 +1859,7 @@ public class PublicMethed {
   /** constructor. */
   public static boolean deleteProposal(
       byte[] ownerAddress, String priKey, long id, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1905,7 +1899,7 @@ public class PublicMethed {
 
   /** constructor. */
   public static boolean printAddress(String key) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     logger.info(key);
     logger.info(ByteArray.toHexString(getFinalAddress(key)));
     logger.info(Base58.encode58Check(getFinalAddress(key)));
@@ -1914,13 +1908,13 @@ public class PublicMethed {
 
   /** constructor. */
   public static String getAddressString(String key) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     return Base58.encode58Check(getFinalAddress(key));
   }
 
   /** constructor. */
   public static ArrayList<String> getAddressInfo(String key) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ArrayList<String> accountList = new ArrayList<String>();
     accountList.add(key);
     accountList.add(ByteArray.toHexString(getFinalAddress(key)));
@@ -1934,7 +1928,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -1987,7 +1981,7 @@ public class PublicMethed {
       int resourceCode,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
@@ -2025,7 +2019,7 @@ public class PublicMethed {
   /** constructor. */
   public static AccountResourceMessage getAccountResource(
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccountResource(request);
@@ -2037,7 +2031,7 @@ public class PublicMethed {
       byte[] address,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -2079,7 +2073,7 @@ public class PublicMethed {
       byte[] address,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -2131,7 +2125,7 @@ public class PublicMethed {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -2259,7 +2253,7 @@ public class PublicMethed {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -2445,7 +2439,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String compilerVersion,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -2609,7 +2603,7 @@ public class PublicMethed {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3022,7 +3016,7 @@ public class PublicMethed {
   /** constructor. */
   public static SmartContract getContract(
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString byteString = ByteString.copyFrom(address);
     BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(byteString).build();
     logger.info("contract name is " + blockingStubFull.getContract(bytesMessage).getName());
@@ -3033,7 +3027,7 @@ public class PublicMethed {
   /** constructor. */
   public static SmartContractDataWrapper getContractInfo(
       byte[] address, WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString byteString = ByteString.copyFrom(address);
     BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(byteString).build();
     logger.info(
@@ -3068,8 +3062,6 @@ public class PublicMethed {
     return Hex.decode(code);
   }
 
-
-
   private static byte[] replaceLibraryAddresscompilerVersion(
       String code, String libraryAddressPair, String compilerVersion) {
 
@@ -3086,7 +3078,8 @@ public class PublicMethed {
       String addr = cur.substring(lastPosition + 1);
       String libraryAddressHex;
       libraryAddressHex =
-          (new String(Hex.encode(WalletClient.decodeFromBase58Check(addr)), StandardCharsets.US_ASCII))
+          (new String(
+                  Hex.encode(WalletClient.decodeFromBase58Check(addr)), StandardCharsets.US_ASCII))
               .substring(2);
 
       String beReplaced;
@@ -3117,7 +3110,7 @@ public class PublicMethed {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3165,7 +3158,6 @@ public class PublicMethed {
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
-
 
   /** 61 constructor. */
   public static Optional<TransactionInfo> getTransactionInfoById(
@@ -3245,7 +3237,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3387,7 +3379,7 @@ public class PublicMethed {
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       WalletGrpc.WalletBlockingStub blockingStubFull1) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3498,7 +3490,7 @@ public class PublicMethed {
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
 
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3599,7 +3591,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3657,7 +3649,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3749,7 +3741,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3805,7 +3797,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -3905,7 +3897,7 @@ public class PublicMethed {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -4026,7 +4018,7 @@ public class PublicMethed {
       ByteString receiverAddressBytes,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
@@ -4066,7 +4058,7 @@ public class PublicMethed {
   /** constructor. */
   public static Optional<DelegatedResourceList> getDelegatedResource(
       byte[] fromAddress, byte[] toAddress, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString fromAddressBs = ByteString.copyFrom(fromAddress);
     ByteString toAddressBs = ByteString.copyFrom(toAddress);
 
@@ -4084,7 +4076,7 @@ public class PublicMethed {
       byte[] fromAddress,
       byte[] toAddress,
       WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString fromAddressBs = ByteString.copyFrom(fromAddress);
     ByteString toAddressBs = ByteString.copyFrom(toAddress);
 
@@ -4100,7 +4092,7 @@ public class PublicMethed {
   /** constructor. */
   public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
 
     ByteString addressBs = ByteString.copyFrom(address);
 
@@ -4136,7 +4128,7 @@ public class PublicMethed {
   /** constructor. */
   public static AssetIssueContract getAssetIssueByNameFromSolidity(
       String assetName, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString assetNameBs = ByteString.copyFrom(assetName.getBytes());
     BytesMessage request = BytesMessage.newBuilder().setValue(assetNameBs).build();
     return blockingStubFull.getAssetIssueByName(request);
@@ -4145,7 +4137,7 @@ public class PublicMethed {
   /** constructor. */
   public static Optional<AssetIssueList> getAssetIssueListByName(
       String assetName, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString assetNameBs = ByteString.copyFrom(assetName.getBytes());
     BytesMessage request = BytesMessage.newBuilder().setValue(assetNameBs).build();
     AssetIssueList assetIssueList = blockingStubFull.getAssetIssueListByName(request);
@@ -4155,7 +4147,7 @@ public class PublicMethed {
   /** constructor. */
   public static Optional<AssetIssueList> getAssetIssueListByNameFromSolidity(
       String assetName, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString assetNameBs = ByteString.copyFrom(assetName.getBytes());
     BytesMessage request = BytesMessage.newBuilder().setValue(assetNameBs).build();
     AssetIssueList assetIssueList = blockingStubFull.getAssetIssueListByName(request);
@@ -4200,7 +4192,7 @@ public class PublicMethed {
   /** constructor. */
   public static AssetIssueContract getAssetIssueById(
       String assetId, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString assetIdBs = ByteString.copyFrom(assetId.getBytes());
     BytesMessage request = BytesMessage.newBuilder().setValue(assetIdBs).build();
     return blockingStubFull.getAssetIssueById(request);
@@ -4209,7 +4201,7 @@ public class PublicMethed {
   /** constructor. */
   public static AssetIssueContract getAssetIssueByIdFromSolidity(
       String assetId, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString assetIdBs = ByteString.copyFrom(assetId.getBytes());
     BytesMessage request = BytesMessage.newBuilder().setValue(assetIdBs).build();
     return blockingStubFull.getAssetIssueById(request);
@@ -4218,7 +4210,7 @@ public class PublicMethed {
   /** constructor. */
   public static Optional<AssetIssueList> getAssetIssueByAccount(
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     AssetIssueList assetIssueList = blockingStubFull.getAssetIssueByAccount(request);
@@ -4274,7 +4266,7 @@ public class PublicMethed {
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] priKeys) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -4419,7 +4411,7 @@ public class PublicMethed {
   /** constructor. */
   public static Transaction addTransactionSign(
       Transaction transaction, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -4458,7 +4450,7 @@ public class PublicMethed {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -4575,7 +4567,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -4671,7 +4663,7 @@ public class PublicMethed {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -4726,7 +4718,7 @@ public class PublicMethed {
       byte[] owner,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5087,7 +5079,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5197,7 +5189,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5234,7 +5226,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5327,7 +5319,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5362,7 +5354,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5408,7 +5400,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletSolidityGrpc.WalletSolidityBlockingStub solidityBlockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5452,7 +5444,7 @@ public class PublicMethed {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5523,7 +5515,7 @@ public class PublicMethed {
       long toAmount,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5583,7 +5575,8 @@ public class PublicMethed {
       SpendNote.Builder spendNoteBuilder = SpendNote.newBuilder();
       spendNoteBuilder.setNote(noteBuild.build());
       try {
-        spendNoteBuilder.setAlpha(ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
+        spendNoteBuilder.setAlpha(
+            ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
       } catch (Exception e) {
         System.out.println(e);
       }
@@ -5665,7 +5658,7 @@ public class PublicMethed {
       long toAmount,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -5735,7 +5728,8 @@ public class PublicMethed {
       SpendNote.Builder spendNoteBuilder = SpendNote.newBuilder();
       spendNoteBuilder.setNote(noteBuild.build());
       try {
-        spendNoteBuilder.setAlpha(ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
+        spendNoteBuilder.setAlpha(
+            ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
       } catch (Exception e) {
         System.out.println(e);
       }
@@ -5876,7 +5870,8 @@ public class PublicMethed {
     noteBuild.setPaymentAddress(shieldAddress);
     noteBuild.setValue(shieldAmount);
     try {
-      noteBuild.setRcm(ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
+      noteBuild.setRcm(
+          ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
     } catch (Exception e) {
       System.out.println(e);
     }
@@ -6206,7 +6201,7 @@ public class PublicMethed {
       long toAmount,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -6266,7 +6261,8 @@ public class PublicMethed {
       SpendNote.Builder spendNoteBuilder = SpendNote.newBuilder();
       spendNoteBuilder.setNote(noteBuild.build());
       try {
-        spendNoteBuilder.setAlpha(ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
+        spendNoteBuilder.setAlpha(
+            ByteString.copyFrom(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()));
       } catch (Exception e) {
         System.out.println(e);
       }
@@ -6420,7 +6416,7 @@ public class PublicMethed {
       byte[] address,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -6456,7 +6452,7 @@ public class PublicMethed {
       byte[] owner,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     // String priKey = testKey002;
     ECKey temKey = null;
     try {
@@ -6490,7 +6486,7 @@ public class PublicMethed {
       byte[] owner,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //Wallet.setAddressPreFixByte()();
+    // Wallet.setAddressPreFixByte()();
     // String priKey = testKey002;
     ECKey temKey = null;
     try {
@@ -6942,6 +6938,15 @@ public class PublicMethed {
   public static String getContractStringMsg(byte[] contractMsgArray) {
     int resultLenth = ByteArray.toInt(ByteArray.subArray(contractMsgArray, 32, 64));
     return ByteArray.toStr(ByteArray.subArray(contractMsgArray, 64, 64 + resultLenth));
+  }
+
+  /** constructor. */
+  public static long getBrokerage(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ByteString addressBs = ByteString.copyFrom(address);
+    GrpcAPI.BytesMessage bytesMessage =
+        GrpcAPI.BytesMessage.newBuilder().setValue(addressBs).build();
+    Long brokerager = blockingStubFull.getBrokerageInfo(bytesMessage).getNum();
+    return brokerager;
   }
 
   /** constructor. */
