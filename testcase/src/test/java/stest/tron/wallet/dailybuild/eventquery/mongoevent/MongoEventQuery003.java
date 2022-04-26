@@ -117,9 +117,8 @@ public class MongoEventQuery003 extends MongoBase {
     txid = PublicMethed.triggerContract(contractAddress,
         "triggerUintEvent()", "#", false,
         0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
-
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
     BasicDBObject query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txid);
     FindIterable<Document> findIterable = mongoDatabase.getCollection("solidityevent").find(query);
     MongoCursor<Document> mongoCursor = findIterable.iterator();
