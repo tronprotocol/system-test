@@ -853,6 +853,12 @@ public class Accounts001 extends JsonRpcBase {
 
   @Test(enabled = true, description = "Json rpc api of web3_clientVersion")
   public void test34JsonRpcApiTestForWeb3ClientVersion() throws Exception {
+    String javaFullVersion = System.getProperty("java.version");
+    logger.info("javaFullVersion:" + javaFullVersion);
+    String javaVersion =
+        javaFullVersion.substring(
+            0, javaFullVersion.indexOf(".", javaFullVersion.indexOf(".") + 1));
+    logger.info("javaVersion:" + javaVersion);
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("web3_clientVersion", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
@@ -866,7 +872,7 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(resultList.get(0), "TRON");
     Assert.assertEquals(resultList.get(1).substring(0, 1), "v");
     Assert.assertEquals(resultList.get(2), "Linux");
-    Assert.assertEquals(resultList.get(3), "Java1.8");
+    Assert.assertEquals(resultList.get(3), "Java" + javaVersion);
     Assert.assertEquals(resultList.get(4).substring(0, 11), "GreatVoyage");
   }
 

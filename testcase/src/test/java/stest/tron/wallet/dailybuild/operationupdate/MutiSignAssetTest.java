@@ -62,7 +62,7 @@ public class MutiSignAssetTest {
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
 
-  
+
 
   /**
    * constructor.
@@ -251,7 +251,6 @@ public class MutiSignAssetTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertNotNull(txid);
-
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     long balanceAfter = PublicMethed.queryAccount(participateAddress, blockingStubFull)
@@ -273,9 +272,8 @@ public class MutiSignAssetTest {
     txid = PublicMethedForMutiSign.participateAssetIssueForTransactionId(ownerAddress,
         assetAccountId1.toByteArray(), 10, participateAddress, participateKey, 0,
         blockingStubFull, ownerKeyString);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertNotNull(txid);
-
     infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     balanceAfter = PublicMethed.queryAccount(participateAddress, blockingStubFull)
@@ -288,7 +286,6 @@ public class MutiSignAssetTest {
     logger.info("energyFee: " + energyFee);
     logger.info("netFee: " + netFee);
     logger.info("fee: " + fee);
-
     Assert.assertEquals(balanceBefore - balanceAfter, fee + 10);
     Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
   }

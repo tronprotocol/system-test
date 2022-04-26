@@ -124,7 +124,7 @@ public class MutiSignAccountTest002 {
     String txid = PublicMethedForMutiSign
         .accountPermissionUpdateForTransactionId(accountPermissionJson, ownerAddress, ownerKey,
             blockingStubFull, ownerKeyString);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     final String updateName = Long.toString(System.currentTimeMillis());
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertNotNull(txid);
@@ -145,7 +145,7 @@ public class MutiSignAccountTest002 {
     Assert.assertEquals(fee, energyFee + netFee + updateAccountPermissionFee);
 
     balanceBefore = balanceAfter;
-    byte[] accountName = "11z2112310".getBytes();
+    byte[] accountName = "11z21122231110".getBytes();
     Assert.assertTrue(PublicMethedForMutiSign.createAccount1(
         ownerAddress, newAddress, ownerKey, blockingStubFull, 2, permissionKeyString));
     Assert.assertTrue(
@@ -156,7 +156,7 @@ public class MutiSignAccountTest002 {
     Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceWithPermissionId(
         ownerAddress, 1000000L, 0, 2, ownerKey, blockingStubFull, permissionKeyString));
     Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceGetEnergyWithPermissionId(
-        ownerAddress, 1000000L, 0, 1, ownerKey, blockingStubFull, 2, permissionKeyString));
+        ownerAddress, 1000000L, 0, 2, ownerKey, blockingStubFull, 2, permissionKeyString));
     Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceForReceiverWithPermissionId(
         ownerAddress, 1000000L, 0, 0, ByteString.copyFrom(newAddress),
         ownerKey, blockingStubFull, 2, permissionKeyString));

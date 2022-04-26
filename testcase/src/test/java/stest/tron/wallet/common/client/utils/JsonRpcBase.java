@@ -1,5 +1,6 @@
 package stest.tron.wallet.common.client.utils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -13,6 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
+import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -27,7 +29,12 @@ public class JsonRpcBase {
   public final String foundationAccountKey =
       Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   public final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
-
+  private final String witnessKey001 = Configuration.getByPath("testng.conf")
+          .getString("witness.key1");
+  private final String witnessKey002 = Configuration.getByPath("testng.conf")
+          .getString("witness.key2");
+  private final byte[] witness001Address = PublicMethed.getFinalAddress(witnessKey001);
+  private final byte[] witness002Address = PublicMethed.getFinalAddress(witnessKey002);
   public static final String jsonRpcOwnerKey =
       Configuration.getByPath("testng.conf").getString("defaultParameter.jsonRpcOwnerKey");
   public static final byte[] jsonRpcOwnerAddress = PublicMethed.getFinalAddress(jsonRpcOwnerKey);
@@ -73,7 +80,7 @@ public class JsonRpcBase {
   public static String burn =
       "burn(bytes32[10],bytes32[2],uint256,bytes32[2],address,"
           + "bytes32[3],bytes32[9][],bytes32[21][])";
-  //public Wallet wallet = new Wallet();
+  // public Wallet wallet = new Wallet();
   static HttpResponse response;
   static HttpPost httppost;
   static JSONObject responseContent;
@@ -87,11 +94,13 @@ public class JsonRpcBase {
   public static String blockId;
   public static String txid;
   public static String trc20Txid;
+  public HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
+
 
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
   public void deployJsonRpcUseResource() throws Exception {
-    //Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Assert.assertTrue(
@@ -141,6 +150,35 @@ public class JsonRpcBase {
     deployContract();
     triggerContract();
     deployTrc20Contract();
+    proposalMap.put(44L, 1L);
+    proposalMap.put(30L, 1L);
+    openProposal(proposalMap);
+  }
+
+  /** constructor. */
+  public void openProposal(HashMap<Long, Long> proposalMap) throws Exception {
+
+    Assert.assertTrue(
+        PublicMethed.createProposal(
+                witness001Address, witnessKey001, proposalMap, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.ProposalList proposalList =
+        blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
+    Optional<GrpcAPI.ProposalList> listProposals = Optional.ofNullable(proposalList);
+    final Integer proposalId = listProposals.get().getProposalsCount();
+    logger.info(Integer.toString(proposalId));
+    Assert.assertTrue(
+            PublicMethed.approveProposal(
+                    witness001Address, witnessKey001, proposalId, true, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.approveProposal(
+                witness002Address, witnessKey002, proposalId, true, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    // Get proposal list after approve
+    proposalList = blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
+    listProposals = Optional.ofNullable(proposalList);
+    logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
+    Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 2);
   }
 
   /** constructor. */
