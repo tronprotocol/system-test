@@ -50,8 +50,11 @@ subprojects {
         compile group: 'org.apache.commons', name: 'commons-math', version: '2.2'
         compile "org.apache.commons:commons-collections4:4.0"
         compile group: 'joda-time', name: 'joda-time', version: '2.3'
-
+        compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.11'
+        compile group: 'org.mongodb', name: 'bson', version: '4.6.0'
     }
+    
+    
 
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = "sources"
