@@ -1,10 +1,15 @@
 package stest.tron.wallet.dailybuild.eventquery.mongoevent;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -15,12 +20,13 @@ import org.zeromq.ZMQ;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MongoBase;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import zmq.ZMQ.Event;
 
 @Slf4j
-public class MongoEventQuery003 {
+public class MongoEventQuery003 extends MongoBase {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -86,112 +92,43 @@ public class MongoEventQuery003 {
 
   }
 
-  @Test(enabled = true, description = "Event query for contract event")
-  public void test01EventQueryForContractEvent() {
-    ZMQ.Context context = ZMQ.context(1);
-    ZMQ.Socket req = context.socket(ZMQ.SUB);
+  @Test(enabled = true, description = "MongoDB Event query for contract event")
+  public void test01MongoDbEventQueryForContractEvent() {
+    txid = PublicMethed.triggerContract(contractAddress,
+        "triggerUintEvent()", "#", false,
+        0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
 
-    req.subscribe("contractEventTrigger");
-    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
-    moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
+    BasicDBObject query = new BasicDBObject();
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    query.put("transactionId", txid);
+    FindIterable<Document> findIterable = mongoDatabase.getCollection("contractevent").find(query);
+    MongoCursor<Document> mongoCursor = findIterable.iterator();
 
-    }).start();
-    req.connect(eventnode);
-    req.setReceiveTimeOut(10000);
-    String transactionMessage = "";
-    Boolean sendTransaction = true;
-    Integer retryTimes = 20;
+    Document document = mongoCursor.next();
+    JSONObject jsonObject = JSON.parseObject(document.toJson());
 
-    while (retryTimes-- > 0) {
-      byte[] message = req.recv();
-      if (sendTransaction) {
-        txid = PublicMethed.triggerContract(contractAddress,
-            "triggerUintEvent()", "#", false,
-            0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
-        logger.info(txid);
-        if (PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
-            .getResultValue() == 0) {
-          sendTransaction = false;
-        }
-      }
-
-      if (message != null) {
-        transactionMessage = new String(message);
-        if (!transactionMessage.equals("contractEventTrigger") && !transactionMessage.isEmpty()) {
-          break;
-        }
-      }
-    }
-    Assert.assertTrue(retryTimes > 0);
-    logger.info("transaction message:" + transactionMessage);
-    JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-    Assert.assertTrue(blockObject.containsKey("timeStamp"));
-    Assert.assertEquals(blockObject.getString("triggerName"), "contractEventTrigger");
-
-    Assert.assertEquals(blockObject.getString("transactionId"), txid);
+    Assert.assertEquals(txid, jsonObject.getString("transactionId"));
+    Assert.assertEquals("uintErgodic", jsonObject.getString("eventName"));
   }
 
 
-  @Test(enabled = true, description = "Event query for solidity contract event")
-  public void test02EventQueryForContractSolidityEvent() {
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
-    ZMQ.Context context = ZMQ.context(1);
-    ZMQ.Socket req = context.socket(ZMQ.SUB);
+  @Test(enabled = true, description = "MongoDb Event query for solidity contract event")
+  public void test02MongoDbEventQueryForContractSolidityEvent() {
+    txid = PublicMethed.triggerContract(contractAddress,
+        "triggerUintEvent()", "#", false,
+        0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
 
-    req.subscribe("solidityEventTrigger");
-    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
-    moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
+    BasicDBObject query = new BasicDBObject();
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    query.put("transactionId", txid);
+    FindIterable<Document> findIterable = mongoDatabase.getCollection("solidityevent").find(query);
+    MongoCursor<Document> mongoCursor = findIterable.iterator();
 
-    }).start();
-    req.connect(eventnode);
-    req.setReceiveTimeOut(10000);
-    String transactionMessage = "";
-    Boolean sendTransaction = true;
-    Integer retryTimes = 40;
+    Document document = mongoCursor.next();
+    JSONObject jsonObject = JSON.parseObject(document.toJson());
 
-    while (retryTimes-- > 0) {
-      byte[] message = req.recv();
-      if (sendTransaction) {
-        txid = PublicMethed.triggerContract(contractAddress,
-            "triggerUintEvent()", "#", false,
-            0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
-        logger.info(txid);
-        if (PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
-            .getResultValue() == 0) {
-          sendTransaction = false;
-        }
-      }
-
-      if (message != null) {
-
-        transactionMessage = new String(message);
-        logger.info("transaction message:" + transactionMessage);
-        if (!transactionMessage.equals("solidityEventTrigger") && !transactionMessage.isEmpty()) {
-          break;
-        }
-      }
-    }
-    Assert.assertTrue(retryTimes > 0);
-    logger.info("transaction message:" + transactionMessage);
-    JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-    Assert.assertTrue(blockObject.containsKey("timeStamp"));
-    Assert.assertEquals(blockObject.getString("triggerName"), "solidityEventTrigger");
-
-    Assert.assertEquals(blockObject.getString("transactionId"), txid);
+    Assert.assertEquals(txid, jsonObject.getString("transactionId"));
+    Assert.assertEquals("uintErgodic", jsonObject.getString("eventName"));
   }
 
 

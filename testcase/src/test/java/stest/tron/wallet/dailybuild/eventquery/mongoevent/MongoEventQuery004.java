@@ -1,10 +1,15 @@
 package stest.tron.wallet.dailybuild.eventquery.mongoevent;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -15,12 +20,13 @@ import org.zeromq.ZMQ;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MongoBase;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import zmq.ZMQ.Event;
 
 @Slf4j
-public class MongoEventQuery004 {
+public class MongoEventQuery004 extends MongoBase {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -85,123 +91,43 @@ public class MongoEventQuery004 {
 
   }
 
-  @Test(enabled = true, description = "Event query for contract log")
+  @Test(enabled = true, description = "MongoDb event query for contract log")
   public void test01EventQueryForContractLog() {
-    ZMQ.Context context = ZMQ.context(1);
-    ZMQ.Socket req = context.socket(ZMQ.SUB);
+    txid = PublicMethed.triggerContract(contractAddress,
+        "depositForLog()", "#", false,
+        1L, 100000000L, event001Address, event001Key, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    BasicDBObject query = new BasicDBObject();
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    query.put("transactionId", txid);
+    FindIterable<Document> findIterable = mongoDatabase.getCollection("contractlog").find(query);
+    MongoCursor<Document> mongoCursor = findIterable.iterator();
 
-    req.subscribe("contractLogTrigger");
-    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
-    moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
+    Document document = mongoCursor.next();
+    JSONObject jsonObject = JSON.parseObject(document.toJson());
 
-    }).start();
-    req.connect(eventnode);
-    req.setReceiveTimeOut(10000);
-    String transactionMessage = "";
-    Boolean sendTransaction = true;
-    Integer retryTimes = 20;
-
-    while (retryTimes-- > 0) {
-      byte[] message = req.recv();
-      if (sendTransaction) {
-        txid = PublicMethed.triggerContract(contractAddress,
-            "depositForLog()", "#", false,
-            1L, 100000000L, event001Address, event001Key, blockingStubFull);
-        logger.info(txid);
-        if (PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
-            .getResultValue() == 0) {
-          sendTransaction = false;
-        }
-      }
-
-      if (message != null) {
-        transactionMessage = new String(message);
-        if (!transactionMessage.equals("contractLogTrigger") && !transactionMessage.isEmpty()) {
-          break;
-        }
-      }
-    }
-    Assert.assertTrue(retryTimes > 0);
-    logger.info("transaction message:" + transactionMessage);
-    JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-    Assert.assertTrue(blockObject.containsKey("timeStamp"));
-    Assert.assertEquals(blockObject.getString("triggerName"), "contractLogTrigger");
-
-    Assert.assertEquals(blockObject.getString("transactionId"), txid);
+    Assert.assertEquals(txid, jsonObject.getString("transactionId"));
+    Assert.assertEquals(3, jsonObject.getJSONArray("topicList").size());
   }
 
 
   @Test(enabled = true, description = "Event query for solidity contract log")
   public void test02EventQueryForContractSolidityLog() {
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
-    ZMQ.Context context = ZMQ.context(1);
-    ZMQ.Socket req = context.socket(ZMQ.SUB);
+    txid = PublicMethed.triggerContract(contractAddress,
+        "depositForLog()", "#", false,
+        1L, 100000000L, event001Address, event001Key, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    BasicDBObject query = new BasicDBObject();
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    query.put("transactionId", txid);
+    FindIterable<Document> findIterable = mongoDatabase.getCollection("soliditylog").find(query);
+    MongoCursor<Document> mongoCursor = findIterable.iterator();
 
-    req.subscribe("solidityLogTrigger");
-    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
-    moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
+    Document document = mongoCursor.next();
+    JSONObject jsonObject = JSON.parseObject(document.toJson());
 
-    }).start();
-    req.connect(eventnode);
-    req.setReceiveTimeOut(10000);
-    String transactionMessage = "";
-    Boolean sendTransaction = true;
-    Integer retryTimes = 40;
-    String txid1 = "";
-    String txid2 = "";
-    String txid3 = "";
-
-    while (retryTimes-- > 0) {
-      byte[] message = req.recv();
-      if (sendTransaction) {
-        txid1 = PublicMethed.triggerContract(contractAddress,
-            "depositForLog()", "#", false,
-            1L, 100000000L, event001Address, event001Key, blockingStubFull);
-        txid2 = PublicMethed.triggerContract(contractAddress,
-            "depositForLog()", "#", false,
-            1L, 100000000L, event001Address, event001Key, blockingStubFull);
-        txid3 = PublicMethed.triggerContract(contractAddress,
-            "depositForLog()", "#", false,
-            1L, 100000000L, event001Address, event001Key, blockingStubFull);
-        logger.info(txid);
-        if (PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
-            .getResultValue() == 0) {
-          sendTransaction = false;
-        }
-
-      }
-
-      if (message != null) {
-
-        transactionMessage = new String(message);
-        logger.info("transaction message:" + transactionMessage);
-        if (!transactionMessage.equals("solidityLogTrigger") && !transactionMessage.isEmpty()) {
-          break;
-        }
-      }
-    }
-    Assert.assertTrue(retryTimes > 0);
-    logger.info("transaction message:" + transactionMessage);
-    JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-    Assert.assertTrue(blockObject.containsKey("timeStamp"));
-    Assert.assertEquals(blockObject.getString("triggerName"), "solidityLogTrigger");
-    txid = blockObject.getString("transactionId");
-
-    Assert.assertTrue(txid1.equals(txid) || txid2.equals(txid) || txid3.equals(txid));
+    Assert.assertEquals(txid, jsonObject.getString("transactionId"));
+    Assert.assertEquals(3, jsonObject.getJSONArray("topicList").size());
   }
 
 

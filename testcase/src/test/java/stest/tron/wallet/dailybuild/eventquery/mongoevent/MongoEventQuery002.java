@@ -1,11 +1,18 @@
 package stest.tron.wallet.dailybuild.eventquery.mongoevent;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
+import javax.print.Doc;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.junit.Assert;
+import org.springframework.beans.factory.config.YamlProcessor.DocumentMatcher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -14,12 +21,13 @@ import org.zeromq.ZMQ;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MongoBase;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import zmq.ZMQ.Event;
 
 @Slf4j
-public class MongoEventQuery002 {
+public class MongoEventQuery002 extends MongoBase {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -75,57 +83,28 @@ public class MongoEventQuery002 {
 
   }
 
-  @Test(enabled = true, description = "Event query for transaction")
+  @Test(enabled = true, description = "MongoDB Event query for transaction")
   public void test01EventQueryForTransaction() {
-    ZMQ.Context context = ZMQ.context(1);
-    ZMQ.Socket req = context.socket(ZMQ.SUB);
+    txid = PublicMethed.triggerContract(contractAddress,
+        "triggerUintEvent()", "#", false,
+        0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
 
-    req.subscribe("transactionTrigger");
-    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
-    moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
+    BasicDBObject query = new BasicDBObject();
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    query.put("transactionId", txid);
+    FindIterable<org.bson.Document> findIterable = mongoDatabase.getCollection("transaction").find(query);
+    MongoCursor<org.bson.Document> mongoCursor = findIterable.iterator();
 
-    }).start();
-    req.connect(eventnode);
-    req.setReceiveTimeOut(10000);
-    String transactionMessage = "";
-    Boolean sendTransaction = true;
-    Integer retryTimes = 20;
+    Document document = mongoCursor.next();
+    JSONObject jsonObject = JSON.parseObject(document.toJson());
 
-    while (retryTimes-- > 0) {
-      byte[] message = req.recv();
-      if (sendTransaction) {
-        txid = PublicMethed.triggerContract(contractAddress,
-            "triggerUintEvent()", "#", false,
-            0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
-        logger.info(txid);
-        if (PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
-            .getResultValue() == 0) {
-          sendTransaction = false;
-        }
-      }
+    Assert.assertEquals(txid, jsonObject.getString("transactionId"));
+    Assert.assertTrue(jsonObject.getLong("energyFee") > 0);
+    Assert.assertTrue(jsonObject.getLong("feeLimit") >= 1000000000);
 
-      if (message != null) {
-        transactionMessage = new String(message);
-        if (!transactionMessage.equals("transactionTrigger") && !transactionMessage.isEmpty()) {
-          break;
-        }
-      }
-    }
 
-    Assert.assertTrue(retryTimes > 0);
-    logger.info("transaction message:" + transactionMessage);
-    JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-    Assert.assertTrue(blockObject.containsKey("timeStamp"));
-    Assert.assertEquals(blockObject.getString("triggerName"), "transactionTrigger");
 
-    Assert.assertEquals(blockObject.getString("transactionId"), txid);
+
   }
 
   /**

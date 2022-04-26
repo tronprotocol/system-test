@@ -65,14 +65,31 @@ public class MongoEventQuery001 extends MongoBase {
   public void test01MongoDbEventQueryForBlock() {
     FindIterable<Document> findIterable = mongoDatabase.getCollection("block").find();
     MongoCursor<Document> mongoCursor = findIterable.iterator();
-    int i=0;
-    System.out.println("Query mongoDB block information");
+    Boolean hasTransactions = false;
     while(mongoCursor.hasNext()){
-      System.out.println(mongoCursor.next());
-      i++;
+      Document document = mongoCursor.next();
+      Assert.assertTrue(Long.parseLong(document.get("blockNumber").toString()) > 0);
+      if(Integer.parseInt(document.get("transactionSize").toString()) > 0) {
+        hasTransactions = true;
+        break;
+      }
     }
-    System.out.println("i="+i);
+    Assert.assertTrue(hasTransactions);
   }
+
+
+  @Test(enabled = true,description = "Event query for solidity on mongoDB")
+  public void test02MongoDbEventQueryForSolidity() {
+    FindIterable<Document> findIterable = mongoDatabase.getCollection("solidity").find();
+    MongoCursor<Document> mongoCursor = findIterable.iterator();
+    Document document = mongoCursor.next();
+    Assert.assertTrue(Long.parseLong(document.get("timeStamp").toString()) > 0);
+
+  }
+
+
+
+
 
 
 
