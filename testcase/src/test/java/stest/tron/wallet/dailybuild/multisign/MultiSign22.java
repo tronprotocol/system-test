@@ -444,7 +444,7 @@ public class MultiSign22 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(SIGERROR, response.getCode());
-    Assert.assertEquals("validate signature error miss sig or contract",
+    Assert.assertEquals("Validate signature error: miss sig or contract",
         response.getMessage().toStringUtf8());
 
     Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(
@@ -638,7 +638,7 @@ public class MultiSign22 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(SIGERROR, response.getCode());
     Assert.assertEquals(
-        "validate signature error Signature count " + "is 2 more than key counts of permission : 1",
+        "Validate signature error: Signature count " + "is 2 more than key counts of permission : 1",
         response.getMessage().toStringUtf8());
 
     Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(

@@ -118,7 +118,7 @@ public class MultiSign10 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight"
+    Assert.assertEquals("Contract validate error : key's weight"
             + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -142,7 +142,7 @@ public class MultiSign10 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight"
+    Assert.assertEquals("Contract validate error : key's weight"
             + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -166,7 +166,7 @@ public class MultiSign10 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight"
+    Assert.assertEquals("Contract validate error : key's weight"
             + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -191,7 +191,7 @@ public class MultiSign10 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight"
+    Assert.assertEquals("Contract validate error : key's weight"
             + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -554,7 +554,7 @@ public class MultiSign10 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : long overflow",
+    Assert.assertEquals("Contract validate error : long overflow",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)

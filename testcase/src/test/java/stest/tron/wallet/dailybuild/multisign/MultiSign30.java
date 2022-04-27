@@ -168,7 +168,7 @@ public class MultiSign30 {
         .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
     Assert
         .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("validate signature error Permission denied"));
+            containsString("Validate signature error: Permission denied"));
     Account test001AddressAccount2 = PublicMethed.queryAccount(test001Address, blockingStubFull);
 
     long balance2 = test001AddressAccount2.getBalance();

@@ -113,7 +113,7 @@ public class MultiSign08 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
-        "contract validate error : permission's" + " threshold should be greater than 0",
+        "Contract validate error : permission's" + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // threshold = 0
@@ -134,7 +134,7 @@ public class MultiSign08 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
-        "contract validate error : permission's" + " threshold should be greater than 0",
+        "Contract validate error : permission's" + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // threshold = -1
@@ -155,7 +155,7 @@ public class MultiSign08 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
-        "contract validate error : permission's" + " threshold should be greater than 0",
+        "Contract validate error : permission's" + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // threshold = long.min
@@ -176,7 +176,7 @@ public class MultiSign08 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
-        "contract validate error : permission's" + " threshold should be greater than 0",
+        "Contract validate error : permission's" + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // threshold = long.min - 1000020
@@ -336,7 +336,7 @@ public class MultiSign08 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : long overflow",
+    Assert.assertEquals("Contract validate error : long overflow",
         response.getMessage().toStringUtf8());
 
     // theshold = 1.1 > sum(weight)
@@ -464,7 +464,7 @@ public class MultiSign08 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : sum of all key's weight should not"
+    Assert.assertEquals("Contract validate error : sum of all key's weight should not"
         + " be less than threshold in permission Active", response.getMessage().toStringUtf8());
 
   }

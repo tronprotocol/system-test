@@ -115,7 +115,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = 0
@@ -136,7 +136,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = -1
@@ -157,7 +157,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = long.min
@@ -180,7 +180,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = long.min - 1000020
@@ -202,7 +202,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = long.min - 1
@@ -223,7 +223,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = "12a"
@@ -329,7 +329,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = Long.MAX_VALUE
@@ -353,7 +353,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = Long.MAX_VALUE + 1
@@ -377,7 +377,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = 1.1
@@ -400,7 +400,7 @@ public class MultiSign12 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission type is error",
+    Assert.assertEquals("Contract validate error : active permission type is error",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)

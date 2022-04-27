@@ -117,7 +117,7 @@ public class MultiSign02 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -139,7 +139,7 @@ public class MultiSign02 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -161,7 +161,7 @@ public class MultiSign02 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -183,7 +183,7 @@ public class MultiSign02 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -364,7 +364,7 @@ public class MultiSign02 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : long overflow",
+    Assert.assertEquals("Contract validate error : long overflow",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)
@@ -487,7 +487,7 @@ public class MultiSign02 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : sum of all key's weight should not"
+    Assert.assertEquals("Contract validate error : sum of all key's weight should not"
             + " be less than threshold in permission Owner",
         response.getMessage().toStringUtf8());
 
@@ -510,7 +510,7 @@ public class MultiSign02 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : sum of all key's weight "
+    Assert.assertEquals("Contract validate error : sum of all key's weight "
             + "should not be less than threshold in permission Owner",
         response.getMessage().toStringUtf8());
 

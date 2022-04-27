@@ -360,7 +360,7 @@ public class MultiSign11 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
-        "contract validate error : address should be distinct" + " in permission Active",
+        "Contract validate error : address should be distinct" + " in permission Active",
         response.getMessage().toStringUtf8());
 
     // address = not exist
@@ -622,7 +622,7 @@ public class MultiSign11 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
-        "contract validate error : number of keys in permission should" + " not be greater than 5",
+        "Contract validate error : number of keys in permission should" + " not be greater than 5",
         response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
@@ -660,7 +660,7 @@ public class MultiSign11 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's count should be greater than 0",
+    Assert.assertEquals("Contract validate error : key's count should be greater than 0",
         response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
@@ -956,7 +956,7 @@ public class MultiSign11 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission is too many",
+    Assert.assertEquals("Contract validate error : active permission is too many",
         response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
@@ -1058,7 +1058,7 @@ public class MultiSign11 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : sum of all key's weight should"
+    Assert.assertEquals("Contract validate error : sum of all key's weight should"
         + " not be less than threshold in permission Active", response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
