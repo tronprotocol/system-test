@@ -1,11 +1,13 @@
 package stest.tron.wallet.dailybuild.tvmnewcommand.newGrammar;
 
+import com.alibaba.fastjson.JSONObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -16,6 +18,7 @@ import org.tron.protos.contract.SmartContractOuterClass;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
@@ -33,9 +36,14 @@ public class FixbugTest086 {
       .getLong("defaultParameter.maxFeeLimit");
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
+  private String wrongProtoFixed64TypeTxid;
 
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
+  private JSONObject responseContent;
+  private HttpResponse response;
+  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+      .get(0);
 
 
   /**
@@ -109,6 +117,8 @@ public class FixbugTest086 {
         0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
+    wrongProtoFixed64TypeTxid = triggerTxid;
+
     Optional<Protocol.TransactionInfo> transactionInfo = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
     Assert.assertEquals(0, transactionInfo.get().getResultValue());
@@ -116,6 +126,16 @@ public class FixbugTest086 {
         transactionInfo.get().getReceipt().getResult());
     Assert.assertEquals(42,
         ByteArray.toInt(transactionInfo.get().getContractResult(0).toByteArray()));
+  }
+
+
+  @Test(enabled = true, description = "Fixed wrong fixed64 proto type transaction print bug")
+  public void test03FixedWrongFixed64ProtoTypeTransaction() {
+    response = HttpMethed.getTransactionById(httpnode, wrongProtoFixed64TypeTxid);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    Assert.assertEquals(wrongProtoFixed64TypeTxid, responseContent.getString("txID"));
+
   }
 
 

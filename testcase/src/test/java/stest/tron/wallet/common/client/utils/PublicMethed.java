@@ -3257,6 +3257,7 @@ public class PublicMethed {
       input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
     }
 
+
     TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));
@@ -3264,6 +3265,12 @@ public class PublicMethed {
     builder.setCallValue(callValue);
     builder.setTokenId(Long.parseLong(tokenId));
     builder.setCallTokenValue(tokenValue);
+    builder.setWrongFixed64(0x0000000000989680);
+    builder.setWrongFixed32(0x0000000000989680);
+    builder.setWrongSfixed64(0x0000000000989680);
+    builder.setWrongSint64(0x0000000000989680);
+    builder.setWrongDouble(0.111111111);
+    builder.setWrongFloat(0.11f);
     TriggerSmartContract triggerContract = builder.build();
 
     TransactionExtention transactionExtention = blockingStubFull.triggerContract(triggerContract);
