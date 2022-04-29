@@ -3257,7 +3257,6 @@ public class PublicMethed {
       input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
     }
 
-
     TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setContractAddress(ByteString.copyFrom(contractAddress));

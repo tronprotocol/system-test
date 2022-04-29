@@ -1115,6 +1115,7 @@ message EmptyMessage {
 }
 message NumberMessage {
   int64 num = 1;
+  int64 type = 2;
 }
 message BytesMessage {
   bytes value = 1;
@@ -1126,6 +1127,7 @@ message TimeMessage {
 message BlockLimit {
   int64 startNum = 1;
   int64 endNum = 2;
+  int64 type = 3;
 }
 message TransactionLimit {
   bytes transactionId = 1;
