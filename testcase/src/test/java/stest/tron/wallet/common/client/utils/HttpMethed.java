@@ -2332,11 +2332,6 @@ public class HttpMethed {
       requestUrl =
           requestUrl + "?" + "num=" + blockNUm + "&" + "visible=" + visible + "&" + "type=" + type;
       logger.info("requestUrl:" + requestUrl);
-      /*JsonObject userBaseObj2 = new JsonObject();
-      userBaseObj2.addProperty("num", blockNUm);
-      userBaseObj2.addProperty("visible", visible);
-      userBaseObj2.addProperty("type", type);*/
-      /*response = createConnect(requestUrl, userBaseObj2);*/
       response = createConnectForGet(requestUrl);
     } catch (Exception e) {
       e.printStackTrace();
