@@ -197,7 +197,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : witness permission is missed",
+    Assert.assertEquals("Contract validate error : witness permission is missed",
         response.getMessage().toStringUtf8());
 
     // address = witness, without active permission
@@ -213,7 +213,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission is missed",
+    Assert.assertEquals("Contract validate error : active permission is missed",
         response.getMessage().toStringUtf8());
 
     // address = witness, without owner permission
@@ -230,7 +230,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission is missed",
+    Assert.assertEquals("Contract validate error : owner permission is missed",
         response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
@@ -275,7 +275,7 @@ public class MultiSign20 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals(
-        "contract validate error : account isn't witness can't set" + " witness permission",
+        "Contract validate error : account isn't witness can't set" + " witness permission",
         response.getMessage().toStringUtf8());
 
     // address = normal address, without owner permission
@@ -291,7 +291,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission is missed",
+    Assert.assertEquals("Contract validate error : owner permission is missed",
         response.getMessage().toStringUtf8());
 
     // address = normal address, without active permission
@@ -305,7 +305,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission is missed",
+    Assert.assertEquals("Contract validate error : active permission is missed",
         response.getMessage().toStringUtf8());
 
     // address = contract address
@@ -325,7 +325,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : invalidate ownerAddress",
+    Assert.assertEquals("Contract validate error : invalidate ownerAddress",
         response.getMessage().toStringUtf8());
 
     // address = not active address
@@ -354,7 +354,7 @@ public class MultiSign20 {
             blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : ownerAddress account does not exist",
+    Assert.assertEquals("Contract validate error : ownerAddress account does not exist",
         response.getMessage().toStringUtf8());
 
     // address = not exist
@@ -375,7 +375,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : invalidate ownerAddress",
+    Assert.assertEquals("Contract validate error : invalidate ownerAddress",
         response.getMessage().toStringUtf8());
 
     // address = long address
@@ -397,7 +397,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : invalidate ownerAddress",
+    Assert.assertEquals("Contract validate error : invalidate ownerAddress",
         response.getMessage().toStringUtf8());
 
     // address = short address
@@ -420,7 +420,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : invalidate ownerAddress",
+    Assert.assertEquals("Contract validate error : invalidate ownerAddress",
         response.getMessage().toStringUtf8());
 
     // address =
@@ -441,7 +441,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : invalidate ownerAddress",
+    Assert.assertEquals("Contract validate error : invalidate ownerAddress",
         response.getMessage().toStringUtf8());
 
     // address = null
@@ -485,7 +485,7 @@ public class MultiSign20 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : invalidate ownerAddress",
+    Assert.assertEquals("Contract validate error : invalidate ownerAddress",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();

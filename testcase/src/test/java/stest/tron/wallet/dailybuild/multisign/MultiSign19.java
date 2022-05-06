@@ -281,7 +281,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : 99 isn't a validate ContractType",
+    Assert.assertEquals("Contract validate error : 99 isn't a validate ContractType",
         response.getMessage().toStringUtf8());
 
     // operation's length is less then 64,
@@ -308,7 +308,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : 21 isn't a validate ContractType",
+    Assert.assertEquals("Contract validate error : 21 isn't a validate ContractType",
         response.getMessage().toStringUtf8());
 
     // operation's length is less then 64,
@@ -335,7 +335,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : operations size must 32",
+    Assert.assertEquals("Contract validate error : operations size must 32",
         response.getMessage().toStringUtf8());
 
     // operation's length is more then 64,
@@ -362,7 +362,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : operations size must 32",
+    Assert.assertEquals("Contract validate error : operations size must 32",
         response.getMessage().toStringUtf8());
 
     // operation's length is more then 64,
@@ -389,7 +389,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : operations size must 32",
+    Assert.assertEquals("Contract validate error : operations size must 32",
         response.getMessage().toStringUtf8());
 
     // oprations = "12aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -417,7 +417,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : 21 isn't a validate ContractType",
+    Assert.assertEquals("Contract validate error : 21 isn't a validate ContractType",
         response.getMessage().toStringUtf8());
 
     // operation = ""
@@ -443,7 +443,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : operations size must 32",
+    Assert.assertEquals("Contract validate error : operations size must 32",
         response.getMessage().toStringUtf8());
 
     // Operation =
@@ -516,7 +516,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : operations size must 32",
+    Assert.assertEquals("Contract validate error : operations size must 32",
         response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)
         .getBalance();
@@ -565,7 +565,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : Owner permission needn't operations",
+    Assert.assertEquals("Contract validate error : Owner permission needn't operations",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)
@@ -615,7 +615,7 @@ public class MultiSign19 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : Witness permission needn't operations",
+    Assert.assertEquals("Contract validate error : Witness permission needn't operations",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)

@@ -116,7 +116,7 @@ public class MultiSign16 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight" + " should be greater than 0",
+    Assert.assertEquals("Contract validate error : key's weight" + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // weight = 0
@@ -137,7 +137,7 @@ public class MultiSign16 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight" + " should be greater than 0",
+    Assert.assertEquals("Contract validate error : key's weight" + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // weight = -1
@@ -158,7 +158,7 @@ public class MultiSign16 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight" + " should be greater than 0",
+    Assert.assertEquals("Contract validate error : key's weight" + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // weight = long.min
@@ -179,7 +179,7 @@ public class MultiSign16 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's weight" + " should be greater than 0",
+    Assert.assertEquals("Contract validate error : key's weight" + " should be greater than 0",
         response.getMessage().toStringUtf8());
 
     // weight = long.min - 1000020

@@ -434,7 +434,7 @@ public class MultiSign17 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : Witness permission's key count should be 1",
+    Assert.assertEquals("Contract validate error : Witness permission's key count should be 1",
         response.getMessage().toStringUtf8());
 
     // address = not exist
@@ -652,7 +652,7 @@ public class MultiSign17 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : Witness permission's key count should be 1",
+    Assert.assertEquals("Contract validate error : Witness permission's key count should be 1",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)
@@ -702,7 +702,7 @@ public class MultiSign17 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's count should be greater than 0",
+    Assert.assertEquals("Contract validate error : key's count should be greater than 0",
         response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)
         .getBalance();

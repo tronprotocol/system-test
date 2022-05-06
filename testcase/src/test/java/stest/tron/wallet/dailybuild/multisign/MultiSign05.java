@@ -417,7 +417,7 @@ public class MultiSign05 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : address should be distinct "
+    Assert.assertEquals("Contract validate error : address should be distinct "
             + "in permission Owner",
         response.getMessage().toStringUtf8());
 
@@ -694,7 +694,7 @@ public class MultiSign05 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : number of keys in permission should"
+    Assert.assertEquals("Contract validate error : number of keys in permission should"
             + " not be greater than 5",
         response.getMessage().toStringUtf8());
 
@@ -713,7 +713,7 @@ public class MultiSign05 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : key's count should be greater than 0",
+    Assert.assertEquals("Contract validate error : key's count should be greater than 0",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)

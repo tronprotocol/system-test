@@ -255,7 +255,7 @@ public class MultiSign31 {
         .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
     Assert
         .assertThat(returnResult1.getMessage().toStringUtf8().toLowerCase(),
-            containsString("validate signature error: permission denied".toLowerCase()));
+            containsString("Validate signature error: permission denied".toLowerCase()));
     Transaction transaction2 = PublicMethed
         .addTransactionSign(transaction1, sendAccountKey3, blockingStubFull);
     TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign

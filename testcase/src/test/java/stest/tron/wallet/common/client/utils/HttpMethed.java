@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
+import com.googlecode.cqengine.query.simple.In;
 import io.netty.util.internal.StringUtil;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -2318,6 +2319,29 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static HttpResponse getBlockByNumWithType(
+      String httpNode, Integer blockNUm, Integer type) {
+    return getBlockByNumWithType(httpNode, blockNUm, false, type);
+  }
+
+  /** constructor. */
+  public static HttpResponse getBlockByNumWithType(
+      String httpNode, Integer blockNUm, Boolean visible, Integer type) {
+    try {
+      String requestUrl = "http://" + httpNode + "/wallet/getblockbynum";
+      requestUrl =
+          requestUrl + "?" + "num=" + blockNUm + "&" + "visible=" + visible + "&" + "type=" + type;
+      logger.info("requestUrl:" + requestUrl);
+      response = createConnectForGet(requestUrl);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
   public static Long getBlockByNumForResponse(String httpNode, Integer blockNUm, Integer times) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbynum";
@@ -2500,7 +2524,22 @@ public class HttpMethed {
     }
     return response;
   }
-
+  /** constructor. */
+  public static HttpResponse getBlockByIdFromSolidity(
+      String httpNode, String blockId, Integer type) {
+    try {
+      String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbyid";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("value", blockId);
+      userBaseObj2.addProperty("type", type);
+      response = createConnect(requestUrl, userBaseObj2);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
   /** constructor. */
   public static HttpResponse getBlockByIdFromPbft(String httpNode, String blockId) {
     try {
@@ -3561,7 +3600,10 @@ public class HttpMethed {
                             .put("payment_address", noteTx.getPaymentAddress())
                             .put("rcm", ByteArray.toHexString(noteTx.getR()))
                             .put("memo", ByteArray.toHexString(noteTx.getMemo())))
-                    .put("alpha", ByteArray.toHexString(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()))
+                    .put(
+                        "alpha",
+                        ByteArray.toHexString(
+                            stest.tron.wallet.common.client.utils.zen.note.Note.generateR()))
                     .put("voucher", Lists.newArrayList(vouchers))
                     .put("path", Lists.newArrayList(paths)));
 
