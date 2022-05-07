@@ -116,6 +116,7 @@ public class EventQuery003 {
             "triggerUintEvent()", "#", false,
             0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
         logger.info(txid);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
         if (PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
             .getResultValue() == 0) {
           sendTransaction = false;
@@ -170,6 +171,7 @@ public class EventQuery003 {
             "triggerUintEvent()", "#", false,
             0, maxFeeLimit, event001Address, event001Key, blockingStubFull);
         logger.info(txid);
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
         if (PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
             .getResultValue() == 0) {
           sendTransaction = false;
