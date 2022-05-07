@@ -1283,6 +1283,72 @@ public class Accounts002 extends JsonRpcBase {
         transactionInfoListFromTransactionByBlockNumberAndIndex);
   }
 
+  @Test(
+      enabled = true,
+      description =
+          "Json rpc api of eth_call,eth_estimateGas and eth_getTransactionByBlockHashAndIndex.")
+  public void test50JsonRpcApiTestForInterfaceCombination() throws Exception {
+    final JsonArray jsonArrayParams = new JsonArray();
+    JsonObject param = new JsonObject();
+    HttpMethed.waitToProduceOneBlock(httpFullNode);
+    param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
+    param.addProperty("to", trc20AddressHex);
+    param.addProperty("gas", "0x0");
+    param.addProperty("gasPrice", "0x0");
+    param.addProperty("value", "0x0");
+    param.addProperty("data", "0x06fdde03");
+    JsonArray params = new JsonArray();
+    params.add(param);
+    params.add("latest");
+    final JsonObject requestBody = getJsonRpcBody("eth_call", params);
+    JsonObject param1 = new JsonObject();
+    param1.addProperty("from", "0x6C0214C9995C6F3A61AB23F0EB84B0CDE7FD9C7C");
+    param1.addProperty("gas", "0x0");
+    param1.addProperty("gasPrice", "0x0");
+    param1.addProperty("value", "0x0");
+    param1.addProperty(
+        "data",
+        "0x6080604052d3600055d2600155346002556101418061001f6000396000f30060806040"
+            + "52600436106100565763ffffffff7c010000000000000000000000000000000000000000"
+            + "000000000000000060003504166305c24200811461005b5780633be9ece7146100815780"
+            + "6371dc08ce146100aa575b600080fd5b6100636100b2565b6040805193845260208401929"
+            + "0925282820152519081900360600190f35b6100a873ffffffffffffffffffffffffffffff"
+            + "ffffffffff600435166024356044356100c0565b005b61006361010d565b60005460015460"
+            + "0254909192565b60405173ffffffffffffffffffffffffffffffffffffffff841690821561"
+            + "08fc029083908590600081818185878a8ad0945050505050158015610107573d6000803e3d"
+            + "6000fd5b50505050565bd3d2349091925600a165627a7a72305820a2fb39541e90eda9a2f5"
+            + "f9e7905ef98e66e60dd4b38e00b05de418da3154e757002900000000000000000000000000"
+            + "00000000000000000000000000000090fa17bb");
+    JsonArray params1 = new JsonArray();
+    params1.add(param1);
+    final JsonObject requestBody1 = getJsonRpcBody("eth_estimateGas", params1);
+    JsonArray params2 = new JsonArray();
+    params2.add("0x" + bid);
+    params2.add(indexHex);
+    logger.info("indexHex:" + indexHex);
+    JsonObject requestBody2 = getJsonRpcBody("eth_getTransactionByBlockHashAndIndex", params2);
+    jsonArrayParams.add(requestBody);
+    jsonArrayParams.add(requestBody1);
+    jsonArrayParams.add(requestBody2);
+    logger.info("test50requestBody:" + jsonArrayParams);
+    response = getJsonRpc(jsonRpcNodeForSolidity, jsonArrayParams);
+    List<JSONObject> responseContent = HttpMethed.parseResponseContentArray(response);
+    String dataResult = responseContent.get(0).getString("result");
+    logger.info("dataResult:" + dataResult);
+    Assert.assertEquals(
+        "0x000000000000000000000000000000000000000000000000000"
+            + "00000000000200000000000000000000000000000000000000000"
+            + "00000000000000000000000a546f6b656e5452433230000000000"
+            + "00000000000000000000000000000000000",
+        dataResult);
+    dataResult = responseContent.get(1).getString("result");
+    logger.info("dataResult:" + dataResult);
+    Assert.assertEquals(energyUsed, dataResult);
+    JSONObject resultForGetTransactionByBlockHashAndIndex =
+        responseContent.get(2).getJSONObject("result");
+    Assert.assertEquals(result, resultForGetTransactionByBlockHashAndIndex);
+  }
+
   /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {

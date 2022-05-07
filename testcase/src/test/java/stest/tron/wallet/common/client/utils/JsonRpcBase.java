@@ -29,10 +29,10 @@ public class JsonRpcBase {
   public final String foundationAccountKey =
       Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   public final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
-  private final String witnessKey001 = Configuration.getByPath("testng.conf")
-          .getString("witness.key1");
-  private final String witnessKey002 = Configuration.getByPath("testng.conf")
-          .getString("witness.key2");
+  private final String witnessKey001 =
+      Configuration.getByPath("testng.conf").getString("witness.key1");
+  private final String witnessKey002 =
+      Configuration.getByPath("testng.conf").getString("witness.key2");
   private final byte[] witness001Address = PublicMethed.getFinalAddress(witnessKey001);
   private final byte[] witness002Address = PublicMethed.getFinalAddress(witnessKey002);
   public static final String jsonRpcOwnerKey =
@@ -95,7 +95,6 @@ public class JsonRpcBase {
   public static String txid;
   public static String trc20Txid;
   public HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-
 
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
@@ -160,7 +159,7 @@ public class JsonRpcBase {
 
     Assert.assertTrue(
         PublicMethed.createProposal(
-                witness001Address, witnessKey001, proposalMap, blockingStubFull));
+            witness001Address, witnessKey001, proposalMap, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.ProposalList proposalList =
         blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
@@ -168,11 +167,11 @@ public class JsonRpcBase {
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
     Assert.assertTrue(
-            PublicMethed.approveProposal(
-                    witness001Address, witnessKey001, proposalId, true, blockingStubFull));
+        PublicMethed.approveProposal(
+            witness001Address, witnessKey001, proposalId, true, blockingStubFull));
     Assert.assertTrue(
         PublicMethed.approveProposal(
-                witness002Address, witnessKey002, proposalId, true, blockingStubFull));
+            witness002Address, witnessKey002, proposalId, true, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     // Get proposal list after approve
     proposalList = blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
@@ -391,6 +390,19 @@ public class JsonRpcBase {
     try {
       String requestUrl = "http://" + jsonRpcNode + "/jsonrpc";
       response = HttpMethed.createConnect(requestUrl, jsonRpcObject);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
+  public static HttpResponse getJsonRpc(String jsonRpcNode, JsonArray jsonRpcArray) {
+    try {
+      String requestUrl = "http://" + jsonRpcNode + "/jsonrpc";
+      response = HttpMethed.createConnect(requestUrl, jsonRpcArray);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();

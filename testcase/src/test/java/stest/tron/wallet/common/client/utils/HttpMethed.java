@@ -1548,6 +1548,21 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static HttpResponse listwitnesses(String httpNode, Boolean visible) {
+    try {
+      String requestUrl = "http://" + httpNode + "/wallet/listwitnesses";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("visible", visible);
+      response = createConnect(requestUrl, userBaseObj2);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
   public static HttpResponse listwitnessesFromSolidity(String httpSolidityNode) {
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/listwitnesses";
@@ -2524,6 +2539,7 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getBlockByIdFromSolidity(
       String httpNode, String blockId, Integer type) {
@@ -2540,6 +2556,7 @@ public class HttpMethed {
     }
     return response;
   }
+
   /** constructor. */
   public static HttpResponse getBlockByIdFromPbft(String httpNode, String blockId) {
     try {
@@ -2658,11 +2675,53 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse createConnect(String url) {
-    return createConnect(url, null);
+    try {
+      httpClient
+          .getParams()
+          .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout);
+      httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, soTimeout);
+      httppost = new HttpPost(url);
+      httppost.setHeader("Content-type", "application/json; charset=utf-8");
+      httppost.setHeader("Connection", "Close");
+      logger.info(httppost.toString());
+      response = httpClient.execute(httppost);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
   }
 
   /** constructor. */
   public static HttpResponse createConnect(String url, JsonObject requestBody) {
+    try {
+      httpClient
+          .getParams()
+          .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout);
+      httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, soTimeout);
+      httppost = new HttpPost(url);
+      httppost.setHeader("Content-type", "application/json; charset=utf-8");
+      httppost.setHeader("Connection", "Close");
+      if (requestBody != null) {
+        StringEntity entity = new StringEntity(requestBody.toString(), Charset.forName("UTF-8"));
+        entity.setContentEncoding("UTF-8");
+        entity.setContentType("application/json");
+        httppost.setEntity(entity);
+      }
+
+      logger.info(httppost.toString());
+      response = httpClient.execute(httppost);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
+  public static HttpResponse createConnect(String url, JsonArray requestBody) {
     try {
       httpClient
           .getParams()
