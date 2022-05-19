@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -24,25 +26,27 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class HttpTestMutiSign001 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final String manager1Key = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String manager1Key =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] manager1Address = PublicMethed.getFinalAddress(manager1Key);
-  private final String manager2Key = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String manager2Key =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] manager2Address = PublicMethed.getFinalAddress(manager2Key);
-  private final String manager3Key = Configuration.getByPath("testng.conf")
-      .getString("witness.key1");
+  private final String manager3Key =
+      Configuration.getByPath("testng.conf").getString("witness.key1");
   private final byte[] manager3Address = PublicMethed.getFinalAddress(manager3Key);
-  private final String manager4Key = Configuration.getByPath("testng.conf")
-      .getString("witness.key2");
+  private final String manager4Key =
+      Configuration.getByPath("testng.conf").getString("witness.key2");
   private final byte[] manager4Address = PublicMethed.getFinalAddress(manager4Key);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] ownerAddress = ecKey1.getAddress();
   String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] receiverAddress = ecKey1.getAddress();
+  String receiverKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   byte[] hexTestAddress = ecKey2.getAddress();
   String hexTestKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   String[] permissionKeyString;
@@ -58,28 +62,22 @@ public class HttpTestMutiSign001 {
   JsonObject activeObject = new JsonObject();
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(1);
+  private String httpnode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(1);
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private List<String> list;
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
   public void beforeClass() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Account Permission Up Date by http")
   public void test1AccountPermissionUpDate() {
     PublicMethed.printAddress(ownerKey);
@@ -118,19 +116,17 @@ public class HttpTestMutiSign001 {
     activeObject.addProperty("type", 2);
     activeObject.addProperty("permission_name", "active0");
     activeObject.addProperty("threshold", 2);
-    activeObject.addProperty("operations",
-        "7fff1fc0037e0000000000000000000000000000000000000000000000000000");
+    activeObject.addProperty(
+        "operations", "7fff1fc0037e0000000000000000000000000000000000000000000000000000");
     activeObject.add("keys", activeKeys);
 
-    response = HttpMethed
-        .accountPermissionUpdate(httpnode, ownerAddress, ownerObject, witnessObject, activeObject,
-            ownerKey);
+    response =
+        HttpMethed.accountPermissionUpdate(
+            httpnode, ownerAddress, ownerObject, witnessObject, activeObject, ownerKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @Test(enabled = true, description = "Add transaction sign by http with permission id")
   public void test2AddTransactionSign() {
 
@@ -143,44 +139,43 @@ public class HttpTestMutiSign001 {
     permissionKeyActive[0] = manager3Key;
     permissionKeyActive[1] = manager4Key;
 
-    response = HttpMethed
-        .sendCoin(httpnode, ownerAddress, fromAddress, 10L, 0, permissionKeyString);
+    response =
+        HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 10L, 0, permissionKeyString);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
-    response = HttpMethed
-        .sendCoin(httpnode, ownerAddress, fromAddress, 10L, 2, permissionKeyString);
+    response =
+        HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 10L, 2, permissionKeyString);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
     logger.info("start permission id 2");
-    response = HttpMethed
-        .sendCoin(httpnode, ownerAddress, fromAddress, 12L, 2, permissionKeyActive);
+    response =
+        HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 12L, 2, permissionKeyActive);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
-    response = HttpMethed
-        .sendCoin(httpnode, ownerAddress, fromAddress, 12L, 0, permissionKeyActive);
+    response =
+        HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 12L, 0, permissionKeyActive);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
-    response = HttpMethed
-        .sendCoin(httpnode, ownerAddress, fromAddress, 11L, 1, permissionKeyActive);
+    response =
+        HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 11L, 1, permissionKeyActive);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
-    response = HttpMethed
-        .sendCoin(httpnode, ownerAddress, fromAddress, 11L, 3, permissionKeyString);
+    response =
+        HttpMethed.sendCoin(httpnode, ownerAddress, fromAddress, 11L, 3, permissionKeyString);
     Assert.assertFalse(HttpMethed.verificationResult(response));
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Add broadcasthex http interface to "
-      + "broadcast hex transaction string")
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "Add broadcasthex http interface to " + "broadcast hex transaction string")
   public void test3Broadcasthex() {
     PublicMethed.printAddress(hexTestKey);
-    String transactionHex = PublicMethed
-        .sendcoinGetTransactionHex(hexTestAddress, 1000L, fromAddress, testKey002,
-            blockingStubFull);
+    String transactionHex =
+        PublicMethed.sendcoinGetTransactionHex(
+            hexTestAddress, 1000L, fromAddress, testKey002, blockingStubFull);
 
-    //Wrong type of hex
+    // Wrong type of hex
     response = HttpMethed.broadcasthex(httpnode, transactionHex);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
@@ -189,33 +184,66 @@ public class HttpTestMutiSign001 {
     logger.info("transaction wrong:");
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
-    //SingleSign for broadcastHex
+    // SingleSign for broadcastHex
     response = HttpMethed.broadcasthex(httpnode, transactionHex);
     Assert.assertFalse(HttpMethed.verificationResult(response));
 
-    //Mutisign for broadcastHex
-    String mutiSignTransactionHex = PublicMethedForMutiSign
-        .sendcoinGetTransactionHex(hexTestAddress, 999L, ownerAddress, ownerKey, blockingStubFull,
-            permissionKeyString);
+    // Mutisign for broadcastHex
+    String mutiSignTransactionHex =
+        PublicMethedForMutiSign.sendcoinGetTransactionHex(
+            hexTestAddress, 999L, ownerAddress, ownerKey, blockingStubFull, permissionKeyString);
     response = HttpMethed.broadcasthex(httpnode, mutiSignTransactionHex);
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
-    //Hex is null
+    // Hex is null
     response = HttpMethed.broadcasthex(httpnode, "");
     Assert.assertFalse(HttpMethed.verificationResult(response));
-
-
   }
 
-  /**
-   * constructor.
-   */
+  @Test(enabled = true, description = "GetApprovedList  type is wrong by http")
+  public void test4getApprovedListTypeWrong() {
+
+    permissionKeyString = new String[2];
+    permissionKeyString[0] = manager1Key;
+    permissionKeyString[1] = manager2Key;
+    String originType = "\"type\":\"TransferContract\"";
+    String type = "\"type\": \"TransferContract1111111\"";
+    response =
+        HttpMethed.sendCoinReplaceTransactionType(
+            httpnode, fromAddress, receiverAddress, 10L, 0, permissionKeyString, originType, type);
+    Assert.assertTrue(!HttpMethed.verificationResult(response));
+    responseContent = HttpMethed.parseResponseContent(response);
+    Assert.assertEquals(responseContent.getJSONObject("result").getString("code"), "OTHER_ERROR");
+    Assert.assertEquals(
+        responseContent.getJSONObject("result").getString("message"),
+        "Invalid transaction: no valid contract");
+  }
+
+  /** constructor. */
+  @Test(enabled = true, description = "GetApprovedList without type  by http")
+  public void test5getApprovedListWithoutType() {
+    permissionKeyString = new String[2];
+    permissionKeyString[0] = manager1Key;
+    permissionKeyString[1] = manager2Key;
+    String originType = "," + "\"type\":\"TransferContract\"";
+    String type = " ";
+    response =
+        HttpMethed.sendCoinReplaceTransactionType(
+            httpnode, fromAddress, receiverAddress, 10L, 0, permissionKeyString, originType, type);
+    Assert.assertTrue(!HttpMethed.verificationResult(response));
+    responseContent = HttpMethed.parseResponseContent(response);
+    Assert.assertEquals("OTHER_ERROR", responseContent.getJSONObject("result").getString("code"));
+    Assert.assertEquals(
+        "Invalid transaction: no valid contract",
+        responseContent.getJSONObject("result").getString("message"));
+  }
+
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     HttpMethed.disConnect();
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
-
   }
 }

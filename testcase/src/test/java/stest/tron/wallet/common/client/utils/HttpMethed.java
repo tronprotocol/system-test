@@ -245,6 +245,34 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static String sendCoin(
+      String httpNode,
+      byte[] fromAddress,
+      byte[] toAddress,
+      Long amount,
+      String notes,
+      String fromKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("to_address", ByteArray.toHexString(toAddress));
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(fromAddress));
+      userBaseObj2.addProperty("amount", amount);
+      userBaseObj2.addProperty("extra_data", ByteArray.toHexString(notes.getBytes()));
+      response = createConnect(requestUrl, userBaseObj2);
+      transactionString = EntityUtils.toString(response.getEntity());
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    responseContent = HttpMethed.parseStringContent(transactionString);
+    return responseContent.getString("txID");
+  }
+
+  /** constructor. */
   public static HttpResponse sendCoin(
       String httpNode,
       byte[] fromAddress,
@@ -285,31 +313,45 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static String sendCoin(
+  public static HttpResponse sendCoinReplaceTransactionType(
       String httpNode,
       byte[] fromAddress,
       byte[] toAddress,
       Long amount,
-      String notes,
-      String fromKey) {
+      Integer permissionId,
+      String[] managerKeys,
+      String originType,
+      String type) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("to_address", ByteArray.toHexString(toAddress));
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(fromAddress));
       userBaseObj2.addProperty("amount", amount);
-      userBaseObj2.addProperty("extra_data", ByteArray.toHexString(notes.getBytes()));
+      userBaseObj2.addProperty("Permission_id", permissionId);
       response = createConnect(requestUrl, userBaseObj2);
-      transactionString = EntityUtils.toString(response.getEntity());
-      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
-      response = broadcastTransaction(httpNode, transactionSignString);
+      transactionSignString = EntityUtils.toString(response.getEntity());
+      HttpResponse getSignWeightResponse;
+
+      for (String key : managerKeys) {
+        transactionSignString = gettransactionsign(httpNode, transactionSignString, key);
+        if (!type.isEmpty()) {
+          transactionSignString = transactionSignString.replaceAll(originType, type);
+        }
+        getSignWeightResponse = getSignWeight(httpNode, transactionSignString);
+        logger.info("-----------sign information-----------------");
+        getSignWeightResponse = getTransactionApprovedList(httpNode, transactionSignString);
+        signResponseContent = parseResponseContent(getSignWeightResponse);
+        logger.info("-----------get Transaction Approved List-----------------");
+        printJsonContent(signResponseContent);
+        return getSignWeightResponse;
+      }
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    responseContent = HttpMethed.parseStringContent(transactionString);
-    return responseContent.getString("txID");
+    return null;
   }
 
   /** constructor. */
