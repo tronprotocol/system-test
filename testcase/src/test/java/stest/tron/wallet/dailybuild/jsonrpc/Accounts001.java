@@ -40,7 +40,7 @@ public class Accounts001 extends JsonRpcBase {
   String witnessAddress = null;
   String feeLimit = null;
   String accountStateRoot = null;
-  String energyUsed = "0x135c6";
+  String energyUsed = "0x135c7";
 
   List<String> transactionIdList = null;
   long size = 0;
@@ -154,7 +154,7 @@ public class Accounts001 extends JsonRpcBase {
     logger.info("test06requestBody:" + requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     String dataResult = responseContent.getString("result");
-    Assert.assertEquals("0x147", dataResult);
+    Assert.assertEquals("0x148", dataResult);
   }
 
   @Test(enabled = true, description = "Json rpc api of eth_estimateGasHasPayable")
