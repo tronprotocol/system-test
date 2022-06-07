@@ -2537,7 +2537,7 @@ public class HttpMethed {
   /** constructor. */
   public static HttpResponse getBlockByLastNumFromSolidity(String httpNode, Integer num) {
     try {
-      String requestUrl = "http://" + httpNode + "/walletsolidity/";
+      String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbylatestnum";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("num", num);
       response = createConnect(requestUrl, userBaseObj2);
