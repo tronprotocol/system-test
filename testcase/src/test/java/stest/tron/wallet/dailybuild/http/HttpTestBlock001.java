@@ -2,19 +2,20 @@ package stest.tron.wallet.dailybuild.http;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.grpc.ManagedChannelBuilder;
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.tron.api.WalletGrpc;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+
+
 
 @Slf4j
 public class HttpTestBlock001 {
@@ -41,6 +42,7 @@ public class HttpTestBlock001 {
   private String blockIdForNoType;
   private String txId;
   private int blockNumForType;
+  private HashMap<String, String> hashMap;
 
   /** constructor. */
   @BeforeClass(enabled = true)
@@ -151,7 +153,10 @@ public class HttpTestBlock001 {
   public void get05BlockByNumWithTypeIsZero() throws InterruptedException {
 
     logger.info("blockNumForType:" + blockNumForType);
-    response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, 0);
+    hashMap = new HashMap<>();
+    hashMap.put("num", String.valueOf(blockNumForType));
+    hashMap.put("type", "0");
+    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -164,7 +169,12 @@ public class HttpTestBlock001 {
     Assert.assertEquals(blockIdForNoType, blockId);
     Assert.assertNotNull(responseContent.getJSONArray("transactions"));
     // visible=true
-    response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, true, 0);
+    // response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, true, 0);
+    hashMap = new HashMap<>();
+    hashMap.put("num", String.valueOf(blockNumForType));
+    hashMap.put("visible", "true");
+    hashMap.put("type", "0");
+    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     Assert.assertEquals(blockIdForNoType, responseContent.getString("blockID"));
@@ -175,14 +185,25 @@ public class HttpTestBlock001 {
   @Test(enabled = true, description = "Get block by num with type is 1 by http")
   public void get06BlockByNumWithTypeIsOne() {
     logger.info("blockNumForType:" + blockNumForType);
-    response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, 1);
+    hashMap = new HashMap<>();
+    hashMap.put("num", String.valueOf(blockNumForType));
+
+    hashMap.put("type", "1");
+    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
+
+    //   response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, 1);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     String blockId = responseContent.getString("blockID");
     Assert.assertEquals(blockIdForNoType, blockId);
     Assert.assertNull(responseContent.getJSONArray("transactions"));
     // visible=true
-    response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, true, 1);
+
+    hashMap = new HashMap<>();
+    hashMap.put("num", String.valueOf(blockNumForType));
+    hashMap.put("visible", "true");
+    hashMap.put("type", "1");
+    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethed.parseResponseContent(response);
     Assert.assertEquals(blockIdForNoType, responseContent.getString("blockID"));

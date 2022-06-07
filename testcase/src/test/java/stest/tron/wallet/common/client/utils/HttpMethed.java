@@ -7,11 +7,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
-import com.googlecode.cqengine.query.simple.In;
 import io.netty.util.internal.StringUtil;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -2376,18 +2376,28 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static HttpResponse getBlockByNumWithType(
-      String httpNode, Integer blockNUm, Integer type) {
-    return getBlockByNumWithType(httpNode, blockNUm, false, type);
+  public static String convertJsonObjectToGetParam(HashMap<String, String> hashMap) {
+    StringBuilder result = new StringBuilder("?");
+    Iterator<Map.Entry<String, String>> entries = hashMap.entrySet().iterator();
+
+    while (entries.hasNext()) {
+      Map.Entry entry = (Map.Entry) entries.next();
+      String key = (String) entry.getKey();
+      String value = (String) entry.getValue();
+      result.append(key);
+      result.append("=");
+      result.append(value);
+      result.append("&");
+    }
+    return result.substring(0, result.length() - 1);
   }
 
   /** constructor. */
   public static HttpResponse getBlockByNumWithType(
-      String httpNode, Integer blockNUm, Boolean visible, Integer type) {
+      String httpNode, HashMap<String, String> hashMap) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbynum";
-      requestUrl =
-          requestUrl + "?" + "num=" + blockNUm + "&" + "visible=" + visible + "&" + "type=" + type;
+      requestUrl = requestUrl + convertJsonObjectToGetParam(hashMap);
       logger.info("requestUrl:" + requestUrl);
       response = createConnectForGet(requestUrl);
     } catch (Exception e) {
@@ -2527,7 +2537,7 @@ public class HttpMethed {
   /** constructor. */
   public static HttpResponse getBlockByLastNumFromSolidity(String httpNode, Integer num) {
     try {
-      String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbylatestnum";
+      String requestUrl = "http://" + httpNode + "/walletsolidity/";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("num", num);
       response = createConnect(requestUrl, userBaseObj2);
