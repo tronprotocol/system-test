@@ -2313,7 +2313,7 @@ public class HttpMethed {
     Integer nextBlockNum = 0;
     Integer times = 0;
     while (nextBlockNum <= currentBlockNum
-        && times++ <= ((getWitnessNum() >= 27) ? 27 : getWitnessNum() + 1)) {
+        && times++ <= ((getWitnessNum() >= 27) ? 27 : getWitnessNum() + 4)) {
       response = HttpMethed.getNowBlockFromSolidity(httpSolidityNode);
       responseContent = HttpMethed.parseResponseContent(response);
       responseContent =
