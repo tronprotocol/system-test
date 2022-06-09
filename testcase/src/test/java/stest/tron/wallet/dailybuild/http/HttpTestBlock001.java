@@ -149,7 +149,7 @@ public class HttpTestBlock001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Get block by num with type is 0 by http")
+  @Test(enabled = false, description = "Get block by num with type is 0 by http")
   public void get05BlockByNumWithTypeIsZero() throws InterruptedException {
 
     logger.info("blockNumForType:" + blockNumForType);
@@ -168,8 +168,6 @@ public class HttpTestBlock001 {
     logger.info("blockIdForNoType:" + blockIdForNoType);
     Assert.assertEquals(blockIdForNoType, blockId);
     Assert.assertNotNull(responseContent.getJSONArray("transactions"));
-    // visible=true
-    // response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, true, 0);
     hashMap = new HashMap<>();
     hashMap.put("num", String.valueOf(blockNumForType));
     hashMap.put("visible", "true");
@@ -182,7 +180,7 @@ public class HttpTestBlock001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Get block by num with type is 1 by http")
+  @Test(enabled = false, description = "Get block by num with type is 1 by http")
   public void get06BlockByNumWithTypeIsOne() {
     logger.info("blockNumForType:" + blockNumForType);
     hashMap = new HashMap<>();
