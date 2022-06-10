@@ -283,7 +283,7 @@ public class HttpTestBlock001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "GetBlockById type is 1 by Solidity http")
+  @Test(enabled = false, description = "GetBlockById type is 1 by Solidity http")
   public void get14BlockByIdForTypeIsOneFromSolidity() {
     response = HttpMethed.getBlockByIdFromSolidity(httpSoliditynode, blockIdForNoType, 1);
     Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);

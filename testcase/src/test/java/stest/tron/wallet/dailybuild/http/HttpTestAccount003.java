@@ -125,7 +125,7 @@ public class HttpTestAccount003 {
     HttpMethed.printJsonContent(responseContent);
     JSONArray jsonArray = responseContent.getJSONArray("witnesses");
     for (int i = 0; i < responseContent.size(); i++) {
-      Assert.assertTrue(jsonArray.getJSONObject(i).getString("address").startsWith("T"));
+      Assert.assertTrue(jsonArray.getJSONObject(i).getString("address").startsWith("41"));
     }
   }
 
