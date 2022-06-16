@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import com.google.protobuf.ByteString;
 import java.io.File;
@@ -51,7 +52,8 @@ public class AccountTest {
         Map.Entry<byte[], byte[]> entry = (Map.Entry<byte[], byte[]>) it
             .next();
         String key = ByteArray.toHexString(ByteString.copyFrom(entry.getKey()).toByteArray());
-        String value = ByteArray.toHexString(ByteString.copyFrom(entry.getValue()).toByteArray());
+        String value =  Protocol.Account.parseFrom(entry.getValue()).toString();
+//        System.out.println(key + "  :  " + value);
       }
     } catch (IOException e) {
       // TODO Auto-generated catch block
