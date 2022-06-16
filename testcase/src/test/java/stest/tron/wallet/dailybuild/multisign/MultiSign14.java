@@ -122,7 +122,7 @@ public class MultiSign14 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -147,7 +147,7 @@ public class MultiSign14 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -172,7 +172,7 @@ public class MultiSign14 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -196,7 +196,7 @@ public class MultiSign14 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's"
+    Assert.assertEquals("Contract validate error : permission's"
             + " threshold should be greater than 0",
         response.getMessage().toStringUtf8());
 
@@ -374,7 +374,7 @@ public class MultiSign14 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : sum of all key's weight should not be"
+    Assert.assertEquals("Contract validate error : sum of all key's weight should not be"
             + " less than threshold in permission Witness",
         response.getMessage().toStringUtf8());
 
@@ -559,7 +559,7 @@ public class MultiSign14 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : sum of all key's weight should not be"
+    Assert.assertEquals("Contract validate error : sum of all key's weight should not be"
             + " less than threshold in permission Witness",
         response.getMessage().toStringUtf8());
 
@@ -583,7 +583,7 @@ public class MultiSign14 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : sum of all key's weight "
+    Assert.assertEquals("Contract validate error : sum of all key's weight "
             + "should not be less than threshold in permission Witness",
         response.getMessage().toStringUtf8());
 

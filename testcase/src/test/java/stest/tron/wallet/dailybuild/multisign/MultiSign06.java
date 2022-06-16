@@ -109,7 +109,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = 2
@@ -130,7 +130,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = -1
@@ -151,7 +151,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = long.min - 1000020
@@ -171,7 +171,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = "12a"
@@ -282,7 +282,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = Long.MAX_VALUE
@@ -303,7 +303,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = long.min - 1
@@ -323,7 +323,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
 
     // type = Long.MAX_VALUE + 10
@@ -344,7 +344,7 @@ public class MultiSign06 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : owner permission type is error",
+    Assert.assertEquals("Contract validate error : owner permission type is error",
         response.getMessage().toStringUtf8());
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)
         .getBalance();

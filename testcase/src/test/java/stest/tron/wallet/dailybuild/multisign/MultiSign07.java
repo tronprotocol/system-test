@@ -630,7 +630,7 @@ public class MultiSign07 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's name is too long",
+    Assert.assertEquals("Contract validate error : permission's name is too long",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();

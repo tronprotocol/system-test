@@ -106,7 +106,7 @@ public class MultiSign21 {
         ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : active permission is missed",
+    Assert.assertEquals("Contract validate error : active permission is missed",
         response.getMessage().toStringUtf8());
 
     // count = 0

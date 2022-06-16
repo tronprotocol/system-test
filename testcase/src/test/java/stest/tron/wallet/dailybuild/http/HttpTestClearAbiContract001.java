@@ -154,7 +154,7 @@ public class HttpTestClearAbiContract001 {
     responseContent = HttpMethed.parseResponseContent(httpResponse);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertEquals(responseContent.getString("result"), "true");
-
+    HttpMethed.waitToProduceOneBlock(httpnode);
   }
 
   /**

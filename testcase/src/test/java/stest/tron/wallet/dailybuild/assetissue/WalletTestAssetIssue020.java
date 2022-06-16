@@ -200,6 +200,81 @@ public class WalletTestAssetIssue020 {
         blockingStubPbft).get().getAssetIssue(0).getTotalSupply(), totalSupply);
   }
 
+  @Test(enabled = true, description = "freeAssetNetUsed decreasing "
+      + "in getassetissuebyid and getaccount ")
+  public void test06NetusedDecrease() {
+    ECKey ecKeyOwner = new ECKey(Utils.getRandom());
+    byte[] assetOwnerAddress = ecKeyOwner.getAddress();
+    String assetOwnerKey = ByteArray.toHexString(ecKeyOwner.getPrivKeyBytes());
+    PublicMethed.printAddress(assetOwnerKey);
+    Assert.assertTrue(PublicMethed.sendcoin(assetOwnerAddress, 2000000000, fromAddress,
+        testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+        PublicMethed.getFreezeBalanceCount(assetOwnerAddress, assetOwnerKey, 170000L,
+            blockingStubFull), 0, 1,
+        ByteString.copyFrom(assetOwnerAddress), testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+        0, 0, ByteString.copyFrom(assetOwnerAddress), testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Long start = System.currentTimeMillis() + 2000000;
+    Long end = System.currentTimeMillis() + 1000000000;
+    String name1 = "Assetissue020_" + Long.toString(now);
+    Assert.assertTrue(PublicMethed.createAssetIssue(assetOwnerAddress,
+        name1, totalSupply, 1, 200, 6, start, end, 1, description, url,
+        7000L, 7000L, 1L, 1L, assetOwnerKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Account getAssetIdFromThisAccount = PublicMethed
+        .queryAccount(assetOwnerAddress, blockingStubFull);
+    assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
+    final String strAssetId = assetAccountId.toStringUtf8();
+
+    ECKey ecKeyFrom = new ECKey(Utils.getRandom());
+    byte[] assetFromAddress = ecKeyFrom.getAddress();
+    String assetFromKey = ByteArray.toHexString(ecKeyFrom.getPrivKeyBytes());
+    Assert.assertTrue(PublicMethed.sendcoin(assetFromAddress, 1000000000, fromAddress,
+        testKey002, blockingStubFull));
+    PublicMethed.transferAsset(assetFromAddress,
+        assetAccountId.toByteArray(), 100L, assetOwnerAddress, assetOwnerKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    ECKey ecKeyTo = new ECKey(Utils.getRandom());
+    byte[] assetToAddress = ecKeyTo.getAddress();
+    String assetToKey = ByteArray.toHexString(ecKeyTo.getPrivKeyBytes());
+    for (int i = 0; i < 16; i++) {
+      PublicMethed.transferAsset(assetToAddress,
+          assetAccountId.toByteArray(), 1L, assetFromAddress, assetFromKey, blockingStubFull);
+    }
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Long fromBeginNetUsed = PublicMethed.queryAccount(assetFromAddress, blockingStubFull)
+        .getFreeAssetNetUsageV2Map().get(strAssetId).longValue();
+    Long assetBeginNetUsed = PublicMethed.getAssetIssueById(strAssetId, blockingStubFull)
+        .getPublicFreeAssetNetUsage();
+    Long fromEndNetUsed = fromBeginNetUsed;
+    Long assetEndNetUsed = assetBeginNetUsed;
+    System.out.println("fromBeginNetUsed: " + fromBeginNetUsed);
+    System.out.println("assetBeginNetUsed: " + assetBeginNetUsed);
+    int count = 0;
+    while (count < 11) {
+      fromEndNetUsed = PublicMethed.queryAccount(assetFromAddress, blockingStubFull)
+          .getFreeAssetNetUsageV2Map().get(strAssetId).longValue();
+      assetEndNetUsed = PublicMethed.getAssetIssueById(strAssetId, blockingStubFull)
+          .getPublicFreeAssetNetUsage();
+      System.out.println("fromEndNetUsed: " + fromEndNetUsed);
+      System.out.println("assetEndNetUsed: " + assetEndNetUsed);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      if ((fromBeginNetUsed > fromEndNetUsed) && (assetBeginNetUsed > assetEndNetUsed)) {
+        Assert.assertTrue(true);
+        break;
+      }
+      System.out.println("count: " + count);
+      count++;
+    }
+    if (count == 11) {
+      Assert.assertTrue(false);
+    }
+  }
 
   /**
    * constructor.

@@ -11,6 +11,7 @@ import io.netty.util.internal.StringUtil;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -244,6 +245,34 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static String sendCoin(
+      String httpNode,
+      byte[] fromAddress,
+      byte[] toAddress,
+      Long amount,
+      String notes,
+      String fromKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("to_address", ByteArray.toHexString(toAddress));
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(fromAddress));
+      userBaseObj2.addProperty("amount", amount);
+      userBaseObj2.addProperty("extra_data", ByteArray.toHexString(notes.getBytes()));
+      response = createConnect(requestUrl, userBaseObj2);
+      transactionString = EntityUtils.toString(response.getEntity());
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    responseContent = HttpMethed.parseStringContent(transactionString);
+    return responseContent.getString("txID");
+  }
+
+  /** constructor. */
   public static HttpResponse sendCoin(
       String httpNode,
       byte[] fromAddress,
@@ -284,31 +313,45 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static String sendCoin(
+  public static HttpResponse sendCoinReplaceTransactionType(
       String httpNode,
       byte[] fromAddress,
       byte[] toAddress,
       Long amount,
-      String notes,
-      String fromKey) {
+      Integer permissionId,
+      String[] managerKeys,
+      String originType,
+      String type) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("to_address", ByteArray.toHexString(toAddress));
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(fromAddress));
       userBaseObj2.addProperty("amount", amount);
-      userBaseObj2.addProperty("extra_data", ByteArray.toHexString(notes.getBytes()));
+      userBaseObj2.addProperty("Permission_id", permissionId);
       response = createConnect(requestUrl, userBaseObj2);
-      transactionString = EntityUtils.toString(response.getEntity());
-      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
-      response = broadcastTransaction(httpNode, transactionSignString);
+      transactionSignString = EntityUtils.toString(response.getEntity());
+      HttpResponse getSignWeightResponse;
+
+      for (String key : managerKeys) {
+        transactionSignString = gettransactionsign(httpNode, transactionSignString, key);
+        if (!type.isEmpty()) {
+          transactionSignString = transactionSignString.replaceAll(originType, type);
+        }
+        getSignWeightResponse = getSignWeight(httpNode, transactionSignString);
+        logger.info("-----------sign information-----------------");
+        getSignWeightResponse = getTransactionApprovedList(httpNode, transactionSignString);
+        signResponseContent = parseResponseContent(getSignWeightResponse);
+        logger.info("-----------get Transaction Approved List-----------------");
+        printJsonContent(signResponseContent);
+        return getSignWeightResponse;
+      }
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    responseContent = HttpMethed.parseStringContent(transactionString);
-    return responseContent.getString("txID");
+    return null;
   }
 
   /** constructor. */
@@ -1547,6 +1590,21 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static HttpResponse listwitnesses(String httpNode, Boolean visible) {
+    try {
+      String requestUrl = "http://" + httpNode + "/wallet/listwitnesses";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("visible", visible);
+      response = createConnect(requestUrl, userBaseObj2);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
   public static HttpResponse listwitnessesFromSolidity(String httpSolidityNode) {
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/listwitnesses";
@@ -2255,7 +2313,7 @@ public class HttpMethed {
     Integer nextBlockNum = 0;
     Integer times = 0;
     while (nextBlockNum <= currentBlockNum
-        && times++ <= ((getWitnessNum() >= 27) ? 27 : getWitnessNum() + 1)) {
+        && times++ <= ((getWitnessNum() >= 27) ? 27 : getWitnessNum() + 4)) {
       response = HttpMethed.getNowBlockFromSolidity(httpSolidityNode);
       responseContent = HttpMethed.parseResponseContent(response);
       responseContent =
@@ -2309,6 +2367,39 @@ public class HttpMethed {
       userBaseObj2.addProperty("num", blockNUm);
       userBaseObj2.addProperty("visible", visible);
       response = createConnect(requestUrl, userBaseObj2);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
+  public static String convertJsonObjectToGetParam(HashMap<String, String> hashMap) {
+    StringBuilder result = new StringBuilder("?");
+    Iterator<Map.Entry<String, String>> entries = hashMap.entrySet().iterator();
+
+    while (entries.hasNext()) {
+      Map.Entry entry = (Map.Entry) entries.next();
+      String key = (String) entry.getKey();
+      String value = (String) entry.getValue();
+      result.append(key);
+      result.append("=");
+      result.append(value);
+      result.append("&");
+    }
+    return result.substring(0, result.length() - 1);
+  }
+
+  /** constructor. */
+  public static HttpResponse getBlockByNumWithType(
+      String httpNode, HashMap<String, String> hashMap) {
+    try {
+      String requestUrl = "http://" + httpNode + "/wallet/getblockbynum";
+      requestUrl = requestUrl + convertJsonObjectToGetParam(hashMap);
+      logger.info("requestUrl:" + requestUrl);
+      response = createConnectForGet(requestUrl);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -2502,6 +2593,23 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static HttpResponse getBlockByIdFromSolidity(
+      String httpNode, String blockId, Integer type) {
+    try {
+      String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbyid";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("value", blockId);
+      userBaseObj2.addProperty("type", type);
+      response = createConnect(requestUrl, userBaseObj2);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
   public static HttpResponse getBlockByIdFromPbft(String httpNode, String blockId) {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getblockbyid";
@@ -2619,11 +2727,53 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse createConnect(String url) {
-    return createConnect(url, null);
+    try {
+      httpClient
+          .getParams()
+          .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout);
+      httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, soTimeout);
+      httppost = new HttpPost(url);
+      httppost.setHeader("Content-type", "application/json; charset=utf-8");
+      httppost.setHeader("Connection", "Close");
+      logger.info(httppost.toString());
+      response = httpClient.execute(httppost);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
   }
 
   /** constructor. */
   public static HttpResponse createConnect(String url, JsonObject requestBody) {
+    try {
+      httpClient
+          .getParams()
+          .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout);
+      httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, soTimeout);
+      httppost = new HttpPost(url);
+      httppost.setHeader("Content-type", "application/json; charset=utf-8");
+      httppost.setHeader("Connection", "Close");
+      if (requestBody != null) {
+        StringEntity entity = new StringEntity(requestBody.toString(), Charset.forName("UTF-8"));
+        entity.setContentEncoding("UTF-8");
+        entity.setContentType("application/json");
+        httppost.setEntity(entity);
+      }
+
+      logger.info(httppost.toString());
+      response = httpClient.execute(httppost);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
+  public static HttpResponse createConnect(String url, JsonArray requestBody) {
     try {
       httpClient
           .getParams()
@@ -3561,7 +3711,10 @@ public class HttpMethed {
                             .put("payment_address", noteTx.getPaymentAddress())
                             .put("rcm", ByteArray.toHexString(noteTx.getR()))
                             .put("memo", ByteArray.toHexString(noteTx.getMemo())))
-                    .put("alpha", ByteArray.toHexString(stest.tron.wallet.common.client.utils.zen.note.Note.generateR()))
+                    .put(
+                        "alpha",
+                        ByteArray.toHexString(
+                            stest.tron.wallet.common.client.utils.zen.note.Note.generateR()))
                     .put("voucher", Lists.newArrayList(vouchers))
                     .put("path", Lists.newArrayList(paths)));
 

@@ -189,7 +189,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = "abc"
@@ -285,7 +285,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = 2
@@ -306,7 +306,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = 3
@@ -327,7 +327,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = -1
@@ -348,7 +348,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = Integer.MAX_VALUE
@@ -369,7 +369,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = Integer.MAX_VALUE +1
@@ -390,7 +390,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = Integer.MIN_VALUE
@@ -411,7 +411,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     // parent_id = Integer.MIN_VALUE -1
@@ -432,7 +432,7 @@ public class MultiSign03 {
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : permission's parent should be owner",
+    Assert.assertEquals("Contract validate error : permission's parent should be owner",
         response.getMessage().toStringUtf8());
 
     Long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull)

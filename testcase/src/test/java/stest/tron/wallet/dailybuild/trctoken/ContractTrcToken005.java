@@ -223,7 +223,7 @@ public class ContractTrcToken005 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : Owner no asset!".toLowerCase(),
+    Assert.assertEquals("contract validate error : assetbalance must greater than 0.".toLowerCase(),
         response.getMessage().toStringUtf8().toLowerCase());
 
     // tokenId is Long.MAX_VALUE

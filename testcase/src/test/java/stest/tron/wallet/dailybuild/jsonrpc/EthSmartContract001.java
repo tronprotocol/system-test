@@ -55,7 +55,7 @@ public class EthSmartContract001 extends JsonRpcBase {
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     String dataResult = responseContent.getString("result");
-    Assert.assertEquals(dataResult,"0x147");
+    Assert.assertEquals(dataResult,"0x148");
   }
 
 
