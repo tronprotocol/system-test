@@ -97,13 +97,14 @@ public class MainnetReplayQueryTest {
 
 
     for(int i = 0; i < replayTimes;i++) {
+      Integer queryAccountIndex = i % accountList.size();
       System.out.println("Query time: " + atomicLong.addAndGet(1L));
-      queryTrc20ContractBalanceOf(accountList.get(i),blockingStubFull);
+      queryTrc20ContractBalanceOf(accountList.get(queryAccountIndex),blockingStubFull);
 
       PublicMethed.getAssetBalanceByAssetId(
-          ByteString.copyFromUtf8("1002000"), WalletClient.decodeFromBase58Check(accountList.get(i)), blockingStubFull);
+          ByteString.copyFromUtf8("1002000"), WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)), blockingStubFull);
 
-      System.out.println(PublicMethed.queryAccount(WalletClient.decodeFromBase58Check(accountList.get(i)),blockingStubFull).getBalance());
+      System.out.println(PublicMethed.queryAccount(WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)),blockingStubFull).getBalance());
     }
 
   }
