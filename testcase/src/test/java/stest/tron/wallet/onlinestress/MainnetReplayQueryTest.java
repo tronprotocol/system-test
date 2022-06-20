@@ -83,12 +83,13 @@ public class MainnetReplayQueryTest {
     getAccountList();
   }
 
-  @Test(enabled = true, threadPoolSize = 1, invocationCount = 1)
+  @Test(enabled = true, threadPoolSize = 20, invocationCount = 20)
   public void test01MainnetReplayQueryTest() throws InterruptedException {
     ManagedChannel channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+
 
 
 
