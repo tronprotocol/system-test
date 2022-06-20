@@ -54,8 +54,8 @@ public class MainnetReplayQueryTest {
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
-  private String fullnode = "47.94.243.150:50051";//014
-  //10.40.10.244 014
+  //private String fullnode = "47.94.243.150:50051";//014
+  private String fullnode = "10.40.10.244 014:50051";//014
 
   private Long replayTimes = 500000L;
 
