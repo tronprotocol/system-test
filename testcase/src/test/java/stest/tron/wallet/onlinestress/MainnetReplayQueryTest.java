@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.testng.Assert;
@@ -55,7 +56,9 @@ public class MainnetReplayQueryTest {
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
   //private String fullnode = "47.94.243.150:50051";//014
-  private String fullnode = "10.40.10.244 014:50051";//014
+  private String fullnode = "10.40.10.244:50051";//014
+
+  AtomicLong atomicLong = new AtomicLong();
 
   private Long replayTimes = 500000L;
 
@@ -94,6 +97,7 @@ public class MainnetReplayQueryTest {
 
 
     for(int i = 0; i < replayTimes;i++) {
+      System.out.println("Query time: " + atomicLong.addAndGet(1L));
       queryTrc20ContractBalanceOf(accountList.get(i),blockingStubFull);
 
       PublicMethed.getAssetBalanceByAssetId(
