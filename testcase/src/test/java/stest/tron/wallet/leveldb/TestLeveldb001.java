@@ -6,7 +6,7 @@ import stest.tron.wallet.common.client.utils.LeveldbBase;
 public class TestLeveldb001 extends LeveldbBase {
 
   @Test
-  public void getAccountFromDb() {
+  public void test01() {
     try {
 
       System.out.println(getAccountFromDb("TAsimLx1ZWc6epr5FjitmktrDqhJY2AZ5R").toString());
