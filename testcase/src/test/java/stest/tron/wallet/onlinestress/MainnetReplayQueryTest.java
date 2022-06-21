@@ -55,9 +55,9 @@ import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 @Slf4j
 public class MainnetReplayQueryTest {
 
-  public final String foundationAccountKey = Configuration.getByPath("testng.conf")
+  public static final String foundationAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  public final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
+  public static final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
@@ -65,7 +65,7 @@ public class MainnetReplayQueryTest {
 
   AtomicLong atomicLong = new AtomicLong();
 
-  private static Long replayTimes = 500000L;
+  private static Long replayTimes = 10000000L;
 
   private static String[] trc20Contract = new String[]{
       //"TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR",//WTRX
@@ -162,7 +162,6 @@ public class MainnetReplayQueryTest {
                 paramStr, false, 0, 0, "0", 0,
                 foundationAccountAddress, foundationAccountKey, blockingStubFull);
 
-
         /*System.out.println(Hex.toHexString(transactionExtention
             .getConstantResult(0).toByteArray()));*/
 
@@ -202,21 +201,42 @@ public class MainnetReplayQueryTest {
   public static void getContract(WalletGrpc.WalletBlockingStub blockingStubFull) {
     for(int index = 0; index < replayTimes;index++) {
       Integer queryContractIndex = index % trc20Contract.length;
-      PublicMethed.getContract(WalletClient.decodeFromBase58Check(trc20Contract[queryContractIndex]),blockingStubFull);
+      try {
+        PublicMethed.getContract(WalletClient.decodeFromBase58Check(trc20Contract[queryContractIndex]),blockingStubFull);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
     }
   }
 
   public static void getDelegateResource(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    Optional<Protocol.DelegatedResourceAccountIndex> delegatedResourceIndexResult = PublicMethed
-        .getDelegatedResourceAccountIndex(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"), blockingStubFull);
-    for(int index = 0; index < replayTimes;index++) {
-      if(index % 20 == 0) {
-        delegatedResourceIndexResult = PublicMethed
-            .getDelegatedResourceAccountIndex(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"), blockingStubFull);
+    Optional<Protocol.DelegatedResourceAccountIndex> delegatedResourceIndexResult = null;
+    try {
+       delegatedResourceIndexResult = PublicMethed
+          .getDelegatedResourceAccountIndex(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"), blockingStubFull);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+     for(int index = 0; index < replayTimes;index++) {
+      if(index % 40 == 0) {
+        try {
+          delegatedResourceIndexResult = PublicMethed
+              .getDelegatedResourceAccountIndex(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"), blockingStubFull);
+
+        } catch (Exception e) {
+          e.printStackTrace();
+      }
       }
       for(int i = 0; i < delegatedResourceIndexResult.get().getToAccountsCount();i++) {
-        PublicMethed.getDelegatedResource(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"),
-            delegatedResourceIndexResult.get().getToAccounts(i).toByteArray(),blockingStubFull);
+        try {
+          PublicMethed.getDelegatedResource(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"),
+              delegatedResourceIndexResult.get().getToAccounts(i).toByteArray(),blockingStubFull);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
       }
     }
   }
@@ -241,7 +261,12 @@ public class MainnetReplayQueryTest {
         if(i > 20) {
           break;
         }
-        PublicMethed.getTransactionInfoById(ByteArray.toHexString(transactionInfoList.getTransactionInfo(i).getId().toByteArray()),blockingStubFull);
+        try {
+          PublicMethed.getTransactionInfoById(ByteArray.toHexString(transactionInfoList.getTransactionInfo(i).getId().toByteArray()),blockingStubFull);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
 /*        System.out.println("TransactionInfo timestamp:" + PublicMethed.getTransactionInfoById(ByteArray.toHexString(transactionInfoList.getTransactionInfo(i).getId().toByteArray()),blockingStubFull)
             .get().getBlockTimeStamp());*/
       }
@@ -260,7 +285,12 @@ public class MainnetReplayQueryTest {
             Sha256Hash.hash(
                 CommonParameter.getInstance().isECKeyCryptoEngine(),
                 block.getTransactions(i).getRawData().toByteArray()));
-        PublicMethed.getTransactionById(txid,blockingStubFull);
+        try {
+          PublicMethed.getTransactionById(txid,blockingStubFull);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
         //System.out.println("TransactionByid sig count: " + PublicMethed.getTransactionById(txid,blockingStubFull).get().getSignatureCount());
       }
     }
