@@ -152,6 +152,14 @@ task dailyBuild(type: Test) {
     }
 }
 
+task leveldbTest(type: Test) {
+    useTestNG {
+        suites(file('src/test/resources/leveldb.xml'))
+        parallel 'tests'
+        threadCount 1
+    }
+}
+
 
 jacocoTestReport {
     reports {
