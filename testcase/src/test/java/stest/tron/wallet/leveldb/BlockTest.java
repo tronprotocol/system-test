@@ -2,26 +2,38 @@ package stest.tron.wallet.leveldb;
 
 
 import com.google.protobuf.ByteString;
-import org.iq80.leveldb.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBFactory;
+import org.iq80.leveldb.DBIterator;
+import org.iq80.leveldb.Options;
+import org.iq80.leveldb.ReadOptions;
+import org.iq80.leveldb.Snapshot;
 import org.iq80.leveldb.impl.Iq80DBFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.protos.Protocol.Block;
+import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
+
 
 
 public class BlockTest {
-  private static final String PATH = "/Users/sophiawang/Documents/需求/java-tron/读取account库账户标志/output-directory-test/database/block";
-  private static final String BLOCK_INDEX_PATH = "/Users/sophiawang/Documents/需求/java-tron/读取account库账户标志/output-directory-test/database/block-index";
+  private static String database = Configuration.getByPath("testng.conf")
+      .getString("leveldbParams.databasePath");
+  private static final String PATH = database + "/block";
+  private static final String BLOCK_INDEX_PATH = database + "/block-index";
   private DB db;
 
+  /**
+   * constructor.
+   */
   @BeforeClass
-  public void initDb(){
+  public void initDb() {
     DBFactory factory = new Iq80DBFactory();
     File file = new File(PATH);
     Options options = new Options();
@@ -32,7 +44,9 @@ public class BlockTest {
     }
   }
 
-
+  /**
+   * constructor.
+   */
   public Block getBlockByNumber(long number) {
     try {
       byte[] blockHash = getBlockHash(number);
@@ -45,6 +59,9 @@ public class BlockTest {
     }
   }
 
+  /**
+   * constructor.
+   */
   public static byte[] getBlockHash(long number) {
     DBFactory factory = new Iq80DBFactory();
     File file = new File(BLOCK_INDEX_PATH);
@@ -60,7 +77,7 @@ public class BlockTest {
     return null;
   }
 
-  public Block getNowBlock(){
+  public Block getNowBlock() {
     long nowNum = getTotal();
     return getBlockByNumber(nowNum);
   }
@@ -93,6 +110,9 @@ public class BlockTest {
     }
   }
 
+  /**
+   * constructor.
+   */
   public long getTotal() {
     ReadOptions readOptions = new ReadOptions().fillCache(false);
     try (DBIterator iterator = db.iterator(readOptions)) {
@@ -107,7 +127,9 @@ public class BlockTest {
     }
   }
 
-
+  /**
+   * constructor.
+   */
   @AfterClass
   public void destroyDb() {
     if (db != null) {
