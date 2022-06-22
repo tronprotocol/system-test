@@ -162,7 +162,7 @@ public class JsonRpcBase {
     proposalMap.put(11L, 280L); //getEnergyFee
     proposalMap.put(12L, 1024000000L); //getExchangeCreateFee
     proposalMap.put(13L, 80L); //getMaxCpuTimeOfOneTx
-    proposalMap.put(17L, 90000000000L); //getTotalEnergyLimit
+//    proposalMap.put(17L, 90000000000L); //getTotalEnergyLimit
     proposalMap.put(19L, 90000000000L); //getTotalEnergyCurrentLimit
     proposalMap.put(22L, 100000000L); //getUpdateAccountPermissionFee
     proposalMap.put(23L, 1000000L); //getMultiSignFee
