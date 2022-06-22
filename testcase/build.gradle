@@ -84,6 +84,9 @@ dependencies {
     compile group: 'org.zeromq', name: 'jeromq', version: '0.5.0'
     compile 'com.github.tronprotocol:zksnark-java-sdk:master-SNAPSHOT'
     compile project(":protocol")
+
+
+    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
 }
 
 check.dependsOn 'lint'
@@ -144,6 +147,23 @@ task stest(type: Test) {
 task dailyBuild(type: Test) {
     useTestNG {
         suites(file('src/test/resources/daily-build.xml'))
+        parallel 'tests'
+        threadCount 1
+    }
+}
+
+task leveldbTest(type: Test) {
+    useTestNG {
+        suites(file('src/test/resources/leveldb.xml'))
+        parallel 'tests'
+        threadCount 1
+    }
+}
+
+
+task mainnetReplayQuery(type: Test) {
+    useTestNG {
+        suites(file('src/test/resources/mainnet-replay-query.xml'))
         parallel 'tests'
         threadCount 1
     }

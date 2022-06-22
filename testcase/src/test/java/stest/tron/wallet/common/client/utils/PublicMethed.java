@@ -1318,6 +1318,20 @@ public class PublicMethed {
     return assetOwnerAssetBalance;
   }
 
+
+  public static Long getAssetBalanceByAssetId(
+      ByteString assetId, byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Account assetOwnerAccount = queryAccount(address, blockingStubFull);
+    Long assetOwnerAssetBalance = 0L;
+    for (String id : assetOwnerAccount.getAssetV2Map().keySet()) {
+      if (assetId.toStringUtf8().equalsIgnoreCase(id)) {
+        assetOwnerAssetBalance = assetOwnerAccount.getAssetV2Map().get(id);
+      }
+    }
+    logger.info("asset balance is " + assetOwnerAssetBalance);
+    return assetOwnerAssetBalance;
+  }
+
   /*
   public static Optional<DeferredTransaction> getDeferredTransactionById(String txId,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
