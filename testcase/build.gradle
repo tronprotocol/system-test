@@ -161,6 +161,15 @@ task leveldbTest(type: Test) {
 }
 
 
+task mainnetReplayQuery(type: Test) {
+    useTestNG {
+        suites(file('src/test/resources/mainnet-replay-query.xml'))
+        parallel 'tests'
+        threadCount 1
+    }
+}
+
+
 jacocoTestReport {
     reports {
         xml.enabled true
