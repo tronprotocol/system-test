@@ -17,6 +17,7 @@ import org.testng.annotations.BeforeSuite;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
+import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.services.Util;
@@ -149,9 +150,46 @@ public class JsonRpcBase {
     deployContract();
     triggerContract();
     deployTrc20Contract();
-    proposalMap.put(44L, 1L);
-    proposalMap.put(30L, 1L);
+    proposalMap.put(44L, 1L); //允许DEX开启
+    proposalMap.put(30L, 1L); //是否打开更换委托机制开关
+    proposalMap.put(1L, 9999000000L); //getAccountUpgradeCost
+    proposalMap.put(2L, 100000L); //getCreateAccountFee
+    proposalMap.put(3L, 1000L); //getTransactionFee
+    proposalMap.put(4L, 1024000000L); //getAssetIssueFee
+    proposalMap.put(5L, 16000000L); //getWitnessPayPerBlock
+    proposalMap.put(6L, 115200000000L); //getWitnessStandbyAllowance
+    proposalMap.put(7L, 1000000L); //getCreateNewAccountFeeInSystemContract
+    proposalMap.put(11L, 280L); //getEnergyFee
+    proposalMap.put(12L, 1024000000L); //getExchangeCreateFee
+    proposalMap.put(13L, 80L); //getMaxCpuTimeOfOneTx
+    proposalMap.put(17L, 90000000000L); //getTotalEnergyLimit
+    proposalMap.put(19L, 90000000000L); //getTotalEnergyCurrentLimit
+    proposalMap.put(22L, 100000000L); //getUpdateAccountPermissionFee
+    proposalMap.put(23L, 1000000L); //getMultiSignFee
+    proposalMap.put(33L, 10L); //getAdaptiveResourceLimitTargetRatio
+    proposalMap.put(29L, 1000L); //getAdaptiveResourceLimitMultiplier
+    proposalMap.put(31L, 160000000L); //getWitness127PayPerBlock
+    proposalMap.put(47L, 10000000000L); //getMaxFeeLimit
+    proposalMap.put(61L, 1500L); //getFreeNetLimit
+    proposalMap.put(62L, 43200000000L); //getTotalNetLimit
     openProposal(proposalMap);
+    waitProposalApprove(13, blockingStubFull);
+  }
+
+  /** constructor. */
+  public void waitProposalApprove(Integer proposalIndex,
+                                         WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Long currentTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() <= currentTime + 610000) {
+      ChainParameters chainParameters = blockingStubFull
+          .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+      Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+      if (getChainParameters.get().getChainParameter(proposalIndex).getValue() == 80L) {
+        logger.info("Proposal has been approval");
+        return;
+      }
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+    }
   }
 
   /** constructor. */
