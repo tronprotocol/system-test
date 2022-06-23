@@ -22,6 +22,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
@@ -620,7 +621,9 @@ public class MongoEventQuery002 extends MongoBase {
         jsonObject.getString("contractCallValue"));
   }
 
-  @Test(enabled = true, description = "MongoDB Event query for transaction of  contractResult.")
+  @Test(
+      enabled = true,
+      description = "MongoDB Event query for transaction of  result and contractResult.")
   public void test05EventQueryForTransaction() throws InterruptedException {
     ECKey ecKey3 = new ECKey(Utils.getRandom());
     byte[] event003Address = ecKey3.getAddress();
@@ -628,19 +631,39 @@ public class MongoEventQuery002 extends MongoBase {
     logger.info("event003Key:" + event003Key);
     Assert.assertTrue(
         PublicMethed.sendcoin(
-            event003Address, 1000000L, fromAddress, testKey002, blockingStubFull));
+            event003Address, 100000000000L, fromAddress, testKey002, blockingStubFull));
+    String filePath = "src/test/resources/soliditycode/assertExceptiontest1DivideInt.sol";
+    String contractName = "divideIHaveArgsReturnStorage";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethed.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            event003Key,
+            event003Address,
+            blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    String num = "4" + "," + "0";
     txId =
         PublicMethed.triggerContract(
             contractAddress,
-            "depositForLogCycle(uint256)",
-            String.valueOf(1000),
+            "divideIHaveArgsReturn(int256,int256)",
+            num,
             false,
             0,
             maxFeeLimit,
             event003Address,
             event003Key,
             blockingStubFull);
-    HttpMethed.waitToProduceOneBlock(httpFullNode);
+
     logger.info("transactionId:" + txId);
     BasicDBObject query = new BasicDBObject();
     query.put("transactionId", txId);
@@ -663,6 +686,9 @@ public class MongoEventQuery002 extends MongoBase {
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     response = HttpMethed.getTransactionInfoById(httpFullNode, txId);
     responseContent = HttpMethed.parseResponseContent(response);
+    Assert.assertEquals(
+        responseContent.getJSONArray("contractResult").getString(0),
+        jsonObject.getString("contractResult"));
     Assert.assertEquals(
         responseContent.getJSONObject("receipt").getString("result"),
         jsonObject.getString("result"));
