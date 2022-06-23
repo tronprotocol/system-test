@@ -12,6 +12,9 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Slf4j
 public class HttpTestProposal001 {
 
@@ -29,12 +32,13 @@ public class HttpTestProposal001 {
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
   private JSONObject responseContent;
   private HttpResponse response;
+  private int energyFee = 0;
 
   /** constructor. */
   @Test(enabled = true, description = "Create proposal by http")
   public void test1CreateProposal() {
     HttpMethed.waitToProduceOneBlock(httpnode);
-    response = HttpMethed.createProposal(httpnode, witness1Address, 21L, 1L, witnessKey001);
+    response = HttpMethed.createProposal(httpnode, witness1Address, 20L, 1L, witnessKey001);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
   }
@@ -121,6 +125,12 @@ public class HttpTestProposal001 {
         responseContent.getJSONArray("chainParameter").getJSONObject(2).get("key"));
     Assert.assertEquals(
         100000, responseContent.getJSONArray("chainParameter").getJSONObject(2).get("value"));
+    for (Object ob : responseContent.getJSONArray("chainParameter")) {
+      if ("getEnergyFee".equalsIgnoreCase(((JSONObject)ob).getString("key"))) {
+        energyFee = ((JSONObject)ob).getIntValue("value");
+        break;
+      }
+    }
   }
   /** constructor. */
 
@@ -131,9 +141,9 @@ public class HttpTestProposal001 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     String prices = responseContent.getString("prices");
-    String expectPrices = "0:100";
+    String expectPrices = "0:100.*" + energyFee + "$";
     logger.info("prices:" + prices);
-    Assert.assertEquals(prices, expectPrices);
+    Assert.assertTrue(Pattern.matches(expectPrices, prices));
   }
 
   /** constructor. */

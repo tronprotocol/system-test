@@ -92,7 +92,7 @@ public class GetAccountBalance001 {
 
     Assert.assertEquals(ByteString.copyFrom(fromAddress),blockBalanceTrace
         .getTransactionBalanceTrace(0).getOperation(1).getAddress());
-    Assert.assertEquals(-sendAmount,blockBalanceTrace.getTransactionBalanceTrace(0)
+    Assert.assertEquals(-sendAmount-1000000,blockBalanceTrace.getTransactionBalanceTrace(0)
         .getOperation(1).getAmount());
 
 

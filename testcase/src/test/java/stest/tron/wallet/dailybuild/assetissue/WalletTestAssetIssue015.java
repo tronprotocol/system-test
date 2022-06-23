@@ -137,7 +137,7 @@ public class WalletTestAssetIssue015 {
     Integer i = 0;
     AccountNetMessage assetTransferNet = PublicMethed
         .getAccountNet(transferAssetAddress, blockingStubFull);
-    while (assetTransferNet.getNetUsed() < 4700 && i++ < 200) {
+    while (assetTransferNet.getNetUsed() < 1300 && i++ < 10) {
       PublicMethed.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
           transferAssetAddress, transferAssetCreateKey, blockingStubFull);
       assetTransferNet = PublicMethed
@@ -145,7 +145,7 @@ public class WalletTestAssetIssue015 {
     }
 
     logger.info(Long.toString(assetTransferNet.getFreeNetUsed()));
-    Assert.assertTrue(assetTransferNet.getFreeNetUsed() >= 4700);
+    Assert.assertTrue(assetTransferNet.getFreeNetUsed() >= 1300);
 
     Assert.assertTrue(PublicMethed.sendcoin(transferAssetAddress,
         20000000, fromAddress, testKey002, blockingStubFull));
