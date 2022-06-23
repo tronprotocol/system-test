@@ -2,6 +2,7 @@ package stest.tron.wallet.dailybuild.http;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
@@ -12,8 +13,6 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 public class HttpTestProposal001 {
@@ -126,8 +125,8 @@ public class HttpTestProposal001 {
     Assert.assertEquals(
         100000, responseContent.getJSONArray("chainParameter").getJSONObject(2).get("value"));
     for (Object ob : responseContent.getJSONArray("chainParameter")) {
-      if ("getEnergyFee".equalsIgnoreCase(((JSONObject)ob).getString("key"))) {
-        energyFee = ((JSONObject)ob).getIntValue("value");
+      if ("getEnergyFee".equalsIgnoreCase(((JSONObject) ob).getString("key"))) {
+        energyFee = ((JSONObject) ob).getIntValue("value");
         break;
       }
     }

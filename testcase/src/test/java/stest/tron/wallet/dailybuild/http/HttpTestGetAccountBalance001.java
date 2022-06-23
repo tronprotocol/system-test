@@ -178,8 +178,8 @@ public class HttpTestGetAccountBalance001 {
     ECKey ecKey3 = new ECKey(Utils.getRandom());
     byte[] receiverAddress = ecKey3.getAddress();
 
-    String txid = HttpMethed.sendCoin(httpnode, assetOwnerAddress, receiverAddress, amount - 2003000L,
-            "", assetOwnerKey);
+    String txid = HttpMethed.sendCoin(httpnode, assetOwnerAddress, receiverAddress,
+        amount - 2003000L, "", assetOwnerKey);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
     Long afterBurnTrxAmount = HttpMethed.getBurnTrx(httpnode);
@@ -195,7 +195,7 @@ public class HttpTestGetAccountBalance001 {
    */
   @Test(enabled = false, description = "Get receipt root by http")
   public void test04GetReceiptRootByHttp() {
-    response = HttpMethed.getBlockByNum(httpnode,sendcoinBlockNumber);
+    response = HttpMethed.getBlockByNum(httpnode, sendcoinBlockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     String receiptsRoot = responseContent.getJSONObject("block_header").getJSONObject("raw_data")

@@ -439,7 +439,7 @@ public class ContractInternalTransaction003 {
     dupInternalTrsansactionHash(infoById.get().getInternalTransactionsList());
   }
 
-  @Test(enabled = true,retryAnalyzer = Retry.class,
+  @Test(enabled = true, retryAnalyzer = Retry.class,
       description = "Test maxfeelimit can trigger call create call max time")
   public void testInternalTransaction018() {
     Assert.assertTrue(PublicMethed

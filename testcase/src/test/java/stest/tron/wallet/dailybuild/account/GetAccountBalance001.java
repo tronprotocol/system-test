@@ -16,9 +16,9 @@ import org.tron.protos.Protocol;
 import org.tron.protos.contract.BalanceContract.BlockBalanceTrace;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ECKey;
 
 @Slf4j
 
@@ -62,8 +62,8 @@ public class GetAccountBalance001 {
     Protocol.Block currentBlock = blockingStubFull
         .getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
 
-    beforeFromBalance = PublicMethed.getAccountBalance(currentBlock,fromAddress,blockingStubFull);
-    beforeToBalance = PublicMethed.getAccountBalance(currentBlock,testAddress,blockingStubFull);
+    beforeFromBalance = PublicMethed.getAccountBalance(currentBlock, fromAddress, blockingStubFull);
+    beforeToBalance = PublicMethed.getAccountBalance(currentBlock, testAddress, blockingStubFull);
 
 
   }
@@ -78,33 +78,33 @@ public class GetAccountBalance001 {
         .getTransactionInfoById(txid, blockingStubFull);
     Long blockNum = infoById.get().getBlockNumber();
 
-    Protocol.Block currentBlock = PublicMethed.getBlock(blockNum,blockingStubFull);
+    Protocol.Block currentBlock = PublicMethed.getBlock(blockNum, blockingStubFull);
 
     BlockBalanceTrace blockBalanceTrace
-        = PublicMethed.getBlockBalance(currentBlock,blockingStubFull);
+        = PublicMethed.getBlockBalance(currentBlock, blockingStubFull);
 
 
-    Assert.assertEquals(ByteString.copyFrom(fromAddress),blockBalanceTrace
+    Assert.assertEquals(ByteString.copyFrom(fromAddress), blockBalanceTrace
         .getTransactionBalanceTrace(0).getOperation(0).getAddress());
-    Assert.assertEquals(-100000L,blockBalanceTrace.getTransactionBalanceTrace(0)
+    Assert.assertEquals(-100000L, blockBalanceTrace.getTransactionBalanceTrace(0)
         .getOperation(0).getAmount());
 
 
-    Assert.assertEquals(ByteString.copyFrom(fromAddress),blockBalanceTrace
+    Assert.assertEquals(ByteString.copyFrom(fromAddress), blockBalanceTrace
         .getTransactionBalanceTrace(0).getOperation(1).getAddress());
-    Assert.assertEquals(-sendAmount-1000000,blockBalanceTrace.getTransactionBalanceTrace(0)
+    Assert.assertEquals(-sendAmount - 1000000, blockBalanceTrace.getTransactionBalanceTrace(0)
         .getOperation(1).getAmount());
 
 
 
-    Assert.assertEquals(ByteString.copyFrom(testAddress),blockBalanceTrace
+    Assert.assertEquals(ByteString.copyFrom(testAddress), blockBalanceTrace
         .getTransactionBalanceTrace(0).getOperation(2).getAddress());
-    Assert.assertEquals(-sendAmount,-blockBalanceTrace.getTransactionBalanceTrace(0)
+    Assert.assertEquals(-sendAmount, -blockBalanceTrace.getTransactionBalanceTrace(0)
         .getOperation(2).getAmount());
 
 
-    afterFromBalance = PublicMethed.getAccountBalance(currentBlock,fromAddress,blockingStubFull);
-    afterToBalance = PublicMethed.getAccountBalance(currentBlock,testAddress,blockingStubFull);
+    afterFromBalance = PublicMethed.getAccountBalance(currentBlock, fromAddress, blockingStubFull);
+    afterToBalance = PublicMethed.getAccountBalance(currentBlock, testAddress, blockingStubFull);
 
     Assert.assertTrue(afterToBalance - beforeToBalance == sendAmount);
     Assert.assertTrue(beforeFromBalance - afterFromBalance >= sendAmount + 100000L);
