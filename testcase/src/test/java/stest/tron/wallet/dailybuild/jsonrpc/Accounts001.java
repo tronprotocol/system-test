@@ -868,12 +868,16 @@ public class Accounts001 extends JsonRpcBase {
     for (String str : result.split("/")) {
       resultList.add(str);
     }
+    response = HttpMethed.getNodeInfo(httpFullNode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String javaTronVersion =
+        responseContent.getJSONObject("configNodeInfo").getString("codeVersion");
+
     Assert.assertEquals(resultList.size(), 5);
     Assert.assertEquals(resultList.get(0), "TRON");
-    Assert.assertEquals(resultList.get(1).substring(0, 1), "v");
+    Assert.assertEquals(resultList.get(1), "v" + javaTronVersion);
     Assert.assertEquals(resultList.get(2), "Linux");
     Assert.assertEquals(resultList.get(3), "Java" + javaVersion);
-    Assert.assertEquals(resultList.get(4).substring(0, 11), "GreatVoyage");
   }
 
   @Test(enabled = true, description = "Json rpc api of web3_sha3")
