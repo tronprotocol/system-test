@@ -125,7 +125,7 @@ public class MongoEventQuery004 extends MongoBase {
   }
 
   @Test(enabled = true, description = "MongoDB log query for contract log")
-  public void test03MongoDbEventQueryForContractEvent() {
+  public void test01MongoDbEventQueryForContractEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] event001Address = ecKey1.getAddress();
@@ -195,7 +195,7 @@ public class MongoEventQuery004 extends MongoBase {
   }
 
   @Test(enabled = true, description = "MongoDb log query for solidity contract log")
-  public void test04MongoDbEventQueryForContractEvent() {
+  public void test02MongoDbEventQueryForContractEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] event001Address = ecKey1.getAddress();

@@ -178,9 +178,20 @@ public class MongoEventQuery002 extends MongoBase {
     event002Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
     PublicMethed.printAddress(event002Key);
     logger.info("event002Key:" + event002Key);
+    GrpcAPI.AccountResourceMessage accountResource =
+        PublicMethed.getAccountResource(internalTxsAddress, blockingStubFull);
+    long energyLimit = accountResource.getTotalEnergyLimit();
+    long energyWeight = accountResource.getTotalEnergyWeight();
+    energyWeight = energyWeight == 0 ? 1 : energyWeight;
+    logger.info("energyWeight:" + energyWeight);
+    long freezeAmount = 1000000000;
+    if (energyLimit / energyWeight > 5000) {
+      freezeAmount = 900000000000000L;
+    }
+    logger.info("freezeAmount:" + freezeAmount);
     Assert.assertTrue(
         PublicMethed.sendcoin(
-            event002Address, 100000000L, fromAddress, testKey002, blockingStubFull));
+            event002Address, freezeAmount, fromAddress, testKey002, blockingStubFull));
 
     Assert.assertTrue(
         PublicMethed.sendcoin(
@@ -211,9 +222,8 @@ public class MongoEventQuery002 extends MongoBase {
     logger.info("deployContractTxId:" + deployContractTxId);
     Assert.assertTrue(
         PublicMethed.freezeBalanceGetEnergy(
-            event002Address, 1000000000L, 0, 1, event002Key, blockingStubFull));
+            event002Address, freezeAmount, 0, 1, event002Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    long freezeAmount = 900000000000000L;
     Assert.assertTrue(
         PublicMethed.freezeBalanceGetEnergy(
             testNetAccountAddress, freezeAmount, 0, 1, testNetAccountKey, blockingStubFull));
@@ -342,9 +352,6 @@ public class MongoEventQuery002 extends MongoBase {
         jsonObjectTxIdIndex0, jsonObjectTxIdIndex2, txIdIndex0);
 
     testNetFee();
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(
-            testNetAccountAddress, testNetAccountKey, 1, null, blockingStubFull));
   }
 
   @Test(
@@ -928,6 +935,16 @@ public class MongoEventQuery002 extends MongoBase {
   /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
+
+    Assert.assertTrue(
+        PublicMethed.unFreezeBalance(
+            testNetAccountAddress, testNetAccountKey, 1, null, blockingStubFull));
+
+    Assert.assertTrue(
+        PublicMethed.unFreezeBalance(event002Address, event002Key, 1, null, blockingStubFull));
+
+    PublicMethed.freedResource(event002Address, event002Key, fromAddress, blockingStubFull);
+
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
