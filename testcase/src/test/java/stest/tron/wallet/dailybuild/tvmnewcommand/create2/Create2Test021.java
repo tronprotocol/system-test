@@ -94,7 +94,10 @@ public class Create2Test021 {
         .sendcoin(resourceOnwerAddress, 1000000000L + 1024000000L, testNetAccountAddress,
             testNetAccountKey,
             blockingStubFull));
-
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(testNetAccountAddress, 10000000000L, 0, 0,
+        ByteString.copyFrom(resourceOnwerAddress), testNetAccountKey, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(testNetAccountAddress, 10000000000L, 0, 1,
+        ByteString.copyFrom(resourceOnwerAddress), testNetAccountKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     //Create 3 the same name token.
     Long start = System.currentTimeMillis() + 2000;
@@ -352,6 +355,10 @@ public class Create2Test021 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
+    Assert.assertTrue(PublicMethed.unFreezeBalance(testNetAccountAddress, testNetAccountKey,
+        0, resourceOnwerAddress, blockingStubFull));
+    Assert.assertTrue(PublicMethed.unFreezeBalance(testNetAccountAddress, testNetAccountKey,
+        1, resourceOnwerAddress, blockingStubFull));
 
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
