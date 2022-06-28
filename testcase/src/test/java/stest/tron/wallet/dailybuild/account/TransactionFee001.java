@@ -551,9 +551,9 @@ public class TransactionFee001 {
     Long packingFee = infoById.get().getPackingFee();
     logger.info("receipt:" + infoById.get().getReceipt());
     Assert.assertTrue(packingFee == 0L);
-    Assert.assertTrue(infoById.get().getFee() >= maxFeeLimit);
+    Assert.assertTrue(infoById.get().getFee() < maxFeeLimit);
     afterBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == maxFeeLimit);
+    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getFee());
   }
 
   @Test(enabled = true, description = "Test create account with netFee to sr")
@@ -624,9 +624,9 @@ public class TransactionFee001 {
     Optional<Protocol.TransactionInfo> infoById =
         PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getPackingFee() == 0L);
-    Assert.assertTrue(infoById.get().getFee() == 100000L);
+    Assert.assertTrue(infoById.get().getFee() == 1100000L);
     afterBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == 100000L);
+    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == 1100000L);
   }
 
   @Test(

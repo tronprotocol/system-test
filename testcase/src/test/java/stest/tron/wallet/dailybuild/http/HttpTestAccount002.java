@@ -257,6 +257,9 @@ public class HttpTestAccount002 {
     response = HttpMethed
         .sendCoin(httpnode, fromAddress, receiverResourceAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
+    response = HttpMethed
+        .freezeBalance(httpnode, fromAddress, 1000000000L, 0, 0, freezeBalanceAddress,
+            testKey002);
     HttpMethed.waitToProduceOneBlock(httpnode);
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
@@ -329,6 +332,10 @@ public class HttpTestAccount002 {
    */
   @AfterClass
   public void shutdown() throws InterruptedException {
+    response = HttpMethed
+        .unFreezeBalance(httpnode, fromAddress, 0, freezeBalanceAddress,
+            testKey002);
+    Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.freedResource(httpnode, freezeBalanceAddress, fromAddress, freezeBalanceKey);
     HttpMethed.disConnect();
   }

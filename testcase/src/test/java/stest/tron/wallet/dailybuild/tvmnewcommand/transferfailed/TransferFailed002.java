@@ -70,7 +70,7 @@ public class TransferFailed002 {
   @Test(enabled = true, description = "Send balance not enough")
   public void test1SendNotEnough() {
     Assert.assertTrue(PublicMethed
-        .sendcoin(contractExcAddress, 100000000L, testNetAccountAddress, testNetAccountKey,
+        .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/TransferFailed001.sol";

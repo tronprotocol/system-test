@@ -145,7 +145,7 @@ public class HttpTestGetAccountBalance001 {
     Assert.assertTrue(Math.abs(transactionObject.getJSONArray("operation")
         .getJSONObject(0).getLong("amount")) == 100000L);
     Assert.assertTrue(Math.abs(transactionObject.getJSONArray("operation")
-        .getJSONObject(1).getLong("amount")) == amount / 1000000L);
+        .getJSONObject(1).getLong("amount")) == (amount / 1000000L + 1000000L));
     Assert.assertTrue(Math.abs(transactionObject.getJSONArray("operation")
         .getJSONObject(2).getLong("amount")) == amount / 1000000L);
 
@@ -178,13 +178,13 @@ public class HttpTestGetAccountBalance001 {
     ECKey ecKey3 = new ECKey(Utils.getRandom());
     byte[] receiverAddress = ecKey3.getAddress();
 
-    HttpMethed.sendCoin(httpnode, assetOwnerAddress, receiverAddress, amount - 103000L,
-            "", assetOwnerKey);
+    String txid = HttpMethed.sendCoin(httpnode, assetOwnerAddress, receiverAddress,
+        amount - 2003000L, "", assetOwnerKey);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
     Long afterBurnTrxAmount = HttpMethed.getBurnTrx(httpnode);
     logger.info(afterBurnTrxAmount + "  :   " + beforeBurnTrxAmount);
-    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == 100000L);
+    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == 1100000L);
 
     Assert.assertEquals(afterBurnTrxAmount, HttpMethed.getBurnTrxFromSolidity(httpSolidityNode));
     Assert.assertEquals(afterBurnTrxAmount, HttpMethed.getBurnTrxFromPbft(httpPbftNode));
@@ -195,7 +195,7 @@ public class HttpTestGetAccountBalance001 {
    */
   @Test(enabled = false, description = "Get receipt root by http")
   public void test04GetReceiptRootByHttp() {
-    response = HttpMethed.getBlockByNum(httpnode,sendcoinBlockNumber);
+    response = HttpMethed.getBlockByNum(httpnode, sendcoinBlockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     String receiptsRoot = responseContent.getJSONObject("block_header").getJSONObject("raw_data")
