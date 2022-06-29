@@ -1,7 +1,9 @@
 package stest.tron.wallet.dailybuild.account;
 
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +21,7 @@ import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
+import org.tron.protos.contract.WitnessContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
@@ -28,6 +31,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 import stest.tron.wallet.common.client.utils.Retry;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
+import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.Utils;
 
 // import org.tron.common.parameter.CommonParameter;
@@ -45,6 +49,9 @@ public class TransactionFee001 {
   private final String witnessKey02 =
       Configuration.getByPath("testng.conf").getString("witness.key2");
   private final byte[] witnessAddress02 = PublicMethed.getFinalAddress(witnessKey02);
+  private final String witnessKey03 =
+      Configuration.getByPath("testng.conf").getString("witness.key3");
+  private final byte[] witnessAddress03 = PublicMethed.getFinalAddress(witnessKey03);
   private long multiSignFee =
       Configuration.getByPath("testng.conf").getLong("defaultParameter.multiSignFee");
   private long updateAccountPermissionFee =
@@ -53,6 +60,9 @@ public class TransactionFee001 {
       Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
   private final String blackHoleAdd =
       Configuration.getByPath("testng.conf").getString("defaultParameter.blackHoleAddress");
+  private Long costForCreateWitness = 9999000000L;
+  String witness03Url = "http://witness03Url.com";
+  byte[] createUrl = witness03Url.getBytes();
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -873,6 +883,70 @@ public class TransactionFee001 {
     Assert.assertEquals(
         blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()),
         blockingStubPbft.getBurnTrx(EmptyMessage.newBuilder().build()));
+  }
+
+  /** constructor. */
+  @Test(enabled = true, description = " create and vote witness, "
+      + "after this case there will be 3 SR")
+  public void test08CreateAndVoteWitness() {
+    int beforeCreateWitnessCount = PublicMethed.listWitnesses(blockingStubFull)
+        .get().getWitnessesCount();
+    Assert.assertEquals(2, beforeCreateWitnessCount);
+    Assert.assertTrue(PublicMethed
+        .sendcoin(witnessAddress03, costForCreateWitness + 100000000L, fromAddress, testKey002,
+            blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    org.testng.Assert.assertTrue(PublicMethed.freezeBalanceGetTronPower(witnessAddress03, 1000000L,
+        0, 2, null, witnessKey03, blockingStubFull));
+    Assert.assertTrue(createWitness(witnessAddress03, createUrl, witnessKey03));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    int afterCreateWitnessCount = PublicMethed.listWitnesses(blockingStubFull)
+        .get().getWitnessesCount();
+    Assert.assertEquals(3, afterCreateWitnessCount);
+    Assert.assertTrue(PublicMethed.queryAccount(witnessAddress03, blockingStubFull).getIsWitness());
+
+    HashMap<byte[], Long> witnessMap = new HashMap<>();
+    witnessMap.put(witnessAddress03, 1L);
+    Assert.assertTrue(PublicMethed.voteWitness(witnessAddress03, witnessKey03, witnessMap,
+        blockingStubFull));
+  }
+
+  /**
+   * constructor.
+   */
+
+  public Boolean createWitness(byte[] owner, byte[] url, String priKey) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    WitnessContract.WitnessCreateContract.Builder builder = WitnessContract.WitnessCreateContract
+        .newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+    builder.setUrl(ByteString.copyFrom(url));
+    WitnessContract.WitnessCreateContract contract = builder.build();
+    Protocol.Transaction transaction = blockingStubFull.createWitness(contract);
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      return false;
+    }
+    transaction = signTransaction(ecKey, transaction);
+    GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+    return response.getResult();
+  }
+
+  private Protocol.Transaction signTransaction(ECKey ecKey, Protocol.Transaction transaction) {
+    if (ecKey == null || ecKey.getPrivKey() == null) {
+      logger.warn("Warning: Can't sign,there is no private key !!");
+      return null;
+    }
+    transaction = TransactionUtils.setTimestamp(transaction);
+    return TransactionUtils.sign(transaction, ecKey);
   }
 
   /** constructor. */
