@@ -386,9 +386,13 @@ public class EventQuery004 {
 
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
-        if (!transactionMessage.equals("solidityLogTrigger") && !transactionMessage.isEmpty() && transactionMessage.contains("solidityLogTrigger")) {
+        if (!transactionMessage.equals("solidityLogTrigger")
+            && !transactionMessage.isEmpty()
+            && transactionMessage.contains("solidityLogTrigger")) {
           break;
         }
+      } else {
+        sendTransaction = true;
       }
     }
     Assert.assertTrue(retryTimes > 0);

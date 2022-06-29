@@ -18,32 +18,25 @@ import zmq.ZMQ.Event;
 @Slf4j
 public class EventQuery001 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethed.getFinalAddress(testKey003);
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String eventnode = Configuration.getByPath("testng.conf")
-      .getStringList("eventnode.ip.list").get(0);
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private String eventnode =
+      Configuration.getByPath("testng.conf").getStringList("eventnode.ip.list").get(0);
+  private Long maxFeeLimit =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
@@ -55,15 +48,16 @@ public class EventQuery001 {
     req.subscribe("blockTrigger");
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
-
-    }).start();
+    new Thread(
+            new Runnable() {
+              public void run() {
+                while (true) {
+                  Event event = Event.read(moniter.base());
+                  System.out.println(event.event + "  " + event.addr);
+                }
+              }
+            })
+        .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
     String blockMessage = "";
@@ -72,7 +66,7 @@ public class EventQuery001 {
     while (retryTimes-- > 0) {
       byte[] message = req.recv();
       if (message != null) {
-        //System.out.println("receive : " + new String(message));
+        // System.out.println("receive : " + new String(message));
         blockMessage = new String(message);
         if (!blockMessage.equals("blockTrigger") && !blockMessage.isEmpty()) {
           break;
@@ -90,7 +84,6 @@ public class EventQuery001 {
     Assert.assertTrue(blockObject.getInteger("transactionSize") >= 0);
   }
 
-
   @Test(enabled = true, description = "Event query for block on solidity")
   public void test02EventQueryForBlockOnSolidity() {
     ZMQ.Context context = ZMQ.context(1);
@@ -99,15 +92,16 @@ public class EventQuery001 {
     req.subscribe("solidityTrigger");
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
-
-    }).start();
+    new Thread(
+            new Runnable() {
+              public void run() {
+                while (true) {
+                  Event event = Event.read(moniter.base());
+                  System.out.println(event.event + "  " + event.addr);
+                }
+              }
+            })
+        .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
     String blockMessage = "";
@@ -122,6 +116,8 @@ public class EventQuery001 {
         if (!blockMessage.equals("solidityTrigger") && !blockMessage.isEmpty()) {
           break;
         }
+      } else {
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
       }
     }
 
@@ -133,11 +129,7 @@ public class EventQuery001 {
     Assert.assertTrue(blockObject.getLong("latestSolidifiedBlockNumber") > 0);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -145,5 +137,3 @@ public class EventQuery001 {
     }
   }
 }
-
-
