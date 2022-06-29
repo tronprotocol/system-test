@@ -439,7 +439,7 @@ public class ContractInternalTransaction003 {
     dupInternalTrsansactionHash(infoById.get().getInternalTransactionsList());
   }
 
-  @Test(enabled = true,retryAnalyzer = Retry.class,
+  @Test(enabled = true, retryAnalyzer = Retry.class,
       description = "Test maxfeelimit can trigger call create call max time")
   public void testInternalTransaction018() {
     Assert.assertTrue(PublicMethed
@@ -481,17 +481,16 @@ public class ContractInternalTransaction003 {
             internalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed
-        .sendcoin(internalTxsAddress, 2000000000L, testNetAccountAddress, testNetAccountKey,
+        .sendcoin(internalTxsAddress, 500000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     String initParmes = "\"" + Base58.encode58Check(contractAddress1)
         + "\",\"" + Base58.encode58Check(contractAddress2) + "\"";
     String txid = "";
     txid = PublicMethed.triggerContract(contractAddress,
         "test1(address,address)", initParmes, false,
-        100000, maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
+        100000, 2000000000L, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;

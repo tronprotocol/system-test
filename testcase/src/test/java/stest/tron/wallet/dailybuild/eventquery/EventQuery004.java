@@ -132,7 +132,7 @@ public class EventQuery004 {
     req.setReceiveTimeOut(10000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 20;
+    Integer retryTimes = 10;
 
     while (retryTimes-- > 0) {
       byte[] message = req.recv();
@@ -189,7 +189,7 @@ public class EventQuery004 {
     req.setReceiveTimeOut(10000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 40;
+    Integer retryTimes = 10;
     String txid1 = "";
     String txid2 = "";
     String txid3 = "";
@@ -386,7 +386,7 @@ public class EventQuery004 {
 
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
-        if (!transactionMessage.equals("solidityLogTrigger") && !transactionMessage.isEmpty()) {
+        if (!transactionMessage.equals("solidityLogTrigger") && !transactionMessage.isEmpty() && transactionMessage.contains("solidityLogTrigger")) {
           break;
         }
       }

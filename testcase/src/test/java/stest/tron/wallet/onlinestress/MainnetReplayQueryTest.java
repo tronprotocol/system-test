@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.BytesMessage;
 import org.tron.api.GrpcAPI.DecryptNotes;
+import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.GrpcAPI.DiversifierMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.ExpandedSpendingKeyMessage;
@@ -32,15 +33,20 @@ import org.tron.api.GrpcAPI.IncomingViewingKeyMessage;
 import org.tron.api.GrpcAPI.Note;
 import org.tron.api.GrpcAPI.PaymentAddressMessage;
 import org.tron.api.GrpcAPI.TransactionExtention;
+import org.tron.api.GrpcAPI.TransactionInfoList;
 import org.tron.api.GrpcAPI.ViewingKeyMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.CommonParameter;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.Sha256Hash;
 import stest.tron.wallet.common.client.utils.ShieldAddressInfo;
 import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
@@ -49,20 +55,19 @@ import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 @Slf4j
 public class MainnetReplayQueryTest {
 
-  public final String foundationAccountKey = Configuration.getByPath("testng.conf")
+  public static final String foundationAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  public final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
+  public static final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-
-  //private String fullnode = "47.94.243.150:50051";//014
-  private String fullnode = "10.40.10.244:50051";//014
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("replayQueryNode.ip.list").get(0);
 
   AtomicLong atomicLong = new AtomicLong();
 
-  private Long replayTimes = 500000L;
+  private static Long replayTimes = 10000000L;
 
-  String[] trc20Contract = new String[]{
+  private static String[] trc20Contract = new String[]{
       //"TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR",//WTRX
       //"TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9",//BTC
       //"THb4CqiFdwNHsWsQCs4JhzwjMWys4aqCbF",//ETH
@@ -75,6 +80,9 @@ public class MainnetReplayQueryTest {
       "TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9",//JST
       "TSSMHYeV2uE9qYH95DqyoCuNCzEL1NvU3S"//SUN
   };
+
+
+
 
 
 
@@ -92,32 +100,70 @@ public class MainnetReplayQueryTest {
         .usePlaintext(true)
         .build();
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    Integer threadId = Integer.valueOf(Thread.currentThread().getName().split("-")[2]);
+    threadId = getQueryIndex(threadId);
 
-
-
-
-    for(int i = 0; i < replayTimes;i++) {
-      Integer queryAccountIndex = i % accountList.size();
-      System.out.println("Query time: " + atomicLong.addAndGet(1L));
-      queryTrc20ContractBalanceOf(accountList.get(queryAccountIndex),blockingStubFull);
-
-      PublicMethed.getAssetBalanceByAssetId(
-          ByteString.copyFromUtf8("1002000"), WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)), blockingStubFull);
-
-      System.out.println(PublicMethed.queryAccount(WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)),blockingStubFull).getBalance());
+    switch (threadId) {
+      case 0:
+      //GetTransactionInfoByBlockNum,getTransactionInfoByid
+        getTransactionInfo(blockingStubFull);
+      case 1:
+      //Get account
+        getAccountBalance(blockingStubFull);
+        break;
+      case 2:
+      //Get trc10 balance
+        getAccountTrc10Balance(blockingStubFull);
+        break;
+      case 3:
+      //GetTransactionById,getblock
+        getTransaction(blockingStubFull);
+        break;
+      case 4:
+      //GetAccount resource
+        getAccountResource(blockingStubFull);
+        break;
+      case 5:
+      //Get assetissue by id
+        getAssetIssue(blockingStubFull);
+        break;
+      case 6:
+      //Get delegateResource
+        getDelegateResource(blockingStubFull);
+        break;
+      case 7:
+      //Get contract
+        getContract(blockingStubFull);
+        break;
+      default:
+      //Trc20 balanceOf
+        queryTrc20ContractBalanceOf(blockingStubFull);
+        break;
     }
+
+
+
+
+
+
+
 
   }
 
 
   HashSet<String> set = new HashSet<>();
-  public void queryTrc20ContractBalanceOf(String queryAddress,WalletGrpc.WalletBlockingStub blockingStubFull) {
-    String paramStr = "\"" + queryAddress + "\"";
-    for(int i = 0; i < trc20Contract.length;i++) {
-      TransactionExtention transactionExtention = PublicMethed
-          .triggerConstantContractForExtention(WalletClient.decodeFromBase58Check(trc20Contract[i]), "balanceOf(address)",
-              paramStr, false, 0, 0, "0", 0,
-              foundationAccountAddress, foundationAccountKey, blockingStubFull);
+  public void queryTrc20ContractBalanceOf(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int index = 0; index < replayTimes;index++) {
+      Integer queryAccountIndex = index % accountList.size();
+      String paramStr = "\"" + accountList.get(queryAccountIndex) + "\"";
+      for(int i = 0; i < trc20Contract.length;i++) {
+        TransactionExtention transactionExtention = PublicMethed
+            .triggerConstantContractForExtention(WalletClient.decodeFromBase58Check(trc20Contract[i]), "balanceOf(address)",
+                paramStr, false, 0, 0, "0", 0,
+                foundationAccountAddress, foundationAccountKey, blockingStubFull);
+
+        /*System.out.println(Hex.toHexString(transactionExtention
+            .getConstantResult(0).toByteArray()));*/
 
  /*      if(!"0000000000000000000000000000000000000000000000000000000000000000".equalsIgnoreCase(Hex.toHexString(transactionExtention
           .getConstantResult(0).toByteArray()))) {
@@ -130,6 +176,136 @@ public class MainnetReplayQueryTest {
           System.exit(1);
         }
       }*/
+      }
+    }
+
+
+
+  }
+
+  public static void getAccountBalance(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int index = 0; index < replayTimes;index++) {
+      Integer queryAccountIndex = index % accountList.size();
+      //System.out.println(PublicMethed.queryAccount(WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)),blockingStubFull).getBalance());
+      PublicMethed.queryAccount(WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)),blockingStubFull);
+    }
+  }
+
+  public static void getAccountResource(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int index = 0; index < replayTimes;index++) {
+      Integer queryAccountIndex = index % accountList.size();
+      PublicMethed.getAccountResource(WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)),blockingStubFull);
+    }
+  }
+
+  public static void getContract(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int index = 0; index < replayTimes;index++) {
+      Integer queryContractIndex = index % trc20Contract.length;
+      try {
+        PublicMethed.getContract(WalletClient.decodeFromBase58Check(trc20Contract[queryContractIndex]),blockingStubFull);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+    }
+  }
+
+  public static void getDelegateResource(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Optional<Protocol.DelegatedResourceAccountIndex> delegatedResourceIndexResult = null;
+    try {
+       delegatedResourceIndexResult = PublicMethed
+          .getDelegatedResourceAccountIndex(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"), blockingStubFull);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+     for(int index = 0; index < replayTimes;index++) {
+      if(index % 40 == 0) {
+        try {
+          delegatedResourceIndexResult = PublicMethed
+              .getDelegatedResourceAccountIndex(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"), blockingStubFull);
+
+        } catch (Exception e) {
+          e.printStackTrace();
+      }
+      }
+      for(int i = 0; i < delegatedResourceIndexResult.get().getToAccountsCount();i++) {
+        try {
+          PublicMethed.getDelegatedResource(WalletClient.decodeFromBase58Check("TAGoxYjDfXPRigzDakBxZHZWd89MqcdPuP"),
+              delegatedResourceIndexResult.get().getToAccounts(i).toByteArray(),blockingStubFull);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
+      }
+    }
+  }
+
+
+  public static void getAssetIssue(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int index = 0; index < replayTimes;index++) {
+      for(int assetId = 1000001; assetId < 1000001 + 3000; assetId++) {
+        PublicMethed.getAssetIssueById(String.valueOf(assetId),blockingStubFull);
+      }
+    }
+
+
+  }
+
+
+  public static void getTransactionInfo(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int m = 0; m < replayTimes;m++) {
+      Long currentBlockNum = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build()).getBlockHeader().getRawData().getNumber();
+      TransactionInfoList transactionInfoList = PublicMethed.getTransactionInfoByBlockNum(currentBlockNum,blockingStubFull).get();
+      for(int i = 0; i < transactionInfoList.getTransactionInfoCount();i++) {
+        if(i > 20) {
+          break;
+        }
+        try {
+          PublicMethed.getTransactionInfoById(ByteArray.toHexString(transactionInfoList.getTransactionInfo(i).getId().toByteArray()),blockingStubFull);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
+/*        System.out.println("TransactionInfo timestamp:" + PublicMethed.getTransactionInfoById(ByteArray.toHexString(transactionInfoList.getTransactionInfo(i).getId().toByteArray()),blockingStubFull)
+            .get().getBlockTimeStamp());*/
+      }
+    }
+  }
+
+
+  public static void getTransaction(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int m = 0; m < replayTimes;m++) {
+      Block block = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build());
+      for(int i = 0; i < block.getTransactionsCount();i++) {
+        if(i > 20) {
+          break;
+        }
+        String txid = ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                block.getTransactions(i).getRawData().toByteArray()));
+        try {
+          PublicMethed.getTransactionById(txid,blockingStubFull);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
+        //System.out.println("TransactionByid sig count: " + PublicMethed.getTransactionById(txid,blockingStubFull).get().getSignatureCount());
+      }
+    }
+
+
+
+  }
+
+
+
+  public static void getAccountTrc10Balance(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int index = 0; index < replayTimes;index++) {
+      Integer queryAccountIndex = index % accountList.size();
+      PublicMethed.getAssetBalanceByAssetId(
+          ByteString.copyFromUtf8("1002000"), WalletClient.decodeFromBase58Check(accountList.get(queryAccountIndex)), blockingStubFull);
     }
   }
 
@@ -162,6 +338,11 @@ public class MainnetReplayQueryTest {
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
+  }
+
+
+  public static int getQueryIndex(Integer threadId) {
+    return threadId % 14;
   }
 
 

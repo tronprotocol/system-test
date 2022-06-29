@@ -354,7 +354,7 @@ public class ContractScenario011 {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
-        "setCEO(address)", newCxoAddress, false, 0, 1000000, deployAddress,
+        "setCEO(address)", newCxoAddress, false, 0, 1000000000, deployAddress,
         deployKey, blockingStubFull);
     logger.info("CEO " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -418,7 +418,7 @@ public class ContractScenario011 {
     Assert.assertTrue(infoById.get().getReceipt().getEnergyFee() > 10000);
     //    Assert.assertTrue(infoById.get().getReceipt().getOriginEnergyUsage() > 10000);
     Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal()
-        == infoById.get().getReceipt().getEnergyFee() / 100 + infoById.get().getReceipt()
+        == infoById.get().getReceipt().getEnergyFee() / 280 + infoById.get().getReceipt()
         .getOriginEnergyUsage());
 
     Long fee = infoById.get().getFee();

@@ -188,7 +188,7 @@ public class ContractLinkage006 {
     initParmes = "\"" + Base58.encode58Check(fromAddress) + "\",\"63\"";
     txid = PublicMethed.triggerContract(contractAddress,
         "init(address,uint256)", initParmes, false,
-        0, 100000000L, linkage006Address2, linkage006Key2, blockingStubFull);
+        0, 2000000000L, linkage006Address2, linkage006Key2, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = PublicMethed

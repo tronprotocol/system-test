@@ -207,7 +207,7 @@ public class MutiSignAssetTest {
     logger.info("fee: " + fee);
 
     Assert.assertEquals(balanceBefore - balanceAfter, fee);
-    Assert.assertEquals(fee, energyFee + netFee + multiSignFee);
+    Assert.assertEquals(fee, energyFee + netFee + multiSignFee + 1000000L);
   }
 
   /**
