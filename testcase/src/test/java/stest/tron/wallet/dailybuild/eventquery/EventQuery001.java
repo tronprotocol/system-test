@@ -118,6 +118,7 @@ public class EventQuery001 {
         }
       } else {
         PublicMethed.waitProduceNextBlock(blockingStubFull);
+        continue;
       }
     }
 

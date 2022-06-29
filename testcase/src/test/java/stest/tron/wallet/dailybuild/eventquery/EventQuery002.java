@@ -129,6 +129,7 @@ public class EventQuery002 {
         }
       } else {
         sendTransaction = true;
+        continue;
       }
     }
 

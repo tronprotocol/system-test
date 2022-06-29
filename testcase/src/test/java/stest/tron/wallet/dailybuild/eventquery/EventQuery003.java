@@ -204,6 +204,7 @@ public class EventQuery003 {
         }
       } else {
         sendTransaction = true;
+        continue;
       }
     }
     Assert.assertTrue(retryTimes > 0);
