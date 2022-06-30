@@ -106,6 +106,7 @@ public class ContractTrcToken064 {
         10000, start, end, 1, description, url, 100000L, 100000L,
         1L, 1L, user001Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     assetAccountUser = PublicMethed.queryAccount(user001Address, blockingStubFull)
         .getAssetIssuedID();
     logger.info("The assetAccountUser token name: " + tokenName);

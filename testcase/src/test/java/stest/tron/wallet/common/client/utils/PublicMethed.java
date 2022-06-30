@@ -1528,7 +1528,7 @@ public class PublicMethed {
         && wait
             < ((getWitnessNum(blockingStubFull) >= 27)
                 ? 27
-                : getWitnessNum(blockingStubFull) + 1)) {
+                : getWitnessNum(blockingStubFull) + 2)) {
       try {
         Thread.sleep(3000);
       } catch (InterruptedException e) {

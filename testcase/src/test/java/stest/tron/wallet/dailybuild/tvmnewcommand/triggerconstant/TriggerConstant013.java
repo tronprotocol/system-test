@@ -134,7 +134,7 @@ public class TriggerConstant013 {
             "deploy(bytes,uint256)", num, false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Long fee = infoById.get().getFee();
@@ -239,7 +239,7 @@ public class TriggerConstant013 {
 
   @Test(enabled = true, description = "TriggerConstantContract a constant function "
       + "created by create2 on solidity")
-  public void test15TriggerConstantContractOnSolidity() {
+  public void test16TriggerConstantContractOnSolidity() {
     SmartContract smartContract = PublicMethed.getContract(returnAddressBytes, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString().isEmpty());
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
@@ -249,6 +249,7 @@ public class TriggerConstant013 {
         .triggerConstantContractForExtentionOnSolidity(returnAddressBytes,
             "plusOne()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
+    System.out.println("1111111: " + transactionExtention.toString());
     Transaction transaction = transactionExtention.getTransaction();
 
     byte[] result = transactionExtention.getConstantResult(0).toByteArray();
@@ -264,7 +265,7 @@ public class TriggerConstant013 {
 
   @Test(enabled = true, description = "TriggerConstantContract a constant function "
       + "created by create2 on real solidity")
-  public void test15TriggerConstantContractOnRealSolidity() {
+  public void test17TriggerConstantContractOnRealSolidity() {
     SmartContract smartContract = PublicMethed.getContract(returnAddressBytes, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString().isEmpty());
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
@@ -289,7 +290,7 @@ public class TriggerConstant013 {
 
   @Test(enabled = true, description = "TriggerConstantContract a constant function "
           + "created by create2 on pbft")
-  public void test17TriggerConstantContractOnPbft() {
+  public void test18TriggerConstantContractOnPbft() {
     SmartContract smartContract = PublicMethed.getContract(returnAddressBytes, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString().isEmpty());
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());

@@ -162,7 +162,7 @@ public class WalletTestAssetIssue020 {
     Assert.assertTrue(PublicMethed.createAssetIssue(asset020SecondAddress,
         name, totalSupply, 1, 1, 1, start, end, 1, description, url,
         2000L, 2000L, 1L, 1L, asset020SecondKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
     assetIssueInfo = PublicMethed.getAssetIssueByName(name, blockingStubFull);
     Assert.assertTrue(assetIssueInfo.getName().isEmpty());
 
