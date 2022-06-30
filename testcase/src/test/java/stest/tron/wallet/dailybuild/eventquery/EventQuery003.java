@@ -3,6 +3,9 @@ package stest.tron.wallet.dailybuild.eventquery;
 import com.alibaba.fastjson.JSONObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -46,6 +49,7 @@ public class EventQuery003 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] event001Address = ecKey1.getAddress();
   String event001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  List<String> transactionIdList = null;
 
   /** constructor. */
   @BeforeClass(enabled = true)
@@ -109,7 +113,7 @@ public class EventQuery003 {
     String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
-
+    transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
       byte[] message = req.recv();
       if (sendTransaction) {
@@ -125,6 +129,7 @@ public class EventQuery003 {
                 event001Key,
                 blockingStubFull);
         logger.info(txid);
+        transactionIdList.add(txid);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
@@ -137,6 +142,8 @@ public class EventQuery003 {
         if (!transactionMessage.equals("contractEventTrigger") && !transactionMessage.isEmpty()) {
           break;
         }
+      } else {
+        sendTransaction = true;
       }
     }
     Assert.assertTrue(retryTimes > 0);
@@ -144,8 +151,14 @@ public class EventQuery003 {
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "contractEventTrigger");
-
-    Assert.assertEquals(blockObject.getString("transactionId"), txid);
+    Boolean flag = false;
+    for (int i = 0; i < transactionIdList.size(); i++) {
+      if (blockObject.getString("transactionId").equals(transactionIdList.get(i))) {
+        flag = true;
+        break;
+      }
+    }
+    Assert.assertTrue(flag);
   }
 
   @Test(enabled = true, description = "Event query for solidity contract event")
@@ -171,8 +184,8 @@ public class EventQuery003 {
     req.setReceiveTimeOut(10000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
+    transactionIdList = new ArrayList<>();
     Integer retryTimes = 40;
-
     while (retryTimes-- > 0) {
       byte[] message = req.recv();
       if (sendTransaction) {
@@ -188,6 +201,8 @@ public class EventQuery003 {
                 event001Key,
                 blockingStubFull);
         logger.info(txid);
+
+        transactionIdList.add(txid);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
@@ -204,7 +219,6 @@ public class EventQuery003 {
         }
       } else {
         sendTransaction = true;
-        continue;
       }
     }
     Assert.assertTrue(retryTimes > 0);
@@ -212,8 +226,14 @@ public class EventQuery003 {
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "solidityEventTrigger");
-
-    Assert.assertEquals(blockObject.getString("transactionId"), txid);
+    Boolean flag = false;
+    for (int i = 0; i < transactionIdList.size(); i++) {
+      if (blockObject.getString("transactionId").equals(transactionIdList.get(i))) {
+        flag = true;
+        break;
+      }
+    }
+    Assert.assertTrue(flag);
   }
 
   /** constructor. */

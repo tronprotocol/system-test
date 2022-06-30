@@ -116,9 +116,6 @@ public class EventQuery001 {
         if (!blockMessage.equals("solidityTrigger") && !blockMessage.isEmpty()) {
           break;
         }
-      } else {
-        PublicMethed.waitProduceNextBlock(blockingStubFull);
-        continue;
       }
     }
 
