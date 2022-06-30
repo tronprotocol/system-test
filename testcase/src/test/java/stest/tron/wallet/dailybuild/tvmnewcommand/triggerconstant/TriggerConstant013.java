@@ -249,7 +249,6 @@ public class TriggerConstant013 {
         .triggerConstantContractForExtentionOnSolidity(returnAddressBytes,
             "plusOne()", "#", false,
             0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubSolidity);
-    System.out.println("1111111: " + transactionExtention.toString());
     Transaction transaction = transactionExtention.getTransaction();
 
     byte[] result = transactionExtention.getConstantResult(0).toByteArray();
