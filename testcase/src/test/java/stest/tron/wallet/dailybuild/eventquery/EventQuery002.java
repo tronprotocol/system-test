@@ -128,7 +128,11 @@ public class EventQuery002 {
 
       if (message != null) {
         transactionMessage = new String(message);
-        if (!transactionMessage.equals("transactionTrigger") && !transactionMessage.isEmpty()) {
+        logger.info("transaction message:" + transactionMessage);
+        JSONObject blockObject = JSONObject.parseObject(transactionMessage);
+        if (!transactionMessage.equals("transactionTrigger")
+            && !transactionMessage.isEmpty()
+            && transactionIdList.contains(blockObject.getString("transactionId"))) {
           break;
         }
       } else {
@@ -141,14 +145,6 @@ public class EventQuery002 {
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "transactionTrigger");
-    Boolean flag = false;
-    for (int i = 0; i < transactionIdList.size(); i++) {
-      if (blockObject.getString("transactionId").equals(transactionIdList.get(i))) {
-        flag = true;
-        break;
-      }
-    }
-    Assert.assertTrue(flag);
   }
 
   /** constructor. */

@@ -139,7 +139,11 @@ public class EventQuery003 {
 
       if (message != null) {
         transactionMessage = new String(message);
-        if (!transactionMessage.equals("contractEventTrigger") && !transactionMessage.isEmpty()) {
+        logger.info("transaction message:" + transactionMessage);
+        JSONObject blockObject = JSONObject.parseObject(transactionMessage);
+        if (!transactionMessage.equals("contractEventTrigger")
+            && !transactionMessage.isEmpty()
+            && transactionIdList.contains(blockObject.getString("transactionId"))) {
           break;
         }
       } else {
@@ -151,14 +155,6 @@ public class EventQuery003 {
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "contractEventTrigger");
-    Boolean flag = false;
-    for (int i = 0; i < transactionIdList.size(); i++) {
-      if (blockObject.getString("transactionId").equals(transactionIdList.get(i))) {
-        flag = true;
-        break;
-      }
-    }
-    Assert.assertTrue(flag);
   }
 
   @Test(enabled = true, description = "Event query for solidity contract event")
@@ -214,7 +210,11 @@ public class EventQuery003 {
 
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
-        if (!transactionMessage.equals("solidityEventTrigger") && !transactionMessage.isEmpty()) {
+
+        JSONObject blockObject = JSONObject.parseObject(transactionMessage);
+        if (!transactionMessage.equals("solidityEventTrigger")
+            && !transactionMessage.isEmpty()
+            && transactionIdList.contains(blockObject.getString("transactionId"))) {
           break;
         }
       } else {
@@ -226,14 +226,6 @@ public class EventQuery003 {
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "solidityEventTrigger");
-    Boolean flag = false;
-    for (int i = 0; i < transactionIdList.size(); i++) {
-      if (blockObject.getString("transactionId").equals(transactionIdList.get(i))) {
-        flag = true;
-        break;
-      }
-    }
-    Assert.assertTrue(flag);
   }
 
   /** constructor. */
