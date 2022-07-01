@@ -37,6 +37,8 @@ public class MongoBase {
       Assert.assertTrue(backupCollection("solidity", times));
       Assert.assertTrue(backupCollection("solidityevent", times));
       Assert.assertTrue(backupCollection("transaction", times));
+      Assert.assertTrue(backupCollection("contractlog", times));
+      Assert.assertTrue(backupCollection("soliditylog", times));
       System.out.println("Backup collection  successfully");
       /* mongoDatabase.getCollection("block").drop();
       mongoDatabase.getCollection("contractevent").drop();
