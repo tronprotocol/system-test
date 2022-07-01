@@ -11,6 +11,7 @@ import com.mongodb.client.MongoDatabase;
 import java.util.Arrays;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import stest.tron.wallet.common.client.Configuration;
 
@@ -31,21 +32,13 @@ public class MongoBase {
       mongoClient = new MongoClient(new ServerAddress(mongoNode), Arrays.asList(credential));
       mongoDatabase = mongoClient.getDatabase("dailybuild");
       System.out.println("Connect to database successfully");
-      int times = 7;
-      Assert.assertTrue(backupCollection("block", times));
-      Assert.assertTrue(backupCollection("contractevent", times));
-      Assert.assertTrue(backupCollection("solidity", times));
-      Assert.assertTrue(backupCollection("solidityevent", times));
-      Assert.assertTrue(backupCollection("transaction", times));
-      Assert.assertTrue(backupCollection("contractlog", times));
-      Assert.assertTrue(backupCollection("soliditylog", times));
-      System.out.println("Backup collection  successfully");
-      /* mongoDatabase.getCollection("block").drop();
+      mongoDatabase.getCollection("block").drop();
       mongoDatabase.getCollection("contractevent").drop();
       mongoDatabase.getCollection("solidity").drop();
       mongoDatabase.getCollection("solidityevent").drop();
-      mongoDatabase.getCollection("transaction").drop();*/
-
+      mongoDatabase.getCollection("transaction").drop();
+      mongoDatabase.getCollection("soliditylog").drop();
+      mongoDatabase.getCollection("contractlog").drop();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -69,8 +62,6 @@ public class MongoBase {
   }
 
   private DBCollection renameCollection(String oldCollection, String newCollection) {
-    System.out.println("111:" + oldCollection);
-    System.out.println("2222:" + newCollection);
     DB db = mongoClient.getDB("dailybuild");
 
     if (!db.collectionExists(oldCollection)) {
@@ -85,5 +76,22 @@ public class MongoBase {
     }
     DBCollection dbCollection = db.getCollection(oldCollection);
     return dbCollection.rename(newCollection, true);
+  }
+
+  @AfterSuite(enabled = true, description = "Create new mongo client")
+  public void clearMongoDBConnection() throws Exception {
+    try {
+      int times = 7;
+      Assert.assertTrue(backupCollection("block", times));
+      Assert.assertTrue(backupCollection("contractevent", times));
+      Assert.assertTrue(backupCollection("solidity", times));
+      Assert.assertTrue(backupCollection("solidityevent", times));
+      Assert.assertTrue(backupCollection("transaction", times));
+      Assert.assertTrue(backupCollection("contractlog", times));
+      Assert.assertTrue(backupCollection("soliditylog", times));
+      System.out.println("Backup collection  successfully");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 }
