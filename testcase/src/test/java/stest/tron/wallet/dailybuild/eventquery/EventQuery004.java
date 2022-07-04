@@ -302,11 +302,12 @@ public class EventQuery004 {
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
 
-        if (!transactionMessage.equals("contractLogTrigger") && !transactionMessage.isEmpty()) {
-          JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-          if (transactionIdList.contains(blockObject.getString("transactionId"))) {
-            break;
-          }
+        if (!transactionMessage.equals("contractLogTrigger")
+            && !transactionMessage.isEmpty()
+            && transactionMessage.contains("transactionId")
+            && transactionIdList.contains(
+                JSONObject.parseObject(transactionMessage).getString("transactionId"))) {
+          break;
         }
       }
     }
@@ -400,12 +401,11 @@ public class EventQuery004 {
 
         if (!transactionMessage.equals("solidityLogTrigger")
             && !transactionMessage.isEmpty()
-            && transactionMessage.contains("solidityLogTrigger")) {
-          JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-          txid = blockObject.getString("transactionId");
-          if (transactionIdList.contains(txid)) {
-            break;
-          }
+            && transactionMessage.contains("solidityLogTrigger")
+            && transactionMessage.contains("transactionId")
+            && transactionIdList.contains(
+                JSONObject.parseObject(transactionMessage).getString("transactionId"))) {
+          break;
         }
       } else {
         sendTransaction = true;
