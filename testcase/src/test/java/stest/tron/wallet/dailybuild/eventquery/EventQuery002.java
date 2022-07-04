@@ -129,11 +129,12 @@ public class EventQuery002 {
       if (message != null) {
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
-        JSONObject blockObject = JSONObject.parseObject(transactionMessage);
-        if (!transactionMessage.equals("transactionTrigger")
-            && !transactionMessage.isEmpty()
-            && transactionIdList.contains(blockObject.getString("transactionId"))) {
-          break;
+
+        if (!transactionMessage.equals("transactionTrigger") && !transactionMessage.isEmpty()) {
+          JSONObject blockObject = JSONObject.parseObject(transactionMessage);
+          if (transactionIdList.contains(blockObject.getString("transactionId"))) {
+            break;
+          }
         }
       } else {
         sendTransaction = true;
