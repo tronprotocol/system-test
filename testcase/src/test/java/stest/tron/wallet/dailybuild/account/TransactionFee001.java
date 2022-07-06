@@ -918,6 +918,9 @@ public class TransactionFee001 {
     witnessMap.put(witnessAddress03, 1L);
     Assert.assertTrue(PublicMethed.voteWitness(witnessAddress03, witnessKey03, witnessMap,
         blockingStubFull));
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
   }
 
   /**
