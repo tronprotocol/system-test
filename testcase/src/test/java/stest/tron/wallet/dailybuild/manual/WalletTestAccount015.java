@@ -95,6 +95,7 @@ public class WalletTestAccount015 {
     Assert.assertTrue(PublicMethed.setAccountId(accountId.getBytes(),
         account015Address, account015Key, blockingStubFull));
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
   }
 
   @Test(enabled = true, description = "Get account by id")
