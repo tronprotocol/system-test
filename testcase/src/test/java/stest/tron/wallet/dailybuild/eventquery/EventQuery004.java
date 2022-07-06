@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -48,6 +50,7 @@ public class EventQuery004 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   private Long maxFeeLimit =
       Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
+  List<String> transactionIdList = null;
 
   /** constructor. */
   @BeforeClass(enabled = true)
@@ -272,7 +275,7 @@ public class EventQuery004 {
     String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
-
+    transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
       byte[] message = req.recv();
       if (sendTransaction) {
@@ -288,6 +291,7 @@ public class EventQuery004 {
                 event001Key,
                 blockingStubFull);
         logger.info(txid);
+        transactionIdList.add(txid);
         if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
@@ -296,7 +300,13 @@ public class EventQuery004 {
 
       if (message != null) {
         transactionMessage = new String(message);
-        if (!transactionMessage.equals("contractLogTrigger") && !transactionMessage.isEmpty()) {
+        logger.info("transaction message:" + transactionMessage);
+
+        if (!transactionMessage.equals("contractLogTrigger")
+            && !transactionMessage.isEmpty()
+            && transactionMessage.contains("transactionId")
+            && transactionIdList.contains(
+                JSONObject.parseObject(transactionMessage).getString("transactionId"))) {
           break;
         }
       }
@@ -307,8 +317,6 @@ public class EventQuery004 {
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "contractLogTrigger");
-
-    Assert.assertEquals(blockObject.getString("transactionId"), txid);
   }
 
   @Test(enabled = true, description = "Event query for solidity contract log")
@@ -338,7 +346,7 @@ public class EventQuery004 {
     String txid1 = "";
     String txid2 = "";
     String txid3 = "";
-
+    transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
       byte[] message = req.recv();
       if (sendTransaction) {
@@ -353,6 +361,7 @@ public class EventQuery004 {
                 event001Address,
                 event001Key,
                 blockingStubFull);
+        transactionIdList.add(txid1);
         txid2 =
             PublicMethed.triggerContract(
                 contractAddress1,
@@ -364,6 +373,7 @@ public class EventQuery004 {
                 event001Address,
                 event001Key,
                 blockingStubFull);
+        transactionIdList.add(txid2);
         txid3 =
             PublicMethed.triggerContract(
                 contractAddress1,
@@ -375,7 +385,9 @@ public class EventQuery004 {
                 event001Address,
                 event001Key,
                 blockingStubFull);
+        transactionIdList.add(txid3);
         logger.info(txid);
+        transactionIdList.add(txid);
         if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
@@ -386,9 +398,17 @@ public class EventQuery004 {
 
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
-        if (!transactionMessage.equals("solidityLogTrigger") && !transactionMessage.isEmpty() && transactionMessage.contains("solidityLogTrigger")) {
+
+        if (!transactionMessage.equals("solidityLogTrigger")
+            && !transactionMessage.isEmpty()
+            && transactionMessage.contains("solidityLogTrigger")
+            && transactionMessage.contains("transactionId")
+            && transactionIdList.contains(
+                JSONObject.parseObject(transactionMessage).getString("transactionId"))) {
           break;
         }
+      } else {
+        sendTransaction = true;
       }
     }
     Assert.assertTrue(retryTimes > 0);
@@ -396,9 +416,6 @@ public class EventQuery004 {
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "solidityLogTrigger");
-    txid = blockObject.getString("transactionId");
-
-    Assert.assertTrue(txid1.equals(txid) || txid2.equals(txid) || txid3.equals(txid));
   }
 
   /** constructor. */

@@ -1235,6 +1235,57 @@ public class PublicMethed {
   }
 
   /** constructor. */
+  public static String sendcoinGetTransactionIdForConstructData(
+      byte[] to,
+      long amount,
+      byte[] owner,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    // String priKey = testKey002;
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    // Protocol.Account search = queryAccount(priKey, blockingStubFull);
+
+    TransferContract.Builder builder = TransferContract.newBuilder();
+    ByteString bsTo = ByteString.copyFrom(to);
+    ByteString bsOwner = ByteString.copyFrom(owner);
+    builder.setToAddress(bsTo);
+    builder.setOwnerAddress(bsOwner);
+    builder.setAmount(amount);
+
+    TransferContract contract = builder.build();
+    Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction ==null");
+      return null;
+    }
+    // Test raw data
+    Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
+    builder1.setData(ByteString.copyFromUtf8("12345678"));
+    Transaction.Builder builder2 = transaction.toBuilder();
+    builder2.setRawData(builder1);
+    transaction = builder2.build();
+
+    transaction = signTransaction(ecKey, transaction);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    if (response.getResult() == false) {
+      // logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+      return null;
+    } else {
+      return ByteArray.toHexString(
+          Sha256Hash.hash(
+              CommonParameter.getInstance().isECKeyCryptoEngine(),
+              transaction.getRawData().toByteArray()));
+    }
+  }
+
+  /** constructor. */
   public static Optional<Transaction> getTransactionById(
       String txId, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     ByteString bsTxid = ByteString.copyFrom(ByteArray.fromHexString(txId));
