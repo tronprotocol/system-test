@@ -503,7 +503,8 @@ public class EthGrammer {
     System.out.println("transactionExtention: " + transactionExtention.toString());
   }
 
-  @Test(enabled = true, description = "commit NO.47 value can be 1e17 if commit No.63 opened")
+  @Test(enabled = false, description = "commit NO.47 value can be 1e17 if commit No.63 opened"
+      +  " move this case to TransactionFee001.java")
   public void test17Commit47Value() {
     HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
     proposalMap.put(47L, 100000000000000000L);

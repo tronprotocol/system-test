@@ -885,10 +885,18 @@ public class TransactionFee001 {
         blockingStubPbft.getBurnTrx(EmptyMessage.newBuilder().build()));
   }
 
+  @Test(enabled = true, description = "commit NO.47 value can be 1e17 if commit No.63 opened")
+  public void test08Commit47Value() {
+    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
+    proposalMap.put(47L, 100000000000000000L);
+    org.testng.Assert.assertTrue(PublicMethed.createProposal(witnessAddress01, witnessKey01,
+        proposalMap, blockingStubFull));
+  }
+
   /** constructor. */
   @Test(enabled = true, description = " create and vote witness, "
       + "after this case there will be 3 SR")
-  public void test08CreateAndVoteWitness() {
+  public void test09CreateAndVoteWitness() {
     int beforeCreateWitnessCount = PublicMethed.listWitnesses(blockingStubFull)
         .get().getWitnessesCount();
     Assert.assertEquals(2, beforeCreateWitnessCount);
