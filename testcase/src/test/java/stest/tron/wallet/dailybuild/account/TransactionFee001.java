@@ -918,9 +918,23 @@ public class TransactionFee001 {
     witnessMap.put(witnessAddress03, 1L);
     Assert.assertTrue(PublicMethed.voteWitness(witnessAddress03, witnessKey03, witnessMap,
         blockingStubFull));
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    String add41 = ByteArray.toHexString(witnessAddress03);
+    boolean flag = false;
+    while (true) {
+      List<Protocol.Witness> list =
+          PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList();
+      for (Protocol.Witness tem: list) {
+        if ((add41.equalsIgnoreCase(ByteArray.toHexString(tem.getAddress().toByteArray())))
+            && (tem.getTotalProduced() > 3)) {
+          flag = true;
+          break;
+        }
+      }
+      if (flag) {
+        break;
+      }
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+    }
   }
 
   /**
