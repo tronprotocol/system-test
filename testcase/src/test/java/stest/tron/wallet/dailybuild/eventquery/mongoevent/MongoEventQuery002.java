@@ -761,6 +761,10 @@ public class MongoEventQuery002 extends MongoBase {
             blockingStubFull);
     BasicDBObject query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txId);
     logger.info("txId:" + txId);
     FindIterable<org.bson.Document> findIterable =

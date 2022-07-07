@@ -23,6 +23,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
+
 @Slf4j
 public class ContractTrcToken064 {
 
@@ -94,7 +95,9 @@ public class ContractTrcToken064 {
     Assert.assertTrue(PublicMethed.createAssetIssue(dev001Address, tokenName, TotalSupply, 1,
         10000, start, end, 1, description, url, 100000L, 100000L,
         1L, 1L, dev001Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    for (int i = 0; i < 6; i++) {
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+    }
     assetAccountId = PublicMethed.queryAccount(dev001Address, blockingStubFull).getAssetIssuedID();
     logger.info("The token name: " + tokenName);
     logger.info("The token ID: " + assetAccountId.toStringUtf8());
