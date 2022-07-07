@@ -769,9 +769,22 @@ public class MongoEventQuery002 extends MongoBase {
     logger.info("txId:" + txId);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
+
     MongoCursor<org.bson.Document> mongoCursor = findIterable.iterator();
 
-    Document document = mongoCursor.next();
+    Document document = null;
+    int retryTimes = 40;
+    while (retryTimes-- > 0) {
+      logger.info("retryTimes:" + retryTimes);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      if (!mongoCursor.hasNext()) {
+        mongoCursor = mongoDatabase.getCollection("transaction").find(query).iterator();
+      } else {
+        document = mongoCursor.next();
+        break;
+      }
+    }
+    Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObject = JSON.parseObject(document.toJson());
 
     response = HttpMethed.getTransactionInfoById(httpFullNode, txId);

@@ -78,8 +78,9 @@ public class MongoBase {
     return dbCollection.rename(newCollection, true);
   }
 
-  @AfterSuite(enabled = true, description = "Create new mongo client")
+  @AfterSuite(enabled = true, description = "Backup  mongo collection")
   public void clearMongoDBConnection() throws Exception {
+    Thread.sleep(120000);
     try {
       int times = 7;
       Assert.assertTrue(backupCollection("block", times));
