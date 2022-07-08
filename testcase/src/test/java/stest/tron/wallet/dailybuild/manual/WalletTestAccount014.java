@@ -98,11 +98,13 @@ public class WalletTestAccount014 {
     final long lastOperationTimeInFullnode = account014.getLatestOprationTime();
     final long lastCustomeFreeTimeInFullnode = account014.getLatestConsumeFreeTime();
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
     account014 = PublicMethed.queryAccount(account014Address, blockingStubSoliInFull);
     final long freeNetUsageInSoliInFull = account014.getFreeNetUsage();
     final long createTimeInSoliInFull = account014.getCreateTime();
     final long lastOperationTimeInSoliInFull = account014.getLatestOprationTime();
     final long lastCustomeFreeTimeInSoliInFull = account014.getLatestConsumeFreeTime();
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     account014 = PublicMethed.queryAccount(account014Address, blockingStubSolidity);
     final long freeNetUsageInSolidity = account014.getFreeNetUsage();
