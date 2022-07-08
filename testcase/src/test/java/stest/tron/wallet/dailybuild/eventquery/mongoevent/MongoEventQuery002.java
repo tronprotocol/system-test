@@ -4,24 +4,22 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.ByteString;
 import com.mongodb.BasicDBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.bson.Document;
 import org.junit.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
@@ -86,7 +84,33 @@ public class MongoEventQuery002 extends MongoBase {
   String description =
       Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
   Long amount = 1000000L;
+  private String mongoNode =
+      Configuration.getByPath("testng.conf").getStringList("mongonode.ip.list").get(0);
+  private MongoClient mongoClient;
 
+  /* */
+  /** constructor. */
+  /*
+    @BeforeSuite(enabled = true, description = "Create new mongo client")
+    public void createMongoDBConnection() throws Exception {
+        try {
+            MongoCredential credential =
+                MongoCredential.createCredential("tron", "eventlog", "123456".toCharArray());
+            mongoClient = new MongoClient(new ServerAddress(mongoNode), Arrays.asList(credential));
+            mongoDatabase = mongoClient.getDatabase("eventlog");
+            System.out.println("Connect to database successfully");
+            mongoDatabase.getCollection("block").drop();
+            mongoDatabase.getCollection("contractevent").drop();
+            mongoDatabase.getCollection("solidity").drop();
+            mongoDatabase.getCollection("solidityevent").drop();
+            mongoDatabase.getCollection("transaction").drop();
+            mongoDatabase.getCollection("soliditylog").drop();
+            mongoDatabase.getCollection("contractlog").drop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+  */
   /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -639,6 +663,7 @@ public class MongoEventQuery002 extends MongoBase {
     Assert.assertTrue(
         PublicMethed.sendcoin(
             event003Address, 100000000000L, fromAddress, testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/assertExceptiontest1DivideInt.sol";
     String contractName = "divideIHaveArgsReturnStorage";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
