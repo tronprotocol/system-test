@@ -114,8 +114,8 @@ public class Opcode {
     Assert.assertEquals("SUCESS", transaction.getRet(0).getRet().toString());
     Assert.assertTrue(trueRes.startsWith("00000000000000000000000" 
         + "0bafb56091591790e00aa05eaddcc7dc1474b5d4b")
-        || trueRes.startsWith("0000000000000000000000000be88a918d74d0dfd71dc84bd4abf036d0562991"));
-
+        || trueRes.startsWith("0000000000000000000000000be88a918d74d0dfd71dc84bd4abf036d0562991")
+        || trueRes.startsWith("0000000000000000000000003ed7d77d2eb807375a34e1a0043c5ba7e8926265"));
   }
 
   @Test(enabled = true, description = "test opcode difficulty,block.difficulty is always 0")
