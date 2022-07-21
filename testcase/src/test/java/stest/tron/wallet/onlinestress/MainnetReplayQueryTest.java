@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.BytesMessage;
 import org.tron.api.GrpcAPI.DecryptNotes;
 import org.tron.api.GrpcAPI.DelegatedResourceList;
@@ -134,6 +135,14 @@ public class MainnetReplayQueryTest {
       case 7:
       //Get contract
         getContract(blockingStubFull);
+        break;
+      case 8:
+        //Get BlockByNum2
+        getBlockByNum2(blockingStubFull);
+        break;
+      case 9:
+        //Get NodeInfo
+        getNodeInfo(blockingStubFull);
         break;
       default:
       //Trc20 balanceOf
@@ -255,7 +264,7 @@ public class MainnetReplayQueryTest {
 
   public static void getTransactionInfo(WalletGrpc.WalletBlockingStub blockingStubFull) {
     for(int m = 0; m < replayTimes;m++) {
-      Long currentBlockNum = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build()).getBlockHeader().getRawData().getNumber();
+      Long currentBlockNum = blockingStubFull.getNowBlock2(EmptyMessage.newBuilder().build()).getBlockHeader().getRawData().getNumber();
       TransactionInfoList transactionInfoList = PublicMethed.getTransactionInfoByBlockNum(currentBlockNum,blockingStubFull).get();
       for(int i = 0; i < transactionInfoList.getTransactionInfoCount();i++) {
         if(i > 20) {
@@ -328,6 +337,23 @@ public class MainnetReplayQueryTest {
       }
     }
   }
+
+  public static void getBlockByNum2(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Long currentBlockNum = blockingStubFull.getNowBlock2(EmptyMessage.newBuilder().build()).getBlockHeader().getRawData().getNumber();
+    for(int index = 0; index < replayTimes; index++) {
+      GrpcAPI.BlockExtention t = PublicMethed.getBlock2(currentBlockNum - (currentBlockNum % 200), blockingStubFull);
+      System.out.println(t.toString());
+    }
+  }
+
+
+  public static void getNodeInfo(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    for(int index = 0; index < replayTimes; index++) {
+      Protocol.NodeInfo info = blockingStubFull.getNodeInfo(EmptyMessage.newBuilder().build());
+      System.out.println(info.toString());
+    }
+  }
+
 
 
   /**
