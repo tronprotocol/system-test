@@ -342,7 +342,6 @@ public class MainnetReplayQueryTest {
     Long currentBlockNum = blockingStubFull.getNowBlock2(EmptyMessage.newBuilder().build()).getBlockHeader().getRawData().getNumber();
     for(int index = 0; index < replayTimes; index++) {
       GrpcAPI.BlockExtention t = PublicMethed.getBlock2(currentBlockNum - (currentBlockNum % 200), blockingStubFull);
-      System.out.println(t.toString());
     }
   }
 
@@ -350,7 +349,6 @@ public class MainnetReplayQueryTest {
   public static void getNodeInfo(WalletGrpc.WalletBlockingStub blockingStubFull) {
     for(int index = 0; index < replayTimes; index++) {
       Protocol.NodeInfo info = blockingStubFull.getNodeInfo(EmptyMessage.newBuilder().build());
-      System.out.println(info.toString());
     }
   }
 
