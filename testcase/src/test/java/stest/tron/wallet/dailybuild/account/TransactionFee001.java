@@ -96,6 +96,8 @@ public class TransactionFee001 {
   Long afterBurnTrxAmount = 0L;
   String txid = null;
 
+  private boolean srStatus = true;
+
   /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -919,6 +921,9 @@ public class TransactionFee001 {
     Assert.assertTrue(PublicMethed.voteWitness(witnessAddress03, witnessKey03, witnessMap,
         blockingStubFull));
     String add41 = ByteArray.toHexString(witnessAddress03);
+    Long beginNum = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+    Long nowNum = beginNum;
     boolean flag = false;
     while (true) {
       List<Protocol.Witness> list =
@@ -934,6 +939,12 @@ public class TransactionFee001 {
         break;
       }
       PublicMethed.waitProduceNextBlock(blockingStubFull);
+      nowNum = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
+          .getBlockHeader().getRawData().getNumber();
+      if ((nowNum - beginNum) > 210) {
+        srStatus = false;
+        Assert.assertEquals("3rd witness not produce block", "");
+      }
     }
   }
 
@@ -981,6 +992,9 @@ public class TransactionFee001 {
     PublicMethed.freedResource(deployAddress, deployKey, fromAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+    }
+    if (!srStatus) {
+      System.exit(1);
     }
   }
 }
