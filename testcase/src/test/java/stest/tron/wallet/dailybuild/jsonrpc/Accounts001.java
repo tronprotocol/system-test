@@ -873,7 +873,7 @@ public class Accounts001 extends JsonRpcBase {
     String javaTronVersion =
         responseContent.getJSONObject("configNodeInfo").getString("codeVersion");
 
-    Assert.assertEquals(resultList.size(), 5);
+    Assert.assertEquals(resultList.size(), 4);
     Assert.assertEquals(resultList.get(0), "TRON");
     Assert.assertEquals(resultList.get(1), "v" + javaTronVersion);
     Assert.assertEquals(resultList.get(2), "Linux");
