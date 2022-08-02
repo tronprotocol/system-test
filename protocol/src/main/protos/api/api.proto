@@ -328,6 +328,9 @@ service Wallet {
   rpc GetMarketPairList (EmptyMessage) returns (MarketOrderPairList) {
   }
 
+  rpc GetBlock (BlockReq) returns (BlockExtention) {
+  }
+
 
   rpc ListNodes (EmptyMessage) returns (NodeList) {
     option (google.api.http) = {
@@ -789,6 +792,8 @@ service Wallet {
 
   rpc GetPendingSize (EmptyMessage) returns (NumberMessage) {
   }
+
+
 };
 
 service WalletSolidity {
@@ -972,6 +977,9 @@ service WalletSolidity {
   rpc GetMarketPairList (EmptyMessage) returns (MarketOrderPairList) {
   }
 
+  rpc GetBlock (BlockReq) returns (BlockExtention) {
+  }
+
   rpc GetBurnTrx (EmptyMessage) returns (NumberMessage) {
   }
 };
@@ -1128,6 +1136,10 @@ message BlockLimit {
   int64 startNum = 1;
   int64 endNum = 2;
   int64 type = 3;
+}
+message BlockReq {
+  string id_or_num = 1;
+  bool   detail = 2;
 }
 message TransactionLimit {
   bytes transactionId = 1;
