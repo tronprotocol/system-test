@@ -32,6 +32,7 @@ public class HttpTestProposal001 {
   private JSONObject responseContent;
   private HttpResponse response;
   private int energyFee = 0;
+  private int bandFee = 0;
 
   /** constructor. */
   @Test(enabled = true, description = "Create proposal by http")
@@ -127,6 +128,10 @@ public class HttpTestProposal001 {
     for (Object ob : responseContent.getJSONArray("chainParameter")) {
       if ("getEnergyFee".equalsIgnoreCase(((JSONObject) ob).getString("key"))) {
         energyFee = ((JSONObject) ob).getIntValue("value");
+      } else if ("getTransactionFee".equalsIgnoreCase(((JSONObject) ob).getString("key"))) {
+        bandFee = ((JSONObject) ob).getIntValue("value");
+      }
+      if (energyFee > 0 && bandFee > 0) {
         break;
       }
     }
@@ -141,6 +146,20 @@ public class HttpTestProposal001 {
     HttpMethed.printJsonContent(responseContent);
     String prices = responseContent.getString("prices");
     String expectPrices = "0:100.*" + energyFee + "$";
+    logger.info("prices:" + prices);
+    Assert.assertTrue(Pattern.matches(expectPrices, prices));
+  }
+
+  /** constructor. */
+
+  @Test(enabled = true, description = "Get band price by http")
+  public void test8GetBandPrice() {
+    response = HttpMethed.getBandPric(httpnode);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    String prices = responseContent.getString("prices");
+    String expectPrices = "0:10.*" + bandFee + "$";
     logger.info("prices:" + prices);
     Assert.assertTrue(Pattern.matches(expectPrices, prices));
   }
