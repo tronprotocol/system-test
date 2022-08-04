@@ -84,6 +84,7 @@ public class HttpTestTransactionPending001 {
 
     Assert.assertEquals(txid,responseContent.getString("txID"));
     Assert.assertNotEquals(null,responseContent);
+    Assert.assertTrue(responseContent.containsKey("ret"));
   }
 
 
