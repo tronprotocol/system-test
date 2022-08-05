@@ -110,6 +110,7 @@ public class WalletTestBlock003 {
     ByteString lastBlockHash = currentBlockFromGetBlock.getBlockHeader().getRawData().getParentHash();
 
     builder.setIdOrNum(String.valueOf(lastBlockNum));
+    builder.setDetail(true);
     BlockExtention lastBlockByNum = blockingStubFull.getBlock(builder.build());
     builder.clear();
     builder.setIdOrNum(ByteArray.toHexString(lastBlockHash.toByteArray()));
