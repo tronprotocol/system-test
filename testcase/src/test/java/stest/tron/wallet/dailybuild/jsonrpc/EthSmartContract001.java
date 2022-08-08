@@ -40,27 +40,8 @@ public class EthSmartContract001 extends JsonRpcBase {
   }
 
 
-  @Test(enabled = true, description = "Json rpc api of eth_estimateGas")
-  public void test02JsonRpcApiTestForEthEstimateGas() throws Exception {
-    JsonObject param = new JsonObject();
-    param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
-    param.addProperty("to", trc20AddressHex);
-    param.addProperty("gas", "0x0");
-    param.addProperty("gasPrice", "0x0");
-    param.addProperty("value", "0x0");
-    param.addProperty("data", "0x1249c58b");
-    JsonArray params = new JsonArray();
-    params.add(param);
-    JsonObject requestBody = getJsonRpcBody("eth_estimateGas",params);
-    response = getJsonRpc(jsonRpcNode, requestBody);
-    responseContent = HttpMethed.parseResponseContent(response);
-    String dataResult = responseContent.getString("result");
-    Assert.assertEquals(dataResult,"0x148");
-  }
-
-
   @Test(enabled = true, description = "Json rpc api of eth_getCode")
-  public void test03JsonRpcApiTestForEthGetCode() throws Exception {
+  public void test02JsonRpcApiTestForEthGetCode() throws Exception {
     JsonArray params = new JsonArray();
     params.add(trc20AddressHex);
     params.add("latest");
