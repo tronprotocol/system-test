@@ -103,6 +103,14 @@ public class JsonRpcBase {
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    Assert.assertTrue(
+        PublicMethed.sendcoin(
+            witness001Address,
+            2048000000L,
+            foundationAccountAddress,
+            foundationAccountKey,
+            blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     proposalMap.put(44L, 1L); //允许DEX开启
     proposalMap.put(30L, 1L); //是否打开更换委托机制开关
     proposalMap.put(1L, 9999000000L); //getAccountUpgradeCost
