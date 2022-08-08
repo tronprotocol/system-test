@@ -133,7 +133,7 @@ public class MutiSignSmartContractTest002 {
     logger.info(accountPermissionJson);
     PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
         blockingStubFull, ownerKeyString);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Random rand = new Random();
     Integer randNum = rand.nextInt(30) + 1;
     randNum = rand.nextInt(4000);
@@ -148,6 +148,7 @@ public class MutiSignSmartContractTest002 {
         "", maxFeeLimit,
         0L, 100, null, ownerKey, ownerAddress, blockingStubFull, 2, permissionKeyString);
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString() != null);
