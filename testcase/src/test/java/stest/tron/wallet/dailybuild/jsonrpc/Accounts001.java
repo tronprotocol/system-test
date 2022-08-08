@@ -22,6 +22,7 @@ import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.JsonRpcBase;
+import stest.tron.wallet.common.client.utils.services.Util;
 
 @Slf4j
 public class Accounts001 extends JsonRpcBase {
@@ -109,6 +110,34 @@ public class Accounts001 extends JsonRpcBase {
             + "00000000000000000000000a546f6b656e5452433230000000000"
             + "00000000000000000000000000000000000",
         dataResult);
+
+
+
+
+    //release_4.5.2 to latest version， revert will return instead of failed gas value.
+    JsonObject wrongParam = new JsonObject();
+    params.remove(param);
+    HttpMethed.waitToProduceOneBlock(httpFullNode);
+    wrongParam.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
+    wrongParam.addProperty("to", trc20AddressHex);
+    wrongParam.addProperty("gas", "0x0");
+    wrongParam.addProperty("gasPrice", "0x0");
+    wrongParam.addProperty("value", "0x0");
+    paramString = "0000000000000000000000000000000000000000000000000000000000000000" + "0000000000000000000000000000000010000000000000000000000000000000";
+    wrongParam.addProperty("data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
+
+    params.add(wrongParam);
+    params.add("latest");
+    requestBody = getJsonRpcBody("eth_call", params);
+    logger.info("03params:" + params);
+    logger.info("requestBody:" + requestBody);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    JSONObject errorResult = responseContent.getJSONObject("error");
+    Assert.assertEquals(errorResult.getString("code"),"-32602");
+    Assert.assertEquals(errorResult.getString("message"),"method parameters invalid");
+
   }
 
   @Test(enabled = true, description = "Json rpc api of eth_chainId")
@@ -146,15 +175,35 @@ public class Accounts001 extends JsonRpcBase {
     param.addProperty("gas", "0x0");
     param.addProperty("gasPrice", "0x0");
     param.addProperty("value", "0x0");
-    param.addProperty("data", "0x1249c58b");
+    paramString = "0000000000000000000000000000000000000000000000000000000000000000" + "0000000000000000000000000000000010000000000000000000000000000000";
+    param.addProperty("data", "0x" + Util.parseMethod("approve(address,uint256)", paramString));
     JsonArray params = new JsonArray();
     params.add(param);
     JsonObject requestBody = getJsonRpcBody("eth_estimateGas", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     logger.info("test06requestBody:" + requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
     String dataResult = responseContent.getString("result");
-    Assert.assertEquals("0x148", dataResult);
+    Assert.assertEquals("0x4fd1", dataResult);
+
+    //release_4.5.2 to latest version， revert will return instead of failed gas value.
+    JsonObject wrongParam = new JsonObject();
+    params.remove(param);
+    wrongParam.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
+    wrongParam.addProperty("to", trc20AddressHex);
+    wrongParam.addProperty("gas", "0x0");
+    wrongParam.addProperty("gasPrice", "0x0");
+    wrongParam.addProperty("value", "0x0");
+    wrongParam.addProperty("data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
+    params.add(wrongParam);
+    requestBody = getJsonRpcBody("eth_estimateGas", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    JSONObject errorResult = responseContent.getJSONObject("error");
+    Assert.assertEquals(errorResult.getString("code"),"-32000");
+    Assert.assertEquals(errorResult.getString("message"),"REVERT opcode executed");
   }
 
   @Test(enabled = true, description = "Json rpc api of eth_estimateGasHasPayable")
