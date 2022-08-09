@@ -24,9 +24,14 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestBlock003 {
+  private final String foundationKey = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key1");
+  private final byte[] foundationAddress = PublicMethed.getFinalAddress(foundationKey);
+
 
   private ManagedChannel channelFull = null;
   private ManagedChannel channelSolidity = null;
@@ -36,6 +41,13 @@ public class WalletTestBlock003 {
       .get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
+
+
+  String txid;
+  Long blockNum;
+  ByteString blockHash;
+
+
 
   @BeforeClass
   public void beforeClass() {
@@ -48,6 +60,13 @@ public class WalletTestBlock003 {
         .usePlaintext(true)
         .build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] receiverAddress = ecKey1.getAddress();
+    txid = PublicMethed.sendcoinGetTransactionId(receiverAddress,1L,foundationAddress,foundationKey,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    blockNum = PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getBlockNumber();
+    blockHash = PublicMethed.getBlock(blockNum+1,blockingStubFull).getBlockHeader().getRawData().getParentHash();
+
   }
 
   /**
@@ -102,26 +121,49 @@ public class WalletTestBlock003 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Get block by block num")
-  public void test03GetBlockByBlockNum() {
+  @Test(enabled = true, description = "Get block by block num with detail true")
+  public void test03GetBlockByBlockNumWithDetailTrue() {
     BlockReq.Builder builder = BlockReq.newBuilder();
-    BlockExtention currentBlockFromGetBlock = blockingStubFull.getBlock(builder.build());
-    Long lastBlockNum = currentBlockFromGetBlock.getBlockHeader().getRawData().getNumber() - 1;
-    ByteString lastBlockHash = currentBlockFromGetBlock.getBlockHeader().getRawData().getParentHash();
 
-    builder.setIdOrNum(String.valueOf(lastBlockNum));
+    builder.setIdOrNum(String.valueOf(blockNum));
     builder.setDetail(true);
-    BlockExtention lastBlockByNum = blockingStubFull.getBlock(builder.build());
+    BlockExtention lastBlockByNumWithDetailTrue = blockingStubFull.getBlock(builder.build());
     builder.clear();
-    builder.setIdOrNum(ByteArray.toHexString(lastBlockHash.toByteArray()));
-    BlockExtention lastBlockById = blockingStubFull.getBlock(builder.build());
+    builder.setIdOrNum(ByteArray.toHexString(blockHash.toByteArray()));
+    builder.setDetail(true);
+    BlockExtention lastBlockByIdWithDetailTrue = blockingStubFull.getBlock(builder.build());
 
     NumberMessage.Builder builder1 = NumberMessage.newBuilder();
-    builder1.setNum(lastBlockNum);
-    BlockExtention lastBlockByGetBlockByNum = blockingStubFull.getBlockByNum2(builder1.build());
+    builder1.setNum(blockNum);
+    BlockExtention blockByGetBlockByNum = blockingStubFull.getBlockByNum2(builder1.build());
 
-    Assert.assertEquals(lastBlockByNum,lastBlockById);
-    Assert.assertEquals(lastBlockByNum,lastBlockByGetBlockByNum);
+    Assert.assertEquals(blockByGetBlockByNum,lastBlockByNumWithDetailTrue);
+    Assert.assertEquals(lastBlockByNumWithDetailTrue,lastBlockByIdWithDetailTrue);
+    Assert.assertTrue(lastBlockByNumWithDetailTrue.getTransactionsCount() >= 1);
+  }
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Get block by block num with detail default false")
+  public void test03GetBlockByBlockNumWithDetailDefaultFalse() {
+    BlockReq.Builder builder = BlockReq.newBuilder();
+
+    builder.setIdOrNum(String.valueOf(blockNum));
+    BlockExtention lastBlockByNumWithDetailFalse = blockingStubFull.getBlock(builder.build());
+    builder.clear();
+    builder.setIdOrNum(ByteArray.toHexString(blockHash.toByteArray()));
+    BlockExtention lastBlockByIdWithDetailFalse = blockingStubFull.getBlock(builder.build());
+
+    NumberMessage.Builder builder1 = NumberMessage.newBuilder();
+    builder1.setNum(blockNum);
+    BlockExtention blockByGetBlockByNum = blockingStubFull.getBlockByNum2(builder1.build());
+
+    Assert.assertNotEquals(blockByGetBlockByNum,lastBlockByNumWithDetailFalse);
+    Assert.assertEquals(lastBlockByNumWithDetailFalse,lastBlockByIdWithDetailFalse);
+    Assert.assertTrue(blockByGetBlockByNum.getTransactionsCount() >= 1);
+    Assert.assertEquals(lastBlockByIdWithDetailFalse.getTransactionsCount(),0);
   }
 
 
