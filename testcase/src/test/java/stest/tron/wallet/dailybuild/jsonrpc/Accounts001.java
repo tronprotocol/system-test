@@ -148,7 +148,7 @@ public class Accounts001 extends JsonRpcBase {
     responseContent = HttpMethed.parseResponseContent(response);
     responseContent.get("result");
     String blockIdFromJsonRpcNode = responseContent.get("result").toString().substring(2);
-    response = HttpMethed.getBlockByNum(httpFullNode, 0);
+    response = HttpMethed.getBlockByNum(httpFullNode, 0L);
     responseContent = HttpMethed.parseResponseContent(response);
     String blockIdFromHttp = responseContent.getString("blockID").substring(56);
     logger.info("blockIdFromJsonRpcNode:" + blockIdFromJsonRpcNode);
@@ -408,7 +408,7 @@ public class Accounts001 extends JsonRpcBase {
   @Test(enabled = true, description = "Json rpc api of eth_getTransactionByBlockNumberAndIndex")
   public void test16JsonRpcApiTestForEthGetTransactionByBlockNumberAndIndex() throws Exception {
     logger.info("16blockNum:" + blockNum);
-    blockNumHex = "0x" + Integer.toHexString(blockNum);
+    blockNumHex = "0x" + Long.toHexString(blockNum);
     logger.info("16blockNumHex:" + blockNumHex);
     JsonArray params = new JsonArray();
     params.add(blockNumHex);
@@ -639,7 +639,7 @@ public class Accounts001 extends JsonRpcBase {
     }
 
     JsonArray paramsForTransactionByBlockNumberAndIndex = new JsonArray();
-    paramsForTransactionByBlockNumberAndIndex.add("0x" + Integer.toHexString(blockNumForTrc20));
+    paramsForTransactionByBlockNumberAndIndex.add("0x" + Long.toHexString(blockNumForTrc20));
     paramsForTransactionByBlockNumberAndIndex.add("0x" + Integer.toHexString(index));
     JsonObject requestBody1 =
         getJsonRpcBody(
@@ -892,7 +892,7 @@ public class Accounts001 extends JsonRpcBase {
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     String firstBlockHashFromJsonRpc = responseContent.getString("result").substring(2);
-    response = HttpMethed.getBlockByNum(httpFullNode, 0);
+    response = HttpMethed.getBlockByNum(httpFullNode, 0L);
     responseContent = HttpMethed.parseResponseContent(response);
     String firstBlockHashFromHttp = responseContent.getString("blockID").substring(56);
     logger.info("firstBlockHashFromJsonRpc" + firstBlockHashFromJsonRpc);

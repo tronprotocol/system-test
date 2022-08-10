@@ -35,9 +35,9 @@ public class HttpTestGetAccountBalance001 {
   byte[] randomAddress = ecKey3.getAddress();
   Long amount = 2048000000L;
   String txid;
-  Integer sendcoinBlockNumber;
+  Long sendcoinBlockNumber;
   String sendcoinBlockHash;
-  Integer deployContractBlockNumber;
+  Long deployContractBlockNumber;
   String deployContractBlockHash;
   Long fee;
 
@@ -56,7 +56,7 @@ public class HttpTestGetAccountBalance001 {
     response = HttpMethed.getTransactionInfoById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    sendcoinBlockNumber = responseContent.getInteger("blockNumber");
+    sendcoinBlockNumber = responseContent.getLong("blockNumber");
     Assert.assertTrue(sendcoinBlockNumber > 0);
 
     response = HttpMethed.getBlockByNum(httpnode, sendcoinBlockNumber);
@@ -80,7 +80,7 @@ public class HttpTestGetAccountBalance001 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     fee = responseContent.getLong("fee");
-    deployContractBlockNumber = responseContent.getInteger("blockNumber");
+    deployContractBlockNumber = responseContent.getLong("blockNumber");
     String receiptString = responseContent.getString("receipt");
     Assert
         .assertEquals(HttpMethed.parseStringContent(receiptString).getString("result"), "SUCCESS");

@@ -39,7 +39,6 @@ public class EventQuery001 {
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
-
   @Test(enabled = true, description = "Event query for block")
   public void test01EventQueryForBlock() {
     ZMQ.Context context = ZMQ.context(1);

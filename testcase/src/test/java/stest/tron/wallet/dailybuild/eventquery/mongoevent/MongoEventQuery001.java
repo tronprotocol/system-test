@@ -68,14 +68,14 @@ public class MongoEventQuery001 extends MongoBase {
   public void test01MongoDbEventQueryForBlock() {
     FindIterable<Document> findIterable = mongoDatabase.getCollection("block").find();
     MongoCursor<Document> mongoCursor = findIterable.iterator();
-    Integer blockNumber = 0;
+    Long blockNumber = 0L;
     Boolean hasTransactions = false;
     while (mongoCursor.hasNext()) {
       Document document = mongoCursor.next();
       Assert.assertTrue(Integer.parseInt(document.get("blockNumber").toString()) > 0);
       if (Integer.parseInt(document.get("transactionSize").toString()) > 0) {
         hasTransactions = true;
-        blockNumber = Integer.parseInt(document.get("blockNumber").toString());
+        blockNumber = Long.parseLong(document.get("blockNumber").toString());
         logger.info("blockNumber:" + blockNumber);
         response = HttpMethed.getBlockByNum(httpFullNode, blockNumber);
         responseContent = HttpMethed.parseResponseContent(response);
@@ -106,11 +106,11 @@ public class MongoEventQuery001 extends MongoBase {
 
     response = HttpMethed.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethed.parseResponseContent(response);
-    Integer blockNumber =
+    Long blockNumber =
         responseContent
             .getJSONObject("block_header")
             .getJSONObject("raw_data")
-            .getInteger("number");
+            .getLong("number");
 
     BasicDBObject query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);

@@ -44,9 +44,9 @@ public class Accounts004 extends JsonRpcBase {
     if (blockNumForTrc20 - 10 < 0) {
       fromBlock = "0";
     } else {
-      fromBlock = "0x" + Integer.toHexString(blockNumForTrc20 - 10);
+      fromBlock = "0x" + Long.toHexString(blockNumForTrc20 - 10);
     }
-    toBlock = "0x" + Integer.toHexString(blockNumForTrc20 + 10);
+    toBlock = "0x" + Long.toHexString(blockNumForTrc20 + 10);
     JsonArray addressArray = new JsonArray();
     addressArray.add(contractAddressFrom58.substring(2));
     JsonObject paramBody = new JsonObject();
@@ -220,8 +220,8 @@ public class Accounts004 extends JsonRpcBase {
     JsonObject paramBody = new JsonObject();
     paramBody.add("address", addressArray);
     logger.info("blockNumForTrc20:" + blockNumForTrc20);
-    paramBody.addProperty("fromBlock", "0x" + (Integer.toHexString(blockNumForTrc20 - 20)));
-    paramBody.addProperty("toBlock", "0x" + (Integer.toHexString(blockNumForTrc20 + 20)));
+    paramBody.addProperty("fromBlock", "0x" + (Long.toHexString(blockNumForTrc20 - 20)));
+    paramBody.addProperty("toBlock", "0x" + (Long.toHexString(blockNumForTrc20 + 20)));
     JsonArray params = new JsonArray();
     params.add(paramBody);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpFullNode, httpsolidityNode);
@@ -245,8 +245,8 @@ public class Accounts004 extends JsonRpcBase {
     topicArray.add(topic0);
     JsonObject paramBody = new JsonObject();
     paramBody.add("topics", topicArray);
-    paramBody.addProperty("fromBlock", "0x" + (Integer.toHexString(blockNumForTrc20 - 10)));
-    paramBody.addProperty("toBlock", "0x" + (Integer.toHexString(blockNumForTrc20 + 10)));
+    paramBody.addProperty("fromBlock", "0x" + (Long.toHexString(blockNumForTrc20 - 10)));
+    paramBody.addProperty("toBlock", "0x" + (Long.toHexString(blockNumForTrc20 + 10)));
     JsonArray params = new JsonArray();
     params.add(paramBody);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpFullNode, httpsolidityNode);

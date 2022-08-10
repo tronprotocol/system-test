@@ -89,8 +89,8 @@ public class JsonRpcBase {
   public static Long totalSupply = 1000000000000L;
   public static String name = "jsonrpc-test";
   public static String jsonRpcAssetId;
-  public static Integer blockNum;
-  public static Integer blockNumForTrc20;
+  public static Long blockNum;
+  public static Long blockNumForTrc20;
   public static String blockNumHex;
   public static String blockId;
   public static String txid;
@@ -203,6 +203,8 @@ public class JsonRpcBase {
   /** constructor. */
   public void openProposal(HashMap<Long, Long> proposalMap) throws Exception {
 
+    PublicMethed.sendcoin(witness001Address,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(
         PublicMethed.createProposal(
             witness001Address, witnessKey001, proposalMap, blockingStubFull));
@@ -340,7 +342,7 @@ public class JsonRpcBase {
     org.junit.Assert.assertTrue(beforeBalance - afterBalance >= 5000);
 
     blockNum =
-        (int) (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getBlockNumber());
+        (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getBlockNumber());
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     response = HttpMethed.getBlockByNum(httpFullNode, blockNum);
     org.junit.Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
@@ -412,7 +414,7 @@ public class JsonRpcBase {
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     blockNumForTrc20 =
-        (int)
+
             (PublicMethed.getTransactionInfoById(trc20Txid, blockingStubFull)
                 .get()
                 .getBlockNumber());

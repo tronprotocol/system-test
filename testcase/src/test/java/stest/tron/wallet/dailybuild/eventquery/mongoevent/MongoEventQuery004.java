@@ -329,7 +329,7 @@ public class MongoEventQuery004 extends MongoBase {
 
     response = HttpMethed.getTransactionInfoById(httpFullNode, txId);
     responseContent = HttpMethed.parseResponseContent(response);
-    int blockNumber = responseContent.getInteger("blockNumber");
+    long blockNumber = responseContent.getLong("blockNumber");
     response = HttpMethed.getBlockByNum(httpFullNode, blockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
     Assert.assertEquals(responseContent.getString("blockID"), jsonObject.getString("blockHash"));
