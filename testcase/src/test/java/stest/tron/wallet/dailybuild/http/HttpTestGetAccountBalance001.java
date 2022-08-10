@@ -138,7 +138,7 @@ public class HttpTestGetAccountBalance001 {
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.size() >= 2);
     Assert.assertEquals(sendcoinBlockNumber, responseContent.getJSONObject("block_identifier")
-        .getInteger("number"));
+        .getLong("number"));
     JSONObject transactionObject = responseContent.getJSONArray("transaction_balance_trace")
         .getJSONObject(0);
     Assert.assertEquals(transactionObject.getString("type"), "TransferContract");

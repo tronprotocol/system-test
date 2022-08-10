@@ -893,7 +893,7 @@ public class MongoEventQuery002 extends MongoBase {
 
     Assert.assertEquals(
         blockNumber,
-        jsonObjectTxIdIndex0.getJSONArray("logList").getJSONObject(0).getInteger("blockNumber"));
+        jsonObjectTxIdIndex0.getJSONArray("logList").getJSONObject(0).getLong("blockNumber"));
 
     for (int i = 0;
         i < responseContent.getJSONArray("log").getJSONObject(0).getJSONArray("topics").size();
