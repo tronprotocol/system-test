@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.http;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import java.util.HashMap;
@@ -35,13 +36,13 @@ public class HttpTestBlock001 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] freezeBalanceAddress = ecKey1.getAddress();
   Long amount = 10000L;
-  private Integer currentBlockNum;
+  private Long currentBlockNum;
   private JSONObject blockContent;
   private JSONObject blockContentWithVisibleTrue;
   private String blockId;
   private String blockIdForNoType;
   private String txId;
-  private int blockNumForType;
+  private long blockNumForType;
   private HashMap<String, String> hashMap;
 
   /** constructor. */
@@ -50,7 +51,7 @@ public class HttpTestBlock001 {
     txId =
         HttpMethed.sendCoinGetTxid(httpnode, fromAddress, freezeBalanceAddress, amount, testKey002);
     System.out.println("txId:" + txId);
-    Thread.sleep(3000);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.getTransactionInfoById(httpnode, txId);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -82,7 +83,7 @@ public class HttpTestBlock001 {
     responseContent = HttpMethed.parseStringContent(responseContent.get("raw_data").toString());
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(Integer.parseInt(responseContent.get("number").toString()) > 0);
-    currentBlockNum = Integer.parseInt(responseContent.get("number").toString());
+    currentBlockNum = Long.parseLong(responseContent.get("number").toString());
     Assert.assertTrue(Long.parseLong(responseContent.get("timestamp").toString()) > 1550724114000L);
     Assert.assertFalse(responseContent.get("witness_address").toString().isEmpty());
   }
@@ -105,7 +106,7 @@ public class HttpTestBlock001 {
     responseContent = HttpMethed.parseStringContent(responseContent.get("raw_data").toString());
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(Integer.parseInt(responseContent.get("number").toString()) > 0);
-    currentBlockNum = Integer.parseInt(responseContent.get("number").toString());
+    currentBlockNum = Long.parseLong(responseContent.get("number").toString());
     Assert.assertTrue(Long.parseLong(responseContent.get("timestamp").toString()) > 1550724114000L);
     Assert.assertFalse(responseContent.get("witness_address").toString().isEmpty());
   }
@@ -128,7 +129,7 @@ public class HttpTestBlock001 {
     responseContent = HttpMethed.parseStringContent(responseContent.get("raw_data").toString());
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(Integer.parseInt(responseContent.get("number").toString()) > 0);
-    currentBlockNum = Integer.parseInt(responseContent.get("number").toString());
+    currentBlockNum = Long.parseLong(responseContent.get("number").toString());
     Assert.assertTrue(Long.parseLong(responseContent.get("timestamp").toString()) > 1550724114000L);
     Assert.assertFalse(responseContent.get("witness_address").toString().isEmpty());
   }
@@ -149,63 +150,60 @@ public class HttpTestBlock001 {
   }
 
   /** constructor. */
-  @Test(enabled = false, description = "Get block by num with type is 0 by http")
-  public void get05BlockByNumWithTypeIsZero() throws InterruptedException {
+  @Test(enabled = true, description = "Get block equals getNowBlock")
+  public void get05GetBlockGetNowBlock() throws InterruptedException {
+    Boolean getBlockEqualGetNowBlock = false;
+    Integer retryTimes = 5;
 
-    logger.info("blockNumForType:" + blockNumForType);
-    hashMap = new HashMap<>();
-    hashMap.put("num", String.valueOf(blockNumForType));
-    hashMap.put("type", "0");
-    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
-    Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
-    final String blockId = responseContent.getString("blockID");
-    HttpResponse responseForNoType = HttpMethed.getBlockByNum(httpnode, blockNumForType);
-    Assert.assertEquals(responseForNoType.getStatusLine().getStatusCode(), 200);
-    JSONObject responseContentForNotType = HttpMethed.parseResponseContent(responseForNoType);
-    blockIdForNoType = responseContentForNotType.getString("blockID");
-    logger.info("blockIdForNoType:" + blockIdForNoType);
-    Assert.assertEquals(blockIdForNoType, blockId);
-    Assert.assertNotNull(responseContent.getJSONArray("transactions"));
-    hashMap = new HashMap<>();
-    hashMap.put("num", String.valueOf(blockNumForType));
-    hashMap.put("visible", "true");
-    hashMap.put("type", "0");
-    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
-    Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
-    responseContent = HttpMethed.parseResponseContent(response);
-    Assert.assertEquals(blockIdForNoType, responseContent.getString("blockID"));
-    Assert.assertNotNull(responseContent.getJSONArray("transactions"));
+    while (retryTimes-- >= 0) {
+      response = HttpMethed.getBlock(httpnode, null,null);
+      JSONObject getBlockObject = HttpMethed.parseResponseContent(response);
+      response = HttpMethed.getNowBlock(httpnode);
+      JSONObject getNowBlockObject = HttpMethed.parseResponseContent(response);
+      if(getBlockObject.equals(getNowBlockObject) && null != getBlockObject) {
+        getBlockEqualGetNowBlock = true;
+        break;
+      }
+      HttpMethed.waitToProduceOneBlock(httpnode);
+    }
+
+    Assert.assertTrue(getBlockEqualGetNowBlock);
+
+
   }
 
   /** constructor. */
-  @Test(enabled = false, description = "Get block by num with type is 1 by http")
-  public void get06BlockByNumWithTypeIsOne() {
-    logger.info("blockNumForType:" + blockNumForType);
-    hashMap = new HashMap<>();
-    hashMap.put("num", String.valueOf(blockNumForType));
+  @Test(enabled = true, description = "Get block with block num and detail true from http")
+  public void get06GetBlockWithGblockNumFromHttp() {
+    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType),true);
+    JSONObject getBlockObject = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(getBlockObject);
+    response = HttpMethed.getBlockByNum(httpnode, blockNumForType);
+    JSONObject getBlockByNum = HttpMethed.parseResponseContent(response);
+    Assert.assertEquals(getBlockObject,getBlockByNum);
 
-    hashMap.put("type", "1");
-    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
+    response = HttpMethed.getBlock(httpnode, blockIdForNoType,true);
+    getBlockObject = HttpMethed.parseResponseContent(response);
+    Assert.assertEquals(getBlockObject,getBlockByNum);
 
-    //   response = HttpMethed.getBlockByNumWithType(httpnode, blockNumForType, 1);
-    Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
-    responseContent = HttpMethed.parseResponseContent(response);
-    String blockId = responseContent.getString("blockID");
-    Assert.assertEquals(blockIdForNoType, blockId);
-    Assert.assertNull(responseContent.getJSONArray("transactions"));
-    // visible=true
 
-    hashMap = new HashMap<>();
-    hashMap.put("num", String.valueOf(blockNumForType));
-    hashMap.put("visible", "true");
-    hashMap.put("type", "1");
-    response = HttpMethed.getBlockByNumWithType(httpnode, hashMap);
-    Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
-    responseContent = HttpMethed.parseResponseContent(response);
-    Assert.assertEquals(blockIdForNoType, responseContent.getString("blockID"));
-    Assert.assertNull(responseContent.getJSONArray("transactions"));
+    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType),false);
+    getBlockObject = HttpMethed.parseResponseContent(response);
+    Assert.assertNotEquals(getBlockObject,getBlockByNum);
+
+
+    response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType),false);
+    JSONObject getBlockWithNumObject = HttpMethed.parseResponseContent(response);
+    response = HttpMethed.getBlock(httpnode, blockIdForNoType,false);
+    JSONObject getBlockWithIdObject = HttpMethed.parseResponseContent(response);
+    Assert.assertEquals(getBlockWithNumObject,getBlockWithIdObject);
+
+
+
+
+
+
+
   }
 
   /** constructor. */

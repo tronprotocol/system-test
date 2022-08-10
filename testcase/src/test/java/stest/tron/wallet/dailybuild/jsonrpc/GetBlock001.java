@@ -47,7 +47,7 @@ public class GetBlock001 extends JsonRpcBase {
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
 
-    Assert.assertEquals(Integer.toHexString(blockNum), responseContent.getJSONObject("result")
+    Assert.assertEquals(Long.toHexString(blockNum), responseContent.getJSONObject("result")
         .getString("number").substring(2));
     Assert.assertEquals(blockId, responseContent.getJSONObject("result").getString("hash")
         .substring(2));

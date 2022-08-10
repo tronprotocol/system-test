@@ -73,7 +73,7 @@ public class MongoEventQuery002 extends MongoBase {
   long runTimes = 1000;
   int useUpFreeBandwidth = 0;
   String txIdForInternalTransaction;
-  int blockNumber = 0;
+  long blockNumber = 0L;
   String txIdIndex0 = null;
   String txIdIndex2 = null;
   String energyPrice = null;
@@ -849,7 +849,7 @@ public class MongoEventQuery002 extends MongoBase {
             .contains(responseContent.getString("blockTimeStamp")));
     Assert.assertEquals(
         responseContent.getLong("blockNumber"), jsonObjectTxIdIndex0.getLong("blockNumber"));
-    Integer blockNumber = responseContent.getInteger("blockNumber");
+    Long blockNumber = responseContent.getLong("blockNumber");
     logger.info("blockNumber:" + blockNumber);
 
     Assert.assertEquals(

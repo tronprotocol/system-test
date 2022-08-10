@@ -2117,7 +2117,7 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse getAccountBalance(
-      String httpNode, byte[] queryAddress, Integer blockNum, String blockHash) {
+      String httpNode, byte[] queryAddress, Long blockNum, String blockHash) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getaccountbalance";
       JsonObject addressObj = new JsonObject();
@@ -2140,7 +2140,7 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static HttpResponse getBlockBalance(String httpNode, Integer blockNum, String blockHash) {
+  public static HttpResponse getBlockBalance(String httpNode, Long blockNum, String blockHash) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getblockbalance";
       JsonObject blockObj = new JsonObject();
@@ -2355,12 +2355,41 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static HttpResponse getBlockByNum(String httpNode, Integer blockNUm) {
+  public static HttpResponse getBlock(String httpNode, String idOrNum, Boolean detail) {
+    try {
+      String requestUrl = "http://" + httpNode + "/wallet/getblock";
+      JsonObject userBaseObj2 = new JsonObject();
+      if(null != idOrNum) {
+        userBaseObj2.addProperty("id_or_num", idOrNum);
+      }
+      if(null != detail) {
+        userBaseObj2.addProperty("detail", detail);
+      }
+
+      if(userBaseObj2.size() == 0) {
+        userBaseObj2 = null;
+      }
+
+
+      response = createConnect(requestUrl, userBaseObj2);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+
+
+
+  /** constructor. */
+  public static HttpResponse getBlockByNum(String httpNode, Long blockNUm) {
     return getBlockByNum(httpNode, blockNUm, false);
   }
 
   /** constructor. */
-  public static HttpResponse getBlockByNum(String httpNode, Integer blockNUm, Boolean visible) {
+  public static HttpResponse getBlockByNum(String httpNode, Long blockNUm, Boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbynum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2424,7 +2453,7 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static HttpResponse getBlockByNumFromSolidity(String httpSolidityNode, Integer blockNum) {
+  public static HttpResponse getBlockByNumFromSolidity(String httpSolidityNode, Long blockNum) {
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getblockbynum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2439,7 +2468,7 @@ public class HttpMethed {
   }
 
   /** constructor. */
-  public static HttpResponse getBlockByNumFromPbft(String httpSolidityNode, Integer blockNum) {
+  public static HttpResponse getBlockByNumFromPbft(String httpSolidityNode, Long blockNum) {
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getblockbynum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2455,7 +2484,7 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse getBlockByLimitNext(
-      String httpNode, Integer startNum, Integer endNum) {
+      String httpNode, Long startNum, Long endNum) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbylimitnext";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2472,7 +2501,7 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse getBlockByLimitNextFromSolidity(
-      String httpNode, Integer startNum, Integer endNum) {
+      String httpNode, Long startNum, Long endNum) {
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbylimitnext";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2489,7 +2518,7 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse getBlockByLimitNextFromPbft(
-      String httpNode, Integer startNum, Integer endNum) {
+      String httpNode, Long startNum, Long endNum) {
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getblockbylimitnext";
       JsonObject userBaseObj2 = new JsonObject();
