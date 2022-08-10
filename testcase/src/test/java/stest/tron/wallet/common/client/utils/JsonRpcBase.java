@@ -230,7 +230,7 @@ public class JsonRpcBase {
     param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
     param.addProperty("name", "transferTokenContract");
     param.addProperty("gas", "0x245498");
-    String filePath = "testcase/src/test/resources/soliditycode/contractTrcToken001.sol";
+    String filePath = "./src/test/resources/soliditycode/contractTrcToken001.sol";
     String contractName = "tokenTest";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
 
