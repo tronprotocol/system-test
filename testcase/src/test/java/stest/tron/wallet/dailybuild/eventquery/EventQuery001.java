@@ -39,41 +39,6 @@ public class EventQuery001 {
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
-
-  @Test(enabled = true, description = "Event query for block")
-  public void test01EdddventQueryForBlock() {
-    ZMQ.Context context = ZMQ.context(1);
-    ZMQ.Socket req = context.socket(ZMQ.SUB);
-
-    req.subscribe("contractEventTrigger");
-    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
-    moniter.connect("inproc://reqmoniter");
-    new Thread(
-        new Runnable() {
-          public void run() {
-            while (true) {
-              Event event = Event.read(moniter.base());
-              System.out.println(event.event + "  " + event.addr);
-            }
-          }
-        })
-        .start();
-    req.connect("tcp://47.95.206.44:50096");
-    req.setReceiveTimeOut(10000);
-    String blockMessage = "";
-
-    Integer retryTimes = 20;
-    while (true) {
-      byte[] message = req.recv();
-      if (message != null) {
-         System.out.println("receive : " + new String(message));
-        blockMessage = new String(message);
-
-      }
-    }
-
-  }
-
   @Test(enabled = true, description = "Event query for block")
   public void test01EventQueryForBlock() {
     ZMQ.Context context = ZMQ.context(1);
