@@ -111,8 +111,8 @@ public class JsonRpcBase {
             foundationAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    proposalMap.put(44L, 1L); //允许DEX开启
-    proposalMap.put(30L, 1L); //是否打开更换委托机制开关
+    proposalMap.put(44L, 1L); //getAllowMarketTransaction
+    proposalMap.put(30L, 1L); //getChangeDelegation
     proposalMap.put(1L, 9999000000L); //getAccountUpgradeCost
     proposalMap.put(2L, 100000L); //getCreateAccountFee
     proposalMap.put(3L, 1000L); //getTransactionFee
@@ -201,8 +201,11 @@ public class JsonRpcBase {
   }
 
   /** constructor. */
-  public void openProposal(HashMap<Long, Long> proposalMap) throws Exception {
+  public void openProposal(HashMap<Long, Long> proposalMap)  {
 
+    if (num44ProposalOpenOrNot()) {
+      return;
+    }
     PublicMethed.sendcoin(witness001Address,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(
@@ -226,6 +229,18 @@ public class JsonRpcBase {
     listProposals = Optional.ofNullable(proposalList);
     logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
     Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 2);
+  }
+
+  /** constructor. */
+  public boolean num44ProposalOpenOrNot() {
+    ChainParameters chainParameters = blockingStubFull
+        .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+    Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    if (getChainParameters.get().getChainParameter(44).getValue() == 1L) {
+      logger.info("-------- it is unnecessary to reopen proposal-------");
+      return true;
+    }
+    return false;
   }
 
   /** constructor. */
