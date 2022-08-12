@@ -206,7 +206,7 @@ public class JsonRpcBase {
   /** constructor. */
   public void openProposal(HashMap<Long, Long> proposalMap)  {
 
-    if (num44ProposalOpenOrNot()) {
+    if (ProposalGetAllowMarketTransactionIsOpen()) {
       return;
     }
     PublicMethed.sendcoin(witness001Address,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);
@@ -235,7 +235,7 @@ public class JsonRpcBase {
   }
 
   /** constructor. */
-  public boolean num44ProposalOpenOrNot() {
+  public boolean ProposalGetAllowMarketTransactionIsOpen() {
     Protocol.ChainParameters chainParameters = blockingStubFull
         .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<Protocol.ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
