@@ -17,6 +17,7 @@ import org.testng.annotations.BeforeSuite;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
@@ -192,9 +193,11 @@ public class JsonRpcBase {
       ChainParameters chainParameters = blockingStubFull
           .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
       Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
-      if (getChainParameters.get().getChainParameter(proposalIndex).getValue() == 80L) {
-        logger.info("Proposal has been approval");
-        return;
+      for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
+        if ("getMaxCpuTimeOfOneTx".equalsIgnoreCase(op.getKey()) && (op.getValue() == 80)) {
+          logger.info("Proposal has been approval");
+          return;
+        }
       }
       PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
@@ -233,12 +236,14 @@ public class JsonRpcBase {
 
   /** constructor. */
   public boolean num44ProposalOpenOrNot() {
-    ChainParameters chainParameters = blockingStubFull
+    Protocol.ChainParameters chainParameters = blockingStubFull
         .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
-    Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
-    if (getChainParameters.get().getChainParameter(44).getValue() == 1L) {
-      logger.info("-------- it is unnecessary to reopen proposal-------");
-      return true;
+    Optional<Protocol.ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
+      if("getAllowMarketTransaction".equalsIgnoreCase(op.getKey()) && (op.getValue() == 1)){
+        logger.info("1111111: " + op.toString());
+        return true;
+      }
     }
     return false;
   }
