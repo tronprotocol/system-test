@@ -936,12 +936,15 @@ public class Accounts001 extends JsonRpcBase {
     //JsonObject requestBody1 = getJsonRpcBody("web3_sha3", params);
     //response = getEthHttps(ethHttpsNode, requestBody1);
     //responseContent = HttpMethed.parseResponseContent(response);
+    //HttpMethed.printJsonContent(responseContent);
     //String result1 = responseContent.getString("result");
     JsonObject requestBody2 = getJsonRpcBody("web3_sha3", params);
     response = getJsonRpc(jsonRpcNode, requestBody2);
     responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
     String result2 = responseContent.getString("result");
-    Assert.assertEquals("0xe97de541104c51f68540c193871bf6dfa97c676f16a0f929858cc6725c5017b7", result2);
+
+    Assert.assertEquals("0xd33e25809fcaa2b6900567812852539da8559dc8b76a7ce3fc5ddd77e8d19a69", result2);
   }
 
   @Test(enabled = true, description = "Json rpc api of eth_compileLLL")
