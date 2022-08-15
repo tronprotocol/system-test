@@ -957,15 +957,15 @@ public class Accounts002 extends JsonRpcBase {
   public void test35JsonRpcApiTestForWeb3Sha3() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x08");
-    JsonObject requestBody1 = getJsonRpcBody("web3_sha3", params);
-    response = getEthHttps(ethHttpsNode, requestBody1);
-    responseContent = HttpMethed.parseResponseContent(response);
-    String result1 = responseContent.getString("result");
+    //JsonObject requestBody1 = getJsonRpcBody("web3_sha3", params);
+    //response = getEthHttps(ethHttpsNode, requestBody1);
+    //responseContent = HttpMethed.parseResponseContent(response);
+    //String result1 = responseContent.getString("result");
     JsonObject requestBody2 = getJsonRpcBody("web3_sha3", params);
     response = getJsonRpc(jsonRpcNodeForSolidity, requestBody2);
     responseContent = HttpMethed.parseResponseContent(response);
     String result2 = responseContent.getString("result");
-    Assert.assertEquals(result1, result2);
+    Assert.assertEquals("0xe97de541104c51f68540c193871bf6dfa97c676f16a0f929858cc6725c5017b7", result2);
   }
 
   @Test(enabled = true, description = "Json rpc api of eth_compileLLL from solidity")
