@@ -10,7 +10,8 @@ import org.iq80.leveldb.DBFactory;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.ReadOptions;
-import org.iq80.leveldb.impl.Iq80DBFactory;
+//import org.iq80.leveldb.impl.Iq80DBFactory;
+import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.tron.protos.Protocol;
@@ -33,6 +34,8 @@ public class LeveldbBase {
   private static String TRANS_RET_STORE_PATH = database + "/transactionRetStore";
   private static String BLOCK_INDEX_PATH = database + "/block-index";
   private static String BLOCK_PATH = database + "/block";
+  private static String RECENT_PATH = database + "/recent-transaction";
+//  private static String RECENT_PATH = database + "/trans-cache";
   private DB accountDb;
   private DB accountAssetDb;
   private DB assetIssueV2Db;
@@ -40,6 +43,7 @@ public class LeveldbBase {
   private DB transRetStoreDb;
   private DB blockIndexDb;
   private DB blockDb;
+  private DB recentDb;
   List<DB> dbList = new ArrayList<>();
 
   /**
@@ -47,7 +51,7 @@ public class LeveldbBase {
    */
   @BeforeSuite(enabled = true, description = "init db")
   public void initDb() {
-    DBFactory factory = new Iq80DBFactory();
+//    DBFactory factory = new Iq80DBFactory();
     File accountFile = new File(ACCOUNT_PATH);
     File accountAssetFile = new File(ACCOUNT_ASSET_PATH);
     File assetIssueV2File = new File(ASSET_ISSUE_V2_PATH);
@@ -55,6 +59,7 @@ public class LeveldbBase {
     File transRetStoreFile = new File(TRANS_RET_STORE_PATH);
     File blockIndexFile = new File(BLOCK_INDEX_PATH);
     File blockFile = new File(BLOCK_PATH);
+    File recentFile = new File(RECENT_PATH);
     Options options = new Options();
     try {
       accountDb = factory.open(accountFile, options);
@@ -64,6 +69,7 @@ public class LeveldbBase {
       transRetStoreDb = factory.open(transRetStoreFile, options);
       blockIndexDb = factory.open(blockIndexFile, options);
       blockDb = factory.open(blockFile, options);
+      recentDb = factory.open(recentFile, options);
       dbList.add(accountDb);
       dbList.add(accountAssetDb);
       dbList.add(assetIssueV2Db);
@@ -71,6 +77,7 @@ public class LeveldbBase {
       dbList.add(transRetStoreDb);
       dbList.add(blockIndexDb);
       dbList.add(blockDb);
+      dbList.add(recentDb);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -235,6 +242,25 @@ public class LeveldbBase {
       return total - 1;
     } catch (Exception e) {
       e.printStackTrace();
+      return 0;
+    }
+  }
+
+  /**
+   * constructor.
+   */
+  public long getRecenTotal() {
+    ReadOptions readOptions = new ReadOptions().fillCache(false);
+    try (DBIterator iterator = recentDb.iterator(readOptions)) {
+      long total = 0;
+      for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+        total++;
+      }
+      System.out.println("1111111111111111111111--total: " + total);
+      return total - 1;
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("error 1111111111111111111111--total:");
       return 0;
     }
   }

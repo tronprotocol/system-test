@@ -25,7 +25,11 @@ configurations.getByName('checkstyleConfig') {
     transitive = false
 }
 
-
+ext {
+    leveldbGroup = "org.fusesource.leveldbjni"
+    leveldbName = "leveldbjni-all"
+    leveldbVersion = "1.8"
+}
 
 dependencies {
     //local libraries
@@ -86,7 +90,9 @@ dependencies {
     compile project(":protocol")
 
 
-    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
+//    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
+    compile group: leveldbGroup, name: leveldbName, version: leveldbVersion
+
 }
 
 check.dependsOn 'lint'

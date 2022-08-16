@@ -579,14 +579,14 @@ public class MultiSign23 {
     GrpcAPI.TransactionApprovedList transactionApprovedList = PublicMethed
         .getTransactionApprovedList(transaction, blockingStubFull);
     logger.info("Before broadcast transactionApprovedList info :\n" + transactionApprovedList);
-    Assert.assertEquals("class java.lang.IndexOutOfBoundsException : Index: 0",
+    Assert.assertEquals("Invalid transaction: no valid contract",
         transactionApprovedList.getResult().getMessage());
     Assert.assertFalse(PublicMethedForMutiSign
         .broadcastTransaction(transaction1, blockingStubFull));
     logger.info("transaction hex string is " + ByteArray.toHexString(transaction1.toByteArray()));
     transactionApprovedList = PublicMethed
         .getTransactionApprovedList(transaction1, blockingStubFull);
-    Assert.assertEquals("class java.lang.IndexOutOfBoundsException : Index: 0",
+    Assert.assertEquals("Invalid transaction: no valid contract",
         transactionApprovedList.getResult().getMessage());
   }
 
