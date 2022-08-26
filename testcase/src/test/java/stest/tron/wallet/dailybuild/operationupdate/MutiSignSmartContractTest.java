@@ -150,7 +150,8 @@ public class MutiSignSmartContractTest {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
-    Assert.assertTrue(smartContract.getAbi().toString() != null);
+    String abiStr = smartContract.getAbi().toString();
+    Assert.assertTrue( abi != null && abiStr.length() > 0);
     String txid;
     String initParmes = "\"" + "930" + "\"";
     txid = PublicMethedForMutiSign.triggerContract1(contractAddress,
