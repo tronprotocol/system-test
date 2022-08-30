@@ -131,8 +131,8 @@ public class MutiSignSmartContractTest {
             + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"
             + "]}]}";
     logger.info(accountPermissionJson);
-    PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
-        blockingStubFull, ownerKeyString);
+    Assert.assertTrue(PublicMethedForMutiSign.accountPermissionUpdate(
+        accountPermissionJson, ownerAddress, ownerKey, blockingStubFull, ownerKeyString));
 
     Random rand = new Random();
     Integer randNum = rand.nextInt(30) + 1;
@@ -151,7 +151,8 @@ public class MutiSignSmartContractTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     String abiStr = smartContract.getAbi().toString();
-    Assert.assertTrue( abi != null && abiStr.length() > 0);
+    System.out.println("abiStr:    " + abiStr);
+    Assert.assertTrue(abiStr != null && abiStr.length() > 0);
     String txid;
     String initParmes = "\"" + "930" + "\"";
     txid = PublicMethedForMutiSign.triggerContract1(contractAddress,
