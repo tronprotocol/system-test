@@ -471,8 +471,9 @@ public class MongoEventQuery002 extends MongoBase {
     responseContent = HttpMethed.parseResponseContent(response);
     Long latestSolidifiedBlockNumber =
         responseContent.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    logger.info("mongo latestSolidifiedBlockNumber = {}, block chain solid num = {}", jsonObject.getLong("latestSolidifiedBlockNumber"), latestSolidifiedBlockNumber);
     Assert.assertTrue(
-        jsonObject.getLong("latestSolidifiedBlockNumber") < latestSolidifiedBlockNumber);
+        jsonObject.getLong("latestSolidifiedBlockNumber") <= latestSolidifiedBlockNumber);
 
     Assert.assertTrue(
         (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 5);

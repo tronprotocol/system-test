@@ -218,6 +218,7 @@ public class FreezeContractTest002 {
 
   @Test(enabled = true, description = "contract freeze to ger Net")
   void FreezeContract005() {
+    long startTime = System.currentTimeMillis();
     // freeze(address payable receiver, uint amount, uint res)
     Long freezeCount = 1000000L;
     String methedStr = "freeze(address,uint256,uint256)";
@@ -249,11 +250,8 @@ public class FreezeContractTest002 {
     Long ExpireTime2 = ByteArray.toLong(extention.getConstantResult(0).toByteArray());
     logger.info("ExpireTime2: " + ExpireTime2);
 
-    // Test
-    Assert.assertEquals((ExpireTime2 + 3) * 1000, info.getBlockTimeStamp());
-    // Online
-    // Assert.assertEquals((ExpireTime2.longValue() + 10800) * 1000, info.getBlockTimeStamp());
-
+    Assert.assertEquals(true, ExpireTime2 * 1000 <= info.getBlockTimeStamp());
+    Assert.assertEquals(true, startTime <= ExpireTime2*1000);
   }
 
 
