@@ -150,6 +150,7 @@ public class MutiSignSmartContractTest {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     String abiStr = smartContract.getAbi().toString();
     System.out.println("abiStr:    " + abiStr);
