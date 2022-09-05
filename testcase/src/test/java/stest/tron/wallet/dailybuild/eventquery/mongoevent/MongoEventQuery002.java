@@ -436,7 +436,7 @@ public class MongoEventQuery002 extends MongoBase {
     }
   }
 
-  @Test(enabled = true, description = "MongoDB Event query for transaction of transfer TRX.", invocationCount = 5)
+  @Test(enabled = true, description = "MongoDB Event query for transaction of transfer TRX.")
   public void test03EventQueryForTransaction() throws InterruptedException {
 
     txId =
