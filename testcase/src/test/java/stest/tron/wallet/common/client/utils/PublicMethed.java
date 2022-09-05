@@ -18,12 +18,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -1625,6 +1622,43 @@ public class PublicMethed {
     }
     logger.info("quit normally");
     return true;
+  }
+
+
+
+  /**
+   * if tx is found, return it
+   * if query timeout,assert failed then return false
+   * @param blockingStubFull
+   * @param txId
+   * @param timeout second
+   * @return
+   */
+  public static Transaction waitTx(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
+    Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+
+
+    Integer wait = 0;
+    Boolean findTx = false;
+    logger.info("from Block num is " + currentBlock.getBlockHeader().getRawData().getNumber());
+    while (!findTx && wait <= timeout) {
+      try {
+        // wait 3 seconds
+        Thread.sleep(TimeUnit.SECONDS.ordinal());
+        wait += 1;
+        Optional<Transaction> txOpt = getTransactionById(txId, blockingStubFull);
+        Transaction tx = txOpt.get();
+        currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+        logger.info("end Block num is " + currentBlock.getBlockHeader().getRawData().getNumber());
+        return tx;
+      }catch (NoSuchElementException e1){
+        logger.error("tx not in this block, continue...");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    logger.info("quit normally");
+    return null;
   }
 
   /** constructor. */

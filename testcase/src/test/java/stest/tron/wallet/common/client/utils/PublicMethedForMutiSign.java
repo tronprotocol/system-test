@@ -2721,7 +2721,8 @@ public class PublicMethedForMutiSign {
       System.out.println("Transaction is empty");
       return false;
     }
-
+    txId = ByteArray.toHexString(Sha256Hash.hash(CommonParameter.getInstance()
+                    .isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
     transaction = signTransaction(transaction, blockingStubFull, priKeys);
     System.out.println("trigger txid = " + ByteArray
         .toHexString(Sha256Hash.hash(CommonParameter.getInstance()
@@ -2729,6 +2730,8 @@ public class PublicMethedForMutiSign {
     Return response = broadcastTransaction1(transaction, blockingStubFull);
     return response.getResult();
   }
+
+  public static String txId;
 
   /**
    * constructor.
