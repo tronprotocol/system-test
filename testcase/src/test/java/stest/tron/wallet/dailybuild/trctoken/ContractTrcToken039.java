@@ -278,6 +278,9 @@ public class ContractTrcToken039 {
             .toStringUtf8(),
         1, dev001Address, dev001Key,
         blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     Account infoafter1 = PublicMethed.queryAccount(dev001Address, blockingStubFull);
     AccountResourceMessage resourceInfoafter1 = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
