@@ -417,7 +417,7 @@ public class FreezeContractTest001 {
     Assert.assertTrue(testAccount001.getEnergyUsed() > 0);
   }
 
-  @Test(description = "get Zero Address ExpireTime,used to be that freeze to contract self",
+  @Test(description = "Get Zero Address ExpireTime,used to be that freeze to contract self",
       dependsOnMethods = "FreezeContractTest002")
   public void getZeroExpireTimeTest() {
     long startTime = System.currentTimeMillis();
@@ -436,7 +436,7 @@ public class FreezeContractTest001 {
             false,0,maxFeeLimit,"#",0, testAddress001,testKey001,blockingStubFull);
     Long ExpireTime2 = ByteArray.toLong(extention.getConstantResult(0).toByteArray());
     logger.info("ExpireTime2: " + ExpireTime2);
-//    Assert.assertEquals(0,ExpireTime2.longValue());
+    Assert.assertEquals(0,ExpireTime2.longValue());
 
     // freeze(address payable receiver, uint amount, uint res)
     String methedStr = "freeze(address,uint256,uint256)";
@@ -455,8 +455,8 @@ public class FreezeContractTest001 {
     Long ExpireTime = ByteArray.toLong(extention.getConstantResult(0).toByteArray());
     logger.info("ExpireTime: " + ExpireTime + " nextBlockTimeStamp: " + info.getBlockTimeStamp());
 
-    Assert.assertEquals(  true, ExpireTime * 1000 <= info.getBlockTimeStamp());
-    Assert.assertEquals(true, startTime <= ExpireTime*1000);
+    Assert.assertTrue(ExpireTime * 1000 <= info.getBlockTimeStamp());
+    Assert.assertTrue(startTime <= ExpireTime * 1000);
 
   }
 
