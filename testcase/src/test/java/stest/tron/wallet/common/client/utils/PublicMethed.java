@@ -1634,31 +1634,22 @@ public class PublicMethed {
    * @param timeout second
    * @return
    */
-  public static Transaction waitTx(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
-    Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-
-
+  public static void WaitUntilTransactionFound(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
     Integer wait = 0;
-    Boolean findTx = false;
-    logger.info("from Block num is " + currentBlock.getBlockHeader().getRawData().getNumber());
-    while (!findTx && wait <= timeout) {
+    while (wait++ <= timeout) {
       try {
-        // wait 3 seconds
+        // wait 1 seconds
         Thread.sleep(TimeUnit.SECONDS.ordinal());
-        wait += 1;
-        Optional<Transaction> txOpt = getTransactionById(txId, blockingStubFull);
-        Transaction tx = txOpt.get();
-        currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-        logger.info("end Block num is " + currentBlock.getBlockHeader().getRawData().getNumber());
-        return tx;
-      }catch (NoSuchElementException e1){
-        logger.error("tx not in this block, continue...");
-      } catch (Exception e) {
+      } catch (InterruptedException e) {
         e.printStackTrace();
       }
+      Optional<Protocol.Transaction> tx = getTransactionById(txId, blockingStubFull);
+      if(tx.isPresent()){
+        break;
+      }
+      logger.info("wait tx by id: " + txId + " times: " + wait);
     }
-    logger.info("quit normally");
-    return null;
+    logger.info("wait tx quit normally");
   }
 
   /** constructor. */

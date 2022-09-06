@@ -1674,11 +1674,11 @@ public class PublicMethedForMutiSign {
 
   public static String deployContractAndGetTransactionInfoById(String contractName,
       String abiString, String code, String data, Long feeLimit, long value,
-      long consumeUserResourcePercent, String libraryAddress, String priKey, byte[] ownerAddress,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+        long consumeUserResourcePercent, String libraryAddress, String priKey, byte[] ownerAddress
+          , int permissionId, String[] permissionKeyString, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return deployContractAndGetTransactionInfoById(contractName, abiString, code, data, feeLimit,
         value, consumeUserResourcePercent, 1000L, "0", 0L, libraryAddress, priKey, ownerAddress,
-        blockingStubFull);
+        permissionId, permissionKeyString, blockingStubFull);
   }
 
   /**
@@ -1688,7 +1688,7 @@ public class PublicMethedForMutiSign {
   public static String deployContractAndGetTransactionInfoById(String contractName,
       String abiString, String code, String data, Long feeLimit, long value,
       long consumeUserResourcePercent, long originEnergyLimit, String tokenId, long tokenValue,
-      String libraryAddress, String priKey, byte[] ownerAddress,
+      String libraryAddress, String priKey, byte[] ownerAddress, int permissionId, String[] permissionKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
@@ -1745,6 +1745,9 @@ public class PublicMethedForMutiSign {
       return null;
     }
 
+
+
+
     final TransactionExtention.Builder texBuilder = TransactionExtention.newBuilder();
     Transaction.Builder transBuilder = Transaction.newBuilder();
     Transaction.raw.Builder rawBuilder = transactionExtention.getTransaction().getRawData()
@@ -1778,7 +1781,12 @@ public class PublicMethedForMutiSign {
       System.out.println("Transaction is empty");
       return null;
     }
-    transaction = signTransaction(ecKey, transaction);
+    try {
+      transaction = setPermissionId(transaction, permissionId);
+    } catch (CancelException e) {
+      e.printStackTrace();
+    }
+    transaction = signTransaction(transaction, blockingStubFull, permissionKey);
     System.out.println(
         "txid = " + ByteArray.toHexString(Sha256Hash.hash(CommonParameter.getInstance()
             .isECKeyCryptoEngine(), transaction.getRawData().toByteArray())));
@@ -2721,8 +2729,7 @@ public class PublicMethedForMutiSign {
       System.out.println("Transaction is empty");
       return false;
     }
-    txId = ByteArray.toHexString(Sha256Hash.hash(CommonParameter.getInstance()
-                    .isECKeyCryptoEngine(), transaction.getRawData().toByteArray()));
+
     transaction = signTransaction(transaction, blockingStubFull, priKeys);
     System.out.println("trigger txid = " + ByteArray
         .toHexString(Sha256Hash.hash(CommonParameter.getInstance()
@@ -2730,8 +2737,6 @@ public class PublicMethedForMutiSign {
     Return response = broadcastTransaction1(transaction, blockingStubFull);
     return response.getResult();
   }
-
-  public static String txId;
 
   /**
    * constructor.

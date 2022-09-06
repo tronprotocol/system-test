@@ -144,19 +144,19 @@ public class MutiSignSmartContractTest {
         .getString("code.code_TestStorageAndCpu_storageAndCpu");
     String abi = Configuration.getByPath("testng.conf")
         .getString("abi.abi_TestStorageAndCpu_storageAndCpu");
-    byte[] contractAddress = PublicMethedForMutiSign.deployContract1(contractName, abi, code,
-        "", maxFeeLimit,
-        0L, 100, null, ownerKey, ownerAddress, blockingStubFull, 0, ownerKeyString);
+    String txid = PublicMethedForMutiSign.deployContractAndGetTransactionInfoById(contractName, abi, code,
+            "", maxFeeLimit, 0L, 100, null, ownerKey, ownerAddress,  0, ownerKeyString, blockingStubFull);
+    Assert.assertNotEquals(txid, null);
+    PublicMethed.WaitUntilTransactionFound(blockingStubFull, txid, 15);
 
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitTx(blockingStubFull, PublicMethedForMutiSign.txId, 15);
+    Optional<TransactionInfo> infoById =
+            PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
+
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     String abiStr = smartContract.getAbi().toString();
     System.out.println("abiStr:    " + abiStr);
     Assert.assertTrue(abiStr != null && abiStr.length() > 0);
-    String txid;
     String initParmes = "\"" + "930" + "\"";
     txid = PublicMethedForMutiSign.triggerContract1(contractAddress,
         "testUseCpu(uint256)", initParmes, false,
