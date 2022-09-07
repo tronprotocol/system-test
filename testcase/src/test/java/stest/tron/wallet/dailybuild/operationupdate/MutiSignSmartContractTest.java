@@ -81,7 +81,7 @@ public class MutiSignSmartContractTest {
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, threadPoolSize = 1, invocationCount = 1)
+  @Test(enabled = true)
   public void testMutiSignForSmartContract() {
     ecKey1 = new ECKey(Utils.getRandom());
     manager1Address = ecKey1.getAddress();
@@ -149,8 +149,15 @@ public class MutiSignSmartContractTest {
     Assert.assertNotEquals(txid, null);
     PublicMethed.WaitUntilTransactionFound(blockingStubFull, txid, 15);
 
-    Optional<TransactionInfo> infoById =
-            PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    int retry = 5;
+    Optional<TransactionInfo> infoById = null;
+    for (int i = 0; i < retry; i++) {
+      infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+      if(infoById.get().getBlockTimeStamp() > 0){
+        logger.info("retry times = " + i);
+        break;
+      }
+    }
     byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
 
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);

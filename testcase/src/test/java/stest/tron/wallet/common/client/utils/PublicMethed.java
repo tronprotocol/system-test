@@ -1638,18 +1638,21 @@ public class PublicMethed {
     Integer wait = 0;
     while (wait++ <= timeout) {
       try {
-        // wait 1 seconds
-        Thread.sleep(1000);
+        // wait 3 seconds
+        Thread.sleep(3000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
       Optional<Protocol.Transaction> tx = getTransactionById(txId, blockingStubFull);
-      if(tx.isPresent()){
-        break;
+      if (tx.isPresent()) {
+        logger.info("wait tx quit normally");
+        logger.info("wait tx by id: " + txId + " times: " + wait);
+        return;
       }
-      logger.info("wait tx by id: " + txId + " times: " + wait);
     }
-    logger.info("wait tx quit normally");
+    logger.info("wait tx by id: " + txId + " times: " + wait);
+    logger.info("wait tx quit timeout");
+
   }
 
   /** constructor. */
