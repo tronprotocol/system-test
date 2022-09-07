@@ -20,7 +20,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -1634,7 +1633,7 @@ public class PublicMethed {
    * @param timeout second
    * @return
    */
-  public static void WaitUntilTransactionFound(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
+  public static void WaitUntilTransactionInfoFound(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
     Integer wait = 0;
     while (wait++ <= timeout) {
       try {
@@ -1643,15 +1642,13 @@ public class PublicMethed {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      Optional<Protocol.Transaction> tx = getTransactionById(txId, blockingStubFull);
-      if (tx.isPresent()) {
-        logger.info("wait tx quit normally");
-        logger.info("wait tx by id: " + txId + " times: " + wait);
+      Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txId, blockingStubFull);
+      if(infoById.get().getBlockTimeStamp() > 0){
+        logger.info("quit normally, wait tx by id: " + txId + " times: " + wait);
         return;
       }
     }
-    logger.info("wait tx by id: " + txId + " times: " + wait);
-    logger.info("wait tx quit timeout");
+    logger.info("quit timeout, wait tx by id: " + txId + " times: " + wait);
 
   }
 

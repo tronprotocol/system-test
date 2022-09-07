@@ -147,17 +147,11 @@ public class MutiSignSmartContractTest {
     String txid = PublicMethedForMutiSign.deployContractAndGetTransactionInfoById(contractName, abi, code,
             "", maxFeeLimit, 0L, 100, null, ownerKey, ownerAddress,  0, ownerKeyString, blockingStubFull);
     Assert.assertNotEquals(txid, null);
-    PublicMethed.WaitUntilTransactionFound(blockingStubFull, txid, 15);
+    PublicMethed.WaitUntilTransactionInfoFound(blockingStubFull, txid, 30);
 
-    int retry = 5;
-    Optional<TransactionInfo> infoById = null;
-    for (int i = 0; i < retry; i++) {
-      infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-      if(infoById.get().getBlockTimeStamp() > 0){
-        logger.info("retry times = " + i);
-        break;
-      }
-    }
+    Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getBlockTimeStamp() > 0);
+
     byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
 
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
