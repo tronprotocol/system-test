@@ -1639,7 +1639,7 @@ public class PublicMethed {
     while (wait++ <= timeout) {
       try {
         // wait 1 seconds
-        Thread.sleep(TimeUnit.SECONDS.ordinal());
+        Thread.sleep(1000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
