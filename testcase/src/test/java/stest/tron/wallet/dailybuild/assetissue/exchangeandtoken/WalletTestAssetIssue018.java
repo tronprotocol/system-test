@@ -101,6 +101,8 @@ public class WalletTestAssetIssue018 {
     Assert.assertTrue(PublicMethed.sendcoin(assetAccount6Address, 2048000000, fromAddress,
         testKey002, blockingStubFull));
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     //Can create 32 char token name.
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;

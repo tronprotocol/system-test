@@ -18,11 +18,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1625,6 +1621,35 @@ public class PublicMethed {
     }
     logger.info("quit normally");
     return true;
+  }
+
+
+
+  /**
+   * if tx is found, return it
+   * if query timeout,assert failed then return false
+   * @param blockingStubFull
+   * @param txId
+   * @param timeout second
+   * @return
+   */
+  public static void WaitUntilTransactionInfoFound(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
+    Integer wait = 0;
+    while (wait++ <= timeout) {
+      try {
+        // wait 3 seconds
+        Thread.sleep(3000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txId, blockingStubFull);
+      if(infoById.get().getBlockTimeStamp() > 0){
+        logger.info("quit normally, wait tx by id: " + txId + " times: " + wait);
+        return;
+      }
+    }
+    logger.info("quit timeout, wait tx by id: " + txId + " times: " + wait);
+
   }
 
   /** constructor. */
