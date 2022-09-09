@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -121,11 +123,12 @@ import stest.tron.wallet.common.client.utils.zen.address.IncomingViewingKey;
 import stest.tron.wallet.common.client.utils.zen.address.PaymentAddress;
 import stest.tron.wallet.common.client.utils.zen.address.SpendingKey;
 
+@Slf4j
 public class PublicMethed {
 
   // //Wallet.setAddressPreFixByte()();
   private static final String FilePath = "Wallet";
-  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
+//  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   // private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   // private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   public static Map<Long, ShieldNoteInfo> utxoMapNote = new ConcurrentHashMap();
@@ -543,6 +546,28 @@ public class PublicMethed {
     return blockingStubFull.getAccount(request);
   }
 
+  public static Account queryAccountUtilFound(
+          byte[] address,int timeout, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    ByteString addressBs = ByteString.copyFrom(address);
+    Account request = Account.newBuilder().setAddress(addressBs).build();
+    Integer wait = 0;
+    while (wait++ <= timeout) {
+      try {
+        // wait 1 seconds
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      Account a = blockingStubFull.getAccount(request);
+      if(a.getLatestConsumeTime() > 0){
+        logger.info("quit normally, " +  "query times: " + wait);
+        return a;
+      }
+    }
+    logger.info("quit normally, " +  "query times: " + wait);
+    return null;
+  }
+
   /** constructor. */
   public static Account getAccountById(
       String accountId, WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -602,12 +627,12 @@ public class PublicMethed {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-    logger.info(
-        "Txid in sign is "
-            + ByteArray.toHexString(
-                Sha256Hash.hash(
-                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-                    transaction.getRawData().toByteArray())));
+//    logger.info(
+//        "Txid in sign is "
+//            + ByteArray.toHexString(
+//                Sha256Hash.hash(
+//                    CommonParameter.getInstance().isECKeyCryptoEngine(),
+//                    transaction.getRawData().toByteArray())));
     return TransactionUtils.sign(transaction, ecKey);
   }
 
@@ -618,12 +643,12 @@ public class PublicMethed {
       // logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
-    logger.info(
-        "Txid in sign is "
-            + ByteArray.toHexString(
-                Sha256Hash.hash(
-                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-                    transaction.getRawData().toByteArray())));
+//    logger.info(
+//        "Txid in sign is "
+//            + ByteArray.toHexString(
+//                Sha256Hash.hash(
+//                    CommonParameter.getInstance().isECKeyCryptoEngine(),
+//                    transaction.getRawData().toByteArray())));
     return TransactionUtils.sign(transaction, ecKey);
   }
 
@@ -1568,21 +1593,19 @@ public class PublicMethed {
     Block solidityCurrentBlock =
         blockingStubSolidity.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
     Integer wait = 0;
-    logger.info("Fullnode block num is " + currentBlock.getBlockHeader().getRawData().getNumber());
-
+    long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    logger.info("start sync soliditynode, SR number: " + getWitnessNum(blockingStubFull));
     while (solidityCurrentBlock.getBlockHeader().getRawData().getNumber()
-            < currentBlock.getBlockHeader().getRawData().getNumber() + 1
+            <= currentBlockNum + 1
         && wait
             < ((getWitnessNum(blockingStubFull) >= 27)
                 ? 27
-                : getWitnessNum(blockingStubFull) + 2)) {
+                : getWitnessNum(blockingStubFull) + 4)) {
       try {
         Thread.sleep(3000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      logger.info(
-          "Soliditynode num is " + solidityCurrentBlock.getBlockHeader().getRawData().getNumber());
       solidityCurrentBlock =
           blockingStubSolidity.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
       if (wait == 24) {
@@ -1591,6 +1614,9 @@ public class PublicMethed {
       }
       wait++;
     }
+    logger.info("Fullnode number: " + currentBlockNum
+    + ", solidity node number: " + solidityCurrentBlock.getBlockHeader().getRawData().getNumber());
+
     return true;
   }
 
@@ -1603,23 +1629,22 @@ public class PublicMethed {
     Long nextNum = nextBlock.getBlockHeader().getRawData().getNumber();
 
     Integer wait = 0;
-    logger.info("Block num is " + currentBlock.getBlockHeader().getRawData().getNumber());
+    logger.info("start wait produce block, current num: " + currentBlock.getBlockHeader().getRawData().getNumber());
     while (nextNum <= currentNum + 1 && wait <= 45) {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      // logger.info("Wait to produce next block");
       nextBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
       nextNum = nextBlock.getBlockHeader().getRawData().getNumber();
       if (wait == 45) {
-        logger.info("These 45 second didn't produce a block,please check.");
+        logger.info("quit timeout, These 45 second didn't produce a block,please check.");
         return false;
       }
       wait++;
     }
-    logger.info("quit normally");
+    logger.info("quit normally, wait times: " + wait);
     return true;
   }
 
@@ -4114,7 +4139,6 @@ public class PublicMethed {
       ByteString receiverAddressBytes,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    // Wallet.setAddressPreFixByte()();
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
