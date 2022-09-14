@@ -92,7 +92,9 @@ dependencies {
 
 //    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
     compile group: leveldbGroup, name: leveldbName, version: leveldbVersion
-
+    compile "org.projectlombok:lombok:1.18.6"
+    compileOnly 'org.projectlombok:lombok:1.18.6'
+    annotationProcessor 'org.projectlombok:lombok:1.18.6'
 }
 
 check.dependsOn 'lint'

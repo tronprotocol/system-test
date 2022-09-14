@@ -19,6 +19,8 @@ import com.google.protobuf.ByteString;
 import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tron.protos.Protocol.Transaction;
@@ -30,13 +32,13 @@ import org.tron.protos.contract.SmartContractOuterClass;
 import org.tron.protos.contract.VoteAssetContractOuterClass;
 import org.tron.protos.contract.WitnessContract;
 import stest.tron.wallet.common.client.utils.ECKey.ECDSASignature;
-
+@Slf4j
 public class TransactionUtils {
 
   public static final int NORMALTRANSACTION = 0;
   public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
   public static final int EXECUTINGDEFERREDTRANSACTION = 2;
-  private static final Logger logger = LoggerFactory.getLogger("Transaction");
+//  private static final Logger logger = LoggerFactory.getLogger("Transaction");
   private static final int RESERVE_BALANCE = 10;
 
   /**
@@ -179,6 +181,16 @@ public class TransactionUtils {
     }
 
     transaction = transactionBuilderSigned.build();
+    try {
+      String txId = ByteArray.toHexString(
+              Sha256Hash.hash(
+                      CommonParameter.getInstance().isECKeyCryptoEngine(),
+                      transaction.getRawData().toByteArray()));
+      String txType = transaction.getRawData().getContract(0).getType().name();
+      logger.info("Transaction type: {}, id: {}" ,txType ,txId);
+    }catch (Exception e){
+      logger.warn("err transaction, please check, " + transaction + " err: " + e.getMessage());
+    }
     return transaction;
   }
 

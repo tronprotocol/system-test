@@ -13,10 +13,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class WalletTestAccount014 {
@@ -50,7 +47,7 @@ public class WalletTestAccount014 {
   /**
    * constructor.
    */
-  @BeforeClass(enabled = true)
+  // // @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKey002);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
@@ -78,7 +75,6 @@ public class WalletTestAccount014 {
     ecKey2 = new ECKey(Utils.getRandom());
     account014SecondAddress = ecKey2.getAddress();
     account014SecondKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-
     PublicMethed.printAddress(account014Key);
     PublicMethed.printAddress(account014SecondKey);
     Assert.assertTrue(PublicMethed.sendcoin(account014Address, 1000000000L, fromAddress,
@@ -133,6 +129,7 @@ public class WalletTestAccount014 {
 
     Assert.assertTrue(PublicMethed.freezeBalance(account014Address, 1000000L, 3,
         account014Key, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed.sendcoin(account014SecondAddress, 1000000L,
         account014Address, account014Key, blockingStubFull));
     Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(account014Address, 1000000,
@@ -152,6 +149,7 @@ public class WalletTestAccount014 {
 
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
     Account account014 = PublicMethed.queryAccount(account014Address, blockingStubFull);
+    logger.info("account014: " + JsonFormat.printToString(account014));
     final long lastCustomeTimeInFullnode = account014.getLatestConsumeTime();
     final long netUsageInFullnode = account014.getNetUsage();
     final long acquiredForBandwidthInFullnode = account014
@@ -162,9 +160,9 @@ public class WalletTestAccount014 {
     final long delegatedForEnergyInFullnode = account014
         .getAccountResource().getDelegatedFrozenBalanceForEnergy();
     logger.info("delegatedForEnergyInFullnode " + delegatedForEnergyInFullnode);
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
     account014 = PublicMethed.queryAccount(account014Address, blockingStubSoliInFull);
     final long lastCustomeTimeInSoliInFull = account014.getLatestConsumeTime();
+
     logger.info("freeNetUsageInSoliInFull " + lastCustomeTimeInSoliInFull);
     final long netUsageInSoliInFull = account014.getNetUsage();
     final long acquiredForBandwidthInSoliInFull = account014
@@ -175,7 +173,6 @@ public class WalletTestAccount014 {
     final long delegatedForEnergyInSoliInFull = account014
         .getAccountResource().getDelegatedFrozenBalanceForEnergy();
     logger.info("delegatedForEnergyInSoliInFull " + delegatedForEnergyInSoliInFull);
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     account014 = PublicMethed.queryAccount(account014Address, blockingStubSolidity);
     final long netUsageInSolidity = account014.getNetUsage();
     final long lastCustomeTimeInSolidity = account014.getLatestConsumeTime();

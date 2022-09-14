@@ -24,7 +24,7 @@ public class MongoBase {
   private MongoClient mongoClient;
 
   /** constructor. */
-  @BeforeSuite(enabled = true, description = "Create new mongo client")
+//  // @BeforeSuite(enabled = true, description = "Create new mongo client")
   public void createMongoDBConnection() throws Exception {
     try {
       MongoCredential credential =
@@ -78,7 +78,7 @@ public class MongoBase {
     return dbCollection.rename(newCollection, true);
   }
 
-  @AfterSuite(enabled = true, description = "Backup  mongo collection")
+//  @AfterSuite(enabled = true, description = "Backup  mongo collection")
   public void clearMongoDBConnection() throws Exception {
     Thread.sleep(120000);
     try {

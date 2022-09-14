@@ -86,6 +86,18 @@ contract tryTest {
     }
 
     function getErrorSwitch(errorContract add, uint256 errorType ) public payable returns(string memory) {
+         add.errorSwitch(errorType);
+         return "Run success";
+//        try add.errorSwitch(errorType) returns (string memory Msg) {
+//            return Msg;
+//        } catch Error(string memory errorMsg/* 出错原因 */) {
+//            return errorMsg;
+//        } catch (bytes memory) {
+//            return "NoErrorMsg";
+//        }
+    }
+
+    function getErrorSwitchV2(errorContract add, uint256 errorType ) public payable returns(string memory) {
         try add.errorSwitch(errorType) returns (string memory Msg) {
             return Msg;
         } catch Error(string memory errorMsg/* 出错原因 */) {
