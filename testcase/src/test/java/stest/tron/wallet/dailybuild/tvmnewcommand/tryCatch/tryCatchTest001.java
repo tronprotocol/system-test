@@ -224,6 +224,9 @@ public class tryCatchTest001 {
 
   @Test(enabled = true, description = "try catch  ArrayOverFlow_Error")
   public void tryCatchTest009() {
+    PublicMethed.freezeBalanceGetEnergy(testAddress001, maxFeeLimit + 1,1,1,testKey001, blockingStubFull);
+
+
     String methodStr = "getErrorSwitch(address,uint256)";
     String argStr = "\"" + Base58.encode58Check(errorContractAddress) + "\",8";
     String TriggerTxid = PublicMethed.triggerContract(contractAddress, methodStr, argStr, false,

@@ -1,1 +1,16 @@
-3.Stest report:  
+3.Stest report:  Total: 1,  Passed: 1,  Failed: 0,  Skipped: 0
+------------------------------------------------------------------------------
+Total transaction number:9
+Transaction type list:
+CreateSmartContract                      : 4
+TransferContract                         : 2
+TriggerSmartContract                     : 2
+FreezeBalanceContract                    : 1
+------------------------------------------------------------------------------
+Passed list 
+class stest.tron.wallet.dailybuild.tvmnewcommand.tryCatch.ErrorTest: Assert-style exception
+------------------------------------------------------------------------------
+Failed list: 
+------------------------------------------------------------------------------
+Skipped list: 
+----------------------------------------------------------------
