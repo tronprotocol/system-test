@@ -546,28 +546,6 @@ public class PublicMethed {
     return blockingStubFull.getAccount(request);
   }
 
-  public static Account queryAccountUtilFound(
-          byte[] address,int timeout, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
-    ByteString addressBs = ByteString.copyFrom(address);
-    Account request = Account.newBuilder().setAddress(addressBs).build();
-    Integer wait = 0;
-    while (wait++ <= timeout) {
-      try {
-        // wait 1 seconds
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      Account a = blockingStubFull.getAccount(request);
-      if(a.getLatestConsumeTime() > 0){
-        logger.info("quit normally, " +  "query times: " + wait);
-        return a;
-      }
-    }
-    logger.info("quit normally, " +  "query times: " + wait);
-    return null;
-  }
-
   /** constructor. */
   public static Account getAccountById(
       String accountId, WalletGrpc.WalletBlockingStub blockingStubFull) {
