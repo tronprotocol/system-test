@@ -605,12 +605,6 @@ public class PublicMethed {
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
-//    logger.info(
-//        "Txid in sign is "
-//            + ByteArray.toHexString(
-//                Sha256Hash.hash(
-//                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-//                    transaction.getRawData().toByteArray())));
     return TransactionUtils.sign(transaction, ecKey);
   }
 
@@ -621,12 +615,6 @@ public class PublicMethed {
       // logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
-//    logger.info(
-//        "Txid in sign is "
-//            + ByteArray.toHexString(
-//                Sha256Hash.hash(
-//                    CommonParameter.getInstance().isECKeyCryptoEngine(),
-//                    transaction.getRawData().toByteArray())));
     return TransactionUtils.sign(transaction, ecKey);
   }
 
