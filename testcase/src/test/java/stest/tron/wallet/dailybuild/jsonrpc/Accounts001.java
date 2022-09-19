@@ -489,7 +489,7 @@ public class Accounts001 extends JsonRpcBase {
     }
 
     Assert.assertEquals(jsonrpcResult.get("gas").toString(), "0x" + Long.toHexString(gas));
-    Assert.assertNull(jsonrpcResult.get("nonce"));
+    Assert.assertEquals("0x0000000000000000", jsonrpcResult.get("nonce"));
     Assert.assertEquals(
         jsonrpcResult.get("hash").toString(), "0x" + getBlockByNumResult.getString("txID"));
     Assert.assertEquals(jsonrpcResult.get("blockHash").toString(), "0x" + bid);
@@ -520,10 +520,12 @@ public class Accounts001 extends JsonRpcBase {
 
     Assert.assertEquals(jsonrpcResult.get("value").toString(), "0x1389");
     String data;
-    if (getBlockByNumResult.getJSONObject("raw_data").getString("data") == null) {
+    if (getBlockByNumResult.getJSONObject("raw_data").getJSONArray("contract").getJSONObject(0)
+        .getJSONObject("parameter").getJSONObject("value").getString("data") == null) {
       data = "0x";
     } else {
-      data = getBlockByNumResult.getJSONObject("raw_data").getString("data").substring(2);
+      data = "0x" + getBlockByNumResult.getJSONObject("raw_data").getJSONArray("contract")
+          .getJSONObject(0).getJSONObject("parameter").getJSONObject("value").getString("data");
     }
     Assert.assertEquals(jsonrpcResult.get("input").toString(), data);
 
@@ -1132,15 +1134,14 @@ public class Accounts001 extends JsonRpcBase {
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     JSONObject getBlockByHashResult = responseContent.getJSONObject("result");
-
-    Assert.assertNull(getBlockByHashResult.getString("nonce"));
-    Assert.assertNull(getBlockByHashResult.getString("sha3Uncles"));
-    Assert.assertNull(getBlockByHashResult.getString("receiptsRoot"));
-    Assert.assertNull(getBlockByHashResult.getString("difficulty"));
-    Assert.assertNull(getBlockByHashResult.getString("totalDifficulty"));
-    Assert.assertNull(getBlockByHashResult.getString("extraData"));
-    Assert.assertNull(getBlockByHashResult.getString("baseFeePerGas"));
-    Assert.assertNull(getBlockByHashResult.getString("mixHash"));
+    Assert.assertEquals("0x0000000000000000", getBlockByHashResult.getString("nonce"));
+    Assert.assertNotNull(getBlockByHashResult.getString("sha3Uncles"));
+    Assert.assertNotNull(getBlockByHashResult.getString("receiptsRoot"));
+    Assert.assertNotNull(getBlockByHashResult.getString("difficulty"));
+    Assert.assertNotNull(getBlockByHashResult.getString("totalDifficulty"));
+    Assert.assertNotNull(getBlockByHashResult.getString("extraData"));
+    Assert.assertNotNull(getBlockByHashResult.getString("baseFeePerGas"));
+    Assert.assertNotNull(getBlockByHashResult.getString("mixHash"));
     Assert.assertEquals(getBlockByHashResult.getString("uncles"), new ArrayList<>().toString());
     Assert.assertEquals(getBlockByHashResult.getString("stateRoot"), "0x" + accountStateRoot);
 
@@ -1166,7 +1167,7 @@ public class Accounts001 extends JsonRpcBase {
         feeLimit);
     Assert.assertEquals(
         Long.parseLong(getBlockByHashResult.getString("timestamp").substring(2), 16),
-        blockTimeStamp);
+        blockTimeStamp / 1000);
     final GrpcAPI.NumberMessage message =
         GrpcAPI.NumberMessage.newBuilder().setNum(blockNum).build();
     HttpMethed.waitToProduceOneBlock(httpFullNode);
@@ -1204,14 +1205,14 @@ public class Accounts001 extends JsonRpcBase {
     JSONObject getBlockByNumberResult = responseContent.getJSONObject("result");
     logger.info("49getBlockByHashResult:" + getBlockByNumberResult);
 
-    Assert.assertNull(getBlockByNumberResult.getString("nonce"));
-    Assert.assertNull(getBlockByNumberResult.getString("sha3Uncles"));
-    Assert.assertNull(getBlockByNumberResult.getString("receiptsRoot"));
-    Assert.assertNull(getBlockByNumberResult.getString("difficulty"));
-    Assert.assertNull(getBlockByNumberResult.getString("totalDifficulty"));
-    Assert.assertNull(getBlockByNumberResult.getString("extraData"));
-    Assert.assertNull(getBlockByNumberResult.getString("baseFeePerGas"));
-    Assert.assertNull(getBlockByNumberResult.getString("mixHash"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("nonce"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("sha3Uncles"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("receiptsRoot"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("difficulty"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("totalDifficulty"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("extraData"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("baseFeePerGas"));
+    Assert.assertNotNull(getBlockByNumberResult.getString("mixHash"));
     Assert.assertEquals(getBlockByNumberResult.getString("uncles"), new ArrayList<>().toString());
     Assert.assertEquals(getBlockByNumberResult.getString("stateRoot"), "0x" + accountStateRoot);
     Assert.assertEquals(
@@ -1237,7 +1238,7 @@ public class Accounts001 extends JsonRpcBase {
         feeLimit);
     Assert.assertEquals(
         Long.parseLong(getBlockByNumberResult.getString("timestamp").substring(2), 16),
-        blockTimeStamp);
+        blockTimeStamp / 1000);
     logger.info("49size:" + size);
     Assert.assertEquals(
         Long.parseLong(getBlockByNumberResult.getString("size").substring(2), 16), size);
