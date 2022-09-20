@@ -140,10 +140,10 @@ public class PublicMethed {
 
   /** constructor. */
   public static Integer getWitnessNum(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    if (null == witnessNum) {
-      witnessNum = PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList().size();
-    }
-
+    //if (null == witnessNum) {
+      //witnessNum = PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList().size();
+    //}
+    witnessNum = PublicMethed.listWitnesses(blockingStubFull).get().getWitnessesList().size();
     return witnessNum;
   }
 
