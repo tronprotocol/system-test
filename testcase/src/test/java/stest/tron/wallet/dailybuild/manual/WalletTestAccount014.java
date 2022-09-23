@@ -146,7 +146,7 @@ public class WalletTestAccount014 {
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(account014SecondAddress, 1000000,
         3, 1, ByteString.copyFrom(
             account014Address), account014SecondKey, blockingStubFull));
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
     Account account014 = PublicMethed.queryAccount(account014Address, blockingStubFull);
     logger.info("account014: " + JsonFormat.printToString(account014));
