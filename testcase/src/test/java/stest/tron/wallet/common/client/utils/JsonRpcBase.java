@@ -114,6 +114,7 @@ public class JsonRpcBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     proposalMap.put(44L, 1L); //getAllowMarketTransaction
     proposalMap.put(30L, 1L); //getChangeDelegation
+    proposalMap.put(59L, 1L); //getAllowTvmVote
     proposalMap.put(1L, 9999000000L); //getAccountUpgradeCost
     proposalMap.put(2L, 100000L); //getCreateAccountFee
     proposalMap.put(3L, 1000L); //getTransactionFee
