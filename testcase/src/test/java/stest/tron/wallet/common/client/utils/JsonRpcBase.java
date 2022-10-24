@@ -135,6 +135,7 @@ public class JsonRpcBase {
     proposalMap.put(47L, 10000000000L); //getMaxFeeLimit
     proposalMap.put(61L, 1500L); //getFreeNetLimit
     proposalMap.put(62L, 43200000000L); //getTotalNetLimit
+    proposalMap.put(68L, 1L); //getUnfreezeDelayDays
     openProposal(proposalMap);
     waitProposalApprove(13, blockingStubFull);
     Assert.assertTrue(
