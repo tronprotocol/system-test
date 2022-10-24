@@ -66,7 +66,10 @@ import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 
+import org.tron.protos.Protocol.Account.FreezeV2;
+import org.tron.protos.Protocol.Account.Frozen;
 import org.tron.protos.Protocol.Block;
+import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Key;
@@ -84,7 +87,9 @@ import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIss
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
 import org.tron.protos.contract.BalanceContract;
+import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
@@ -2037,21 +2042,84 @@ public class PublicMethed {
 
   /** constructor. */
   public static Boolean freezeBalanceGetTronPower(
-      byte[] addRess,
+      byte[] address,
       long freezeBalance,
       long freezeDuration,
       int resourceCode,
       ByteString receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return freezeBalanceForReceiver(
-        addRess,
-        freezeBalance,
-        freezeDuration,
-        resourceCode,
-        receiverAddress,
-        priKey,
-        blockingStubFull);
+    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
+        == 1L
+    && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+    == 0) {
+      return freezeBalanceForReceiver(
+          address,
+          freezeBalance,
+          freezeDuration,
+          resourceCode,
+          receiverAddress,
+          priKey,
+          blockingStubFull);
+    }
+
+
+    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
+        == 0L
+        && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        == 0L) {
+      return freezeBalanceForReceiver(
+          address,
+          freezeBalance,
+          freezeDuration,
+          0,
+          receiverAddress,
+          priKey,
+          blockingStubFull);
+    }
+
+
+    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
+        == 0L
+        && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        != 0L
+        && null == receiverAddress) {
+      return freezeBalanceV2(address,freezeBalance,0,priKey,blockingStubFull);
+    }
+
+    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
+        == 1L
+        && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        != 0L
+        && null == receiverAddress) {
+      return freezeBalanceV2(address,freezeBalance,2,priKey,blockingStubFull);
+    }
+
+
+
+    return false;
+
+
+
+
+
+  }
+
+
+  public static Long getChainParametersValue(String proposalName,WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ChainParameters chainParameters = blockingStubFull
+        .getChainParameters(EmptyMessage.newBuilder().build());
+    Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
+    for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
+      if(getChainParameters.get().getChainParameter(i).getKey().equals(proposalName)) {
+        return getChainParameters.get().getChainParameter(i).getValue();
+      }
+    }
+
+    return -1L;
+
+
   }
 
   /** constructor. */
@@ -7124,5 +7192,90 @@ public class PublicMethed {
     Transaction transaction;
     transaction = blockingStubFull.getTransactionFromPending(request);
     return Optional.ofNullable(transaction);
+  }
+
+
+  /** constructor. */
+  public static Boolean freezeBalanceV2(byte[] addressByte,
+      long freezeBalance,
+      int resourceCode,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    FreezeBalanceV2Contract.Builder builder =  FreezeBalanceV2Contract.newBuilder();
+    ByteString byteAddress = ByteString.copyFrom(addressByte);
+    builder
+        .setOwnerAddress(byteAddress)
+        .setFrozenBalance(freezeBalance)
+        .setResourceValue(resourceCode);
+    FreezeBalanceV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.freezeBalanceV2(contract);
+    Protocol.Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction = null");
+      return false;
+    }
+    transaction = TransactionUtils.sign(transaction, ecKey);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    return response.getResult();
+  }
+
+
+  public static Long getFrozenV2Amount(byte[] address, int resourceCode,WalletGrpc.WalletBlockingStub blockingStubFull) {
+    List<FreezeV2> list = queryAccount(address,blockingStubFull).getFrozenV2List();
+    for(int i = 0; i < list.size();i++) {
+      if(list.get(i).getType().getNumber() == resourceCode) {
+        return list.get(i).getAmount();
+      }
+    }
+    return 0L;
+
+  }
+
+  /** constructor. */
+  public static Boolean delegateResourceForReceiver(byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    if(getFrozenV2Amount(addressByte,resourceCode,blockingStubFull) < delegateAmount) {
+      freezeBalanceV2(addressByte,delegateAmount,resourceCode,priKey,blockingStubFull);
+      waitProduceNextBlock(blockingStubFull);
+    }
+
+    DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
+    ByteString byteAddress = ByteString.copyFrom(addressByte);
+    ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
+    builder
+        .setOwnerAddress(byteAddress)
+        .setBalance(delegateAmount)
+        .setReceiverAddress(byteReceiverAddress)
+        .setResourceValue(resourceCode);
+    DelegateResourceContract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.delegateResource(contract);
+    Protocol.Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction = null");
+      return false;
+    }
+    transaction = TransactionUtils.sign(transaction, ecKey);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    return response.getResult();
   }
 }

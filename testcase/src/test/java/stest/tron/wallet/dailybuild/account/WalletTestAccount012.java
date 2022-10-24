@@ -15,6 +15,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -77,33 +78,38 @@ public class WalletTestAccount012 {
 
     Long afterFrozenTime = System.currentTimeMillis();
     Account account = PublicMethed.queryAccount(frozenAddress,blockingStubFull);
-    Assert.assertEquals(account.getTronPower().getFrozenBalance(),frozenAmountForTronPower);
-    Assert.assertTrue(account.getTronPower().getExpireTime() > beforeFrozenTime
-        && account.getTronPower().getExpireTime() < afterFrozenTime);
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
+        .getProposalName(),blockingStubFull) == 1) {
+      Assert.assertEquals(account.getTronPower().getFrozenBalance(),frozenAmountForTronPower);
+      Assert.assertTrue(account.getTronPower().getExpireTime() > beforeFrozenTime
+          && account.getTronPower().getExpireTime() < afterFrozenTime);
+      accountResource = PublicMethed
+          .getAccountResource(frozenAddress, blockingStubFull);
+      Long afterTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
+      Long afterTronPowerLimit = accountResource.getTronPowerLimit();
+      Long afterTronPowerUsed = accountResource.getTronPowerUsed();
+      Assert.assertEquals(afterTotalTronPowerWeight - beforeTotalTronPowerWeight,
+          frozenAmountForTronPower / 1000000L);
 
-    accountResource = PublicMethed
-        .getAccountResource(frozenAddress, blockingStubFull);
-    Long afterTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
-    Long afterTronPowerLimit = accountResource.getTronPowerLimit();
-    Long afterTronPowerUsed = accountResource.getTronPowerUsed();
-    Assert.assertEquals(afterTotalTronPowerWeight - beforeTotalTronPowerWeight,
-        frozenAmountForTronPower / 1000000L);
-
-    Assert.assertEquals(afterTronPowerLimit - beforeTronPowerLimit,
-        frozenAmountForTronPower / 1000000L);
+      Assert.assertEquals(afterTronPowerLimit - beforeTronPowerLimit,
+          frozenAmountForTronPower / 1000000L);
 
 
 
-    Assert.assertTrue(PublicMethed.freezeBalanceGetTronPower(frozenAddress,
-        6000000 - frozenAmountForTronPower,
-        0,2,null,frozenKey,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    accountResource = PublicMethed
-        .getAccountResource(frozenAddress, blockingStubFull);
-    afterTronPowerLimit = accountResource.getTronPowerLimit();
+      Assert.assertTrue(PublicMethed.freezeBalanceGetTronPower(frozenAddress,
+          6000000 - frozenAmountForTronPower,
+          0,2,null,frozenKey,blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      accountResource = PublicMethed
+          .getAccountResource(frozenAddress, blockingStubFull);
+      afterTronPowerLimit = accountResource.getTronPowerLimit();
 
-    Assert.assertEquals(afterTronPowerLimit - beforeTronPowerLimit,
-        6);
+      Assert.assertEquals(afterTronPowerLimit - beforeTronPowerLimit,
+          6);
+
+    }
+
+
 
 
   }
@@ -118,29 +124,33 @@ public class WalletTestAccount012 {
 
     HashMap<byte[],Long> witnessMap = new HashMap<>();
     witnessMap.put(witnessAddress,frozenAmountForNet / 1000000L);
-    Assert.assertFalse(PublicMethed.voteWitness(frozenAddress,frozenKey,witnessMap,
-        blockingStubFull));
-    witnessMap.put(witnessAddress,frozenAmountForTronPower / 1000000L);
-    Assert.assertTrue(PublicMethed.voteWitness(frozenAddress,frozenKey,witnessMap,
-        blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
+        .getProposalName(),blockingStubFull) == 1) {
+      Assert.assertFalse(PublicMethed.voteWitness(frozenAddress,frozenKey,witnessMap,
+          blockingStubFull));
+      witnessMap.put(witnessAddress,frozenAmountForTronPower / 1000000L);
+      Assert.assertTrue(PublicMethed.voteWitness(frozenAddress,frozenKey,witnessMap,
+          blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    accountResource = PublicMethed
-        .getAccountResource(frozenAddress, blockingStubFull);
-    Long afterTronPowerUsed = accountResource.getTronPowerUsed();
-    Assert.assertEquals(afterTronPowerUsed - beforeTronPowerUsed,
-        frozenAmountForTronPower / 1000000L);
+      accountResource = PublicMethed
+          .getAccountResource(frozenAddress, blockingStubFull);
+      Long afterTronPowerUsed = accountResource.getTronPowerUsed();
+      Assert.assertEquals(afterTronPowerUsed - beforeTronPowerUsed,
+          frozenAmountForTronPower / 1000000L);
 
-    final Long secondBeforeTronPowerUsed = afterTronPowerUsed;
-    witnessMap.put(witnessAddress,(frozenAmountForTronPower / 1000000L) - 1);
-    Assert.assertTrue(PublicMethed.voteWitness(frozenAddress,frozenKey,witnessMap,
-        blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    accountResource = PublicMethed
-        .getAccountResource(frozenAddress, blockingStubFull);
-    afterTronPowerUsed = accountResource.getTronPowerUsed();
-    Assert.assertEquals(secondBeforeTronPowerUsed - afterTronPowerUsed,
-        1);
+      final Long secondBeforeTronPowerUsed = afterTronPowerUsed;
+      witnessMap.put(witnessAddress,(frozenAmountForTronPower / 1000000L) - 1);
+      Assert.assertTrue(PublicMethed.voteWitness(frozenAddress,frozenKey,witnessMap,
+          blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      accountResource = PublicMethed
+          .getAccountResource(frozenAddress, blockingStubFull);
+      afterTronPowerUsed = accountResource.getTronPowerUsed();
+      Assert.assertEquals(secondBeforeTronPowerUsed - afterTronPowerUsed,
+          1);
+    }
+
 
 
   }
@@ -159,22 +169,26 @@ public class WalletTestAccount012 {
         .getAccountResource(foundationAddress, blockingStubFull);
     final Long beforeTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
 
+    if(PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
+        .getProposalName(),blockingStubFull) == 1) {
+      Assert.assertTrue(PublicMethed.unFreezeBalance(frozenAddress,frozenKey,2,
+          null,blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozenAddress,frozenKey,2,
-        null,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+      accountResource = PublicMethed
+          .getAccountResource(frozenAddress, blockingStubFull);
+      Long afterTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
+      Assert.assertEquals(beforeTotalTronPowerWeight - afterTotalTronPowerWeight,
+          6);
 
-    accountResource = PublicMethed
-        .getAccountResource(frozenAddress, blockingStubFull);
-    Long afterTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
-    Assert.assertEquals(beforeTotalTronPowerWeight - afterTotalTronPowerWeight,
-        6);
+      Assert.assertEquals(accountResource.getTronPowerLimit(),0L);
+      Assert.assertEquals(accountResource.getTronPowerUsed(),0L);
 
-    Assert.assertEquals(accountResource.getTronPowerLimit(),0L);
-    Assert.assertEquals(accountResource.getTronPowerUsed(),0L);
+      Account account = PublicMethed.queryAccount(frozenAddress,blockingStubFull);
+      Assert.assertEquals(account.getTronPower().getFrozenBalance(),0);
 
-    Account account = PublicMethed.queryAccount(frozenAddress,blockingStubFull);
-    Assert.assertEquals(account.getTronPower().getFrozenBalance(),0);
+
+    }
 
 
   }

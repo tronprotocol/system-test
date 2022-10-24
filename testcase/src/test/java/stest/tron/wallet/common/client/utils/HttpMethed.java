@@ -494,6 +494,27 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static Long getProposalValue(String httpNode,String proposalName) {
+    response = HttpMethed.getChainParameters(httpNode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    JSONArray temp;
+    temp = responseContent.getJSONArray("chainParameter");
+    for (int i = 0; i < temp.size(); i++) {
+      if (temp.getJSONObject(i).get("key").equals(proposalName)) {
+        if(temp.getJSONObject(i).containsKey("value")) {
+          return temp.getJSONObject(i).getLong("value");
+        } else {
+          return 0L;
+        }
+
+
+      }
+    }
+    return -1L;
+
+  }
+
+  /** constructor. */
   public static HttpResponse accountPermissionUpdate(
       String httpNode,
       byte[] ownerAddress,
@@ -1138,8 +1159,28 @@ public class HttpMethed {
       Integer frozenDuration,
       Integer resourceCode,
       String fromKey) {
-    return freezeBalance(
-        httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
+    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) != 0
+    && getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      return freezeBalance(
+          httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
+    }
+
+    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0
+        && getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      return freezeBalance(
+          httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
+    }
+
+    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+      return freezeBalanceV2(
+          httpNode, ownerAddress, frozenBalance, resourceCode, fromKey);
+    }
+
+
+    return null;
+
+
+
   }
 
   /** constructor. */
@@ -1182,9 +1223,59 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static HttpResponse freezeBalanceV2(
+      String httpNode,
+      byte[] ownerAddress,
+      Long frozenBalance,
+      Integer resourceCode,
+      String fromKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/freezebalancev2";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
+      userBaseObj2.addProperty("frozen_balance", frozenBalance);
+      if (resourceCode == 0) {
+        userBaseObj2.addProperty("resource", "BANDWIDTH");
+      }
+      if (resourceCode == 1) {
+        userBaseObj2.addProperty("resource", "ENERGY");
+      }
+      if (resourceCode == 2) {
+        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+          userBaseObj2.addProperty("resource", "TRON_POWER");
+        } else {
+          userBaseObj2.addProperty("resource", "ENERGY");
+        }
+
+      }
+
+      response = createConnect(requestUrl, userBaseObj2);
+      transactionString = EntityUtils.toString(response.getEntity());
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
   public static HttpResponse unFreezeBalance(
       String httpNode, byte[] ownerAddress, Integer resourceCode, String fromKey) {
-    return unFreezeBalance(httpNode, ownerAddress, resourceCode, null, fromKey);
+    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      return unFreezeBalance(httpNode, ownerAddress, resourceCode, null, fromKey);
+    }
+
+    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+      return unFreezeBalanceV2(
+          httpNode, ownerAddress,null, resourceCode, fromKey);
+    }
+
+    return null;
+
+
   }
 
   /** constructor. */
@@ -1210,6 +1301,40 @@ public class HttpMethed {
       if (receiverAddress != null) {
         userBaseObj2.addProperty("receiver_address", ByteArray.toHexString(receiverAddress));
       }
+      response = createConnect(requestUrl, userBaseObj2);
+      transactionString = EntityUtils.toString(response.getEntity());
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
+  public static HttpResponse unFreezeBalanceV2(
+      String httpNode,
+      byte[] ownerAddress,
+      Long unfreezeBalance,
+      Integer resourceCode,
+      String fromKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/unfreezebalancev2";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
+      userBaseObj2.addProperty("unfreeze_balance", unfreezeBalance);
+      if (resourceCode == 0) {
+        userBaseObj2.addProperty("resource", "BANDWIDTH");
+      }
+      if (resourceCode == 1) {
+        userBaseObj2.addProperty("resource", "ENERGY");
+      }
+      if (resourceCode == 2) {
+        userBaseObj2.addProperty("resource", "TRON_POWER");
+      }
+
       response = createConnect(requestUrl, userBaseObj2);
       transactionString = EntityUtils.toString(response.getEntity());
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
@@ -1368,6 +1493,8 @@ public class HttpMethed {
     }
     return response;
   }
+
+
 
   /** constructor. */
   public static Long getAccountForResponse(String httpNode, byte[] queryAddress, Integer times) {

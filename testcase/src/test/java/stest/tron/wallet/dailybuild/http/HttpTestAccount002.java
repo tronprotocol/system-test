@@ -11,6 +11,7 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
@@ -68,11 +69,21 @@ public class HttpTestAccount002 {
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
     //UnFreeze balance for bandwidth
-    response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, 0, freezeBalanceKey);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      response = HttpMethed.unFreezeBalanceV2(httpnode, freezeBalanceAddress, frozenBalance,0, freezeBalanceKey);
+    } else {
+      response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, 0, freezeBalanceKey);
+    }
+
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      Assert.assertEquals(afterBalance,berforeBalance);
+    } else {
+      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    }
+
   }
 
   /**
@@ -100,11 +111,20 @@ public class HttpTestAccount002 {
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
     HttpMethed.waitToProduceOneBlock(httpnode);
     //UnFreeze balance for energy
-    response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, 1, freezeBalanceKey);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      response = HttpMethed.unFreezeBalanceV2(httpnode, freezeBalanceAddress, frozenBalance,1, freezeBalanceKey);
+    } else {
+      response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, 1, freezeBalanceKey);
+    }
+
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      Assert.assertEquals(afterBalance,berforeBalance);
+    } else {
+      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    }
   }
 
   /**
@@ -295,6 +315,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "FreezeBlance for tron power by http")
   public void test015FreezeTronPower() {
+    if(HttpMethed.getProposalValue(httpnode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+      return;
+    }
     HttpMethed.waitToProduceOneBlock(httpnode);
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
@@ -312,6 +335,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "UnFreezeBalance for tron power by http")
   public void test016UnFreezeBalanceForTronPower() {
+    if(HttpMethed.getProposalValue(httpnode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+      return;
+    }
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
     //UnFreeze balance with energy for others
