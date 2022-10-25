@@ -2,6 +2,7 @@ package stest.tron.wallet.dailybuild.http;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sun.media.jfxmedia.logging.Logger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
@@ -145,6 +146,10 @@ public class HttpTestAccount002 {
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
+    logger.info("berforeBalance:" + berforeBalance);
+    logger.info("afterBalance:" + afterBalance);
+    logger.info("frozenBalance:" + frozenBalance);
+
     Assert.assertTrue(berforeBalance - afterBalance == frozenBalance);
   }
 

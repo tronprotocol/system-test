@@ -1173,7 +1173,7 @@ public class HttpMethed {
 
     if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
       return freezeBalanceV2(
-          httpNode, ownerAddress, frozenBalance, resourceCode, fromKey);
+          httpNode, ownerAddress, frozenBalance, resourceCode, null,fromKey);
     }
 
 
@@ -1185,6 +1185,23 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse freezeBalance(
+      String httpNode,
+      byte[] ownerAddress,
+      Long frozenBalance,
+      Integer frozenDuration,
+      Integer resourceCode,
+      byte[] receiverAddress,
+      String fromKey) {
+    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+      return freezeBalanceV2(httpNode,ownerAddress,frozenBalance,resourceCode,receiverAddress,fromKey);
+    } else {
+      return freezeBalanceV1(httpNode,ownerAddress,frozenBalance,frozenDuration,resourceCode,receiverAddress,fromKey);
+    }
+  }
+
+
+  /** constructor. */
+  public static HttpResponse freezeBalanceV1(
       String httpNode,
       byte[] ownerAddress,
       Long frozenBalance,
@@ -1228,6 +1245,7 @@ public class HttpMethed {
       byte[] ownerAddress,
       Long frozenBalance,
       Integer resourceCode,
+      byte[] receiverAddress,
       String fromKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/freezebalancev2";
@@ -1253,12 +1271,58 @@ public class HttpMethed {
       transactionString = EntityUtils.toString(response.getEntity());
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
       response = broadcastTransaction(httpNode, transactionSignString);
+
+      if(receiverAddress != null) {
+        waitToProduceOneBlock(httpNode);
+        delegateresource(httpNode,ownerAddress,frozenBalance,resourceCode,receiverAddress,fromKey);
+
+      }
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
     return response;
+  }
+
+  /** constructor. */
+  public static HttpResponse delegateresource(
+      String httpNode, byte[] ownerAddress, Long delegteAmount, Integer resourceCode,byte[] receiverAddress,String fromKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/delegateresource";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
+      userBaseObj2.addProperty("receiver_address", ByteArray.toHexString(receiverAddress));
+      userBaseObj2.addProperty("balance", delegteAmount);
+      if (resourceCode == 0) {
+        userBaseObj2.addProperty("resource", "BANDWIDTH");
+      }
+      if (resourceCode == 1) {
+        userBaseObj2.addProperty("resource", "ENERGY");
+      }
+      if (resourceCode == 2) {
+        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+          userBaseObj2.addProperty("resource", "TRON_POWER");
+        } else {
+          userBaseObj2.addProperty("resource", "ENERGY");
+        }
+      }
+
+      response = createConnect(requestUrl, userBaseObj2);
+      transactionString = EntityUtils.toString(response.getEntity());
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
+
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+
+    return response;
+
+
   }
 
   /** constructor. */

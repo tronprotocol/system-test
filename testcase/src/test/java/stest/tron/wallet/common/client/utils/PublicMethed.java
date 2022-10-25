@@ -718,6 +718,23 @@ public class PublicMethed {
       long freezeDuration,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(),
+        blockingStubFull) == 0) {
+      return freezeBalanceV1(addRess,freezeBalance,freezeDuration,0,priKey,blockingStubFull);
+    } else {
+      return freezeBalanceV2(addRess,freezeBalance,0,priKey,blockingStubFull);
+    }
+  }
+
+
+  public static Boolean freezeBalanceV1(
+      byte[] addRess,
+      long freezeBalance,
+      long freezeDuration,
+      int resourceCode,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
@@ -749,6 +766,7 @@ public class PublicMethed {
     builder
         .setOwnerAddress(byteAddreess)
         .setFrozenBalance(frozenBalance)
+        .setResourceValue(resourceCode)
         .setFrozenDuration(frozenDuration);
 
     FreezeBalanceContract contract = builder.build();
@@ -2130,39 +2148,12 @@ public class PublicMethed {
       int resourceCode,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    // Wallet.setAddressPreFixByte()();
-    byte[] address = addRess;
-    long frozenBalance = freezeBalance;
-    long frozenDuration = freezeDuration;
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
+    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(),
+        blockingStubFull) == 0) {
+      return freezeBalanceV1(addRess,freezeBalance,freezeDuration,resourceCode,priKey,blockingStubFull);
+    } else {
+      return freezeBalanceV2(addRess,freezeBalance,resourceCode,priKey,blockingStubFull);
     }
-    final ECKey ecKey = temKey;
-
-    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
-    ByteString byteAddreess = ByteString.copyFrom(address);
-
-    builder
-        .setOwnerAddress(byteAddreess)
-        .setFrozenBalance(frozenBalance)
-        .setFrozenDuration(frozenDuration)
-        .setResourceValue(resourceCode);
-
-    FreezeBalanceContract contract = builder.build();
-    Protocol.Transaction transaction = blockingStubFull.freezeBalance(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      logger.info("transaction = null");
-      return false;
-    }
-    transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
-    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return response.getResult();
   }
 
   /** constructor. */
