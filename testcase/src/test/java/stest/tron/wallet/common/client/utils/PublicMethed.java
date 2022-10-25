@@ -92,6 +92,7 @@ import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
+import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
 import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
@@ -887,6 +888,21 @@ public class PublicMethed {
       int resourceCode,
       byte[] receiverAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
+    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull) == 1) {
+      return unFreezeBalanceV2(address,priKey,0,resourceCode,blockingStubFull);
+    } else {
+      return unFreezeBalanceV1(address,priKey,resourceCode,receiverAddress,blockingStubFull);
+    }
+  }
+
+
+  /** constructor. */
+  public static Boolean unFreezeBalanceV1(
+      byte[] address,
+      String priKey,
+      int resourceCode,
+      byte[] receiverAddress,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -905,6 +921,35 @@ public class PublicMethed {
 
     UnfreezeBalanceContract contract = builder.build();
     Transaction transaction = blockingStubFull.unfreezeBalance(contract);
+    transaction = signTransaction(ecKey, transaction);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+
+    return response.getResult();
+  }
+
+
+  /** constructor. */
+  public static Boolean unFreezeBalanceV2(
+      byte[] address,
+      String priKey,
+      long unFreezeBalanceAmount,
+      int resourceCode,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    UnfreezeBalanceV2Contract.Builder builder = UnfreezeBalanceV2Contract.newBuilder();
+    ByteString byteAddreess = ByteString.copyFrom(address);
+    builder.setOwnerAddress(byteAddreess).setResourceValue(resourceCode);
+
+    UnfreezeBalanceV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.unfreezeBalanceV2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 

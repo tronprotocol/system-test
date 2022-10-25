@@ -30,6 +30,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.MongoBase;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
@@ -978,14 +979,6 @@ public class MongoEventQuery002 extends MongoBase {
   /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(
-            testNetAccountAddress, testNetAccountKey, 1, null, blockingStubFull));
-
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(event002Address, event002Key, 1, null, blockingStubFull));
-
     PublicMethed.freedResource(event002Address, event002Key, fromAddress, blockingStubFull);
 
     if (channelFull != null) {

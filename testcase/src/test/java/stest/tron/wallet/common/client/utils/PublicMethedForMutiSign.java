@@ -56,6 +56,7 @@ import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContra
 import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.WithdrawBalanceContract;
@@ -596,12 +597,40 @@ public class PublicMethedForMutiSign {
 
   }
 
+  public static Boolean freezeV2ProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays
+        .getProposalName(), blockingStubFull) > 0;
+  }
+
+
+  public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
+        .getProposalName(), blockingStubFull) == 1;
+  }
+
   /**
    * constructor.
    */
 
   public static Boolean freezeBalanceWithPermissionId(byte[] addRess, long freezeBalance,
       long freezeDuration, int permissionId, String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
+    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+      return freezeBalanceV1WithPermissionId(addRess,freezeBalance,freezeDuration,0,permissionId,
+          priKey,blockingStubFull,permissionKeyString);
+    } else {
+      return freezeBalanceV2WithPermissionId(addRess,freezeBalance,
+          0,permissionId,priKey,blockingStubFull,permissionKeyString);
+    }
+
+  }
+
+  /**
+   * constructor.
+   */
+
+  public static Boolean freezeBalanceV1WithPermissionId(byte[] addRess, long freezeBalance,
+      long freezeDuration, int resourceCode, int permissionId, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
@@ -631,10 +660,54 @@ public class PublicMethedForMutiSign {
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
-        .setFrozenDuration(frozenDuration);
+        .setFrozenDuration(frozenDuration).setResourceValue(resourceCode);
 
     FreezeBalanceContract contract = builder.build();
     Transaction transaction = blockingStubFull.freezeBalance(contract);
+
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction = null");
+      return null;
+    }
+
+    try {
+      transaction = setPermissionId(transaction, permissionId);
+    } catch (CancelException e) {
+      e.printStackTrace();
+    }
+
+    transaction = TransactionUtils.setTimestamp(transaction);
+    transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
+
+    return broadcastTransaction(transaction, blockingStubFull);
+
+  }
+
+
+  /**
+   * constructor.
+   */
+
+  public static Boolean freezeBalanceV2WithPermissionId(byte[] addRess, long freezeBalance,
+      int resourceCode, int permissionId, String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
+    byte[] address = addRess;
+    long frozenBalance = freezeBalance;
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    FreezeBalanceV2Contract.Builder builder = FreezeBalanceV2Contract.newBuilder();
+    ByteString byteAddreess = ByteString.copyFrom(address);
+
+    builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance).setResourceValue(resourceCode);
+
+    FreezeBalanceV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.freezeBalanceV2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction = null");
@@ -4148,41 +4221,16 @@ public class PublicMethedForMutiSign {
       long freezeDuration, int resourceCode, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, int permissionId,
       String[] permissionKeyString) {
-    byte[] address = addRess;
-    long frozenBalance = freezeBalance;
-    long frozenDuration = freezeDuration;
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
+    if(tronPowerProposalIsOpen(blockingStubFull)) {
+      resourceCode = 1;
     }
-    final ECKey ecKey = temKey;
-
-    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
-    ByteString byteAddreess = ByteString.copyFrom(address);
-
-    builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
-        .setFrozenDuration(frozenDuration).setResourceValue(resourceCode);
-
-    FreezeBalanceContract contract = builder.build();
-    Transaction transaction = blockingStubFull.freezeBalance(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      logger.info("transaction = null");
-      return false;
+    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+      return freezeBalanceV2WithPermissionId(addRess,freezeBalance,resourceCode,permissionId,priKey,
+          blockingStubFull,permissionKeyString);
+    } else {
+      return freezeBalanceV1WithPermissionId(addRess,freezeBalance,freezeDuration,resourceCode,permissionId,priKey,
+          blockingStubFull,permissionKeyString);
     }
-    try {
-      transaction = setPermissionId(transaction, permissionId);
-    } catch (CancelException e) {
-      e.printStackTrace();
-    }
-    transaction = TransactionUtils.setTimestamp(transaction);
-
-    transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
-
-    return broadcastTransaction(transaction, blockingStubFull);
   }
 
 

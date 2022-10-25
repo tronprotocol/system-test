@@ -366,7 +366,7 @@ public class HttpTestAccount002 {
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+    if(!HttpMethed.proposalFreezeV2IsOpen(httpSoliditynode)) {
       Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
     } else {
       Assert.assertEquals(afterBalance, berforeBalance);
