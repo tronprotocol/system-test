@@ -727,18 +727,16 @@ public class PublicMethed {
     }
   }
 
-
-  public static Boolean freezeBalanceV1(
-      byte[] addRess,
+  public static Boolean freezeBalanceV1ForReceiver(byte[] addRess,
       long freezeBalance,
       long freezeDuration,
       int resourceCode,
+      byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
-    // String priKey = testKey002;
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -749,16 +747,8 @@ public class PublicMethed {
     final ECKey ecKey = temKey;
     Protocol.Block currentBlock =
         blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-    final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Protocol.Account beforeFronzen = queryAccount(priKey, blockingStubFull);
-    Long beforeFrozenBalance = 0L;
-    // Long beforeBandwidth     = beforeFronzen.getBandwidth();
-    if (beforeFronzen.getFrozenCount() != 0) {
-      beforeFrozenBalance = beforeFronzen.getFrozen(0).getFrozenBalance();
-      // beforeBandwidth     = beforeFronzen.getBandwidth();
-      // logger.info(Long.toString(beforeFronzen.getBandwidth()));
-      logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
-    }
+
 
     FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
@@ -768,6 +758,10 @@ public class PublicMethed {
         .setFrozenBalance(frozenBalance)
         .setResourceValue(resourceCode)
         .setFrozenDuration(frozenDuration);
+
+    if(null != receiverAddress) {
+      builder.setReceiverAddress(ByteString.copyFrom(receiverAddress));
+    }
 
     FreezeBalanceContract contract = builder.build();
     Protocol.Transaction transaction = blockingStubFull.freezeBalance(contract);
@@ -782,20 +776,17 @@ public class PublicMethed {
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
     return response.getResult();
-    /*    Long afterBlockNum = 0L;
+  }
 
-    while (afterBlockNum < beforeBlockNum) {
-      Protocol.Block currentBlock1 = blockingStubFull.getNowBlock(GrpcAPI
-          .EmptyMessage.newBuilder().build());
-      afterBlockNum = currentBlock1.getBlockHeader().getRawData().getNumber();
-    }
 
-    Protocol.Account afterFronzen = queryAccount(priKey, blockingStubFull);
-    Long afterFrozenBalance = afterFronzen.getFrozen(0).getFrozenBalance();
-    logger.info(Long.toString(afterFronzen.getFrozen(0).getFrozenBalance()));
-    logger.info("beforefronen" + beforeFrozenBalance.toString() + "    afterfronzen"
-        + afterFrozenBalance.toString());
-    Assert.assertTrue(afterFrozenBalance - beforeFrozenBalance == freezeBalance);*/
+  public static Boolean freezeBalanceV1(
+      byte[] addRess,
+      long freezeBalance,
+      long freezeDuration,
+      int resourceCode,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return freezeBalanceV1ForReceiver(addRess,freezeBalance,freezeDuration,resourceCode,null,priKey,blockingStubFull);
   }
 
   /** constructor. */
@@ -4164,40 +4155,11 @@ public class PublicMethed {
       ByteString receiverAddressBytes,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    byte[] address = addRess;
-    long frozenBalance = freezeBalance;
-    long frozenDuration = freezeDuration;
-    ECKey temKey = null;
-    try {
-      BigInteger priK = new BigInteger(priKey, 16);
-      temKey = ECKey.fromPrivate(priK);
-    } catch (Exception ex) {
-      ex.printStackTrace();
+    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull) > 0) {
+      return delegateResourceForReceiver(addRess,freezeBalance,resourceCode,receiverAddressBytes.toByteArray(),priKey,blockingStubFull);
+    } else {
+      return freezeBalanceV1ForReceiver(addRess,freezeBalance,freezeDuration,resourceCode,receiverAddressBytes.toByteArray(),priKey,blockingStubFull);
     }
-    final ECKey ecKey = temKey;
-
-    FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
-    ByteString byteAddreess = ByteString.copyFrom(address);
-
-    builder
-        .setOwnerAddress(byteAddreess)
-        .setFrozenBalance(frozenBalance)
-        .setFrozenDuration(frozenDuration)
-        .setResourceValue(resourceCode);
-    if (receiverAddressBytes != null) {
-      builder.setReceiverAddress(receiverAddressBytes);
-    }
-    FreezeBalanceContract contract = builder.build();
-    Protocol.Transaction transaction = blockingStubFull.freezeBalance(contract);
-
-    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      logger.info("transaction = null");
-      return false;
-    }
-    transaction = TransactionUtils.setTimestamp(transaction);
-    transaction = TransactionUtils.sign(transaction, ecKey);
-    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
-    return response.getResult();
   }
 
   /** constructor. */
@@ -7245,17 +7207,15 @@ public class PublicMethed {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    if(getFrozenV2Amount(addressByte,resourceCode,blockingStubFull) < delegateAmount) {
-      freezeBalanceV2(addressByte,delegateAmount,resourceCode,priKey,blockingStubFull);
-      waitProduceNextBlock(blockingStubFull);
-    }
+    Assert.assertTrue(freezeBalanceV2(addressByte,delegateAmount,resourceCode,priKey,blockingStubFull));
+    waitProduceNextBlock(blockingStubFull);
 
     DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(addressByte);
     ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
     builder
         .setOwnerAddress(byteAddress)
-        .setBalance(delegateAmount)
+        .setBalance(delegateAmount / 2)
         .setReceiverAddress(byteReceiverAddress)
         .setResourceValue(resourceCode);
     DelegateResourceContract contract = builder.build();

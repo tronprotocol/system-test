@@ -145,8 +145,8 @@ public class HttpStressTest {
           exchangeOwnerAddress, testKey002);
       HttpMethed.freezeBalance(httpnode, fromAddress, 10000000000L, 0, 1,
           exchangeOwnerAddress, testKey002);
-      HttpMethed.unFreezeBalance(httpnode, fromAddress, 0, exchangeOwnerAddress, testKey002);
-      HttpMethed.unFreezeBalance(httpnode, fromAddress, 1, exchangeOwnerAddress, testKey002);
+      HttpMethed.unFreezeBalance(httpnode, fromAddress, 10000000000L,0, exchangeOwnerAddress, testKey002);
+      HttpMethed.unFreezeBalance(httpnode, fromAddress, 10000000000L,1, exchangeOwnerAddress, testKey002);
     }
   }
 

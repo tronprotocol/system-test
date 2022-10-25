@@ -43,6 +43,8 @@ public class HttpTestAccount003 {
   JsonArray voteKeys = new JsonArray();
   JsonObject voteElement = new JsonObject();
   private JSONObject responseContent;
+
+  private Long frozenBalance = 40000000L;
   private HttpResponse response;
   private String httpnode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
@@ -80,7 +82,7 @@ public class HttpTestAccount003 {
   public void test02VoteWitnessAccount() {
     // Freeze balance
     response =
-        HttpMethed.freezeBalance(httpnode, updateAccountAddress, 40000000L, 0, 2, updateAccountKey);
+        HttpMethed.freezeBalance(httpnode, updateAccountAddress, frozenBalance, 0, 2, updateAccountKey);
     responseContent = HttpMethed.parseResponseContent(response);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.printJsonContent(responseContent);
@@ -207,7 +209,7 @@ public class HttpTestAccount003 {
   /** constructor. */
   @Test(enabled = true, description = "Unfreeze balance for tron power by http")
   public void test11UnfreezeTronPower() {
-    response = HttpMethed.unFreezeBalance(httpnode, updateAccountAddress, 2, updateAccountKey);
+    response = HttpMethed.unFreezeBalance(httpnode, updateAccountAddress, frozenBalance,2, updateAccountKey);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
   }

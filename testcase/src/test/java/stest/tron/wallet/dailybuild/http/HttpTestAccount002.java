@@ -6,6 +6,7 @@ import com.sun.media.jfxmedia.logging.Logger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.Configuration;
@@ -73,7 +74,7 @@ public class HttpTestAccount002 {
     if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
       response = HttpMethed.unFreezeBalanceV2(httpnode, freezeBalanceAddress, frozenBalance,0, freezeBalanceKey);
     } else {
-      response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, 0, freezeBalanceKey);
+      response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,0, freezeBalanceKey);
     }
 
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -115,7 +116,7 @@ public class HttpTestAccount002 {
     if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
       response = HttpMethed.unFreezeBalanceV2(httpnode, freezeBalanceAddress, frozenBalance,1, freezeBalanceKey);
     } else {
-      response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, 1, freezeBalanceKey);
+      response = HttpMethed.unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,1, freezeBalanceKey);
     }
 
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -158,6 +159,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "Get Delegated Resource by http")
   public void test006GetDelegatedResource() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpSoliditynode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     response = HttpMethed
         .getDelegatedResource(httpnode, freezeBalanceAddress, receiverResourceAddress);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -266,12 +270,17 @@ public class HttpTestAccount002 {
 
     //UnFreeze balance with bandwidth for others
     response = HttpMethed
-        .unFreezeBalance(httpnode, freezeBalanceAddress, 0, receiverResourceAddress,
+        .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,0, receiverResourceAddress,
             freezeBalanceKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    } else {
+      Assert.assertEquals(afterBalance, berforeBalance);
+    }
+
   }
 
   /**
@@ -307,12 +316,16 @@ public class HttpTestAccount002 {
 
     //UnFreeze balance with energy for others
     response = HttpMethed
-        .unFreezeBalance(httpnode, freezeBalanceAddress, 1, receiverResourceAddress,
+        .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,1, receiverResourceAddress,
             freezeBalanceKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    } else {
+      Assert.assertEquals(afterBalance, berforeBalance);
+    }
   }
 
   /**
@@ -346,13 +359,18 @@ public class HttpTestAccount002 {
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
     //UnFreeze balance with energy for others
+
     response = HttpMethed
-        .unFreezeBalance(httpnode, freezeBalanceAddress, 2, null,
+        .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,2, null,
             freezeBalanceKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    } else {
+      Assert.assertEquals(afterBalance, berforeBalance);
+    }
   }
 
 
@@ -364,7 +382,7 @@ public class HttpTestAccount002 {
   @AfterClass
   public void shutdown() throws InterruptedException {
     response = HttpMethed
-        .unFreezeBalance(httpnode, fromAddress, 0, freezeBalanceAddress,
+        .unFreezeBalance(httpnode, fromAddress, frozenBalance,0, freezeBalanceAddress,
             testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.freedResource(httpnode, freezeBalanceAddress, fromAddress, freezeBalanceKey);
