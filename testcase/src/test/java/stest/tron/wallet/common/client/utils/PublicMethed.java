@@ -956,6 +956,18 @@ public class PublicMethed {
     return response.getResult();
   }
 
+  public static Boolean freezeV2ProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays
+        .getProposalName(), blockingStubFull) > 0;
+  }
+
+
+  public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
+        .getProposalName(), blockingStubFull) == 1;
+  }
+
+
   /** constructor. */
   public static Boolean sendcoin(
       byte[] to,

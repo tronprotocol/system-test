@@ -597,16 +597,6 @@ public class PublicMethedForMutiSign {
 
   }
 
-  public static Boolean freezeV2ProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethed.getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays
-        .getProposalName(), blockingStubFull) > 0;
-  }
-
-
-  public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
-        .getProposalName(), blockingStubFull) == 1;
-  }
 
   /**
    * constructor.
@@ -615,7 +605,7 @@ public class PublicMethedForMutiSign {
   public static Boolean freezeBalanceWithPermissionId(byte[] addRess, long freezeBalance,
       long freezeDuration, int permissionId, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
-    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       return freezeBalanceV1WithPermissionId(addRess,freezeBalance,freezeDuration,0,permissionId,
           priKey,blockingStubFull,permissionKeyString);
     } else {
@@ -4221,10 +4211,10 @@ public class PublicMethedForMutiSign {
       long freezeDuration, int resourceCode, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, int permissionId,
       String[] permissionKeyString) {
-    if(tronPowerProposalIsOpen(blockingStubFull)) {
+    if(PublicMethed.tronPowerProposalIsOpen(blockingStubFull)) {
       resourceCode = 1;
     }
-    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       return freezeBalanceV2WithPermissionId(addRess,freezeBalance,resourceCode,permissionId,priKey,
           blockingStubFull,permissionKeyString);
     } else {
