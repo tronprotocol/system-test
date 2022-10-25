@@ -4472,10 +4472,10 @@ public class PublicMethed {
     logger.info("getFreezeBalanceCount, needBalance: " + needBalance);
 
     if (needBalance < 1000000L) {
-      needBalance = 1000000L;
+      needBalance = 2000000L;
       logger.info("getFreezeBalanceCount, needBalance less than 1 TRX, modify to: " + needBalance);
     }
-    return needBalance;
+    return needBalance * 2;
   }
 
   /** constructor. */
