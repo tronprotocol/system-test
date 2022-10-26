@@ -33,9 +33,19 @@ public class FreezeBalanceV2Test001 {
       .getString("witness.key1");
   private final byte[] witnessAddress = PublicMethed.getFinalAddress(witnessKey);
 
+  private final Long periodTime = 60_000L;
+
   ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] frozenAddress = ecKey1.getAddress();
-  String frozenKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  byte[] frozenBandwidthAddress = ecKey1.getAddress();
+  String frozenBandwidthKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] frozenEnergyAddress = ecKey2.getAddress();
+  String frozenEnergyKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
+  Long freezeBandwidthBalance = 2000000L;
+  Long freezeEnergyBalance = 3000000L;
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -47,7 +57,7 @@ public class FreezeBalanceV2Test001 {
    */
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception{
-    PublicMethed.printAddress(frozenKey);
+    PublicMethed.printAddress(frozenBandwidthKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -58,44 +68,178 @@ public class FreezeBalanceV2Test001 {
       }
       throw new SkipException("Skipping freezeV2 test case");
     }
-    Assert.assertTrue(PublicMethed.sendcoin(frozenAddress, sendAmount,
+    Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,
+        foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(PublicMethed.sendcoin(frozenEnergyAddress, sendAmount,
         foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
   }
 
+
+  /**
+   * constructor.
+   */
   @Test(enabled = true, description = "Freeze balance to get bandwidth")
   public void test01FreezeBalanceV2GetBandwidth() {
-    final Long beforeFrozenTime = System.currentTimeMillis();
-    Long freezeBalance = 2000000L;
     AccountResourceMessage accountResource = PublicMethed
-        .getAccountResource(frozenAddress, blockingStubFull);
+        .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long beforeTotalNetWeight = accountResource.getTotalNetWeight();
-    final Long beforeNetLimit = accountResource.getNetLimit();
-
-
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenAddress,freezeBalance,0,frozenKey,blockingStubFull));
+    
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,freezeBandwidthBalance,0,frozenBandwidthKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
 
-    Long afterFrozenTime = System.currentTimeMillis();
-    Account account = PublicMethed.queryAccount(frozenAddress,blockingStubFull);
-
-    account.getFrozenList().size();
     Assert.assertEquals(account.getFrozenV2Count(),1);
-    Assert.assertTrue(account.getFrozenV2(0).getAmount() == freezeBalance);
+    Assert.assertTrue(account.getFrozenV2(0).getAmount() == freezeBandwidthBalance);
+    Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 0);
 
+    accountResource = PublicMethed
+        .getAccountResource(frozenBandwidthAddress, blockingStubFull);
+    final Long afterTotalNetWeight = accountResource.getTotalNetWeight();
+    final Long afterNetLimit = accountResource.getNetLimit();
 
-
+    Assert.assertEquals(afterTotalNetWeight - beforeTotalNetWeight, freezeBandwidthBalance / 1000000);
+    Assert.assertTrue(afterNetLimit > 0);
   }
 
   /**
    * constructor.
    */
+  @Test(enabled = true, description = "Freeze balance to get energy")
+  public void test02FreezeBalanceV2GetEnergy() {
+    AccountResourceMessage accountResource = PublicMethed
+        .getAccountResource(frozenEnergyAddress, blockingStubFull);
+    final Long beforeTotalEnergyWeight = accountResource.getTotalEnergyWeight();
 
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenEnergyAddress,freezeEnergyBalance,1,frozenEnergyKey,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Account account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
+
+    Assert.assertEquals(account.getFrozenV2Count(),1);
+    Assert.assertTrue(account.getFrozenV2(0).getAmount() == freezeEnergyBalance);
+    Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 1);
+
+    accountResource = PublicMethed
+        .getAccountResource(frozenEnergyAddress, blockingStubFull);
+    final Long afterTotalEnergyWeight = accountResource.getTotalEnergyWeight();
+    final Long afterEnergyLimit = accountResource.getEnergyLimit();
+
+    Assert.assertEquals(afterTotalEnergyWeight - beforeTotalEnergyWeight, freezeEnergyBalance / 1000000);
+    Assert.assertTrue(afterEnergyLimit > 0);
+  }
+
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Unfreeze balance to release bandwidth")
+  public void test03UnFreezeBalanceV2ToReleaseBandwidth() {
+    Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    final Long beforeUnfreezeBalance = account.getBalance();
+    AccountResourceMessage accountResource = PublicMethed
+        .getAccountResource(frozenBandwidthAddress, blockingStubFull);
+    final Long beforeTotalNetWeight = accountResource.getTotalNetWeight();
+
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,freezeBandwidthBalance,0,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+
+    Assert.assertEquals(account.getFrozenV2Count(),1);
+    Assert.assertTrue(account.getFrozenV2(0).getAmount() == 0);
+    Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 0);
+
+    accountResource = PublicMethed
+        .getAccountResource(frozenBandwidthAddress, blockingStubFull);
+    final Long afterTotalNetWeight = accountResource.getTotalNetWeight();
+    final Long afterNetLimit = accountResource.getNetLimit();
+    final Long afterNetUsage = accountResource.getNetUsed();
+    final Long afterUnfreezeBalance = account.getBalance();
+    final Long afterUnfreezeTimestamp = System.currentTimeMillis();
+    Assert.assertEquals(beforeTotalNetWeight - afterTotalNetWeight, freezeBandwidthBalance / 1000000);
+    Assert.assertTrue(afterNetLimit == 0L);
+    Assert.assertTrue(afterNetUsage > 0);
+    Assert.assertEquals(beforeUnfreezeBalance,afterUnfreezeBalance);
+    Assert.assertTrue(account.getUnfrozenV2Count() == 1);
+    Assert.assertTrue(account.getUnfrozenV2(0).getUnfreezeExpireTime() > afterUnfreezeTimestamp
+    && account.getUnfrozenV2(0).getUnfreezeExpireTime() <= afterUnfreezeTimestamp + periodTime);
+  }
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Freeze balance to release energy")
+  public void test04UnFreezeBalanceV2ToReleaseEnergy() {
+    AccountResourceMessage accountResource = PublicMethed
+        .getAccountResource(frozenEnergyAddress, blockingStubFull);
+    final Long beforeTotalEnergyWeight = accountResource.getTotalEnergyWeight();
+
+
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenEnergyAddress,frozenEnergyKey,freezeEnergyBalance,1,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Account account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
+
+    Assert.assertEquals(account.getFrozenV2Count(),1);
+    Assert.assertTrue(account.getFrozenV2(0).getAmount() == 0);
+    Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 1);
+
+    accountResource = PublicMethed
+        .getAccountResource(frozenEnergyAddress, blockingStubFull);
+    final Long afterTotalEnergyWeight = accountResource.getTotalEnergyWeight();
+    final Long afterEnergyLimit = accountResource.getEnergyLimit();
+    final Long afterUnfreezeTimestamp = System.currentTimeMillis();
+    Assert.assertEquals(beforeTotalEnergyWeight - afterTotalEnergyWeight, freezeEnergyBalance / 1000000);
+    Assert.assertTrue(afterEnergyLimit == 0);
+    Assert.assertTrue(account.getUnfrozenV2(0).getUnfreezeExpireTime() > afterUnfreezeTimestamp
+        && account.getUnfrozenV2(0).getUnfreezeExpireTime() <= afterUnfreezeTimestamp + periodTime);
+  }
+
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Withdraw expire unfreeze to release balance")
+  public void test05WithdrawExpireUnfreezeToReleaseBalance() {
+    Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    final Long bandwidthAccountBeforeBalance = account.getBalance();
+
+    account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
+    final Long energyAccountBeforeBalance = account.getBalance();
+
+
+    if(System.currentTimeMillis() - 2000L < account.getUnfrozenV2(0).getUnfreezeExpireTime()) {
+      Assert.assertFalse(PublicMethed.withdrawExpireUnfreeze(frozenEnergyAddress,frozenEnergyKey,blockingStubFull));
+      logger.info("Check before expire time ,can't withdraw, function pass");
+      int retryTimes = 0;
+      Long unfreezeExpireTime = account.getUnfrozenV2(0).getUnfreezeExpireTime();
+      while (retryTimes++ <= 10 && System.currentTimeMillis() < unfreezeExpireTime) {
+        PublicMethed.waitProduceNextBlock(blockingStubFull);
+      }
+    }
+    Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenBandwidthAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenEnergyAddress,frozenEnergyKey,blockingStubFull));
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    final Long bandwidthAccountAfterBalance = account.getBalance();
+
+    account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
+    final Long energyAccountAfterBalance = account.getBalance();
+
+    Assert.assertTrue(bandwidthAccountAfterBalance - bandwidthAccountBeforeBalance == freezeBandwidthBalance);
+    Assert.assertTrue(energyAccountAfterBalance - energyAccountBeforeBalance == freezeEnergyBalance);
+  }
+  /**
+   * constructor.
+   */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    PublicMethed.freedResource(frozenAddress, frozenKey, foundationAddress, blockingStubFull);
+    PublicMethed.freedResource(frozenBandwidthAddress, frozenBandwidthKey, foundationAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,12 +52,19 @@ public class TvmVote {
    */
 
   @BeforeClass(enabled = true)
-  public void beforeClass() {
+  public void beforeClass() throws Exception {
     PublicMethed.printAddress(contractExcKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      if (channelFull != null) {
+        channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+      }
+      throw new SkipException("Skipping freezeV2 test case");
+    }
 
     Assert.assertTrue(PublicMethed
         .sendcoin(contractExcAddress, 300100_000_000L,

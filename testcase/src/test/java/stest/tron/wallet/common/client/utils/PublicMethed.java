@@ -91,8 +91,10 @@ import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
+import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
+import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
@@ -945,10 +947,39 @@ public class PublicMethed {
     final ECKey ecKey = temKey;
     UnfreezeBalanceV2Contract.Builder builder = UnfreezeBalanceV2Contract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
-    builder.setOwnerAddress(byteAddreess).setResourceValue(resourceCode);
+    builder.setOwnerAddress(byteAddreess)
+        .setResourceValue(resourceCode).setUnfreezeBalance(unFreezeBalanceAmount);
 
     UnfreezeBalanceV2Contract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.unfreezeBalanceV2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
+    transaction = signTransaction(ecKey, transaction);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+
+    return response.getResult();
+  }
+
+
+
+  /** constructor. */
+  public static Boolean withdrawExpireUnfreeze(
+      byte[] address,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    WithdrawExpireUnfreezeContract.Builder builder = WithdrawExpireUnfreezeContract.newBuilder();
+    ByteString byteAddreess = ByteString.copyFrom(address);
+    builder.setOwnerAddress(byteAddreess);
+
+    WithdrawExpireUnfreezeContract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.withdrawExpireUnfreeze(contract);
     Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -7277,6 +7308,82 @@ public class PublicMethed {
         .setResourceValue(resourceCode);
     DelegateResourceContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.delegateResource(contract);
+    Protocol.Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction = null");
+      return false;
+    }
+    transaction = TransactionUtils.sign(transaction, ecKey);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    return response.getResult();
+  }
+
+
+
+  /** constructor. */
+  public static Boolean delegateResourceV2(byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
+    ByteString byteAddress = ByteString.copyFrom(addressByte);
+    ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
+    builder
+        .setOwnerAddress(byteAddress)
+        .setBalance(delegateAmount)
+        .setReceiverAddress(byteReceiverAddress)
+        .setResourceValue(resourceCode);
+    DelegateResourceContract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.delegateResource(contract);
+    Protocol.Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction = null");
+      return false;
+    }
+    transaction = TransactionUtils.sign(transaction, ecKey);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    return response.getResult();
+  }
+
+
+
+  /** constructor. */
+  public static Boolean unDelegateResourceV2(byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    UnDelegateResourceContract.Builder builder =  UnDelegateResourceContract.newBuilder();
+    ByteString byteAddress = ByteString.copyFrom(addressByte);
+    ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
+    builder
+        .setOwnerAddress(byteAddress)
+        .setBalance(delegateAmount)
+        .setReceiverAddress(byteReceiverAddress)
+        .setResourceValue(resourceCode);
+    UnDelegateResourceContract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.unDelegateResource(contract);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("transaction = null");
