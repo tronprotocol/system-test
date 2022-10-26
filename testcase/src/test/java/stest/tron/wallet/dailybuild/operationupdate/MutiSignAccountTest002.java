@@ -145,7 +145,7 @@ public class MutiSignAccountTest002 {
     Assert.assertEquals(fee, energyFee + netFee + updateAccountPermissionFee);
 
     balanceBefore = balanceAfter;
-    byte[] accountName = "11z21122231110".getBytes();
+    byte[] accountName = String.valueOf(System.currentTimeMillis()).getBytes();
     Assert.assertTrue(PublicMethedForMutiSign.createAccount1(
         ownerAddress, newAddress, ownerKey, blockingStubFull, 2, permissionKeyString));
     Assert.assertTrue(
@@ -156,31 +156,36 @@ public class MutiSignAccountTest002 {
     Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceWithPermissionId(
         ownerAddress, 1000000L, 0, 2, ownerKey, blockingStubFull, permissionKeyString));
     Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceGetEnergyWithPermissionId(
-        ownerAddress, 1000000L, 0, 2, ownerKey, blockingStubFull, 2, permissionKeyString));
-    Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceForReceiverWithPermissionId(
-        ownerAddress, 1000000L, 0, 0, ByteString.copyFrom(newAddress),
-        ownerKey, blockingStubFull, 2, permissionKeyString));
-    Assert.assertTrue(PublicMethedForMutiSign.unFreezeBalanceWithPermissionId(
-        ownerAddress, ownerKey, 0, null, 2, blockingStubFull, permissionKeyString));
-    Assert.assertTrue(PublicMethedForMutiSign.unFreezeBalanceWithPermissionId(
-        ownerAddress, ownerKey, 0, newAddress, 2, blockingStubFull, permissionKeyString));
-    Assert.assertTrue(PublicMethedForMutiSign.updateAccountWithPermissionId(
-        ownerAddress, updateName.getBytes(), ownerKey, blockingStubFull, 2, permissionKeyString));
+        ownerAddress, 1000000L, 0, PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 1, ownerKey, blockingStubFull, 2, permissionKeyString));
 
-    String voteStr = Base58.encode58Check(witnessAddress);
-    HashMap<String, String> smallVoteMap = new HashMap<String, String>();
-    smallVoteMap.put(voteStr, "1");
-    Assert.assertTrue(PublicMethedForMutiSign.voteWitnessWithPermissionId(
-        smallVoteMap, ownerAddress, ownerKey, blockingStubFull, 2, permissionKeyString));
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceForReceiverWithPermissionId(
+          ownerAddress, 1000000L, 0, 0, ByteString.copyFrom(newAddress),
+          ownerKey, blockingStubFull, 2, permissionKeyString));
+      Assert.assertTrue(PublicMethedForMutiSign.unFreezeBalanceWithPermissionId(
+          ownerAddress, ownerKey, 0, null, 2, blockingStubFull, permissionKeyString));
+      Assert.assertTrue(PublicMethedForMutiSign.unFreezeBalanceWithPermissionId(
+          ownerAddress, ownerKey, 0, newAddress, 2, blockingStubFull, permissionKeyString));
+      Assert.assertTrue(PublicMethedForMutiSign.updateAccountWithPermissionId(
+          ownerAddress, updateName.getBytes(), ownerKey, blockingStubFull, 2, permissionKeyString));
 
-    balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
-    logger.info("balanceAfter: " + balanceAfter);
-    Assert.assertEquals(balanceBefore - balanceAfter, multiSignFee * 10 + 2000000 + 100);
+      String voteStr = Base58.encode58Check(witnessAddress);
+      HashMap<String, String> smallVoteMap = new HashMap<String, String>();
+      smallVoteMap.put(voteStr, "1");
+      Assert.assertTrue(PublicMethedForMutiSign.voteWitnessWithPermissionId(
+          smallVoteMap, ownerAddress, ownerKey, blockingStubFull, 2, permissionKeyString));
 
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+      balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
+      logger.info("balanceAfter: " + balanceAfter);
+      Assert.assertEquals(balanceBefore - balanceAfter, multiSignFee * 10 + 2000000 + 100);
+
+      Assert.assertTrue(
+          PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
+    }
+
 
   }
 

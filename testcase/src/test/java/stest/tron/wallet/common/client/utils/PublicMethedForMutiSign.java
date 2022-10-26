@@ -606,11 +606,11 @@ public class PublicMethedForMutiSign {
       long freezeDuration, int permissionId, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
-      return freezeBalanceV1WithPermissionId(addRess,freezeBalance,freezeDuration,0,permissionId,
-          priKey,blockingStubFull,permissionKeyString);
-    } else {
       return freezeBalanceV2WithPermissionId(addRess,freezeBalance,
           0,permissionId,priKey,blockingStubFull,permissionKeyString);
+    } else {
+      return freezeBalanceV1WithPermissionId(addRess,freezeBalance,freezeDuration,0,permissionId,
+          priKey,blockingStubFull,permissionKeyString);
     }
 
   }
@@ -4224,6 +4224,8 @@ public class PublicMethedForMutiSign {
   }
 
 
+
+
   /**
    * constructor.
    */
@@ -4267,6 +4269,9 @@ public class PublicMethedForMutiSign {
 
     return broadcastTransaction(transaction, blockingStubFull);
   }
+
+
+
 
 
   /**

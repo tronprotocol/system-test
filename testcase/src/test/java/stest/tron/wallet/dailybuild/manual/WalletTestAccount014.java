@@ -6,6 +6,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -126,6 +127,9 @@ public class WalletTestAccount014 {
 
   @Test(enabled = true, description = "Query net usage in 50061")
   public void fullAndSoliMerged2ForNetUsage() {
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping delegate resource v1 test case");
+    }
 
     Assert.assertTrue(PublicMethed.freezeBalance(account014Address, 1000000L, 3,
         account014Key, blockingStubFull));

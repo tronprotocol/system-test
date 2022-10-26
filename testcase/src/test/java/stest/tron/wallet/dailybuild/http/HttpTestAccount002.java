@@ -159,7 +159,7 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "Get Delegated Resource by http")
   public void test006GetDelegatedResource() {
-    if(HttpMethed.proposalFreezeV2IsOpen(httpSoliditynode)) {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
     response = HttpMethed
@@ -181,6 +181,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "Get Delegated Resource from solidity by http")
   public void test007GetDelegatedResourceFromSolidity() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     HttpMethed.waitToProduceOneBlockFromPbft(httpnode, httpPbftNode);
     response = HttpMethed.getDelegatedResourceFromSolidity(httpSoliditynode, freezeBalanceAddress,
@@ -202,6 +205,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "Get Delegated Resource from PBFT by http")
   public void test008GetDelegatedResourceFromPbft() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     HttpMethed.waitToProduceOneBlockFromPbft(httpnode, httpPbftNode);
     response = HttpMethed
         .getDelegatedResourceFromPbft(httpPbftNode, freezeBalanceAddress, receiverResourceAddress);
@@ -223,6 +229,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "Get Delegated Resource Account Index by http")
   public void test009GetDelegatedResourceAccountIndex() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     response = HttpMethed.getDelegatedResourceAccountIndex(httpnode, freezeBalanceAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -236,6 +245,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "Get Delegated Resource Account Index from solidity by http")
   public void test010GetDelegatedResourceAccountIndexFromSolidity() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     response = HttpMethed
         .getDelegatedResourceAccountIndexFromSolidity(httpSoliditynode, freezeBalanceAddress);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -250,6 +262,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "Get Delegated Resource Account Index from PBFT by http")
   public void test011GetDelegatedResourceAccountIndexFromPbft() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     response = HttpMethed
         .getDelegatedResourceAccountIndexFromPbft(httpPbftNode, freezeBalanceAddress);
     responseContent = HttpMethed.parseResponseContent(response);
