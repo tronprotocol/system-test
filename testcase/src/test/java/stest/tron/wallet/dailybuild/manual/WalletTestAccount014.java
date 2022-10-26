@@ -65,10 +65,18 @@ public class WalletTestAccount014 {
         .usePlaintext(true)
         .build();
     blockingStubSoliInFull = WalletSolidityGrpc.newBlockingStub(channelSoliInFull);
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping delegate resource v1 test case");
+    }
+
   }
 
   @Test(enabled = true, description = "Query freeNetUsage in 50061")
   public void fullAndSoliMerged1ForFreeNetUsage() {
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping delegate resource v1 test case");
+    }
+
     //Create account014
     ecKey1 = new ECKey(Utils.getRandom());
     account014Address = ecKey1.getAddress();

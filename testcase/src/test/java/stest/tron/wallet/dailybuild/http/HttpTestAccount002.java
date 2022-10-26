@@ -327,6 +327,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "UnFreezeBalance with energy for others by http")
   public void test014UnFreezebalanceOfEnergyForOthers() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
     //UnFreeze balance with energy for others
@@ -348,6 +351,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "FreezeBlance for tron power by http")
   public void test015FreezeTronPower() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     if(HttpMethed.getProposalValue(httpnode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
       return;
     }
@@ -368,6 +374,9 @@ public class HttpTestAccount002 {
    */
   @Test(enabled = true, description = "UnFreezeBalance for tron power by http")
   public void test016UnFreezeBalanceForTronPower() {
+    if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     if(HttpMethed.getProposalValue(httpnode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
       return;
     }
