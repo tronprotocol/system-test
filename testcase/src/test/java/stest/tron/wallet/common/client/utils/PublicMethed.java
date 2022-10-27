@@ -146,6 +146,8 @@ public class PublicMethed {
   // Wallet wallet = new Wallet();
   public static volatile Integer witnessNum;
 
+  public static volatile String freezeV2Txid;
+
   /** constructor. */
   public static Integer getWitnessNum(WalletGrpc.WalletBlockingStub blockingStubFull) {
     //if (null == witnessNum) {
@@ -954,6 +956,10 @@ public class PublicMethed {
     TransactionExtention transactionExtention = blockingStubFull.unfreezeBalanceV2(contract);
     Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
+    freezeV2Txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
     return response.getResult();
@@ -982,6 +988,10 @@ public class PublicMethed {
     TransactionExtention transactionExtention = blockingStubFull.withdrawExpireUnfreeze(contract);
     Transaction transaction = transactionExtention.getTransaction();
     transaction = signTransaction(ecKey, transaction);
+    freezeV2Txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
 
     return response.getResult();
@@ -7264,6 +7274,10 @@ public class PublicMethed {
       return false;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
+    freezeV2Txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
@@ -7352,6 +7366,10 @@ public class PublicMethed {
       return false;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
+    freezeV2Txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
@@ -7390,6 +7408,10 @@ public class PublicMethed {
       return false;
     }
     transaction = TransactionUtils.sign(transaction, ecKey);
+    freezeV2Txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }

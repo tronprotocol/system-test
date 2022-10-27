@@ -87,10 +87,10 @@ public class ContractScenario011 {
     Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(deployAddress, 3000000000L,
         0, 1, deployKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    Assert.assertTrue(PublicMethed.freezeBalance(deployAddress, 3000000000L, 0,
+    Assert.assertTrue(PublicMethed.freezeBalance(deployAddress, 6000000000L, 0,
         deployKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    Assert.assertTrue(PublicMethed.freezeBalance(triggerAddress, 3000000000L, 0,
+    Assert.assertTrue(PublicMethed.freezeBalance(triggerAddress, 6000000000L, 0,
         triggerKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(deployAddress,
@@ -435,7 +435,7 @@ public class ContractScenario011 {
     logger.info("before EnergyTotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
     Assert.assertTrue(
-        PublicMethed.freezeBalanceGetEnergy(triggerUseTriggerEnergyUsageAddress, 3000000000L,
+        PublicMethed.freezeBalanceGetEnergy(triggerUseTriggerEnergyUsageAddress, 6000000000L,
             0, 1, triggerUseTriggerEnergyUsageKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     beforeBalance = PublicMethed.queryAccount(triggerUseTriggerEnergyUsageKey, blockingStubFull)

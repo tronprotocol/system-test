@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.freezeV2;
 
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -14,6 +15,11 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
+import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
+import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -82,13 +88,21 @@ public class FreezeBalanceV2Test001 {
    * constructor.
    */
   @Test(enabled = true, description = "Freeze balance to get bandwidth")
-  public void test01FreezeBalanceV2GetBandwidth() {
+  public void test01FreezeBalanceV2GetBandwidth() throws Exception{
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long beforeTotalNetWeight = accountResource.getTotalNetWeight();
     
     Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,freezeBandwidthBalance,0,frozenBandwidthKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Any any = transaction.getRawData().getContract(0).getParameter();
+    FreezeBalanceV2Contract freezeBalanceV2Contract
+        = any.unpack(FreezeBalanceV2Contract.class);
+    Assert.assertTrue(freezeBalanceV2Contract.getFrozenBalance() == freezeBandwidthBalance);
+    Assert.assertEquals(freezeBalanceV2Contract.getOwnerAddress().toByteArray(),frozenBandwidthAddress);
+    Assert.assertTrue(freezeBalanceV2Contract.getResourceValue() == 0);
+
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
 
     Assert.assertEquals(account.getFrozenV2Count(),1);
@@ -108,13 +122,24 @@ public class FreezeBalanceV2Test001 {
    * constructor.
    */
   @Test(enabled = true, description = "Freeze balance to get energy")
-  public void test02FreezeBalanceV2GetEnergy() {
+  public void test02FreezeBalanceV2GetEnergy() throws Exception{
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(frozenEnergyAddress, blockingStubFull);
     final Long beforeTotalEnergyWeight = accountResource.getTotalEnergyWeight();
 
     Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenEnergyAddress,freezeEnergyBalance,1,frozenEnergyKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
+    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Any any = transaction.getRawData().getContract(0).getParameter();
+    FreezeBalanceV2Contract freezeBalanceV2Contract
+        = any.unpack(FreezeBalanceV2Contract.class);
+    Assert.assertTrue(freezeBalanceV2Contract.getFrozenBalance() == freezeEnergyBalance);
+    Assert.assertEquals(freezeBalanceV2Contract.getOwnerAddress().toByteArray(),frozenEnergyAddress);
+    Assert.assertTrue(freezeBalanceV2Contract.getResourceValue() == 1);
+
+
     Account account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
 
     Assert.assertEquals(account.getFrozenV2Count(),1);
@@ -136,7 +161,7 @@ public class FreezeBalanceV2Test001 {
    * constructor.
    */
   @Test(enabled = true, description = "Unfreeze balance to release bandwidth")
-  public void test03UnFreezeBalanceV2ToReleaseBandwidth() {
+  public void test03UnFreezeBalanceV2ToReleaseBandwidth() throws Exception {
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     final Long beforeUnfreezeBalance = account.getBalance();
     AccountResourceMessage accountResource = PublicMethed
@@ -145,6 +170,18 @@ public class FreezeBalanceV2Test001 {
 
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,freezeBandwidthBalance,0,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Any any = transaction.getRawData().getContract(0).getParameter();
+    UnfreezeBalanceV2Contract unfreezeBalanceV2Contract
+        = any.unpack(UnfreezeBalanceV2Contract.class);
+    Assert.assertTrue(unfreezeBalanceV2Contract.getUnfreezeBalance() == freezeBandwidthBalance);
+    Assert.assertEquals(unfreezeBalanceV2Contract.getOwnerAddress().toByteArray(),frozenBandwidthAddress);
+    Assert.assertTrue(unfreezeBalanceV2Contract.getResourceValue() == 0);
+
+
+
+
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
 
     Assert.assertEquals(account.getFrozenV2Count(),1);
@@ -172,7 +209,7 @@ public class FreezeBalanceV2Test001 {
    * constructor.
    */
   @Test(enabled = true, description = "Freeze balance to release energy")
-  public void test04UnFreezeBalanceV2ToReleaseEnergy() {
+  public void test04UnFreezeBalanceV2ToReleaseEnergy() throws Exception {
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(frozenEnergyAddress, blockingStubFull);
     final Long beforeTotalEnergyWeight = accountResource.getTotalEnergyWeight();
@@ -180,6 +217,17 @@ public class FreezeBalanceV2Test001 {
 
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenEnergyAddress,frozenEnergyKey,freezeEnergyBalance,1,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Any any = transaction.getRawData().getContract(0).getParameter();
+    UnfreezeBalanceV2Contract unfreezeBalanceV2Contract
+        = any.unpack(UnfreezeBalanceV2Contract.class);
+    Assert.assertTrue(unfreezeBalanceV2Contract.getUnfreezeBalance() == freezeEnergyBalance);
+    Assert.assertEquals(unfreezeBalanceV2Contract.getOwnerAddress().toByteArray(),frozenEnergyAddress);
+    Assert.assertTrue(unfreezeBalanceV2Contract.getResourceValue() == 1);
+
+
+
     Account account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
 
     Assert.assertEquals(account.getFrozenV2Count(),1);
@@ -203,7 +251,7 @@ public class FreezeBalanceV2Test001 {
    * constructor.
    */
   @Test(enabled = true, description = "Withdraw expire unfreeze to release balance")
-  public void test05WithdrawExpireUnfreezeToReleaseBalance() {
+  public void test05WithdrawExpireUnfreezeToReleaseBalance() throws Exception {
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     final Long bandwidthAccountBeforeBalance = account.getBalance();
 
@@ -220,10 +268,22 @@ public class FreezeBalanceV2Test001 {
         PublicMethed.waitProduceNextBlock(blockingStubFull);
       }
     }
+
+
     Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenBandwidthAddress,frozenBandwidthKey,blockingStubFull));
     Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenEnergyAddress,frozenEnergyKey,blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Any any = transaction.getRawData().getContract(0).getParameter();
+    WithdrawExpireUnfreezeContract withdrawExpireUnfreezeContract
+        = any.unpack(WithdrawExpireUnfreezeContract.class);
+    Assert.assertEquals(withdrawExpireUnfreezeContract.getOwnerAddress().toByteArray(),frozenEnergyAddress);
+
+
+
+
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     final Long bandwidthAccountAfterBalance = account.getBalance();

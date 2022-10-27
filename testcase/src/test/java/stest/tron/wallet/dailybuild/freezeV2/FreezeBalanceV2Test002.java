@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.freezeV2;
 
+import com.google.protobuf.Any;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +14,10 @@ import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Account.AccountResource;
+import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
+import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -106,7 +111,7 @@ public class FreezeBalanceV2Test002 {
    * constructor.
    */
   @Test(enabled = true, description = "Delegate resource of bandwidth")
-  public void test01DelegateResourceOfBandwidth() {
+  public void test01DelegateResourceOfBandwidth() throws Exception {
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(frozenBandwidthAddress, blockingStubFull);
@@ -118,6 +123,19 @@ public class FreezeBalanceV2Test002 {
     Assert.assertTrue(PublicMethed.delegateResourceV2(frozenBandwidthAddress,delegateBandwidthAmount,
         0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
+    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Any any = transaction.getRawData().getContract(0).getParameter();
+    DelegateResourceContract delegateResourceContract
+        = any.unpack(DelegateResourceContract.class);
+    Assert.assertTrue(delegateResourceContract.getBalance() == delegateBandwidthAmount);
+    Assert.assertEquals(delegateResourceContract.getOwnerAddress().toByteArray(),frozenBandwidthAddress);
+    Assert.assertTrue(delegateResourceContract.getResourceValue() == 0);
+    Assert.assertEquals(delegateResourceContract.getReceiverAddress().toByteArray(),receiveBandwidthAddress);
+
+
+
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     accountResource = PublicMethed
@@ -136,7 +154,7 @@ public class FreezeBalanceV2Test002 {
         .getAcquiredDelegatedFrozenBalanceForBandwidth();
 
     Assert.assertTrue(afterLenderNetLimit + afterReceiverNetLimit >= beforeLenderNetLimit - 1
-    && afterLenderFrozenAmount + afterReceiverNetLimit <= beforeLenderNetLimit + 1);
+    && afterLenderNetLimit + afterReceiverNetLimit <= beforeLenderNetLimit + 1);
     Assert.assertEquals(receiverAcquiredDelegatedFrozenBalanceForBandwidth, delegateBandwidthAmount);
   }
 
@@ -146,7 +164,7 @@ public class FreezeBalanceV2Test002 {
    * constructor.
    */
   @Test(enabled = true, description = "Undelegate resource of bandwidth")
-  public void test02UnDelegateResourceOfBandwidth() {
+  public void test02UnDelegateResourceOfBandwidth() throws Exception {
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(frozenBandwidthAddress, blockingStubFull);
@@ -164,6 +182,18 @@ public class FreezeBalanceV2Test002 {
     Assert.assertTrue(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,delegateBandwidthAmount,
         0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
+    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Any any = transaction.getRawData().getContract(0).getParameter();
+    UnDelegateResourceContract unDelegateResourceContract
+        = any.unpack(UnDelegateResourceContract.class);
+    Assert.assertTrue(unDelegateResourceContract.getBalance() == delegateBandwidthAmount);
+    Assert.assertEquals(unDelegateResourceContract.getOwnerAddress().toByteArray(),frozenBandwidthAddress);
+    Assert.assertTrue(unDelegateResourceContract.getResourceValue() == 0);
+    Assert.assertEquals(unDelegateResourceContract.getReceiverAddress().toByteArray(),receiveBandwidthAddress);
+
+
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     accountResource = PublicMethed
