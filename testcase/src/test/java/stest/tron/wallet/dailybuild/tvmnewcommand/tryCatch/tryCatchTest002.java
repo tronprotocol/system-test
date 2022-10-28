@@ -60,6 +60,7 @@ public class tryCatchTest002 {
     contractAddress = PublicMethed
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0, 100, null,
             testFoundationKey, testFoundationAddress, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
   }

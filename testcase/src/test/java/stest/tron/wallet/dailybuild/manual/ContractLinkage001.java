@@ -146,7 +146,7 @@ public class ContractLinkage001 {
         0, 1, linkage001Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    maxFeeLimit = maxFeeLimit - freezeBalance;
+    //maxFeeLimit = maxFeeLimit - freezeBalance;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage resourceInfo1 = PublicMethed.getAccountResource(linkage001Address,
         blockingStubFull);

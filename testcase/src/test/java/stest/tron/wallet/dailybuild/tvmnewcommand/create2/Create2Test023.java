@@ -141,7 +141,7 @@ public class Create2Test023 {
   public void test02TriggerTestContract() {
 
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000 * 2L,
+        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000 * 5L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
