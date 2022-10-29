@@ -223,6 +223,26 @@ public class HttpMethed {
     return response;
   }
 
+
+  /** constructor. */
+  public static HttpResponse withdrawExpireUnfreeze(String httpNode, byte[] ownerAddress,String ownerKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/withdrawexpireunfreeze";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
+      response = createConnect(requestUrl, userBaseObj2);
+      logger.info(userBaseObj2.toString());
+       transactionString = EntityUtils.toString(response.getEntity());
+       transactionSignString = gettransactionsign(httpNode,transactionString,ownerKey);
+        response = broadcastTransaction(httpNode,transactionSignString);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
   /** constructor. */
   public static HttpResponse sendCoin(
       String httpNode, byte[] fromAddress, byte[] toAddress, Long amount, String fromKey) {
@@ -1291,13 +1311,13 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse delegateresource(
-      String httpNode, byte[] ownerAddress, Long delegteAmount, Integer resourceCode,byte[] receiverAddress,String fromKey) {
+      String httpNode, byte[] ownerAddress, Long delegateAmount, Integer resourceCode,byte[] receiverAddress,String fromKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/delegateresource";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
       userBaseObj2.addProperty("receiver_address", ByteArray.toHexString(receiverAddress));
-      userBaseObj2.addProperty("balance", delegteAmount);
+      userBaseObj2.addProperty("balance", delegateAmount);
       if (resourceCode == 0) {
         userBaseObj2.addProperty("resource", "BANDWIDTH");
       }
@@ -1313,7 +1333,9 @@ public class HttpMethed {
       }
 
       response = createConnect(requestUrl, userBaseObj2);
+
       transactionString = EntityUtils.toString(response.getEntity());
+      logger.info("transactionString:" + transactionString);
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
       response = broadcastTransaction(httpNode, transactionSignString);
 
