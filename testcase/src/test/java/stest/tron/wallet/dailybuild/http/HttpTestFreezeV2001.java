@@ -292,6 +292,18 @@ public class HttpTestFreezeV2001 {
   public void test009WithdrawExpireUnfreeze() {
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,freezeBandwidthAddress));
     JSONArray unfrozenV2 = responseContent.getJSONArray("unfrozenV2");
+    Long unfreezeExpireTime = unfrozenV2.getJSONObject(0).getLong("unfreeze_expire_time");
+    int retryTimes = 0;
+    while (System.currentTimeMillis() < unfreezeExpireTime && retryTimes++ <= 100) {
+      HttpMethed.waitToProduceOneBlock(httpnode);
+    }
+
+
+
+
+
+    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,freezeBandwidthAddress));
+    unfrozenV2 = responseContent.getJSONArray("unfrozenV2");
     Long unfreezeAmount = unfrozenV2.getJSONObject(0).getLong("unfreeze_amount");
     Long beforeBalance = responseContent.getLong("balance");
 
@@ -305,6 +317,8 @@ public class HttpTestFreezeV2001 {
     afterBalance = responseContent.getLong("balance");
 
     Assert.assertTrue(afterBalance - beforeBalance == unfreezeAmount);
+
+
 
   }
 

@@ -16,6 +16,7 @@ import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
@@ -39,7 +40,7 @@ public class FreezeBalanceV2Test001 {
       .getString("witness.key1");
   private final byte[] witnessAddress = PublicMethed.getFinalAddress(witnessKey);
 
-  private final Long periodTime = 60_000L;
+  private final Long periodTime = 60_000L * 5;
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] frozenBandwidthAddress = ecKey1.getAddress();
@@ -241,6 +242,8 @@ public class FreezeBalanceV2Test001 {
     final Long afterUnfreezeTimestamp = System.currentTimeMillis();
     Assert.assertEquals(beforeTotalEnergyWeight - afterTotalEnergyWeight, freezeEnergyBalance / 1000000);
     Assert.assertTrue(afterEnergyLimit == 0);
+    logger.info("account.getUnfrozenV2(0).getUnfreezeExpireTime():" + account.getUnfrozenV2(0).getUnfreezeExpireTime());
+    logger.info("afterUnfreezeTimestamp:" + afterUnfreezeTimestamp);
     Assert.assertTrue(account.getUnfrozenV2(0).getUnfreezeExpireTime() > afterUnfreezeTimestamp
         && account.getUnfrozenV2(0).getUnfreezeExpireTime() <= afterUnfreezeTimestamp + periodTime);
   }
@@ -264,7 +267,7 @@ public class FreezeBalanceV2Test001 {
       logger.info("Check before expire time ,can't withdraw, function pass");
       int retryTimes = 0;
       Long unfreezeExpireTime = account.getUnfrozenV2(0).getUnfreezeExpireTime();
-      while (retryTimes++ <= 10 && System.currentTimeMillis() < unfreezeExpireTime) {
+      while (retryTimes++ <= periodTime / 6000L && System.currentTimeMillis() < unfreezeExpireTime) {
         PublicMethed.waitProduceNextBlock(blockingStubFull);
       }
     }
@@ -293,6 +296,11 @@ public class FreezeBalanceV2Test001 {
 
     Assert.assertTrue(bandwidthAccountAfterBalance - bandwidthAccountBeforeBalance == freezeBandwidthBalance);
     Assert.assertTrue(energyAccountAfterBalance - energyAccountBeforeBalance == freezeEnergyBalance);
+
+
+    TransactionInfo transactionInfo = PublicMethed.getTransactionInfoById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    Assert.assertTrue(transactionInfo.getWithdrawExpireAmount() == freezeEnergyBalance);
+    Assert.assertTrue(transactionInfo.getUnfreezeAmount() == 0);
   }
   /**
    * constructor.
