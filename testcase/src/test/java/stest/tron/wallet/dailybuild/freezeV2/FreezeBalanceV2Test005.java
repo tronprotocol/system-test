@@ -152,6 +152,8 @@ public class FreezeBalanceV2Test005 {
         && afterNetUsage + 2 >= transactionNetUsage
         && transactionNetUsage > 200);
 
+    Long beforeLatestConsumeTime = account.getLatestConsumeTime();
+
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -159,6 +161,9 @@ public class FreezeBalanceV2Test005 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    Long afterLatestConsumeTime = account.getLatestConsumeTime();
+    //getLatestConsumeTime means this user latest use consume net Time,not current timestamp
+    Assert.assertEquals(beforeLatestConsumeTime,afterLatestConsumeTime);
     beforeNetWindowSize = account.getNetWindowSize();
     logger.info("beforeNetWindowSize:" + beforeNetWindowSize);
     Assert.assertTrue(beforeNetWindowSize < 28800);

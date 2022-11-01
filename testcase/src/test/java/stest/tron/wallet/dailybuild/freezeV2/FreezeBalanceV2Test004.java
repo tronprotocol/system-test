@@ -3,6 +3,7 @@ package stest.tron.wallet.dailybuild.freezeV2;
 import com.google.protobuf.Any;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Account.UnFreezeV2;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.Protocol.Vote;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
@@ -151,11 +153,49 @@ public class FreezeBalanceV2Test004 {
    */
   @Test(enabled = true, description = "Unfreeze cause dynamic decrease of vote")
   public void test02UnfreezeCaseDynamicDecreaseOfVote() throws Exception{
+    Long witness1ReceiveVote = 10L;
+    Long witness2ReceiveVote = 20L;
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
-    Long beforeVotePower = PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ?
+    Long votePower = PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ?
         account.getTronPower().getFrozenBalance() / 1000000L :
         account.getFrozenV2(0).getAmount() / 1000000L;
 
+    HashMap<byte[],Long> voteMap = new HashMap<>();
+    voteMap.put(PublicMethed.getFinalAddress(witness1Key),10L);
+    voteMap.put(PublicMethed.getFinalAddress(witness2Key),20L);
+
+    Assert.assertTrue(PublicMethed.voteWitness(frozenBandwidthAddress,frozenBandwidthKey,voteMap,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
+    Long unfreezeBalance = (votePower - witness1ReceiveVote - witness2ReceiveVote) * 1000000L;
+    PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,
+        PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 0,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    List<Vote> list = account.getVotesList();
+    Assert.assertTrue(list.size() == 2);
+    Long currentVote = 0L;
+    for(Vote vote : list) {
+      currentVote += vote.getVoteCount();
+    }
+    Assert.assertTrue(currentVote ==witness1ReceiveVote + witness2ReceiveVote);
+
+
+
+    PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,1L,
+        PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 0,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    list = account.getVotesList();
+    Assert.assertTrue(list.size() == 2);
+    currentVote = 0L;
+    for(Vote vote : list) {
+      currentVote += vote.getVoteCount();
+    }
+    Assert.assertTrue(currentVote  < witness1ReceiveVote + witness2ReceiveVote
+    && currentVote + 2 >= witness1ReceiveVote + witness2ReceiveVote);
 
 
 
