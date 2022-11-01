@@ -40,7 +40,7 @@ public class FreezeBalanceV2Test001 {
       .getString("witness.key1");
   private final byte[] witnessAddress = PublicMethed.getFinalAddress(witnessKey);
 
-  private final Long periodTime = 60_000L * 5;
+  private final Long periodTime = 60_000L;
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] frozenBandwidthAddress = ecKey1.getAddress();
