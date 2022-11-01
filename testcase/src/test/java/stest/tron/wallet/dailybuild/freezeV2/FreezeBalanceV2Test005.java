@@ -94,7 +94,7 @@ public class FreezeBalanceV2Test005 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
-    String filePath = "testcase/src/test/resources/soliditycode/contractLinkage005.sol";
+    String filePath = "./src/test/resources/soliditycode/contractLinkage005.sol";
     String contractName = "timeoutTest";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
