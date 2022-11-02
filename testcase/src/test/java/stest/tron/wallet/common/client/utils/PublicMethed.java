@@ -1288,6 +1288,19 @@ public class PublicMethed {
       long amount,
       byte[] owner,
       String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull
+  ) {
+    return sendcoinWithMemoGetTransactionId(to,amount,null,owner,
+        priKey,blockingStubFull);
+}
+
+  /** constructor. */
+  public static String sendcoinWithMemoGetTransactionId(
+      byte[] to,
+      long amount,
+      String memo,
+      byte[] owner,
+      String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     // String priKey = testKey002;
     ECKey temKey = null;
@@ -1314,11 +1327,14 @@ public class PublicMethed {
       return null;
     }
     // Test raw data
-    /*    Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
-    builder1.setData(ByteString.copyFromUtf8("12345678"));
-    Transaction.Builder builder2 = transaction.toBuilder();
-    builder2.setRawData(builder1);
-    transaction = builder2.build();*/
+    if(null != memo) {
+      Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
+      builder1.setData(ByteString.copyFromUtf8(memo));
+      Transaction.Builder builder2 = transaction.toBuilder();
+      builder2.setRawData(builder1);
+      transaction = builder2.build();
+    }
+
 
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
