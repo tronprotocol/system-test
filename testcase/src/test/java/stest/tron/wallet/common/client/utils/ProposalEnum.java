@@ -3,7 +3,9 @@ package stest.tron.wallet.common.client.utils;
 public enum ProposalEnum {
 
   GetAllowNewResourceModel("getAllowNewResourceModel"),
-  GetUnfreezeDelayDays("getUnfreezeDelayDays");
+  GetUnfreezeDelayDays("getUnfreezeDelayDays"),
+
+  GetMemoFee("getMemoFee");
 
   private String proposalName;
 

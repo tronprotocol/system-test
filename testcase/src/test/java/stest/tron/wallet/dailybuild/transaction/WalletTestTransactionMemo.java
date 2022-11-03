@@ -50,14 +50,18 @@ public class WalletTestTransactionMemo {
 
   @Test(enabled = true, description = "Transaction with memo should be pay memo fee")
   public void test01TransactionMemo() {
+    Long memoFee = PublicMethed.getProposalMemoFee(blockingStubFull);
+    logger.info("MemoFee:" + memoFee);
     String memo = "PAY FEE";
+    Long sendAmount = 1L;
     Account account = PublicMethed.queryAccount(memoAddress,blockingStubFull);
 
 
-    final Long beforeBalance = System.currentTimeMillis();
+    final Long beforeBalance = account.getBalance();
 
-    String txid = PublicMethed.sendcoinWithMemoGetTransactionId(foundationAddress,1L,memo,
+    String txid = PublicMethed.sendcoinWithMemoGetTransactionId(foundationAddress,sendAmount,memo,
         memoAddress,memoKey,blockingStubFull);
+
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     ;
@@ -65,6 +69,26 @@ public class WalletTestTransactionMemo {
         .get().getRawData().getData().toStringUtf8();
     logger.info(dataMemo);
     Assert.assertEquals(dataMemo,memo);
+
+    account = PublicMethed.queryAccount(memoAddress,blockingStubFull);
+    final Long afterBalance = account.getBalance();
+    Assert.assertEquals(beforeBalance - afterBalance, sendAmount + memoFee);
+
+    Long transactionFee = PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getFee();
+    Long freeNet = PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt().getNetUsage();
+    Assert.assertEquals(transactionFee,memoFee);
+
+
+    String txidWithNoMemo = PublicMethed.sendcoinWithMemoGetTransactionId(foundationAddress,sendAmount,null,
+        memoAddress,memoKey,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Long noMemoFreeNet = PublicMethed.getTransactionInfoById(txidWithNoMemo,blockingStubFull).get().getReceipt().getNetUsage();
+    logger.info("freeNet:" + freeNet);
+    logger.info("noMemoFreeNet:" + noMemoFreeNet);
+    Assert.assertTrue(noMemoFreeNet + 9 == freeNet);
+
+
+
 
 
   }
