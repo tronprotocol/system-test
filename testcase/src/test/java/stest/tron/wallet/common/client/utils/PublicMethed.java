@@ -211,6 +211,14 @@ public class PublicMethed {
         logger.info("transaction == null");
         return null;
       }
+
+      Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
+      builder1.setData(ByteString.copyFromUtf8("PAY FEE"));
+      Transaction.Builder builder2 = transaction.toBuilder();
+      builder2.setRawData(builder1);
+      transaction = builder2.build();
+
+
       transaction = signTransaction(ecKey, transaction);
 
       GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
@@ -725,7 +733,7 @@ public class PublicMethed {
       WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(),
-        blockingStubFull) == 0) {
+        blockingStubFull) <= 0) {
       return freezeBalanceV1(addRess,freezeBalance,freezeDuration,0,priKey,blockingStubFull);
     } else {
       return freezeBalanceV2(addRess,freezeBalance,0,priKey,blockingStubFull);
@@ -2245,7 +2253,7 @@ public class PublicMethed {
       }
     }
 
-    return -1L;
+    return 0L;
 
 
   }
@@ -3878,6 +3886,12 @@ public class PublicMethed {
       return false;
     }
     Transaction transaction = transactionExtention.getTransaction();
+    Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
+    builder1.setData(ByteString.copyFromUtf8("PAY FEE"));
+    Transaction.Builder builder2 = transaction.toBuilder();
+    builder2.setRawData(builder1);
+    transaction = builder2.build();
+
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       System.out.println("Transaction is empty");
       return false;

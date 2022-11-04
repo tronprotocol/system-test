@@ -1195,7 +1195,7 @@ public class HttpMethed {
           httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
     }
 
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
       return freezeBalanceV2(
           httpNode, ownerAddress, frozenBalance, resourceCode, null,fromKey);
     }
