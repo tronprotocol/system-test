@@ -534,7 +534,7 @@ public class HttpMethed {
 
       }
     }
-    return -1L;
+    return 0L;
 
   }
 

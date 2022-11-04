@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -156,7 +157,11 @@ public class WalletTestAccount012 {
   }
 
   @Test(enabled = true,description = "Tron power is not allow to others")
-  public void test03TronPowerIsNotAllowToOthers() {
+  public void test03TronPowerIsNotAllowToOthers() throws Exception{
+    if(!PublicMethed.tronPowerProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping tronPower test case");
+    }
+
     Assert.assertFalse(PublicMethed.freezeBalanceGetTronPower(frozenAddress,
         frozenAmountForTronPower, 0,2,
         ByteString.copyFrom(foundationAddress),frozenKey,blockingStubFull));
