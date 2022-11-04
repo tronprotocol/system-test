@@ -517,6 +517,10 @@ public class HttpMethed {
     return getProposalValue(http,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0;
   }
 
+  public static Boolean proposalTronPowerIsOpen(String http) {
+    return getProposalValue(http,ProposalEnum.GetAllowNewResourceModel.getProposalName()) > 0;
+  }
+
   /** constructor. */
   public static Long getProposalValue(String httpNode,String proposalName) {
     response = HttpMethed.getChainParameters(httpNode);

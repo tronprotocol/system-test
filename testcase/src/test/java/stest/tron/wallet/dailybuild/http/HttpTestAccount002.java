@@ -361,7 +361,8 @@ public class HttpTestAccount002 {
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
     response = HttpMethed
-        .freezeBalance(httpnode, freezeBalanceAddress, frozenBalance, 0, 2, null,
+        .freezeBalance(httpnode, freezeBalanceAddress, frozenBalance, 0,
+            HttpMethed.proposalTronPowerIsOpen(httpnode) ? 2 : 0, null,
             freezeBalanceKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -385,7 +386,7 @@ public class HttpTestAccount002 {
     //UnFreeze balance with energy for others
 
     response = HttpMethed
-        .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,2, null,
+        .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,HttpMethed.proposalTronPowerIsOpen(httpnode) ? 2 : 0, null,
             freezeBalanceKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);

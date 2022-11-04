@@ -82,7 +82,8 @@ public class HttpTestAccount003 {
   public void test02VoteWitnessAccount() {
     // Freeze balance
     response =
-        HttpMethed.freezeBalance(httpnode, updateAccountAddress, frozenBalance, 0, 2, updateAccountKey);
+        HttpMethed.freezeBalance(httpnode, updateAccountAddress, frozenBalance, 0,
+            HttpMethed.proposalTronPowerIsOpen(httpnode) ? 2 : 0, updateAccountKey);
     responseContent = HttpMethed.parseResponseContent(response);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.printJsonContent(responseContent);
