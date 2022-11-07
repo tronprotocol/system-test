@@ -349,7 +349,7 @@ public class HttpTestAccount002 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "FreezeBlance for tron power by http")
+  @Test(enabled = true, description = "FreezeBalance for tron power by http")
   public void test015FreezeTronPower() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
@@ -391,11 +391,7 @@ public class HttpTestAccount002 {
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    if(!HttpMethed.proposalFreezeV2IsOpen(httpSoliditynode)) {
-      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
-    } else {
-      Assert.assertEquals(afterBalance, berforeBalance);
-    }
+    Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
   }
 
 
