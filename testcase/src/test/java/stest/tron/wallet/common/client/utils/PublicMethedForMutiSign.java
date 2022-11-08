@@ -4397,7 +4397,7 @@ public class PublicMethedForMutiSign {
       long freezeDuration, int resourceCode, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, int permissionId,
       String[] permissionKeyString) {
-    if(PublicMethed.tronPowerProposalIsOpen(blockingStubFull)) {
+    if(!PublicMethed.tronPowerProposalIsOpen(blockingStubFull) && resourceCode == 2) {
       resourceCode = 1;
     }
     if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {

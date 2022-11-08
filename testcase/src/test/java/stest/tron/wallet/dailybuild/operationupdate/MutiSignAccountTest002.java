@@ -145,21 +145,22 @@ public class MutiSignAccountTest002 {
     Assert.assertEquals(fee, energyFee + netFee + updateAccountPermissionFee);
 
     balanceBefore = balanceAfter;
-    byte[] accountName = String.valueOf(System.currentTimeMillis()).getBytes();
-    Assert.assertTrue(PublicMethedForMutiSign.createAccount1(
-        ownerAddress, newAddress, ownerKey, blockingStubFull, 2, permissionKeyString));
-    Assert.assertTrue(
-        PublicMethedForMutiSign.setAccountId1(accountName,
-            ownerAddress, ownerKey, 2, blockingStubFull, permissionKeyString));
-    Assert.assertTrue(PublicMethedForMutiSign.sendcoinWithPermissionId(
-        newAddress, 100L, ownerAddress, 2, ownerKey, blockingStubFull, permissionKeyString));
-    Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceWithPermissionId(
-        ownerAddress, 1000000L, 0, 2, ownerKey, blockingStubFull, permissionKeyString));
-    Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceGetEnergyWithPermissionId(
-        ownerAddress, 1000000L, 0, PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 1, ownerKey, blockingStubFull, 2, permissionKeyString));
 
 
     if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      byte[] accountName = String.valueOf(System.currentTimeMillis()).getBytes();
+      Assert.assertTrue(PublicMethedForMutiSign.createAccount1(
+          ownerAddress, newAddress, ownerKey, blockingStubFull, 2, permissionKeyString));
+      Assert.assertTrue(
+          PublicMethedForMutiSign.setAccountId1(accountName,
+              ownerAddress, ownerKey, 2, blockingStubFull, permissionKeyString));
+      Assert.assertTrue(PublicMethedForMutiSign.sendcoinWithPermissionId(
+          newAddress, 100L, ownerAddress, 2, ownerKey, blockingStubFull, permissionKeyString));
+      Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceWithPermissionId(
+          ownerAddress, 1000000L, 0, 2, ownerKey, blockingStubFull, permissionKeyString));
+      Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceGetEnergyWithPermissionId(
+          ownerAddress, 1000000L, 0, PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 1, ownerKey, blockingStubFull, 2, permissionKeyString));
+
       Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceForReceiverWithPermissionId(
           ownerAddress, 1000000L, 0, 0, ByteString.copyFrom(newAddress),
           ownerKey, blockingStubFull, 2, permissionKeyString));
@@ -173,6 +174,7 @@ public class MutiSignAccountTest002 {
       String voteStr = Base58.encode58Check(witnessAddress);
       HashMap<String, String> smallVoteMap = new HashMap<String, String>();
       smallVoteMap.put(voteStr, "1");
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
       Assert.assertTrue(PublicMethedForMutiSign.voteWitnessWithPermissionId(
           smallVoteMap, ownerAddress, ownerKey, blockingStubFull, 2, permissionKeyString));
 
@@ -180,7 +182,7 @@ public class MutiSignAccountTest002 {
 
       balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
       logger.info("balanceAfter: " + balanceAfter);
-      Assert.assertEquals(balanceBefore - balanceAfter, multiSignFee * 10 + 2000000 + 100);
+      Assert.assertEquals(balanceBefore - balanceAfter, multiSignFee * 10 + 1000000 + 100);
 
       Assert.assertTrue(
           PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
