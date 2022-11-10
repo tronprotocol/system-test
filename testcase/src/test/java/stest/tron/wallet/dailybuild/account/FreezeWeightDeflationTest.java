@@ -80,6 +80,7 @@ public class FreezeWeightDeflationTest {
   public void test01FreezeNetCauseWeightDeflationTest() {
     final Long beforeNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalNetWeight();
+    logger.info("before:" + beforeNetWeight);
 
     PublicMethed.freezeBalance(frozen1Address,frozenAmount,0,frozen1Key,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -89,7 +90,7 @@ public class FreezeWeightDeflationTest {
 
 
 
-    PublicMethed.freezeBalance(frozen1Address,frozenAmount,0,frozen1Key,blockingStubFull);
+    Assert.assertTrue(PublicMethed.freezeBalance(frozen1Address,frozenAmount,0,frozen1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalNetWeight();
@@ -101,6 +102,7 @@ public class FreezeWeightDeflationTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalNetWeight();
+    logger.info("afterNetWeight:" + afterNetWeight);
     Assert.assertTrue(afterNetWeight - beforeNetWeight == 0);
 
 
@@ -151,6 +153,7 @@ public class FreezeWeightDeflationTest {
     Long afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalEnergyWeight();
     Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 2);
+    Assert.assertTrue(PublicMethed.getAccountResource(frozen1Address,blockingStubFull).getTotalNetLimit() == 3);
 
 
 
@@ -162,6 +165,8 @@ public class FreezeWeightDeflationTest {
     afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalEnergyWeight();
     Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 0);
+
+    Assert.assertTrue(PublicMethed.getAccountResource(frozen1Address,blockingStubFull).getTotalNetLimit() == 0);
   }
 
 
@@ -177,13 +182,13 @@ public class FreezeWeightDeflationTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalNetWeight();
-    Assert.assertTrue(beforeNetWeight - afterNetWeight == 3);
+    Assert.assertTrue(afterNetWeight - beforeNetWeight == 3);
 
 
 
     Assert.assertTrue(PublicMethed.unFreezeBalance(frozen1Address,frozen1Key,
         0,receiver2Address,blockingStubFull));
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozen1Address,frozen1Key,
+    Assert.assertTrue(PublicMethed.unFreezeBalance(frozen2Address,frozen2Key,
         0,receiver2Address,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
