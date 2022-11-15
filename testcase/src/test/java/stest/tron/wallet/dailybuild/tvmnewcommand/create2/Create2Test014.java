@@ -143,6 +143,7 @@ public class Create2Test014 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
@@ -254,6 +255,7 @@ public class Create2Test014 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
@@ -332,6 +334,7 @@ public class Create2Test014 {
         PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
@@ -447,6 +450,7 @@ public class Create2Test014 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
@@ -474,7 +478,6 @@ public class Create2Test014 {
         "plusOne()", "#", false, callValue,
         1000000000L, "0", 0, user001Address, user001Key,
         blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
