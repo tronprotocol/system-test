@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+  <context:component-scan base-package="org.tron"/>
+
+  <bean id="creatorCounter" class="org.tron.stresstest.dispatch.creator.CreatorCounter"></bean>
+  <bean id="dispatcher" class="org.tron.stresstest.dispatch.strategy.Dispatcher">
+    <property name="source">
+      <list>
+        <ref bean="mutil"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="level1Strategy" class="org.tron.stresstest.dispatch.strategy.Level1Strategy"/>
+  <bean id="mutil" parent="level1Strategy">
+    <property name="name" value="mutil"/>
+    <property name="begin" value="0"/>
+    <property name="end" value="99"/>
+    <property name="source">
+  <list>
+<ref bean="transferTRC20"/>
+<ref bean="freezeEnergy"/>
+<ref bean="niceTransferAssetTransaction"/>
+<ref bean="niceTransferTransaction"/>
+      </list>
+    </property>
+  </bean>
+
+<bean id="transferTRC20" class="org.tron.stresstest.dispatch.creator.contract.TransferTrc20Creator">
+<property name="name" value="transferTRC20"/>
+<property name="begin" value="0"/>
+<property name="end" value="39"/>
+</bean>
+<bean id="freezeEnergy" class="org.tron.stresstest.dispatch.creator.freeze.FreezeEnergyCreator">
+<property name="name" value="freezeEnergy"/>
+<property name="begin" value="40"/>
+<property name="end" value="49"/>
+</bean>
+<bean id="niceTransferAssetTransaction" class="org.tron.stresstest.dispatch.creator.asset.NiceTransferAssetTransactionCreator">
+<property name="name" value="niceTransferAssetTransaction"/>
+<property name="begin" value="50"/>
+<property name="end" value="69"/>
+</bean>
+<bean id="niceTransferTransaction" class="org.tron.stresstest.dispatch.creator.transfer.NiceTransferTransactionCreator">
+<property name="name" value="niceTransferTransaction"/>
+<property name="begin" value="70"/>
+<property name="end" value="99"/>
+</bean>
+
+</beans>

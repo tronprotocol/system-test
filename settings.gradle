@@ -1,4 +1,0 @@
-rootProject.name = 'system-test'
-include 'protocol'
-include 'testcase'
-
