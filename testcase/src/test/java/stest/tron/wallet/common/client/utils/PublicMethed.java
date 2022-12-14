@@ -4291,8 +4291,14 @@ public class PublicMethed {
             .setFromAddress(fromAddressBs)
             .setToAddress(toAddressBs)
             .build();
-    DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResource(request);
-    return Optional.ofNullable(delegatedResource);
+    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+      DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResourceV2(request);
+      return Optional.ofNullable(delegatedResource);
+    } else {
+      DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResource(request);
+      return Optional.ofNullable(delegatedResource);
+    }
+
   }
 
   /** constructor. */
@@ -7355,11 +7361,24 @@ public class PublicMethed {
   }
 
 
-
   /** constructor. */
   public static Boolean delegateResourceV2(byte[] addressByte,
       long delegateAmount,
       int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return delegateResourceV2Lock(addressByte,delegateAmount,resourceCode,false,receiverAddress,priKey,
+        blockingStubFull);
+  }
+
+
+
+  /** constructor. */
+  public static Boolean delegateResourceV2Lock(byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      boolean lock,
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -7379,7 +7398,8 @@ public class PublicMethed {
         .setOwnerAddress(byteAddress)
         .setBalance(delegateAmount)
         .setReceiverAddress(byteReceiverAddress)
-        .setResourceValue(resourceCode);
+        .setResourceValue(resourceCode)
+        .setLock(lock);
     DelegateResourceContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.delegateResource(contract);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
