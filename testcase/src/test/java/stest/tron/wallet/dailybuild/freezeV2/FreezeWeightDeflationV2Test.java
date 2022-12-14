@@ -1,9 +1,7 @@
-package stest.tron.wallet.dailybuild.account;
+package stest.tron.wallet.dailybuild.freezeV2;
 
-import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
@@ -11,18 +9,15 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
-import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class FreezeWeightDeflationTest {
+public class FreezeWeightDeflationV2Test {
   private static final long sendAmount = 1000000000L;
   private static final long frozenAmount = 1500000L;
   private final String foundationKey = Configuration.getByPath("testng.conf")
@@ -64,11 +59,11 @@ public class FreezeWeightDeflationTest {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+    if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       if (channelFull != null) {
         channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
       }
-      throw new SkipException("Skipping freezeV1 test case");
+      throw new SkipException("Skipping freezeV2 test case");
     }
 
 
@@ -81,14 +76,20 @@ public class FreezeWeightDeflationTest {
     Assert.assertTrue(PublicMethed.sendcoin(receiver2Address, 1L,
         foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(foundationAddress,frozenAmount * 8,
-        0,0,receiver1Address,foundationKey,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(foundationAddress,frozenAmount * 8,
-        0,1,receiver1Address,foundationKey,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(foundationAddress,frozenAmount * 8,
-        0,0,receiver2Address,foundationKey,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(foundationAddress,frozenAmount * 8,
-        0,1,receiver2Address,foundationKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(foundationAddress,frozenAmount * 30,0,
+        foundationKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(foundationAddress,frozenAmount * 30,1,
+        foundationKey,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Assert.assertTrue(PublicMethed.delegateResourceV2(foundationAddress,frozenAmount * 8,
+        0,receiver1Address,foundationKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(foundationAddress,frozenAmount * 8,
+        1,receiver1Address,foundationKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(foundationAddress,frozenAmount * 8,
+        0,receiver2Address,foundationKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(foundationAddress,frozenAmount * 8,
+        1,receiver2Address,foundationKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
@@ -100,7 +101,7 @@ public class FreezeWeightDeflationTest {
         .getTotalEnergyWeight();
     logger.info("before:" + beforeNetWeight);
 
-    PublicMethed.freezeBalance(frozen1Address,frozenAmount,0,frozen1Key,blockingStubFull);
+    Assert.assertTrue(PublicMethed.freezeBalance(frozen1Address,frozenAmount,0,frozen1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalNetWeight();
@@ -119,8 +120,23 @@ public class FreezeWeightDeflationTest {
 
 
 
-    PublicMethed.unFreezeBalance(frozen1Address,frozen1Key,0,null,blockingStubFull);
+
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozen1Address,frozen1Key,
+        frozenAmount * 2,0,blockingStubFull));
+
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Long unfreezeTimestamp = PublicMethed.queryAccount(frozen1Address,blockingStubFull)
+        .getUnfrozenV2(0).getUnfreezeExpireTime();
+    int retryTime = 0;
+    while (System.currentTimeMillis() < unfreezeTimestamp && retryTime++ < 100) {
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+    }
+
+    Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozen1Address,frozen1Key,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
     afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalNetWeight();
     logger.info("afterNetWeight:" + afterNetWeight);
@@ -153,6 +169,8 @@ public class FreezeWeightDeflationTest {
 
     Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(frozen1Address,frozenAmount,0,1,frozen1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
     afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalEnergyWeight();
     Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 3);
@@ -161,8 +179,21 @@ public class FreezeWeightDeflationTest {
     Assert.assertTrue(afterNetWeight - beforeNetWeight == 0);
 
 
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozen1Address,frozen1Key,1,null,blockingStubFull));
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozen1Address,frozen1Key,frozenAmount * 2,1,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Long unfreezeTimestamp = PublicMethed.queryAccount(frozen1Address,blockingStubFull)
+        .getUnfrozenV2(0).getUnfreezeExpireTime();
+    int retryTime = 0;
+    while (System.currentTimeMillis() < unfreezeTimestamp && retryTime++ < 100) {
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+    }
+
+    Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozen1Address,frozen1Key,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
+
     afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
         .getTotalEnergyWeight();
     Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 0);
@@ -172,83 +203,6 @@ public class FreezeWeightDeflationTest {
   }
 
 
-  @Test(enabled = true, description = "Delegate energy to two receiver cause weight deflation test")
-  public void test03DelegateEnergyToTwoReceiverCauseWeightDeflationTest() {
-    //pre account status
-    Assert.assertTrue(PublicMethed.freezeBalance(frozen1Address,frozenAmount * 4,0,frozen1Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(frozen1Address,frozenAmount * 5,0,1,frozen1Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalance(frozen2Address,frozenAmount * 6,0,frozen2Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(frozen2Address,frozenAmount * 7,0,1,frozen2Key,blockingStubFull));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    final Long beforeEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalEnergyWeight();
-    final Long beforeNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalNetWeight();
-    logger.info("beforeEnergyWeight:" + beforeEnergyWeight);
-
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen1Address,frozenAmount,
-        0,1,receiver1Address,frozen1Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen1Address,frozenAmount,
-        0,1,receiver2Address,frozen1Key,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalEnergyWeight();
-    logger.info("afterEnergyWeight:" + afterEnergyWeight);
-    Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 2);
-    Long afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalNetWeight();
-    Assert.assertTrue(afterNetWeight - beforeNetWeight == 0);
-
-
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozen1Address,frozen1Key,
-        1,receiver1Address,blockingStubFull));
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozen1Address,frozen1Key,
-        1,receiver2Address,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalEnergyWeight();
-    Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 0);
-    afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalNetWeight();
-    Assert.assertTrue(afterNetWeight - beforeNetWeight == 0);
-
-  }
-
-
-  @Test(enabled = true, description = "Two account delegate net to one receiver cause weight deflation test")
-  public void test04TwoAccountDelegateNetToOneReceiverCauseWeightDeflationTest() {
-    final Long beforeEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalEnergyWeight();
-    final Long beforeNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalNetWeight();
-
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen1Address,frozenAmount,
-        0,0,receiver2Address,frozen1Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen2Address,frozenAmount,
-        0,0,receiver2Address,frozen2Key,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalNetWeight();
-    Assert.assertTrue(afterNetWeight - beforeNetWeight == 3);
-    Long afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalEnergyWeight();
-    Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 0);
-
-
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozen1Address,frozen1Key,
-        0,receiver2Address,blockingStubFull));
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozen2Address,frozen2Key,
-        0,receiver2Address,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    afterNetWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalNetWeight();
-    Assert.assertTrue(afterNetWeight - beforeNetWeight == 0);
-    afterEnergyWeight = PublicMethed.getAccountResource(frozen1Address,blockingStubFull)
-        .getTotalEnergyWeight();
-    Assert.assertTrue(afterEnergyWeight - beforeEnergyWeight == 0);
-  }
-  
 
   /**
    * constructor.

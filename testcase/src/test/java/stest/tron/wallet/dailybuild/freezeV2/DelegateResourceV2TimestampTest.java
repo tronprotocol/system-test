@@ -1,4 +1,4 @@
-package stest.tron.wallet.dailybuild.account;
+package stest.tron.wallet.dailybuild.freezeV2;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -19,9 +19,9 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class DelegateResourceTimestampTest {
-  private static final long sendAmount = 10000000L;
-  private static final long frozenAmount = 1000001L;
+public class DelegateResourceV2TimestampTest {
+  private static final long sendAmount = 100000000L;
+  private static final long frozenAmount = 10000000L;
   private final String foundationKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
   private final byte[] foundationAddress = PublicMethed.getFinalAddress(foundationKey);
@@ -62,12 +62,14 @@ public class DelegateResourceTimestampTest {
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
-    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+
+    if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       if (channelFull != null) {
         channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
       }
-      throw new SkipException("Skipping freezeV1 test case");
+      throw new SkipException("Skipping freezeV2 test case");
     }
+
 
 
     Assert.assertTrue(PublicMethed.sendcoin(frozen1Address, sendAmount,
@@ -80,23 +82,34 @@ public class DelegateResourceTimestampTest {
     Assert.assertTrue(PublicMethed.sendcoin(receiver3Address, sendAmount,
         foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen1Address,frozenAmount,
-        0,0,receiver1Address,frozen1Key,blockingStubFull));
+
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozen1Address,frozenAmount,0,
+        frozen1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver1Address,frozenAmount,0,
+        receiver1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver2Address,frozenAmount,0,
+        receiver2Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver3Address,frozenAmount,0,
+        receiver3Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen1Address,frozenAmount,
-        0,0,receiver2Address,frozen1Key,blockingStubFull));
+
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
+        0,receiver1Address,frozen1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen1Address,frozenAmount,
-        0,0,receiver3Address,frozen1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
+        0,receiver2Address,frozen1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(receiver1Address,frozenAmount,
-        0,0,frozen1Address,receiver1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
+        0,receiver3Address,frozen1Key,blockingStubFull));
+
+    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver1Address,frozenAmount / 10,
+        0,frozen1Address,receiver1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(receiver2Address,frozenAmount,
-        0,0,frozen1Address,receiver2Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver2Address,frozenAmount / 10,
+        0,frozen1Address,receiver2Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(receiver3Address,frozenAmount,
-        0,0,frozen1Address,receiver3Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver3Address,frozenAmount / 10,
+        0,frozen1Address,receiver3Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
@@ -110,8 +123,8 @@ public class DelegateResourceTimestampTest {
     Assert.assertEquals(toAccountList.get(2).toByteArray(),receiver3Address);
 
 
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(frozen1Address,frozenAmount,
-        0,0,receiver1Address,frozen1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
+        0,receiver1Address,frozen1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
@@ -135,8 +148,8 @@ public class DelegateResourceTimestampTest {
     Assert.assertEquals(fromAccountList.get(2).toByteArray(),receiver3Address);
 
 
-    Assert.assertTrue(PublicMethed.freezeBalanceV1ForReceiver(receiver1Address,frozenAmount,
-        0,0,frozen1Address,receiver1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver1Address,frozenAmount / 10,
+        0,frozen1Address,receiver1Key,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 

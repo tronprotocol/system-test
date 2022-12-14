@@ -69,6 +69,7 @@ public class HttpTestFreezeV2001 {
     }
 
     PublicMethed.printAddress(freezeBandwidthKey);
+    PublicMethed.printAddress(receiverResourceKey);
     //Send trx to test account
     response = HttpMethed.sendCoin(httpnode, fromAddress, freezeBandwidthAddress, amount, testKey002);
     response = HttpMethed.sendCoin(httpnode, fromAddress, freezeEnergyAddress, amount, testKey002);
@@ -119,6 +120,7 @@ public class HttpTestFreezeV2001 {
     Long unfreezeExpireTime = unfrozenV2.getJSONObject(0).getLong("unfreeze_expire_time");
     logger.info("unfrozenBalance:" + unfrozenBalance);
     logger.info("unfreezeAmount:" + unfreezeAmount);
+    logger.info("unfreezeExpireTime:" + unfreezeExpireTime);
     Assert.assertEquals(unfreezeAmount,unfrozenBalance);
     Assert.assertTrue(System.currentTimeMillis() < unfreezeExpireTime);
     Assert.assertTrue(!unfrozenV2.contains("type"));
@@ -193,10 +195,10 @@ public class HttpTestFreezeV2001 {
     frozenV2 = responseContent.getJSONArray("frozenV2");
     afterFreezeBalance = frozenV2.getJSONObject(0).getLong("amount");
     Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == delegateAmount);
-    Long delegatedFrozenBalanceForBandwidth = responseContent.getLong("delegated_frozen_balance_for_bandwidth");
+    Long delegatedFrozenBalanceForBandwidth = responseContent.getLong("delegated_frozenV2_balance_for_bandwidth");
     Assert.assertEquals(delegatedFrozenBalanceForBandwidth,delegateAmount);
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,receiverResourceAddress));
-    Long acquiredDelegatedFrozenBalanceForBandwidth = responseContent.getLong("acquired_delegated_frozen_balance_for_bandwidth");
+    Long acquiredDelegatedFrozenBalanceForBandwidth = responseContent.getLong("acquired_delegated_frozenV2_balance_for_bandwidth");
     Assert.assertEquals(acquiredDelegatedFrozenBalanceForBandwidth,delegateAmount);
 
 
@@ -220,10 +222,10 @@ public class HttpTestFreezeV2001 {
     frozenV2 = responseContent.getJSONArray("frozenV2");
     afterFreezeBalance = frozenV2.getJSONObject(0).getLong("amount");
     Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == -delegateAmount);
-    Long delegatedFrozenBalanceForBandwidth = responseContent.getLong("delegated_frozen_balance_for_bandwidth");
+    Long delegatedFrozenBalanceForBandwidth = responseContent.getLong("delegated_frozenV2_balance_for_bandwidth");
     Assert.assertNull(delegatedFrozenBalanceForBandwidth);
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,receiverResourceAddress));
-    Long acquiredDelegatedFrozenBalanceForBandwidth = responseContent.getLong("acquired_delegated_frozen_balance_for_bandwidth");
+    Long acquiredDelegatedFrozenBalanceForBandwidth = responseContent.getLong("acquired_delegated_frozenV2_balance_for_bandwidth");
     Assert.assertNull(acquiredDelegatedFrozenBalanceForBandwidth);
 
 
@@ -237,7 +239,7 @@ public class HttpTestFreezeV2001 {
   public void test007DelegateResourceOfEnergyForOthers() {
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,freezeEnergyAddress));
     JSONArray frozenV2 = responseContent.getJSONArray("frozenV2");
-    beforeFreezeBalance = frozenV2.getJSONObject(0).getLong("amount");
+    beforeFreezeBalance = frozenV2.getJSONObject(1).getLong("amount");
 
     //Freeze balance with bandwidth for others
     response = HttpMethed.delegateresource(httpnode,freezeEnergyAddress,delegateAmount,1,receiverResourceAddress,freezeEnergyKey);
@@ -245,12 +247,12 @@ public class HttpTestFreezeV2001 {
     HttpMethed.waitToProduceOneBlock(httpnode);
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,freezeEnergyAddress));
     frozenV2 = responseContent.getJSONArray("frozenV2");
-    afterFreezeBalance = frozenV2.getJSONObject(0).getLong("amount");
+    afterFreezeBalance = frozenV2.getJSONObject(1).getLong("amount");
     Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == delegateAmount);
-    Long delegatedFrozenBalanceForBandwidth = responseContent.getJSONObject("account_resource").getLong("delegated_frozen_balance_for_energy");
+    Long delegatedFrozenBalanceForBandwidth = responseContent.getJSONObject("account_resource").getLong("delegated_frozenV2_balance_for_energy");
     Assert.assertEquals(delegatedFrozenBalanceForBandwidth,delegateAmount);
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,receiverResourceAddress));
-    Long acquiredDelegatedFrozenBalanceForBandwidth = responseContent.getJSONObject("account_resource").getLong("acquired_delegated_frozen_balance_for_energy");
+    Long acquiredDelegatedFrozenBalanceForBandwidth = responseContent.getJSONObject("account_resource").getLong("acquired_delegated_frozenV2_balance_for_energy");
     Assert.assertEquals(acquiredDelegatedFrozenBalanceForBandwidth,delegateAmount);
 
 
@@ -264,7 +266,7 @@ public class HttpTestFreezeV2001 {
   public void test008UndelegateResourceOfEnergyForOthers() {
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,freezeEnergyAddress));
     JSONArray frozenV2 = responseContent.getJSONArray("frozenV2");
-    beforeFreezeBalance = frozenV2.getJSONObject(0).getLong("amount");
+    beforeFreezeBalance = frozenV2.getJSONObject(1).getLong("amount");
 
     //Freeze balance with bandwidth for others
     response = HttpMethed.unDelegateresource(httpnode,freezeEnergyAddress,delegateAmount,1,receiverResourceAddress,freezeEnergyKey);
@@ -272,12 +274,12 @@ public class HttpTestFreezeV2001 {
     HttpMethed.waitToProduceOneBlock(httpnode);
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,freezeEnergyAddress));
     frozenV2 = responseContent.getJSONArray("frozenV2");
-    afterFreezeBalance = frozenV2.getJSONObject(0).getLong("amount");
+    afterFreezeBalance = frozenV2.getJSONObject(1).getLong("amount");
     Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == -delegateAmount);
-    Long delegatedFrozenBalanceForEnergy = responseContent.getJSONObject("account_resource").getLong("delegated_frozen_balance_for_energy");
+    Long delegatedFrozenBalanceForEnergy = responseContent.getJSONObject("account_resource").getLong("delegated_frozenV2_balance_for_energy");
     Assert.assertNull(delegatedFrozenBalanceForEnergy);
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode,receiverResourceAddress));
-    Long acquiredDelegatedFrozenBalanceForEnergy = responseContent.getJSONObject("account_resource").getLong("acquired_delegated_frozen_balance_for_energy");
+    Long acquiredDelegatedFrozenBalanceForEnergy = responseContent.getJSONObject("account_resource").getLong("acquired_delegated_frozenV2_balance_for_energy");
     Assert.assertNull(acquiredDelegatedFrozenBalanceForEnergy);
 
 
@@ -330,7 +332,6 @@ public class HttpTestFreezeV2001 {
     response = HttpMethed
         .unFreezeBalance(httpnode, fromAddress, frozenBalance,0, freezeBandwidthAddress,
             testKey002);
-    Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.freedResource(httpnode, freezeBandwidthAddress, fromAddress, freezeBandwidthKey);
     HttpMethed.disConnect();
   }

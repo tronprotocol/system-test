@@ -4316,16 +4316,19 @@ public class PublicMethed {
   /** constructor. */
   public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndex(
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    // Wallet.setAddressPreFixByte()();
-
     ByteString addressBs = ByteString.copyFrom(address);
-
     BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(addressBs).build();
-
-    DelegatedResourceAccountIndex accountIndex =
-        blockingStubFull.getDelegatedResourceAccountIndex(bytesMessage);
-    return Optional.ofNullable(accountIndex);
+    if(freezeV2ProposalIsOpen(blockingStubFull)) {
+      DelegatedResourceAccountIndex accountIndex =
+          blockingStubFull.getDelegatedResourceAccountIndexV2(bytesMessage);
+      return Optional.ofNullable(accountIndex);
+    } else {
+      DelegatedResourceAccountIndex accountIndex =
+          blockingStubFull.getDelegatedResourceAccountIndex(bytesMessage);
+      return Optional.ofNullable(accountIndex);
+    }
   }
+
 
   /** constructor. */
   public static Optional<DelegatedResourceAccountIndex>
