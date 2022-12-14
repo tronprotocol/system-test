@@ -106,7 +106,7 @@ public class FreezeBalanceV2Test001 {
 
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
 
-    Assert.assertEquals(account.getFrozenV2Count(),1);
+    Assert.assertEquals(account.getFrozenV2Count(),3);
     Assert.assertTrue(account.getFrozenV2(0).getAmount() == freezeBandwidthBalance);
     Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 0);
 
@@ -143,9 +143,9 @@ public class FreezeBalanceV2Test001 {
 
     Account account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
 
-    Assert.assertEquals(account.getFrozenV2Count(),1);
-    Assert.assertTrue(account.getFrozenV2(0).getAmount() == freezeEnergyBalance);
-    Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 1);
+    Assert.assertEquals(account.getFrozenV2Count(),3);
+    Assert.assertTrue(account.getFrozenV2(1).getAmount() == freezeEnergyBalance);
+    Assert.assertTrue(account.getFrozenV2(1).getTypeValue() == 1);
 
     accountResource = PublicMethed
         .getAccountResource(frozenEnergyAddress, blockingStubFull);
@@ -185,7 +185,7 @@ public class FreezeBalanceV2Test001 {
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
 
-    Assert.assertEquals(account.getFrozenV2Count(),1);
+    Assert.assertEquals(account.getFrozenV2Count(),3);
     Assert.assertTrue(account.getFrozenV2(0).getAmount() == 0);
     Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 0);
 
@@ -231,9 +231,9 @@ public class FreezeBalanceV2Test001 {
 
     Account account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
 
-    Assert.assertEquals(account.getFrozenV2Count(),1);
-    Assert.assertTrue(account.getFrozenV2(0).getAmount() == 0);
-    Assert.assertTrue(account.getFrozenV2(0).getTypeValue() == 1);
+    Assert.assertEquals(account.getFrozenV2Count(),3);
+    Assert.assertTrue(account.getFrozenV2(1).getAmount() == 0);
+    Assert.assertTrue(account.getFrozenV2(1).getTypeValue() == 1);
 
     accountResource = PublicMethed
         .getAccountResource(frozenEnergyAddress, blockingStubFull);

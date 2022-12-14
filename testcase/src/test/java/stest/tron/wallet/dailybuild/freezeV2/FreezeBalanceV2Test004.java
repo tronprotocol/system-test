@@ -123,13 +123,15 @@ public class FreezeBalanceV2Test004 {
       maxUnfreezeExpireTime = Math.max(maxUnfreezeExpireTime,unFreezeV2.getUnfreezeExpireTime());
     }
 
+    logger.info("maxUnfreezeExpireTime" + maxUnfreezeExpireTime);
     Assert.assertTrue(totalUnfreezeBalance == maxUnfreezeListCount * unfreezeBalance);
 
     int retryTimes = 0;
-    while (retryTimes++ <= periodTime / 6000L && System.currentTimeMillis() +2000 < maxUnfreezeExpireTime) {
+    while (retryTimes++ <= periodTime / 3000L && System.currentTimeMillis() - 4000 <= maxUnfreezeExpireTime) {
+      logger.info("System.currentTimeMillis()" + System.currentTimeMillis());
       PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
-
+    logger.info("Final System.currentTimeMillis()" + System.currentTimeMillis());
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,0,blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -138,10 +140,10 @@ public class FreezeBalanceV2Test004 {
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     Long afterBalance = account.getBalance();
-    Assert.assertTrue(account.getUnfrozenV2Count() == 1);
+    Assert.assertEquals(account.getUnfrozenV2Count(),1);
     Assert.assertTrue((afterBalance - beforeBalance) == totalUnfreezeBalance);
     Assert.assertTrue(transactionInfo.getWithdrawExpireAmount() == totalUnfreezeBalance);
-    Assert.assertTrue(transactionInfo.getUnfreezeAmount() == 0);
+    Assert.assertTrue(transactionInfo.getUnfreezeAmount() == unfreezeBalance);
 
 
 

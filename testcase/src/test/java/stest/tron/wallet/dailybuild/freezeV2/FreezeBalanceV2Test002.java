@@ -144,14 +144,14 @@ public class FreezeBalanceV2Test002 {
     final Long afterLenderNetLimit = accountResource.getNetLimit();
 
     Assert.assertTrue(beforeLenderFrozenAmount - afterLenderFrozenAmount == delegateBandwidthAmount);
-    Assert.assertTrue(account.getDelegatedFrozenBalanceForBandwidth() == delegateBandwidthAmount);
+    Assert.assertTrue(account.getDelegatedFrozenV2BalanceForBandwidth() == delegateBandwidthAmount);
 
     accountResource = PublicMethed
         .getAccountResource(receiveBandwidthAddress, blockingStubFull);
     final Long afterReceiverNetLimit = accountResource.getNetLimit();
     account = PublicMethed.queryAccount(receiveBandwidthAddress,blockingStubFull);
     final Long receiverAcquiredDelegatedFrozenBalanceForBandwidth = account
-        .getAcquiredDelegatedFrozenBalanceForBandwidth();
+        .getAcquiredDelegatedFrozenV2BalanceForBandwidth();
 
     Assert.assertTrue(afterLenderNetLimit + afterReceiverNetLimit >= beforeLenderNetLimit - 1
     && afterLenderNetLimit + afterReceiverNetLimit <= beforeLenderNetLimit + 1);
