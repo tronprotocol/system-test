@@ -35,6 +35,10 @@ import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockExtention;
 import org.tron.api.GrpcAPI.BytesMessage;
+import org.tron.api.GrpcAPI.CanDelegatedMaxSizeRequestMessage;
+import org.tron.api.GrpcAPI.CanDelegatedMaxSizeResponseMessage;
+import org.tron.api.GrpcAPI.CanWithdrawUnfreezeAmountRequestMessage;
+import org.tron.api.GrpcAPI.CanWithdrawUnfreezeAmountResponseMessage;
 import org.tron.api.GrpcAPI.DecryptNotes;
 import org.tron.api.GrpcAPI.DecryptNotes.NoteTx;
 import org.tron.api.GrpcAPI.DecryptNotesMarked;
@@ -4349,6 +4353,33 @@ public class PublicMethed {
         blockingStubFull.getDelegatedResourceAccountIndex(bytesMessage);
     return Optional.ofNullable(accountIndex);
   }
+
+
+  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSize(byte[] ownerAddress, int type,
+      WalletGrpc.WalletBlockingStub blockingStub) {
+    ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
+    CanDelegatedMaxSizeRequestMessage request = CanDelegatedMaxSizeRequestMessage.newBuilder()
+        .setOwnerAddress(ownerAddressBS)
+        .setType(type)
+        .build();
+    CanDelegatedMaxSizeResponseMessage canDelegatedMaxSizeResponseMessage;
+    canDelegatedMaxSizeResponseMessage = blockingStub.getCanDelegatedMaxSize(request);
+    return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
+  }
+
+
+  public static Optional<CanWithdrawUnfreezeAmountResponseMessage> getCanWithdrawUnfreezeAmount(
+      byte[] ownerAddress, long timestamp,WalletGrpc.WalletBlockingStub blockingStub) {
+    ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
+    CanWithdrawUnfreezeAmountRequestMessage request = CanWithdrawUnfreezeAmountRequestMessage.newBuilder()
+        .setOwnerAddress(ownerAddressBS)
+        .setTimestamp(timestamp)
+        .build();
+    CanWithdrawUnfreezeAmountResponseMessage canDelegatedMaxSizeResponseMessage;
+    canDelegatedMaxSizeResponseMessage = blockingStub.getCanWithdrawUnfreezeAmount(request);
+    return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
+  }
+
 
   /** constructor. */
   public static AssetIssueContract getAssetIssueByName(

@@ -217,6 +217,22 @@ public class FreezeBalanceV2Test002 {
     Assert.assertTrue(afterDelegateResourceAmount == 0);
   }
 
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Test GetCanDelegatedMaxSize api")
+  public void test03TestGetCanDelegatedMaxSizeApi() throws Exception {
+    Long canDelegatedMaxSize = Long.MAX_VALUE;
+    canDelegatedMaxSize = PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
+        .getMaxSize();
+    Assert.assertFalse(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSize + 1,
+        0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSize,
+        0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
+  }
+
   /**
    * constructor.
    */

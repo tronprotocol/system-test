@@ -273,6 +273,8 @@ public class FreezeBalanceV2Test001 {
     }
 
 
+    Long canWithdrawUnFreezeAmount = PublicMethed
+        .getCanWithdrawUnfreezeAmount(frozenEnergyAddress,System.currentTimeMillis(),blockingStubFull).get().getAmount();
     Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenBandwidthAddress,frozenBandwidthKey,blockingStubFull));
     Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenEnergyAddress,frozenEnergyKey,blockingStubFull));
 
@@ -301,6 +303,7 @@ public class FreezeBalanceV2Test001 {
     TransactionInfo transactionInfo = PublicMethed.getTransactionInfoById(PublicMethed.freezeV2Txid,blockingStubFull).get();
     Assert.assertTrue(transactionInfo.getWithdrawExpireAmount() == freezeEnergyBalance);
     Assert.assertTrue(transactionInfo.getUnfreezeAmount() == 0);
+    Assert.assertEquals(freezeEnergyBalance, canWithdrawUnFreezeAmount);
   }
   /**
    * constructor.
