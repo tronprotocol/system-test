@@ -224,12 +224,21 @@ public class FreezeBalanceV2Test002 {
    */
   @Test(enabled = true, description = "Test GetCanDelegatedMaxSize api")
   public void test03TestGetCanDelegatedMaxSizeApi() throws Exception {
-    Long canDelegatedMaxSize = Long.MAX_VALUE;
-    canDelegatedMaxSize = PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
+    Long canDelegatedMaxSizeWithNoNetUsed =  PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
         .getMaxSize();
-    Assert.assertFalse(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSize + 1,
+
+    Assert.assertTrue(PublicMethed.sendcoin(foundationAddress,1L,frozenBandwidthAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.sendcoin(foundationAddress,1L,frozenBandwidthAddress,frozenBandwidthKey,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Long canDelegatedMaxSizeWithNetUsed =  PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
+        .getMaxSize();
+    Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsed > canDelegatedMaxSizeWithNetUsed + 10);
+
+
+
+    Assert.assertFalse(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSizeWithNetUsed + 1,
         0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
-    Assert.assertTrue(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSize,
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSizeWithNetUsed,
         0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
   }
 
