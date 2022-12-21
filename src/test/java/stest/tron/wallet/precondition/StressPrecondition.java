@@ -280,6 +280,11 @@ public class StressPrecondition {
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(68L, 1L);
       }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getUnfreezeDelayDays") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(70L, 1L);
+      }
     }
         //proposalMap.put(40L, 1L);
     if (proposalMap.size() >= 1) {
