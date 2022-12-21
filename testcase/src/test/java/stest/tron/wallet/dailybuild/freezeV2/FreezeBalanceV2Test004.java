@@ -106,12 +106,20 @@ public class FreezeBalanceV2Test004 {
   public void test01MaxUnfreezeBalanceListIs32() throws Exception{
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     Long beforeBalance = account.getBalance();
+
+    PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress,blockingStubFull);
+    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress
+        ,blockingStubFull).get().getCount() == 32);
     int unfreezeTimes = 0;
     while (unfreezeTimes++ <= 50) {
       PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,0,blockingStubFull);
       Thread.sleep(100L);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress
+        ,blockingStubFull).get().getCount() == 0);
+
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     Assert.assertTrue(account.getUnfrozenV2Count() == maxUnfreezeListCount);

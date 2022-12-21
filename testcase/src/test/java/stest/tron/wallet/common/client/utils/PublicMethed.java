@@ -46,6 +46,8 @@ import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.GrpcAPI.DelegatedResourceMessage;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.ExchangeList;
+import org.tron.api.GrpcAPI.GetAvailableUnfreezeCountRequestMessage;
+import org.tron.api.GrpcAPI.GetAvailableUnfreezeCountResponseMessage;
 import org.tron.api.GrpcAPI.IvkDecryptAndMarkParameters;
 import org.tron.api.GrpcAPI.IvkDecryptParameters;
 import org.tron.api.GrpcAPI.NfParameters;
@@ -4382,6 +4384,18 @@ public class PublicMethed {
     CanWithdrawUnfreezeAmountResponseMessage canDelegatedMaxSizeResponseMessage;
     canDelegatedMaxSizeResponseMessage = blockingStub.getCanWithdrawUnfreezeAmount(request);
     return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
+  }
+
+
+  public static Optional<GetAvailableUnfreezeCountResponseMessage> getAvailableUnfreezeCount(
+      byte[] ownerAddress,WalletGrpc.WalletBlockingStub blockingStub) {
+    ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
+    GetAvailableUnfreezeCountRequestMessage request = GetAvailableUnfreezeCountRequestMessage.newBuilder()
+        .setOwnerAddress(ownerAddressBS)
+        .build();
+    GetAvailableUnfreezeCountResponseMessage getAvailableUnfreezeCountResponseMessage;
+    getAvailableUnfreezeCountResponseMessage = blockingStub.getAvailableUnfreezeCount(request);
+    return Optional.ofNullable(getAvailableUnfreezeCountResponseMessage);
   }
 
 
