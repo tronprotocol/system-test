@@ -1388,7 +1388,11 @@ public class PublicMethed {
     }
     // Test raw data
     Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
-    builder1.setData(ByteString.copyFromUtf8("12345678"));
+    StringBuffer stringBuffer = new StringBuffer();
+    while (stringBuffer.length() <= 100000) {
+      stringBuffer.append("12345678");
+    }
+    builder1.setData(ByteString.copyFromUtf8(stringBuffer.toString()));
     Transaction.Builder builder2 = transaction.toBuilder();
     builder2.setRawData(builder1);
     transaction = builder2.build();
