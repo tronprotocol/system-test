@@ -14,6 +14,8 @@ import org.tron.stresstest.dispatch.AbstractTransactionCreator;
 import org.tron.stresstest.dispatch.GoodCaseTransactonCreator;
 import org.tron.stresstest.dispatch.TransactionFactory;
 import org.tron.stresstest.dispatch.creator.CreatorCounter;
+import org.tron.core.Wallet;
+import org.tron.program.FullNode;
 
 
 @Setter
@@ -36,17 +38,24 @@ public class DelegateResourceCreator extends AbstractTransactionCreator implemen
     }
 
 
+    byte[] receiverAddress = getAddress(receiverKey);
+
+
+    receiverAddress = Wallet.decodeFromBase58Check(FullNode.accountQueue.poll());
+
+
+
     Contract.DelegateResourceContract contract;
     if(createFreezeBalanceV2Count.get() % 2 == 0L) {
       TransactionFactory.context.getBean(CreatorCounter.class).put(this.getClass().getName());
       contract = delegateResourceContract(getAddress(privateKey),
           new Random().nextInt(500000) + 1000000,
-          0,getAddress(receiverKey));
+          0,receiverAddress);
     } else {
       TransactionFactory.context.getBean(CreatorCounter.class).put(this.getClass().getName());
       contract = delegateResourceContract(getAddress(privateKey),
           new Random().nextInt(500000) + 1000000,
-          1,getAddress(receiverKey));
+          1,receiverAddress);
     }
 
     Protocol.Transaction transaction = createTransaction(contract, ContractType.DelegateResourceContract);
