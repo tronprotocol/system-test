@@ -36,11 +36,14 @@ public class NiceTransferTransactionCreator extends AbstractTransferTransactionC
 
     //ECKey ecKey = new ECKey(Utils.getRandom());
     //byte[] toAddress = ecKey.getAddress();
+    String addressString = FullNode.accountQueue.poll();
+    byte[] toAddress = Wallet.decodeFromBase58Check(addressString);
+
 
     Contract.TransferContract contract = Contract.TransferContract.newBuilder()
         .setOwnerAddress(ByteString.copyFrom(Wallet.decodeFromBase58Check(ownerAddress)))
         //.setToAddress(ByteString.copyFrom(toAddress))
-        .setToAddress(ByteString.copyFrom(Wallet.decodeFromBase58Check(FullNode.accountQueue.poll())))
+        .setToAddress(ByteString.copyFrom(toAddress))
         .setAmount(amount)
         .build();
 
@@ -51,6 +54,8 @@ public class NiceTransferTransactionCreator extends AbstractTransferTransactionC
     Transaction.Builder builder2 = transaction.toBuilder();
     builder2.setRawData(builder1);
     transaction = builder2.build();
+
+    FullNode.accountQueue.add(addressString);
 
     transaction = sign(transaction, ECKey.fromPrivate(ByteArray.fromHexString(privateKey)));
     return transaction;
