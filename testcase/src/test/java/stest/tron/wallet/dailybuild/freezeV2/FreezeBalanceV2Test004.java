@@ -151,7 +151,7 @@ public class FreezeBalanceV2Test004 {
     Assert.assertEquals(account.getUnfrozenV2Count(),1);
     Assert.assertTrue((afterBalance - beforeBalance) == totalUnfreezeBalance);
     Assert.assertTrue(transactionInfo.getWithdrawExpireAmount() == totalUnfreezeBalance);
-    Assert.assertTrue(transactionInfo.getUnfreezeAmount() == unfreezeBalance);
+    Assert.assertTrue(transactionInfo.getUnfreezeAmount() == 0);
 
 
 
