@@ -12,6 +12,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
+import org.tron.api.WalletSolidityGrpc;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -46,6 +47,10 @@ public class DelegateResourceV2TimestampTest {
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
+  private String soliditynode = Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+      .get(0);
+  private ManagedChannel channelSolidity = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
 
   /**
    * constructor.
@@ -69,7 +74,10 @@ public class DelegateResourceV2TimestampTest {
       }
       throw new SkipException("Skipping freezeV2 test case");
     }
-
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
+        .usePlaintext(true)
+        .build();
+    blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
 
     Assert.assertTrue(PublicMethed.sendcoin(frozen1Address, sendAmount,
@@ -117,6 +125,9 @@ public class DelegateResourceV2TimestampTest {
   public void test01GetDelegateResourceToAccountTimestamp() {
 
     List<ByteString> toAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getToAccountsList();
+    //query solidity
+    List<ByteString> toAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
+    Assert.assertEquals(toAccountListSolidity,toAccountList);
     Assert.assertTrue(toAccountList.size() == 3);
     Assert.assertEquals(toAccountList.get(0).toByteArray(),receiver1Address);
     Assert.assertEquals(toAccountList.get(1).toByteArray(),receiver2Address);
@@ -129,6 +140,11 @@ public class DelegateResourceV2TimestampTest {
 
 
     toAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getToAccountsList();
+    //query solidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
+    toAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
+    Assert.assertEquals(toAccountListSolidity,toAccountList);
+
     Assert.assertTrue(toAccountList.size() == 3);
     Assert.assertEquals(toAccountList.get(0).toByteArray(),receiver2Address);
     Assert.assertEquals(toAccountList.get(1).toByteArray(),receiver3Address);
@@ -142,6 +158,9 @@ public class DelegateResourceV2TimestampTest {
   public void test02GetDelegateResourceFromAccountTimestamp() {
 
     List<ByteString> fromAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getFromAccountsList();
+    //query solidity
+    List<ByteString> fromAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
+    Assert.assertEquals(fromAccountListSolidity,fromAccountList);
     Assert.assertTrue(fromAccountList.size() == 3);
     Assert.assertEquals(fromAccountList.get(0).toByteArray(),receiver1Address);
     Assert.assertEquals(fromAccountList.get(1).toByteArray(),receiver2Address);
@@ -154,6 +173,10 @@ public class DelegateResourceV2TimestampTest {
 
 
     fromAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getToAccountsList();
+    //querySolidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
+    fromAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
+    Assert.assertEquals(fromAccountListSolidity,fromAccountList);
     Assert.assertTrue(fromAccountList.size() == 3);
     Assert.assertEquals(fromAccountList.get(0).toByteArray(),receiver2Address);
     Assert.assertEquals(fromAccountList.get(1).toByteArray(),receiver3Address);

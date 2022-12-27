@@ -1020,6 +1020,18 @@ service WalletSolidity {
 
   rpc GetBurnTrx (EmptyMessage) returns (NumberMessage) {
   }
+  rpc GetDelegatedResourceV2 (DelegatedResourceMessage) returns (DelegatedResourceList) {
+  }
+  rpc GetDelegatedResourceAccountIndexV2 (BytesMessage) returns (DelegatedResourceAccountIndex) {
+  }
+  rpc GetCanDelegatedMaxSize (CanDelegatedMaxSizeRequestMessage) returns (CanDelegatedMaxSizeResponseMessage) {
+  }
+  rpc GetAvailableUnfreezeCount (GetAvailableUnfreezeCountRequestMessage)returns (GetAvailableUnfreezeCountResponseMessage) {
+  }
+  rpc GetCanWithdrawUnfreezeAmount (CanWithdrawUnfreezeAmountRequestMessage)returns (CanWithdrawUnfreezeAmountResponseMessage) {
+  }
+
+
 };
 
 service WalletExtension {

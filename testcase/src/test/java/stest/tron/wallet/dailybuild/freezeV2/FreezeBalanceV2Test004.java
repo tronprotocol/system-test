@@ -14,6 +14,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
+import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Account.UnFreezeV2;
 import org.tron.protos.Protocol.Transaction;
@@ -65,6 +66,10 @@ public class FreezeBalanceV2Test004 {
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
+  private String soliditynode = Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+      .get(0);
+  private ManagedChannel channelSolidity = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
 
   /**
    * constructor.
@@ -82,6 +87,10 @@ public class FreezeBalanceV2Test004 {
       }
       throw new SkipException("Skipping freezeV2 test case");
     }
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
+        .usePlaintext(true)
+        .build();
+    blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,
         foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(frozenEnergyAddress, sendAmount,
@@ -110,6 +119,9 @@ public class FreezeBalanceV2Test004 {
     PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress,blockingStubFull);
     Assert.assertTrue(PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress
         ,blockingStubFull).get().getCount() == 32);
+    //query solidity
+    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress
+        ,blockingStubFullSolidity).get().getCount() == 32);
     int unfreezeTimes = 0;
     while (unfreezeTimes++ <= 50) {
       PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,0,blockingStubFull);
@@ -119,6 +131,10 @@ public class FreezeBalanceV2Test004 {
 
     Assert.assertTrue(PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress
         ,blockingStubFull).get().getCount() == 0);
+    //query solidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
+    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress
+        ,blockingStubFullSolidity).get().getCount() == 0);
 
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
