@@ -126,6 +126,7 @@ public class DelegateResourceV2TimestampTest {
 
     List<ByteString> toAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getToAccountsList();
     //query solidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
     List<ByteString> toAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
     Assert.assertEquals(toAccountListSolidity,toAccountList);
     Assert.assertTrue(toAccountList.size() == 3);
@@ -159,6 +160,7 @@ public class DelegateResourceV2TimestampTest {
 
     List<ByteString> fromAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getFromAccountsList();
     //query solidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
     List<ByteString> fromAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
     Assert.assertEquals(fromAccountListSolidity,fromAccountList);
     Assert.assertTrue(fromAccountList.size() == 3);
