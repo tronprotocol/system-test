@@ -12,6 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
+import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Account.AccountResource;
 import org.tron.protos.Protocol.Transaction;
@@ -23,6 +24,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+import zmq.socket.pubsub.Pub;
 
 @Slf4j
 public class FreezeBalanceV2Test002 {
@@ -70,6 +72,10 @@ public class FreezeBalanceV2Test002 {
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
+  private String soliditynode = Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+      .get(0);
+  private ManagedChannel channelSolidity = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
 
   /**
    * constructor.
@@ -90,6 +96,10 @@ public class FreezeBalanceV2Test002 {
       }
       throw new SkipException("Skipping freezeV2 test case");
     }
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
+        .usePlaintext(true)
+        .build();
+    blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,
         foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(frozenEnergyAddress, sendAmount,
@@ -241,6 +251,11 @@ public class FreezeBalanceV2Test002 {
     Long canDelegatedMaxSizeWithNetUsed =  PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
         .getMaxSize();
     Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsed > canDelegatedMaxSizeWithNetUsed + 1000000);
+    //query solidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
+    Long canDelegatedMaxSizeWithNetUsedSolidity =  PublicMethed.getCanDelegatedMaxSizeSolidity(frozenBandwidthAddress,0,blockingStubFullSolidity).get()
+        .getMaxSize();
+    Assert.assertTrue(canDelegatedMaxSizeWithNetUsedSolidity > canDelegatedMaxSizeWithNetUsedSolidity + 1000000);
 
 
 
@@ -262,6 +277,12 @@ public class FreezeBalanceV2Test002 {
         .getMaxSize();
 
     Assert.assertTrue(canDelegatedMaxSizeWithNetUsed + canDelegatedMaxSizeWithOtherDelegatedToMe == freezeBandwidthBalance);
+    //query solidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
+    Long canDelegatedMaxSizeWithOtherDelegatedToMeSolidity =  PublicMethed.getCanDelegatedMaxSizeSolidity(frozenBandwidthAddress,0,blockingStubFullSolidity).get()
+        .getMaxSize();
+    Assert.assertTrue(canDelegatedMaxSizeWithNetUsedSolidity + canDelegatedMaxSizeWithOtherDelegatedToMeSolidity == freezeBandwidthBalance);
+
     Assert.assertTrue(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSizeWithOtherDelegatedToMe,
         0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
 
