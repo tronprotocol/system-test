@@ -895,7 +895,7 @@ public class PublicMethed {
       int resourceCode,
       byte[] receiverAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    if(getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull) == 1) {
+    if(freezeV2ProposalIsOpen(blockingStubFull)) {
       return unFreezeBalanceV2(address,priKey,0,resourceCode,blockingStubFull);
     } else {
       return unFreezeBalanceV1(address,priKey,resourceCode,receiverAddress,blockingStubFull);
@@ -2184,10 +2184,7 @@ public class PublicMethed {
       ByteString receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
-        == 1L
-    && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
-    == 0) {
+    if(tronPowerProposalIsOpen(blockingStubFull) && !freezeV2ProposalIsOpen(blockingStubFull)) {
       return freezeBalanceForReceiver(
           address,
           freezeBalance,
@@ -2199,10 +2196,7 @@ public class PublicMethed {
     }
 
 
-    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
-        == 0L
-        && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
-        == 0L) {
+    if(!tronPowerProposalIsOpen(blockingStubFull) && !freezeV2ProposalIsOpen(blockingStubFull)) {
       return freezeBalanceForReceiver(
           address,
           freezeBalance,
@@ -2214,24 +2208,16 @@ public class PublicMethed {
     }
 
 
-    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
-        == 0L
-        && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
-        != 0L
+    if(!tronPowerProposalIsOpen(blockingStubFull) && freezeV2ProposalIsOpen(blockingStubFull)
         && null == receiverAddress) {
       return freezeBalanceV2(address,freezeBalance,0,priKey,blockingStubFull);
     }
 
-    if(getChainParametersValue(ProposalEnum.GetAllowNewResourceModel.getProposalName(),blockingStubFull)
-        == 1L
-        && getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
-        != 0L
+    if(tronPowerProposalIsOpen(blockingStubFull)
+        && freezeV2ProposalIsOpen(blockingStubFull)
         && null == receiverAddress) {
-      return freezeBalanceV2(address,freezeBalance,2,priKey,blockingStubFull);
+      return freezeBalanceV2(address,freezeBalance,resourceCode,priKey,blockingStubFull);
     }
-
-
-
     return false;
 
 

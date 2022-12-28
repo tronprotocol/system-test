@@ -57,7 +57,7 @@ public class FreezeBalanceV2Test005 {
   byte[] frozenEnergyRevertAddress = ecKey3.getAddress();
   String frozenEnergyRevertKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
 
-  Long freezeBandwidthBalance = 8000000000L;
+  Long freezeBandwidthBalance = 4000000000L;
 
   Long unfreezeBalance = 10000000L;
   Long freezeEnergyBalance = 3000000000L;
@@ -114,10 +114,6 @@ public class FreezeBalanceV2Test005 {
         freezeEnergyBalance,1,frozenEnergyKey,blockingStubFull));
     Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenEnergyRevertAddress,
         freezeEnergyBalance,1,frozenEnergyRevertKey,blockingStubFull));
-    if(PublicMethed.tronPowerProposalIsOpen(blockingStubFull)) {
-      Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,
-          freezeBandwidthBalance,2,frozenBandwidthKey,blockingStubFull));
-    }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 

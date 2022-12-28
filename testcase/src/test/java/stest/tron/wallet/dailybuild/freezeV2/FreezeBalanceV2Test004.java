@@ -166,9 +166,9 @@ public class FreezeBalanceV2Test004 {
     Long witness1ReceiveVote = 10L;
     Long witness2ReceiveVote = 20L;
     Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
-    Long votePower = PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ?
-        account.getTronPower().getFrozenBalance() / 1000000L :
-        account.getFrozenV2(0).getAmount() / 1000000L;
+    Long votePower = !PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ?
+        account.getFrozenV2(0).getAmount() / 1000000L :
+        account.getFrozenV2(2).getAmount() / 1000000L;
 
     HashMap<byte[],Long> voteMap = new HashMap<>();
     voteMap.put(PublicMethed.getFinalAddress(witness1Key),witness1ReceiveVote);
@@ -179,8 +179,8 @@ public class FreezeBalanceV2Test004 {
 
 
     Long unfreezeBalance = (votePower - witness1ReceiveVote - witness2ReceiveVote) * 1000000L;
-    PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,
-        PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 0,blockingStubFull);
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,
+        PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 0,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
@@ -194,8 +194,8 @@ public class FreezeBalanceV2Test004 {
 
 
 
-    PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,(currentVote - witness1ReceiveVote / 10 - witness2ReceiveVote / 10) * 1000000L,
-        PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 0,blockingStubFull);
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,(currentVote - witness1ReceiveVote / 10 - witness2ReceiveVote / 10) * 1000000L,
+        PublicMethed.tronPowerProposalIsOpen(blockingStubFull) ? 2 : 0,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     list = account.getVotesList();
