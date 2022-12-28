@@ -88,7 +88,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "FreezeBalanceV2 for bandwidth by http")
+  @Test(enabled = true, description = "FreezeBalanceV2 for bandwidth by http")
   public void test001FreezeBalanceV2ForBandwidth() {
     beforeBalance = HttpMethed.getBalance(httpnode, freezeBandwidthAddress);
     //FreezeBalanceV2 balance
@@ -110,7 +110,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "UnFreezeBalanceV2 for bandwidth by http")
+  @Test(enabled = true, description = "UnFreezeBalanceV2 for bandwidth by http")
   public void test002UnFreezeBalanceV2ForBandwidth() {
     beforeBalance = HttpMethed.getBalance(httpnode, freezeBandwidthAddress);
     //UnFreezeBalanceV2 for bandwidth
@@ -152,7 +152,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "FreezeBalanceV2 for energy by http")
+  @Test(enabled = true, description = "FreezeBalanceV2 for energy by http")
   public void test003FreezeBalanceForEnergy() {
     beforeBalance = HttpMethed.getBalance(httpnode, freezeEnergyAddress);
 
@@ -175,7 +175,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "UnFreezeBalanceV2 for energy by http")
+  @Test(enabled = true, description = "UnFreezeBalanceV2 for energy by http")
   public void test004UnFreezeBalanceForEnergy() {
     beforeBalance = HttpMethed.getBalance(httpnode, freezeEnergyAddress);
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -213,7 +213,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "DelegateResource of bandwidth for others by http")
+  @Test(enabled = true, description = "DelegateResource of bandwidth for others by http")
   public void test005DelegateResourceOfBandwidthForOthers() {
     responseContent = HttpMethed.parseResponseContent(
         HttpMethed.getAccount(httpnode, freezeBandwidthAddress)
@@ -257,7 +257,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "UndelegateResource of bandwidth for others by http")
+  @Test(enabled = true, description = "UndelegateResource of bandwidth for others by http")
   public void test006UndelegateResourceOfBandwidthForOthers() {
     responseContent = HttpMethed.parseResponseContent(
         HttpMethed.getAccount(httpnode, freezeBandwidthAddress)
@@ -294,7 +294,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "DelegateResource of energy for others by http")
+  @Test(enabled = true, description = "DelegateResource of energy for others by http")
   public void test007DelegateResourceOfEnergyForOthers() {
     responseContent = HttpMethed.parseResponseContent(
         HttpMethed.getAccount(httpnode, freezeEnergyAddress)
@@ -332,7 +332,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "UndelegateResource of energy for others by http")
+  @Test(enabled = true, description = "UndelegateResource of energy for others by http")
   public void test008UndelegateResourceOfEnergyForOthers() {
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeEnergyAddress));
     JSONArray frozenV2 = responseContent.getJSONArray("frozenV2");
@@ -367,7 +367,7 @@ public class HttpTestFreezeV2001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "WithdrawExpireUnfreeze by http")
+  @Test(enabled = true, description = "WithdrawExpireUnfreeze by http")
   public void test009WithdrawExpireUnfreeze() {
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeBandwidthAddress));
     JSONArray unfrozenV2 = responseContent.getJSONArray("unfrozenV2");
