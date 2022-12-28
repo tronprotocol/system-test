@@ -285,6 +285,32 @@ public class StressPrecondition {
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(70L, 1L);
       }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowOptimizedReturnValueOfChainId") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(71L, 1L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowDynamicEnergy") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(72L, 1L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getDynamicEnergyThreshold") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(73L, 100000L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getDynamicEnergyIncreaseFactor") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(74L, 5000L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getDynamicEnergyMaxFactor") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(75L, 30000L);
+      }
+
     }
         //proposalMap.put(40L, 1L);
     if (proposalMap.size() >= 1) {
