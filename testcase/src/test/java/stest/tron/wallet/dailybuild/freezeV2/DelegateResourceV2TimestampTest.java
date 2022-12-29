@@ -19,6 +19,9 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
+/**
+ *
+ */
 @Slf4j
 public class DelegateResourceV2TimestampTest {
   private static final long sendAmount = 100000000L;
@@ -45,18 +48,29 @@ public class DelegateResourceV2TimestampTest {
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
       .get(0);
   private ManagedChannel channelSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
+
+  private String pbftnode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+          .get(2);
+  private ManagedChannel channelPbft = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
+
+
+
 
   /**
    * constructor.
    */
   @BeforeClass(enabled = true)
-  public void beforeClass() throws Exception{
+  public void beforeClass() throws Exception {
     PublicMethed.printAddress(frozen1Key);
 
     PublicMethed.printAddress(receiver1Key);
@@ -68,7 +82,7 @@ public class DelegateResourceV2TimestampTest {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
 
-    if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       if (channelFull != null) {
         channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
       }
@@ -78,6 +92,12 @@ public class DelegateResourceV2TimestampTest {
         .usePlaintext(true)
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+
+    channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
+        .usePlaintext(true)
+        .build();
+    blockingStubPbft= WalletSolidityGrpc.newBlockingStub(channelPbft);
+
 
 
     Assert.assertTrue(PublicMethed.sendcoin(frozen1Address, sendAmount,
@@ -91,65 +111,79 @@ public class DelegateResourceV2TimestampTest {
         foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozen1Address,frozenAmount,0,
-        frozen1Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver1Address,frozenAmount,0,
-        receiver1Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver2Address,frozenAmount,0,
-        receiver2Key,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver3Address,frozenAmount,0,
-        receiver3Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozen1Address, frozenAmount, 0,
+        frozen1Key, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver1Address, frozenAmount, 0,
+        receiver1Key, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver2Address, frozenAmount, 0,
+        receiver2Key, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(receiver3Address, frozenAmount, 0,
+        receiver3Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
-        0,receiver1Address,frozen1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address, frozenAmount / 10,
+        0, receiver1Address, frozen1Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
-        0,receiver2Address,frozen1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address, frozenAmount / 10,
+        0, receiver2Address, frozen1Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
-        0,receiver3Address,frozen1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address, frozenAmount / 10,
+        0, receiver3Address, frozen1Key, blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver1Address,frozenAmount / 10,
-        0,frozen1Address,receiver1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver1Address, frozenAmount / 10,
+        0, frozen1Address, receiver1Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver2Address,frozenAmount / 10,
-        0,frozen1Address,receiver2Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver2Address, frozenAmount / 10,
+        0, frozen1Address, receiver2Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver3Address,frozenAmount / 10,
-        0,frozen1Address,receiver3Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver3Address, frozenAmount / 10,
+        0, frozen1Address, receiver3Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
   @Test(enabled = true, description = "GetDelegateResource to account sort by timestamp")
   public void test01GetDelegateResourceToAccountTimestamp() {
 
-    List<ByteString> toAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getToAccountsList();
+    List<ByteString> toAccountList = PublicMethed.getDelegatedResourceAccountIndex(
+        frozen1Address,
+        blockingStubFull
+    ).get().getToAccountsList();
     //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    List<ByteString> toAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
-    Assert.assertEquals(toAccountListSolidity,toAccountList);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
+    List<ByteString> toAccountListSolidity =
+        PublicMethed.getDelegatedResourceAccountIndexV2Solidity(
+            frozen1Address,
+            blockingStubFullSolidity
+        ).get().getToAccountsList();
+    Assert.assertEquals(toAccountListSolidity, toAccountList);
+    //query pbft
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
+    List<ByteString> toAccountListPbft =
+        PublicMethed.getDelegatedResourceAccountIndexV2Solidity(
+            frozen1Address,
+            blockingStubPbft
+        ).get().getToAccountsList();
+    Assert.assertEquals(toAccountListPbft, toAccountList);
+
     Assert.assertTrue(toAccountList.size() == 3);
-    Assert.assertEquals(toAccountList.get(0).toByteArray(),receiver1Address);
-    Assert.assertEquals(toAccountList.get(1).toByteArray(),receiver2Address);
-    Assert.assertEquals(toAccountList.get(2).toByteArray(),receiver3Address);
+    Assert.assertEquals(toAccountList.get(0).toByteArray(), receiver1Address);
+    Assert.assertEquals(toAccountList.get(1).toByteArray(), receiver2Address);
+    Assert.assertEquals(toAccountList.get(2).toByteArray(), receiver3Address);
 
 
-    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address,frozenAmount / 10,
-        0,receiver1Address,frozen1Key,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(frozen1Address, frozenAmount / 10,
+        0, receiver1Address, frozen1Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
-    toAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getToAccountsList();
-    //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    toAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
-    Assert.assertEquals(toAccountListSolidity,toAccountList);
-
+    toAccountList = PublicMethed.getDelegatedResourceAccountIndex(
+        frozen1Address,
+        blockingStubFull
+    ).get().getToAccountsList();
     Assert.assertTrue(toAccountList.size() == 3);
-    Assert.assertEquals(toAccountList.get(0).toByteArray(),receiver2Address);
-    Assert.assertEquals(toAccountList.get(1).toByteArray(),receiver3Address);
-    Assert.assertEquals(toAccountList.get(2).toByteArray(),receiver1Address);
+    Assert.assertEquals(toAccountList.get(0).toByteArray(), receiver2Address);
+    Assert.assertEquals(toAccountList.get(1).toByteArray(), receiver3Address);
+    Assert.assertEquals(toAccountList.get(2).toByteArray(), receiver1Address);
 
 
   }
@@ -158,31 +192,52 @@ public class DelegateResourceV2TimestampTest {
   @Test(enabled = true, description = "GetDelegateResource from account sort by timestamp")
   public void test02GetDelegateResourceFromAccountTimestamp() {
 
-    List<ByteString> fromAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getFromAccountsList();
+    List<ByteString> fromAccountList = PublicMethed.getDelegatedResourceAccountIndex(
+        frozen1Address,
+        blockingStubFull
+    ).get().getFromAccountsList();
     //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    List<ByteString> fromAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
-    Assert.assertEquals(fromAccountListSolidity,fromAccountList);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
+    List<ByteString> fromAccountListSolidity =
+        PublicMethed.getDelegatedResourceAccountIndexV2Solidity(
+        frozen1Address,
+        blockingStubFullSolidity
+        ).get().getFromAccountsList();
+    Assert.assertEquals(fromAccountListSolidity, fromAccountList);
+    //query pbft
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
+    List<ByteString> fromAccountListPbft =
+        PublicMethed.getDelegatedResourceAccountIndexV2Solidity(
+            frozen1Address,
+            blockingStubPbft
+        ).get().getFromAccountsList();
+    Assert.assertEquals(fromAccountListPbft, fromAccountList);
+
     Assert.assertTrue(fromAccountList.size() == 3);
-    Assert.assertEquals(fromAccountList.get(0).toByteArray(),receiver1Address);
-    Assert.assertEquals(fromAccountList.get(1).toByteArray(),receiver2Address);
-    Assert.assertEquals(fromAccountList.get(2).toByteArray(),receiver3Address);
+    Assert.assertEquals(fromAccountList.get(0).toByteArray(), receiver1Address);
+    Assert.assertEquals(fromAccountList.get(1).toByteArray(), receiver2Address);
+    Assert.assertEquals(fromAccountList.get(2).toByteArray(), receiver3Address);
 
 
-    Assert.assertTrue(PublicMethed.delegateResourceV2(receiver1Address,frozenAmount / 10,
-        0,frozen1Address,receiver1Key,blockingStubFull));
+    Assert.assertTrue(
+        PublicMethed.delegateResourceV2(
+        receiver1Address,
+        frozenAmount / 10,
+        0,
+        frozen1Address,
+        receiver1Key,
+        blockingStubFull
+        )
+    );
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-
-    fromAccountList = PublicMethed.getDelegatedResourceAccountIndex(frozen1Address,blockingStubFull).get().getToAccountsList();
-    //querySolidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    fromAccountListSolidity = PublicMethed.getDelegatedResourceAccountIndexV2Solidity(frozen1Address, blockingStubFullSolidity).get().getToAccountsList();
-    Assert.assertEquals(fromAccountListSolidity,fromAccountList);
+    fromAccountList = PublicMethed.getDelegatedResourceAccountIndex(
+        frozen1Address,
+        blockingStubFull
+    ).get().getToAccountsList();
     Assert.assertTrue(fromAccountList.size() == 3);
-    Assert.assertEquals(fromAccountList.get(0).toByteArray(),receiver2Address);
-    Assert.assertEquals(fromAccountList.get(1).toByteArray(),receiver3Address);
-    Assert.assertEquals(fromAccountList.get(2).toByteArray(),receiver1Address);
+    Assert.assertEquals(fromAccountList.get(0).toByteArray(), receiver2Address);
+    Assert.assertEquals(fromAccountList.get(1).toByteArray(), receiver3Address);
+    Assert.assertEquals(fromAccountList.get(2).toByteArray(), receiver1Address);
 
 
   }
