@@ -1011,6 +1011,12 @@ public class PublicMethed {
         .getProposalName(), blockingStubFull) == 1;
   }
 
+  public static Boolean getAllowDynamicEnergyProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethed.getChainParametersValue(ProposalEnum.GetAllowDynamicEnergy
+        .getProposalName(), blockingStubFull) == 1;
+  }
+
+
 
   public static Long getProposalMemoFee(WalletGrpc.WalletBlockingStub blockingStubFull) {
     return PublicMethed.getChainParametersValue(ProposalEnum.GetMemoFee.getProposalName(),blockingStubFull);

@@ -4,7 +4,11 @@ public enum ProposalEnum {
 
   GetAllowNewResourceModel("getAllowNewResourceModel"),
   GetUnfreezeDelayDays("getUnfreezeDelayDays"),
-
+  GetAllowDynamicEnergy("getAllowDynamicEnergy"),
+  GetDynamicEnergyThreshold("getDynamicEnergyThreshold"),
+  GetDynamicEnergyIncreaseFactor("getDynamicEnergyIncreaseFactor"),
+  GetDynamicEnergyMaxFactor("getDynamicEnergyMaxFactor"),
+  GetAllowOptimizedReturnValueOfChainId("getAllowOptimizedReturnValueOfChainId"),
   GetMemoFee("getMemoFee");
 
   private String proposalName;
