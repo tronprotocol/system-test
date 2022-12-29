@@ -5566,4 +5566,151 @@ public class HttpMethed {
     }
     return response;
   }
+  /** constructor. */
+  public static HttpResponse getCanDelegatedMaxSize(String httpNode,  byte[] ownerAddress, Long type, boolean visible){
+    try{
+      String requestUrl = "http://" + httpNode + "/wallet/getcandelegatedmaxsize";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",visible?Base58.encode58Check(ownerAddress):ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("type",type);
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch(Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();;
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getAvailableUnfreezeCount(String httpNode, byte[] ownerAddress, boolean visible){
+    try{
+      String requestUrl = "http://" + httpNode + "/wallet/getavailableunfreezecount";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",visible?Base58.encode58Check(ownerAddress):ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getCanWithdrawUnfreezeAmount(String httpNode, byte[] ownerAddress,Long timestamp, boolean visible){
+    try{
+      String requestUrl = "http://" + httpNode + "/wallet/getcanwithdrawunfreezeamount";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",visible?Base58.encode58Check(ownerAddress):ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("timestamp", timestamp);
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getDelegatedResourceV2(String httpNode, byte[] fromAddress, byte[] toAddress,boolean visible) {
+    try{
+      String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresourcev2";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("fromAddress", visible?Base58.encode58Check(fromAddress):ByteArray.toHexString(fromAddress));
+      requestParam.addProperty("toAddress", visible?Base58.encode58Check(toAddress):ByteArray.toHexString(toAddress));
+      requestParam.addProperty("visible",visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getDelegatedResourceAccountIndexV2(String httpNode, byte[] address,boolean visible){
+    try{
+      String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresourceaccountindexv2";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("value", visible?Base58.encode58Check(address):ByteArray.toHexString(address));
+      requestParam.addProperty("visible",visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return  response;
+  }
+
+  /** constructor. */
+  public static HttpResponse getCanDelegatedMaxSizeSolidity(String httpNodeSolidity,  byte[] ownerAddress, Long type, boolean visible){
+    try{
+      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getcandelegatedmaxsize";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",visible?Base58.encode58Check(ownerAddress):ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("type",type);
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch(Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();;
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getAvailableUnfreezeCountSolidity(String httpNodeSolidity, byte[] ownerAddress, boolean visible){
+    try{
+      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getavailableunfreezecount";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",visible?Base58.encode58Check(ownerAddress):ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getCanWithdrawUnfreezeAmountSolidity(String httpNodeSolidity, byte[] ownerAddress,Long timestamp, boolean visible){
+    try{
+      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getcanwithdrawunfreezeamount";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",visible?Base58.encode58Check(ownerAddress):ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("timestamp", timestamp);
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getDelegatedResourceV2Solidity(String httpNodeSolidity, byte[] fromAddress, byte[] toAddress,boolean visible) {
+    try{
+      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourcev2";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("fromAddress", visible?Base58.encode58Check(fromAddress):ByteArray.toHexString(fromAddress));
+      requestParam.addProperty("toAddress", visible?Base58.encode58Check(toAddress):ByteArray.toHexString(toAddress));
+      requestParam.addProperty("visible",visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return response;
+  }
+  /** constructor. */
+  public static HttpResponse getDelegatedResourceAccountIndexV2Solidity(String httpNodeSolidity, byte[] address, boolean visible){
+    try{
+      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourceaccountindexv2";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("value", visible?Base58.encode58Check(address):ByteArray.toHexString(address));
+      requestParam.addProperty("visible",visible);
+      response = createConnect(requestUrl, requestParam);
+    }catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return  response;
+  }
 }

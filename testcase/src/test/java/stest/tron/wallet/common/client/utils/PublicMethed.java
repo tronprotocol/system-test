@@ -4345,7 +4345,58 @@ public class PublicMethed {
         blockingStubFull.getDelegatedResourceAccountIndex(bytesMessage);
     return Optional.ofNullable(accountIndex);
   }
+  /** constructor. */
+  public static Optional<DelegatedResourceList> getDelegatedResourceV2(
+      byte[] fromAddress, byte[] toAddress, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    // Wallet.setAddressPreFixByte()();
+    ByteString fromAddressBs = ByteString.copyFrom(fromAddress);
+    ByteString toAddressBs = ByteString.copyFrom(toAddress);
 
+    DelegatedResourceMessage request =
+        DelegatedResourceMessage.newBuilder()
+            .setFromAddress(fromAddressBs)
+            .setToAddress(toAddressBs)
+            .build();
+
+    DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResourceV2(request);
+    return Optional.ofNullable(delegatedResource);
+  }
+  /** constructor. */
+  public static Optional<DelegatedResourceList> getDelegatedResourceV2Solidity(
+      byte[] fromAddress, byte[] toAddress, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    // Wallet.setAddressPreFixByte()();
+    ByteString fromAddressBs = ByteString.copyFrom(fromAddress);
+    ByteString toAddressBs = ByteString.copyFrom(toAddress);
+
+    DelegatedResourceMessage request =
+        DelegatedResourceMessage.newBuilder()
+            .setFromAddress(fromAddressBs)
+            .setToAddress(toAddressBs)
+            .build();
+
+    DelegatedResourceList delegatedResource = blockingStubFull.getDelegatedResourceV2(request);
+    return Optional.ofNullable(delegatedResource);
+  }
+  /** constructor. */
+  public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndexV2(
+      byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ByteString addressBs = ByteString.copyFrom(address);
+    BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(addressBs).build();
+
+    DelegatedResourceAccountIndex accountIndex =
+          blockingStubFull.getDelegatedResourceAccountIndexV2(bytesMessage);
+    return Optional.ofNullable(accountIndex);
+  }
+  /** constructor. */
+  public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndexV2Solidity(
+      byte[] address, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    ByteString addressBs = ByteString.copyFrom(address);
+    BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(addressBs).build();
+
+    DelegatedResourceAccountIndex accountIndex =
+        blockingStubFull.getDelegatedResourceAccountIndexV2(bytesMessage);
+    return Optional.ofNullable(accountIndex);
+  }
 
   public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSize(byte[] ownerAddress, int type,
       WalletGrpc.WalletBlockingStub blockingStub) {
@@ -4356,6 +4407,18 @@ public class PublicMethed {
         .build();
     CanDelegatedMaxSizeResponseMessage canDelegatedMaxSizeResponseMessage;
     canDelegatedMaxSizeResponseMessage = blockingStub.getCanDelegatedMaxSize(request);
+    return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
+  }
+
+  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSizeSolidity(byte[] ownerAddress, int type,
+                                                                                            WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
+    CanDelegatedMaxSizeRequestMessage request = CanDelegatedMaxSizeRequestMessage.newBuilder()
+        .setOwnerAddress(ownerAddressBS)
+        .setType(type)
+        .build();
+    CanDelegatedMaxSizeResponseMessage canDelegatedMaxSizeResponseMessage;
+    canDelegatedMaxSizeResponseMessage = blockingStubFull.getCanDelegatedMaxSize(request);
     return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
   }
 
@@ -4371,6 +4434,17 @@ public class PublicMethed {
     canDelegatedMaxSizeResponseMessage = blockingStub.getCanWithdrawUnfreezeAmount(request);
     return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
   }
+  public static Optional<CanWithdrawUnfreezeAmountResponseMessage> getCanWithdrawUnfreezeAmountSolidity(
+      byte[] ownerAddress, long timestamp,WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
+    CanWithdrawUnfreezeAmountRequestMessage request = CanWithdrawUnfreezeAmountRequestMessage.newBuilder()
+        .setOwnerAddress(ownerAddressBS)
+        .setTimestamp(timestamp)
+        .build();
+    CanWithdrawUnfreezeAmountResponseMessage canDelegatedMaxSizeResponseMessage;
+    canDelegatedMaxSizeResponseMessage = blockingStubFull.getCanWithdrawUnfreezeAmount(request);
+    return Optional.ofNullable(canDelegatedMaxSizeResponseMessage);
+  }
 
 
   public static Optional<GetAvailableUnfreezeCountResponseMessage> getAvailableUnfreezeCount(
@@ -4381,6 +4455,16 @@ public class PublicMethed {
         .build();
     GetAvailableUnfreezeCountResponseMessage getAvailableUnfreezeCountResponseMessage;
     getAvailableUnfreezeCountResponseMessage = blockingStub.getAvailableUnfreezeCount(request);
+    return Optional.ofNullable(getAvailableUnfreezeCountResponseMessage);
+  }
+  public static Optional<GetAvailableUnfreezeCountResponseMessage> getAvailableUnfreezeCountSolidity(
+      byte[] ownerAddress,WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    ByteString ownerAddressBS = ByteString.copyFrom(ownerAddress);
+    GetAvailableUnfreezeCountRequestMessage request = GetAvailableUnfreezeCountRequestMessage.newBuilder()
+        .setOwnerAddress(ownerAddressBS)
+        .build();
+    GetAvailableUnfreezeCountResponseMessage getAvailableUnfreezeCountResponseMessage;
+    getAvailableUnfreezeCountResponseMessage = blockingStubFull.getAvailableUnfreezeCount(request);
     return Optional.ofNullable(getAvailableUnfreezeCountResponseMessage);
   }
 
