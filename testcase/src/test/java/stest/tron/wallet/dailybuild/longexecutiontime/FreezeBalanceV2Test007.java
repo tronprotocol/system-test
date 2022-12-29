@@ -1,9 +1,8 @@
-package stest.tron.wallet.dailybuild.freezeV2;
+package stest.tron.wallet.dailybuild.longexecutiontime;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
@@ -14,10 +13,8 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
-import org.tron.protos.Protocol.Account.UnFreezeV2;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
-import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -25,7 +22,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class FreezeBalanceV2Test005 {
+public class FreezeBalanceV2Test007 {
   private static final long sendAmount = 10000000000L;
 
   private final String foundationKey = Configuration.getByPath("testng.conf")
@@ -191,147 +188,42 @@ public class FreezeBalanceV2Test005 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "EnergyUsage change energy_window_size when trigger is success")
-  public void test02EnergyUsageChangeEnergyWindowSizeWithTriggerSuccess() throws Exception{
-    Account account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
-    AccountResourceMessage accountResourceMessage = PublicMethed.getAccountResource(frozenEnergyAddress,blockingStubFull);
-    Long beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
-    Long beforeEnergyUsageFromAccountResource = accountResourceMessage.getEnergyUsed();
-    Long beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    Assert.assertTrue(beforeEnergyWindowSize == 28800);
-    Assert.assertEquals(beforeEnergyUsage,beforeEnergyUsageFromAccountResource);
-    Assert.assertTrue(beforeEnergyUsage == 0);
+  @Test(enabled = true, description = "Free net can not make netWindowSize change")
+  public void test02FreeNetCanNotMakeNetWindowSizeChange() throws Exception{
+    AccountResourceMessage accountResourceMessage = PublicMethed.getAccountResource(frozenBandwidthAddress,blockingStubFull);
+    Long currentNetPrice = (1000000L * accountResourceMessage.getTotalNetWeight()) / accountResourceMessage.getTotalNetLimit();
+    currentNetPrice = Math.max(1L,currentNetPrice);
 
-
-    Long cycleTime = 1L;
-    String txid = PublicMethed.triggerContract(contractAddress,
-        "testUseCpu(uint256)", cycleTime.toString(), false,
-        0, maxFeeLimit,frozenEnergyAddress, frozenEnergyKey, blockingStubFull);
+    Long needUnfreezeBalance = PublicMethed.getFrozenV2Amount(frozenBandwidthAddress,0,blockingStubFull) - 275 * currentNetPrice - currentNetPrice * 100
+        - accountResourceMessage.getNetUsed() * currentNetPrice;
+    needUnfreezeBalance = Math.max(1L,needUnfreezeBalance);
+    logger.info("needUnfreezeBalance:" + needUnfreezeBalance);
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,needUnfreezeBalance,
+        0,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
-    accountResourceMessage = PublicMethed.getAccountResource(frozenEnergyAddress,blockingStubFull);
-    Long afterEnergyUsage = account.getAccountResource().getEnergyUsage();
-    Long afterEnergyUsageFromAccountResource = accountResourceMessage.getEnergyUsed();
-    Assert.assertEquals(afterEnergyUsage,afterEnergyUsageFromAccountResource);
-    Long transactionEnergyUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getEnergyUsage();
-    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getResult(), contractResult.SUCCESS);
-    logger.info("transactionEnergyUsage:" + transactionEnergyUsage);
-    Assert.assertTrue(afterEnergyUsage <= transactionEnergyUsage
-        && afterEnergyUsage + 2 >= transactionEnergyUsage
-        && transactionEnergyUsage > 600);
+    Thread.sleep(600000);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    Long beforeUseFreeNetWindowSize = account.getNetWindowSize();
+    Long beforeNetUsed = account.getFreeNetUsage();
+    logger.info("beforeUseFreeNetWindowSize:" + beforeUseFreeNetWindowSize);
+
+
+    PublicMethed.sendcoinGetTransactionId(foundationAddress,1L,frozenBandwidthAddress,frozenBandwidthKey,
+        blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
-    beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    logger.info("beforeEnergyUsage:" + beforeEnergyUsage);
-    Assert.assertTrue(beforeEnergyUsage < 28800);
-    beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
 
-    Assert.assertTrue(beforeEnergyUsage > 600);
-    txid = PublicMethed.triggerContract(contractAddress,
-        "testUseCpu(uint256)",  cycleTime.toString(), false,
-        0, 100000000L,frozenEnergyAddress, frozenEnergyKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getResult(), contractResult.SUCCESS);
-    account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
-    Long afterEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    logger.info("beforeEnergyWindowSize:" + beforeEnergyWindowSize);
-    logger.info("afterEnergyWindowSize:" + afterEnergyWindowSize);
-    Assert.assertTrue(afterEnergyWindowSize <= 28795
-        && afterEnergyWindowSize > beforeEnergyWindowSize);
-    afterEnergyUsage = account.getAccountResource().getEnergyUsage();
-    transactionEnergyUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getEnergyUsage();
-    Assert.assertTrue(afterEnergyUsage - beforeEnergyUsage <= transactionEnergyUsage
-        && afterEnergyUsage - beforeEnergyUsage + 8 >= transactionEnergyUsage
-        && transactionEnergyUsage > 600 && afterEnergyUsage > 600 * 2);
-
-
-
-
+    account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    Long afterUseFreeNetWindowSize = account.getNetWindowSize();
+    Long afterNetUsed = account.getFreeNetUsage();
+    logger.info("afterUseFreeNetWindowSize:" + afterUseFreeNetWindowSize);
+    Assert.assertTrue(afterNetUsed - beforeNetUsed > 200);
+    Assert.assertTrue(beforeUseFreeNetWindowSize - afterUseFreeNetWindowSize <= 50);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "EnergyUsage change energy_window_size when trigger is revert")
-  public void test03EnergyUsageChangeEnergyWindowSizeWithTriggerRevert() throws Exception{
-    Account account = PublicMethed.queryAccount(frozenEnergyRevertAddress,blockingStubFull);
-    AccountResourceMessage accountResourceMessage = PublicMethed.getAccountResource(frozenEnergyRevertAddress,blockingStubFull);
-    Long beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
-    Long beforeEnergyUsageFromAccountResource = accountResourceMessage.getEnergyUsed();
-    Long beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    Assert.assertTrue(beforeEnergyWindowSize == 28800);
-    Assert.assertEquals(beforeEnergyUsage,beforeEnergyUsageFromAccountResource);
-    Assert.assertTrue(beforeEnergyUsage == 0);
 
-
-    //Wrong method cause result is revert
-    String txid = PublicMethed.triggerContract(contractAddress,
-        "getRevertTransaction()", "", false,
-        0, maxFeeLimit,frozenEnergyRevertAddress, frozenEnergyRevertKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-
-    account = PublicMethed.queryAccount(frozenEnergyRevertAddress,blockingStubFull);
-    accountResourceMessage = PublicMethed.getAccountResource(frozenEnergyRevertAddress,blockingStubFull);
-    Long afterEnergyUsage = account.getAccountResource().getEnergyUsage();
-    Long afterEnergyUsageFromAccountResource = accountResourceMessage.getEnergyUsed();
-    Assert.assertEquals(afterEnergyUsage,afterEnergyUsageFromAccountResource);
-    Long transactionEnergyUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getEnergyUsage();
-    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getResult(), contractResult.REVERT);
-    logger.info("transactionEnergyUsage:" + transactionEnergyUsage);
-    Assert.assertTrue(afterEnergyUsage <= transactionEnergyUsage
-        && afterEnergyUsage + 2 >= transactionEnergyUsage
-        && transactionEnergyUsage > 150);
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    account = PublicMethed.queryAccount(frozenEnergyRevertAddress,blockingStubFull);
-    beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    logger.info("beforeEnergyUsage:" + beforeEnergyUsage);
-    Assert.assertTrue(beforeEnergyUsage < 28800);
-    beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
-
-    Assert.assertTrue(beforeEnergyUsage > 50);
-    txid = PublicMethed.triggerContract(contractAddress,
-        "getRevertTransaction()",  "", false,
-        0, maxFeeLimit,frozenEnergyRevertAddress, frozenEnergyRevertKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getResult(), contractResult.REVERT);
-    account = PublicMethed.queryAccount(frozenEnergyRevertAddress,blockingStubFull);
-    Long afterEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    logger.info("beforeEnergyWindowSize:" + beforeEnergyWindowSize);
-    logger.info("afterEnergyWindowSize:" + afterEnergyWindowSize);
-    Assert.assertTrue(afterEnergyWindowSize <= 28795
-        && afterEnergyWindowSize > beforeEnergyWindowSize);
-    afterEnergyUsage = account.getAccountResource().getEnergyUsage();
-    transactionEnergyUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
-        .get().getReceipt().getEnergyUsage();
-    Assert.assertTrue(afterEnergyUsage - beforeEnergyUsage <= transactionEnergyUsage
-        && afterEnergyUsage - beforeEnergyUsage + 8 >= transactionEnergyUsage
-        && transactionEnergyUsage > 150 && afterEnergyUsage > 150 * 2);
-
-
-
-
-  }
 
   /**
    * constructor.
