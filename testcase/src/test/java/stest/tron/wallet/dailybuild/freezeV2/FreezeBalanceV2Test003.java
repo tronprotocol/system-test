@@ -79,7 +79,7 @@ public class FreezeBalanceV2Test003 {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
 
-    if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       if (channelFull != null) {
         channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
       }
@@ -102,8 +102,8 @@ public class FreezeBalanceV2Test003 {
     long needCoin = updateAccountPermissionFee * 1 + multiSignFee * 3;
 
     Assert.assertTrue(
-        PublicMethed.sendcoin(ownerAddress, needCoin + 2048000000L, foundationAddress, foundationKey,
-            blockingStubFull));
+        PublicMethed.sendcoin(ownerAddress,
+            needCoin + 2048000000L, foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(
         PublicMethed.sendcoin(receiverAddress, 1L, foundationAddress, foundationKey,
             blockingStubFull));
@@ -133,80 +133,82 @@ public class FreezeBalanceV2Test003 {
             blockingStubFull, ownerKeyString);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(PublicMethed.getTransactionById(txid,blockingStubFull).get()
+    Assert.assertTrue(PublicMethed.getTransactionById(txid, blockingStubFull).get()
         .getSignatureCount() == 1);
 
   }
 
-  @Test(enabled = true,description = "MutiSign for freeze balance V2")
+  @Test(enabled = true, description = "MutiSign for freeze balance V2")
   public void test01MutiSignForFreezeBalanceV2() {
-    Assert.assertTrue(PublicMethedForMutiSign.freezeBalanceV2WithPermissionId(ownerAddress,freezeBalance,
-        0,2,ownerKey,blockingStubFull,permissionKeyString));
+    Assert.assertTrue(
+        PublicMethedForMutiSign.freezeBalanceV2WithPermissionId(ownerAddress, freezeBalance,
+         0, 2, ownerKey, blockingStubFull, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Transaction transaction = PublicMethed.getTransactionById(PublicMethedForMutiSign
-        .freezeV2Txid,blockingStubFull).get();
+        .freezeV2Txid, blockingStubFull).get();
     logger.info("FreezeBalanceV2 txid:" + PublicMethedForMutiSign.freezeV2Txid);
     Assert.assertTrue(transaction.getSignatureCount() == 2);
     Assert.assertEquals(transaction.getRawData().getContract(0).getType(),
         ContractType.FreezeBalanceV2Contract);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,blockingStubFull)
+    Assert.assertTrue(
+        PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid, blockingStubFull)
         .get().getFee() >= multiSignFee);
   }
 
 
-  @Test(enabled = true,description = "MutiSign for delegate resource")
+  @Test(enabled = true, description = "MutiSign for delegate resource")
   public void test02MutiSignForDelegateResource() {
     Assert.assertTrue(PublicMethedForMutiSign.delegateResourceWithPermissionId(ownerAddress,
-        delegateBalance, 0,receiverAddress,2,ownerKey,
-        blockingStubFull,permissionKeyString));
+        delegateBalance, 0, receiverAddress, 2, ownerKey,
+        blockingStubFull, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Transaction transaction = PublicMethed.getTransactionById(PublicMethedForMutiSign
-        .freezeV2Txid,blockingStubFull).get();
+        .freezeV2Txid, blockingStubFull).get();
     Assert.assertTrue(transaction.getSignatureCount() == 2);
     Assert.assertEquals(transaction.getRawData().getContract(0).getType(),
         ContractType.DelegateResourceContract);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,blockingStubFull)
-        .get().getFee() >= multiSignFee);
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,
+        blockingStubFull).get().getFee() >= multiSignFee);
   }
 
 
-  @Test(enabled = true,description = "MutiSign for release delegate resource")
+  @Test(enabled = true, description = "MutiSign for release delegate resource")
   public void test03MutiSignForUnDelegateResource() {
-    Assert.assertTrue(PublicMethedForMutiSign.unDelegateResourceWithPermissionId(ownerAddress,delegateBalance,
-        0,receiverAddress,2,ownerKey,blockingStubFull,permissionKeyString));
+    Assert.assertTrue(PublicMethedForMutiSign.unDelegateResourceWithPermissionId(ownerAddress,
+        delegateBalance, 0, receiverAddress, 2, ownerKey, blockingStubFull, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Transaction transaction = PublicMethed.getTransactionById(PublicMethedForMutiSign
-        .freezeV2Txid,blockingStubFull).get();
+        .freezeV2Txid, blockingStubFull).get();
     Assert.assertTrue(transaction.getSignatureCount() == 2);
     Assert.assertEquals(transaction.getRawData().getContract(0).getType(),
         ContractType.UnDelegateResourceContract);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,blockingStubFull)
-        .get().getFee() >= multiSignFee);
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,
+        blockingStubFull).get().getFee() >= multiSignFee);
   }
 
 
-  @Test(enabled = true,description = "MutiSign for unFreezeBalanceV2")
+  @Test(enabled = true, description = "MutiSign for unFreezeBalanceV2")
   public void test04MutiSignForUnFreezeBalanceV2() {
-    Assert.assertTrue(PublicMethedForMutiSign.unFreezeBalanceV2WithPermissionId(ownerAddress,delegateBalance,
-        0,2,ownerKey,blockingStubFull,permissionKeyString));
+    Assert.assertTrue(PublicMethedForMutiSign.unFreezeBalanceV2WithPermissionId(ownerAddress,
+        delegateBalance,  0, 2, ownerKey, blockingStubFull, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Transaction transaction = PublicMethed.getTransactionById(PublicMethedForMutiSign
-        .freezeV2Txid,blockingStubFull).get();
+        .freezeV2Txid, blockingStubFull).get();
     Assert.assertTrue(transaction.getSignatureCount() == 2);
     Assert.assertEquals(transaction.getRawData().getContract(0).getType(),
         ContractType.UnfreezeBalanceV2Contract);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,blockingStubFull)
-        .get().getFee() >= multiSignFee);
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,
+        blockingStubFull).get().getFee() >= multiSignFee);
   }
 
 
-  @Test(enabled = true,description = "MutiSign for withdrawExpireUnfreezeBalance")
+  @Test(enabled = true, description = "MutiSign for withdrawExpireUnfreezeBalance")
   public void test05WithdrawExpireUnfreezeBalance() {
-    Account account = PublicMethed.queryAccount(ownerAddress,blockingStubFull);
-    if(System.currentTimeMillis() - 2000L < account.getUnfrozenV2(0).getUnfreezeExpireTime()) {
+    Account account = PublicMethed.queryAccount(ownerAddress, blockingStubFull);
+    if (System.currentTimeMillis() - 2000L < account.getUnfrozenV2(0).getUnfreezeExpireTime()) {
       Assert.assertFalse(PublicMethedForMutiSign
-          .withdrawExpireUnfreezeBalanceWithPermissionId(ownerAddress,2,
-              ownerKey,blockingStubFull,permissionKeyString));
+          .withdrawExpireUnfreezeBalanceWithPermissionId(ownerAddress, 2,
+              ownerKey, blockingStubFull, permissionKeyString));
       logger.info("Check before expire time ,can't withdraw, function pass");
       int retryTimes = 0;
       Long unfreezeExpireTime = account.getUnfrozenV2(0).getUnfreezeExpireTime();
@@ -215,16 +217,16 @@ public class FreezeBalanceV2Test003 {
       }
     }
     Assert.assertTrue(PublicMethedForMutiSign
-        .withdrawExpireUnfreezeBalanceWithPermissionId(ownerAddress,2,
-            ownerKey,blockingStubFull,permissionKeyString));
+        .withdrawExpireUnfreezeBalanceWithPermissionId(ownerAddress, 2,
+            ownerKey, blockingStubFull, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Transaction transaction = PublicMethed.getTransactionById(PublicMethedForMutiSign
-        .freezeV2Txid,blockingStubFull).get();
+        .freezeV2Txid, blockingStubFull).get();
     Assert.assertTrue(transaction.getSignatureCount() == 2);
     Assert.assertEquals(transaction.getRawData().getContract(0).getType(),
         ContractType.WithdrawExpireUnfreezeContract);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,blockingStubFull)
-        .get().getFee() >= multiSignFee);
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,
+        blockingStubFull).get().getFee() >= multiSignFee);
   }
 
 

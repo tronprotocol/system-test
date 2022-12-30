@@ -71,6 +71,12 @@ public class FreezeBalanceV2Test004 {
   private ManagedChannel channelSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
 
+  private String pbftnode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+          .get(2);
+  private ManagedChannel channelPbft = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
+
   /**
    * constructor.
    */
@@ -91,6 +97,10 @@ public class FreezeBalanceV2Test004 {
         .usePlaintext(true)
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+    channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
+        .usePlaintext(true)
+        .build();
+    blockingStubPbft= WalletSolidityGrpc.newBlockingStub(channelPbft);
     Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,
         foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(frozenEnergyAddress, sendAmount,
@@ -135,6 +145,10 @@ public class FreezeBalanceV2Test004 {
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
     Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress
         ,blockingStubFullSolidity).get().getCount() == 0);
+    //query pbft
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubPbft);
+    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress
+        ,blockingStubPbft).get().getCount() == 0);
 
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);

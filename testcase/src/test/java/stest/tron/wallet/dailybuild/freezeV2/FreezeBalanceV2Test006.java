@@ -59,22 +59,28 @@ public class FreezeBalanceV2Test006 {
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
       .get(0);
   private ManagedChannel channelSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
+  private String pbftnode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+          .get(2);
+  private ManagedChannel channelPbft = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
 
   /**
    * constructor.
    */
   @BeforeClass(enabled = true)
-  public void beforeClass() throws Exception{
+  public void beforeClass() throws Exception {
     PublicMethed.printAddress(frozenBandwidthKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       if (channelFull != null) {
         channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
       }
@@ -84,6 +90,10 @@ public class FreezeBalanceV2Test006 {
         .usePlaintext(true)
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+    channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
+        .usePlaintext(true)
+        .build();
+    blockingStubPbft= WalletSolidityGrpc.newBlockingStub(channelPbft);
     PublicMethed.printAddress(frozenBandwidthKey);
     PublicMethed.printAddress(receiverKey);
     Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,
@@ -91,8 +101,8 @@ public class FreezeBalanceV2Test006 {
     Assert.assertTrue(PublicMethed.sendcoin(receiverAddress, 1L,
         foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,freezeBandwidthBalance,0,
-        frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress, freezeBandwidthBalance, 0,
+        frozenBandwidthKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
@@ -103,70 +113,78 @@ public class FreezeBalanceV2Test006 {
    * constructor.
    */
   @Test(enabled = true, description = "Delegate lock value is true.")
-  public void test01DelegateResourceLockValueIsTrueTest() throws Exception{
-    Assert.assertTrue(PublicMethed.delegateResourceV2Lock(frozenBandwidthAddress,delegateBalance,0,false,
-        receiverAddress,frozenBandwidthKey,blockingStubFull));
+  public void test01DelegateResourceLockValueIsTrueTest() throws Exception {
+    Assert.assertTrue(PublicMethed.delegateResourceV2Lock(frozenBandwidthAddress,
+        delegateBalance, 0, false,
+        receiverAddress, frozenBandwidthKey, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long beforeLockTrueTime = System.currentTimeMillis();
-    Assert.assertTrue(PublicMethed.delegateResourceV2Lock(frozenBandwidthAddress,delegateBalance,0,true,
-        receiverAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2Lock(frozenBandwidthAddress,
+        delegateBalance, 0, true,
+        receiverAddress, frozenBandwidthKey, blockingStubFull));
     ;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     DelegatedResourceList delegatedResourceList = PublicMethed
-        .getDelegatedResource(frozenBandwidthAddress,receiverAddress,blockingStubFull).get();
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
+        .getDelegatedResource(frozenBandwidthAddress, receiverAddress, blockingStubFull).get();
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
     //query solidity
     DelegatedResourceList delegatedResourceListSolidity = PublicMethed
-        .getDelegatedResourceV2Solidity(frozenBandwidthAddress,receiverAddress,blockingStubFullSolidity).get();
-    Assert.assertEquals(delegatedResourceListSolidity,delegatedResourceList);
+        .getDelegatedResourceV2Solidity(frozenBandwidthAddress,
+            receiverAddress, blockingStubFullSolidity).get();
+    Assert.assertEquals(delegatedResourceListSolidity, delegatedResourceList);
+    //query pbft
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
+    DelegatedResourceList delegatedResourceListPbft = PublicMethed
+        .getDelegatedResourceV2Solidity(frozenBandwidthAddress,
+            receiverAddress, blockingStubPbft).get();
+    Assert.assertEquals(delegatedResourceListPbft, delegatedResourceList);
 
-    Long unlockTimeStamp = delegatedResourceList.getDelegatedResource(1).getExpireTimeForBandwidth();
-    Assert.assertTrue(delegatedResourceList.getDelegatedResource(0).getExpireTimeForBandwidth() == 0L);
-    Assert.assertTrue(unlockTimeStamp > beforeLockTrueTime && unlockTimeStamp <= System.currentTimeMillis() + delegateLockTime);
+
+    Long unlockTimeStamp =
+        delegatedResourceList.getDelegatedResource(1).getExpireTimeForBandwidth();
+    Assert.assertTrue(
+        delegatedResourceList.getDelegatedResource(0).getExpireTimeForBandwidth() == 0L);
+    Assert.assertTrue(
+        unlockTimeStamp > beforeLockTrueTime
+            &&
+            unlockTimeStamp <= System.currentTimeMillis() + delegateLockTime);
 
 
-    Assert.assertFalse(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,delegateBalance + 1,0,
-        receiverAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertFalse(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,
+        delegateBalance + 1, 0,
+        receiverAddress, frozenBandwidthKey, blockingStubFull));
 
 
-    Assert.assertTrue(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,delegateBalance,0,
-        receiverAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,
+        delegateBalance, 0,
+        receiverAddress, frozenBandwidthKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     delegatedResourceList = PublicMethed
-        .getDelegatedResource(frozenBandwidthAddress,receiverAddress,blockingStubFull).get();
-    //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    delegatedResourceListSolidity = PublicMethed
-        .getDelegatedResourceV2Solidity(frozenBandwidthAddress,receiverAddress,blockingStubFullSolidity).get();
-    Assert.assertEquals(delegatedResourceListSolidity,delegatedResourceList);
-
-    Assert.assertEquals(delegatedResourceList.getDelegatedResourceCount(),1);
-    Assert.assertTrue(delegatedResourceList.getDelegatedResource(0).getExpireTimeForBandwidth() > 0L);
+        .getDelegatedResource(frozenBandwidthAddress, receiverAddress, blockingStubFull).get();
+    Assert.assertEquals(delegatedResourceList.getDelegatedResourceCount(), 1);
+    Assert.assertTrue(
+        delegatedResourceList.getDelegatedResource(0).getExpireTimeForBandwidth() > 0L);
 
 
-    Assert.assertFalse(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,delegateBalance,0,
-        receiverAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertFalse(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,
+        delegateBalance, 0,
+        receiverAddress, frozenBandwidthKey, blockingStubFull));
 
     int retryTimes = 0;
     while (retryTimes++ <= 50 && System.currentTimeMillis() <= unlockTimeStamp + 3000L) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
 
-    Assert.assertTrue(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,delegateBalance,0,
-        receiverAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.unDelegateResourceV2(frozenBandwidthAddress,
+        delegateBalance, 0,
+        receiverAddress, frozenBandwidthKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     delegatedResourceList = PublicMethed
-        .getDelegatedResource(frozenBandwidthAddress,receiverAddress,blockingStubFull).get();
-    //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    delegatedResourceListSolidity = PublicMethed
-        .getDelegatedResourceV2Solidity(frozenBandwidthAddress,receiverAddress,blockingStubFullSolidity).get();
-    Assert.assertEquals(delegatedResourceListSolidity,delegatedResourceList);
-
-    Assert.assertEquals(delegatedResourceList.getDelegatedResourceCount(),0);
+        .getDelegatedResource(frozenBandwidthAddress, receiverAddress, blockingStubFull).get();
+    Assert.assertEquals(delegatedResourceList.getDelegatedResourceCount(), 0);
 
 
   }
@@ -177,7 +195,8 @@ public class FreezeBalanceV2Test006 {
    */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    PublicMethed.freedResource(frozenBandwidthAddress, frozenBandwidthKey, foundationAddress, blockingStubFull);
+    PublicMethed.freedResource(frozenBandwidthAddress,
+        frozenBandwidthKey, foundationAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }

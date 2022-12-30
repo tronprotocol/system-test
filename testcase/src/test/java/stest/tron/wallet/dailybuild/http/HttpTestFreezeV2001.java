@@ -13,9 +13,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.*;
 
+
+/**
+ *
+ */
 @Slf4j
 public class HttpTestFreezeV2001 {
 
@@ -238,8 +241,7 @@ public class HttpTestFreezeV2001 {
     frozenV2 = responseContent.getJSONArray("frozenV2");
     afterFreezeBalance =
         frozenV2.getJSONObject(0).getLong("amount");
-    Assert.assertTrue
-        (beforeFreezeBalance - afterFreezeBalance == delegateAmount);
+    Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == delegateAmount);
     Long delegatedFrozenBalanceForBandwidth =
         responseContent.getLong("delegated_frozenV2_balance_for_bandwidth");
     Assert.assertEquals(delegatedFrozenBalanceForBandwidth, delegateAmount);
@@ -282,9 +284,12 @@ public class HttpTestFreezeV2001 {
     frozenV2 = responseContent.getJSONArray("frozenV2");
     afterFreezeBalance = frozenV2.getJSONObject(0).getLong("amount");
     Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == -delegateAmount);
-    Long delegatedFrozenBalanceForBandwidth = responseContent.getLong("delegated_frozenV2_balance_for_bandwidth");
+    Long delegatedFrozenBalanceForBandwidth =
+        responseContent.getLong("delegated_frozenV2_balance_for_bandwidth");
     Assert.assertNull(delegatedFrozenBalanceForBandwidth);
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, receiverResourceAddress));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, receiverResourceAddress)
+    );
     Long acquiredDelegatedFrozenBalanceForBandwidth =
         responseContent.getLong("acquired_delegated_frozenV2_balance_for_bandwidth");
     Assert.assertNull(acquiredDelegatedFrozenBalanceForBandwidth);
@@ -318,11 +323,16 @@ public class HttpTestFreezeV2001 {
     frozenV2 = responseContent.getJSONArray("frozenV2");
     afterFreezeBalance = frozenV2.getJSONObject(1).getLong("amount");
     Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == delegateAmount);
-    Long delegatedFrozenBalanceForBandwidth = responseContent.getJSONObject("account_resource").getLong("delegated_frozenV2_balance_for_energy");
+    Long delegatedFrozenBalanceForBandwidth =
+        responseContent.getJSONObject("account_resource")
+            .getLong("delegated_frozenV2_balance_for_energy");
     Assert.assertEquals(delegatedFrozenBalanceForBandwidth, delegateAmount);
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, receiverResourceAddress));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, receiverResourceAddress)
+    );
     Long acquiredDelegatedFrozenBalanceForBandwidth =
-        responseContent.getJSONObject("account_resource").getLong("acquired_delegated_frozenV2_balance_for_energy");
+        responseContent.getJSONObject("account_resource")
+            .getLong("acquired_delegated_frozenV2_balance_for_energy");
     Assert.assertEquals(acquiredDelegatedFrozenBalanceForBandwidth, delegateAmount);
 
 
@@ -334,7 +344,9 @@ public class HttpTestFreezeV2001 {
    */
   @Test(enabled = true, description = "UndelegateResource of energy for others by http")
   public void test008UndelegateResourceOfEnergyForOthers() {
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeEnergyAddress));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, freezeEnergyAddress)
+    );
     JSONArray frozenV2 = responseContent.getJSONArray("frozenV2");
     beforeFreezeBalance = frozenV2.getJSONObject(1).getLong("amount");
 
@@ -349,14 +361,22 @@ public class HttpTestFreezeV2001 {
     );
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeEnergyAddress));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, freezeEnergyAddress)
+    );
     frozenV2 = responseContent.getJSONArray("frozenV2");
     afterFreezeBalance = frozenV2.getJSONObject(1).getLong("amount");
     Assert.assertTrue(beforeFreezeBalance - afterFreezeBalance == -delegateAmount);
-    Long delegatedFrozenBalanceForEnergy = responseContent.getJSONObject("account_resource").getLong("delegated_frozenV2_balance_for_energy");
+    Long delegatedFrozenBalanceForEnergy =
+        responseContent.getJSONObject("account_resource")
+            .getLong("delegated_frozenV2_balance_for_energy");
     Assert.assertNull(delegatedFrozenBalanceForEnergy);
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, receiverResourceAddress));
-    Long acquiredDelegatedFrozenBalanceForEnergy = responseContent.getJSONObject("account_resource").getLong("acquired_delegated_frozenV2_balance_for_energy");
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, receiverResourceAddress)
+    );
+    Long acquiredDelegatedFrozenBalanceForEnergy =
+        responseContent.getJSONObject("account_resource")
+            .getLong("acquired_delegated_frozenV2_balance_for_energy");
     Assert.assertNull(acquiredDelegatedFrozenBalanceForEnergy);
 
 
@@ -369,7 +389,9 @@ public class HttpTestFreezeV2001 {
    */
   @Test(enabled = true, description = "WithdrawExpireUnfreeze by http")
   public void test009WithdrawExpireUnfreeze() {
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeBandwidthAddress));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, freezeBandwidthAddress)
+    );
     JSONArray unfrozenV2 = responseContent.getJSONArray("unfrozenV2");
     Long unfreezeExpireTime = unfrozenV2.getJSONObject(0).getLong("unfreeze_expire_time");
     int retryTimes = 0;
@@ -381,17 +403,25 @@ public class HttpTestFreezeV2001 {
 
 
 
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeBandwidthAddress));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, freezeBandwidthAddress)
+    );
     unfrozenV2 = responseContent.getJSONArray("unfrozenV2");
     final Long unfreezeAmount = unfrozenV2.getJSONObject(0).getLong("unfreeze_amount");
     final Long beforeBalance = responseContent.getLong("balance");
 
-    response = HttpMethed.withdrawExpireUnfreeze(httpnode, freezeBandwidthAddress, freezeBandwidthKey);
+    response = HttpMethed.withdrawExpireUnfreeze(
+        httpnode,
+        freezeBandwidthAddress,
+        freezeBandwidthKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
 
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeBandwidthAddress));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, freezeBandwidthAddress)
+    );
     Assert.assertNull(responseContent.getJSONArray("unfrozenV2"));
     afterBalance = responseContent.getLong("balance");
 
@@ -408,34 +438,71 @@ public class HttpTestFreezeV2001 {
   public void test010GetCanDelegateMaxSize() {
     long frozenBalance = 100000000L;
     //without freeze, Assert null
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanDelegatedMaxSize(httpnode, freezeForQuery, 0L, false));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanDelegatedMaxSize(httpnode, freezeForQuery, 0L, false)
+    );
     Assert.assertNull(responseContent.getJSONObject("max_size"));
 
     //freeze bandwidth
-    response = HttpMethed.freezeBalanceV2(httpnode, freezeForQuery, frozenBalance, 0, null, freezeForQueryKey);
+    response = HttpMethed.freezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        frozenBalance,
+        0,
+        null,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     //freeze energy
-    response = HttpMethed.freezeBalanceV2(httpnode, freezeForQuery, frozenBalance, 1, null, freezeForQueryKey);
+    response = HttpMethed.freezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        frozenBalance,
+        1,
+        null,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
     //query fullNode
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanDelegatedMaxSize(httpnode, freezeForQuery, 0L, false));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanDelegatedMaxSize(httpnode, freezeForQuery, 0L, false)
+    );
     logger.info("bandwidth max_size:" + responseContent.getInteger("max_size").toString());
     Assert.assertTrue(responseContent.getInteger("max_size") <= frozenBalance);
     //query solidity node
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanDelegatedMaxSizeSolidity(httpSoliditynode, freezeForQuery, 0L, false));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanDelegatedMaxSizeSolidity(httpSoliditynode, freezeForQuery, 0L, false)
+    );
+    logger.info("bandwidth max_size:" + responseContent.getInteger("max_size").toString());
+    Assert.assertTrue(responseContent.getInteger("max_size") <= frozenBalance);
+    //query pbft node
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanDelegatedMaxSizePbft(httpPbftNode, freezeForQuery, 0L, false)
+    );
     logger.info("bandwidth max_size:" + responseContent.getInteger("max_size").toString());
     Assert.assertTrue(responseContent.getInteger("max_size") <= frozenBalance);
 
+
     //query fullNode
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanDelegatedMaxSize(httpnode, freezeForQuery, 1L, false));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanDelegatedMaxSize(httpnode, freezeForQuery, 1L, false)
+    );
     logger.info("energy max_size:" + responseContent.getInteger("max_size").toString());
     Assert.assertTrue(responseContent.getInteger("max_size") == frozenBalance);
     //query solidity node
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanDelegatedMaxSizeSolidity(httpSoliditynode, freezeForQuery, 1L, false));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanDelegatedMaxSizeSolidity(httpSoliditynode, freezeForQuery, 1L, false)
+    );
+    logger.info("energy max_size:" + responseContent.getInteger("max_size").toString());
+    Assert.assertTrue(responseContent.getInteger("max_size") == frozenBalance);
+    //query pbft node
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanDelegatedMaxSizePbft(httpPbftNode, freezeForQuery, 1L, false)
+    );
     logger.info("energy max_size:" + responseContent.getInteger("max_size").toString());
     Assert.assertTrue(responseContent.getInteger("max_size") == frozenBalance);
 
@@ -449,15 +516,37 @@ public class HttpTestFreezeV2001 {
     final long fronzenBalance = 9000000L;
     final long unfronzenBalance = fronzenBalance;
 
-    HttpMethed.freezeBalanceV2(httpnode, freezeForQuery, fronzenBalance, 0, null, freezeForQueryKey);
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanWithdrawUnfreezeAmount(httpnode, freezeForQuery, System.currentTimeMillis(), false));
+    HttpMethed.freezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        fronzenBalance,
+        0,
+        null,
+        freezeForQueryKey
+    );
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmount(
+            httpnode,
+            freezeForQuery,
+            System.currentTimeMillis(),
+            false
+        )
+    );
     Assert.assertNull(responseContent.getJSONObject("amount"));
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
-    response = HttpMethed.unFreezeBalanceV2(httpnode, freezeForQuery, unfronzenBalance, 0, freezeForQueryKey);
+    response = HttpMethed.unFreezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        unfronzenBalance,
+        0,
+        freezeForQueryKey
+    );
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAccount(httpnode, freezeForQuery));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAccount(httpnode, freezeForQuery)
+    );
     JSONArray unfreezeList = responseContent.getJSONArray("unfrozenV2");
     long unfreezeExpireTime = 0L;
     for (int i = 0; i < unfreezeList.size(); i++) {
@@ -467,66 +556,150 @@ public class HttpTestFreezeV2001 {
       }
     }
     //query  expire time
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanWithdrawUnfreezeAmount(httpnode, freezeForQuery, unfreezeExpireTime, false));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmount(httpnode, freezeForQuery, unfreezeExpireTime, false)
+    );
     Assert.assertEquals(unfronzenBalance, responseContent.getLongValue("amount"));
     //query solidity
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanWithdrawUnfreezeAmountSolidity(httpSoliditynode, freezeForQuery, unfreezeExpireTime, false));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmountSolidity(
+            httpSoliditynode,
+            freezeForQuery,
+            unfreezeExpireTime,
+            false
+        )
+    );
+    Assert.assertEquals(unfronzenBalance, responseContent.getLongValue("amount"));
+    //query pbft node
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmountPbft(
+            httpPbftNode,
+            freezeForQuery,
+            unfreezeExpireTime,
+            false
+        )
+    );
     Assert.assertEquals(unfronzenBalance, responseContent.getLongValue("amount"));
 
     //query  expire time-1
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanWithdrawUnfreezeAmount(httpnode, freezeForQuery, unfreezeExpireTime - 1L, false));
-    Assert.assertNull( responseContent.getJSONObject("amount"));
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanWithdrawUnfreezeAmountSolidity(httpSoliditynode, freezeForQuery, unfreezeExpireTime - 1L, false));
-    Assert.assertNull( responseContent.getJSONObject("amount"));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmount(
+            httpnode,
+            freezeForQuery,
+            unfreezeExpireTime - 1L,
+            false
+        )
+    );
+    Assert.assertNull(responseContent.getJSONObject("amount"));
+    //query solidity expire time-1
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmountSolidity(
+            httpSoliditynode,
+            freezeForQuery,
+            unfreezeExpireTime - 1L,
+            false)
+    );
+    Assert.assertNull(responseContent.getJSONObject("amount"));
 
     //query expire time+1
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanWithdrawUnfreezeAmount(httpnode, freezeForQuery, unfreezeExpireTime + 1L, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmount(
+            httpnode,
+            freezeForQuery,
+            unfreezeExpireTime + 1L,
+            true
+        )
+    );
     Assert.assertEquals(unfronzenBalance, responseContent.getLongValue("amount"));
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getCanWithdrawUnfreezeAmountSolidity(httpSoliditynode, freezeForQuery, unfreezeExpireTime + 1L, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getCanWithdrawUnfreezeAmountSolidity(
+            httpSoliditynode,
+            freezeForQuery,
+            unfreezeExpireTime + 1L,
+            true
+        )
+    );
     Assert.assertEquals(unfronzenBalance, responseContent.getLongValue("amount"));
-
-
   }
 
   @Test(enabled = true, description = "GetDelegatedResourceV2 by http")
   public void test013GetDelegatedResourceV2() {
     final long freezeAmount = 100000000L;
     final long delegateAmount = 50000000L;
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceV2(httpnode, freezeForQuery, receiverResourceAddress, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceV2(
+            httpnode,
+            freezeForQuery,
+            receiverResourceAddress,
+            true
+        )
+    );
     Assert.assertNull(responseContent.getJSONArray("delegatedResource"));
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceV2Solidity(httpSoliditynode, freezeForQuery, receiverResourceAddress, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceV2Solidity(
+            httpSoliditynode,
+            freezeForQuery,
+            receiverResourceAddress,
+            true
+        )
+    );
     Assert.assertNull(responseContent.getJSONArray("delegatedResource"));
 
-    response = HttpMethed.freezeBalanceV2(httpnode, freezeForQuery, freezeAmount, 0, null, freezeForQueryKey);
+    response = HttpMethed.freezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        freezeAmount,
+        0,
+        null,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
-    response = HttpMethed.freezeBalanceV2(httpnode, freezeForQuery, freezeAmount, 1, null, freezeForQueryKey);
+    response = HttpMethed.freezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        freezeAmount,
+        1,
+        null,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
-    response = HttpMethed.delegateresource(httpnode, freezeForQuery, delegateAmount, 0, receiverResourceAddress, freezeForQueryKey);
+    response = HttpMethed.delegateresource(
+        httpnode,
+        freezeForQuery,
+        delegateAmount,
+        0,
+        receiverResourceAddress,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
-    response = HttpMethed.delegateresource(httpnode, freezeForQuery, delegateAmount, 1, receiverResourceAddress, freezeForQueryKey);
+    response = HttpMethed.delegateresource(
+        httpnode,
+        freezeForQuery,
+        delegateAmount,
+        1,
+        receiverResourceAddress,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
     //query fullNode
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceV2(httpnode, freezeForQuery, receiverResourceAddress, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceV2(
+            httpnode,
+            freezeForQuery,
+            receiverResourceAddress,
+            true)
+    );
     JSONArray delegateList = responseContent.getJSONArray("delegatedResource");
     JSONObject delegateItem = null;
     for (int i = 0; i < delegateList.size(); i++) {
-      if (delegateList.getJSONObject(i).getString("from").equals(Base58.encode58Check(freezeForQuery)) && delegateList.getJSONObject(i).getString("to").equals(Base58.encode58Check(receiverResourceAddress))) {
-         delegateItem = delegateList.getJSONObject(i);
-      }
-    }
-    Assert.assertNotNull(delegateItem);
-    Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_bandwidth"));
-    Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_energy"));
 
-    //query solidity
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceV2Solidity(httpSoliditynode, freezeForQuery, receiverResourceAddress,true));
-    delegateList = responseContent.getJSONArray("delegatedResource");
-    delegateItem = null;
-    for (int i = 0; i < delegateList.size(); i++) {
-      if (delegateList.getJSONObject(i).getString("from").equals(Base58.encode58Check(freezeForQuery)) && delegateList.getJSONObject(i).getString("to").equals(Base58.encode58Check(receiverResourceAddress))) {
+      if (delegateList.getJSONObject(i).getString("from")
+          .equals(Base58.encode58Check(freezeForQuery))
+          && delegateList.getJSONObject(i).getString("to")
+          .equals(Base58.encode58Check(receiverResourceAddress))) {
         delegateItem = delegateList.getJSONObject(i);
       }
     }
@@ -534,40 +707,183 @@ public class HttpTestFreezeV2001 {
     Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_bandwidth"));
     Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_energy"));
 
+    //query solidity
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceV2Solidity(
+            httpSoliditynode,
+            freezeForQuery,
+            receiverResourceAddress,
+            true
+        )
+    );
+    delegateList = responseContent.getJSONArray("delegatedResource");
+    delegateItem = null;
+    for (int i = 0; i < delegateList.size(); i++) {
+      if (delegateList.getJSONObject(i).getString("from")
+          .equals(Base58.encode58Check(freezeForQuery))
+          && delegateList.getJSONObject(i).getString("to")
+          .equals(Base58.encode58Check(receiverResourceAddress))) {
+        delegateItem = delegateList.getJSONObject(i);
+      }
+    }
+    Assert.assertNotNull(delegateItem);
+    Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_bandwidth"));
+    Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_energy"));
+
+    //query pbft
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceV2Pbft(
+            httpPbftNode,
+            freezeForQuery,
+            receiverResourceAddress,
+            true
+        )
+    );
+    delegateList = responseContent.getJSONArray("delegatedResource");
+    delegateItem = null;
+    for (int i = 0; i < delegateList.size(); i++) {
+      if (delegateList.getJSONObject(i).getString("from")
+          .equals(Base58.encode58Check(freezeForQuery))
+          && delegateList.getJSONObject(i).getString("to")
+          .equals(Base58.encode58Check(receiverResourceAddress))) {
+        delegateItem = delegateList.getJSONObject(i);
+      }
+    }
+    Assert.assertNotNull(delegateItem);
+    Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_bandwidth"));
+    Assert.assertEquals(delegateAmount, delegateItem.getLongValue("frozen_balance_for_energy"));
+
+
   }
 
   @Test(enabled = true, description = "GetDelegatedResourceAccountIndexV2 by http")
   public void test014GetDelegatedResourceAccountIndexV2() {
     final long freezeAmount = 100000000L;
     final long delegateAmount = 50000000L;
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceAccountIndexV2(httpnode, freezeForQuery, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceAccountIndexV2(
+            httpnode,
+            freezeForQuery,
+            true
+        )
+    );
     logger.info(responseContent.toJSONString());
-    response = HttpMethed.freezeBalanceV2(httpnode, freezeForQuery, freezeAmount, 0, null, freezeForQueryKey);
+    response = HttpMethed.freezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        freezeAmount,
+        0,
+        null,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
-    response = HttpMethed.freezeBalanceV2(httpnode, freezeForQuery, freezeAmount, 1, null, freezeForQueryKey);
+    response = HttpMethed.freezeBalanceV2(
+        httpnode,
+        freezeForQuery,
+        freezeAmount,
+        1,
+        null,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
-    response = HttpMethed.delegateresource(httpnode, freezeForQuery, delegateAmount, 0, receiverResourceAddress, freezeForQueryKey);
+    response = HttpMethed.delegateresource(
+        httpnode,
+        freezeForQuery,
+        delegateAmount,
+        0,
+        receiverResourceAddress,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
-    response = HttpMethed.delegateresource(httpnode, freezeForQuery, delegateAmount, 1, receiverResourceAddress, freezeForQueryKey);
+    response = HttpMethed.delegateresource(
+        httpnode,
+        freezeForQuery,
+        delegateAmount,
+        1,
+        receiverResourceAddress,
+        freezeForQueryKey
+    );
     Assert.assertTrue(HttpMethed.verificationResult(response));
 
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     //query fullNode
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceAccountIndexV2(httpnode, freezeForQuery, true));
-    Assert.assertTrue(responseContent.getString("account").equals(Base58.encode58Check(freezeForQuery)));
-    Assert.assertTrue(responseContent.getJSONArray("toAccounts").contains(Base58.encode58Check(receiverResourceAddress)));
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceAccountIndexV2(httpnode, receiverResourceAddress, true));
-    Assert.assertTrue(responseContent.getString("account").equals(Base58.encode58Check(receiverResourceAddress)));
-    Assert.assertTrue(responseContent.getJSONArray("fromAccounts").contains(Base58.encode58Check(freezeForQuery)));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceAccountIndexV2(httpnode, freezeForQuery, true)
+    );
+    Assert.assertTrue(
+        responseContent.getString("account").equals(Base58.encode58Check(freezeForQuery))
+    );
+    Assert.assertTrue(
+        responseContent.getJSONArray("toAccounts")
+            .contains(Base58.encode58Check(receiverResourceAddress))
+    );
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceAccountIndexV2(httpnode, receiverResourceAddress, true)
+    );
+    Assert.assertTrue(
+        responseContent.getString("account").equals(Base58.encode58Check(receiverResourceAddress))
+    );
+    Assert.assertTrue(
+        responseContent.getJSONArray("fromAccounts").contains(Base58.encode58Check(freezeForQuery))
+    );
     //query solidity
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceAccountIndexV2Solidity(httpSoliditynode, freezeForQuery, true));
-    Assert.assertTrue(responseContent.getString("account").equals(Base58.encode58Check(freezeForQuery)));
-    Assert.assertTrue(responseContent.getJSONArray("toAccounts").contains(Base58.encode58Check(receiverResourceAddress)));
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getDelegatedResourceAccountIndexV2Solidity(httpSoliditynode, receiverResourceAddress, true));
-    Assert.assertTrue(responseContent.getString("account").equals(Base58.encode58Check(receiverResourceAddress)));
-    Assert.assertTrue(responseContent.getJSONArray("fromAccounts").contains(Base58.encode58Check(freezeForQuery)));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceAccountIndexV2Solidity(
+            httpSoliditynode,
+            freezeForQuery,
+            true
+        )
+    );
+    Assert.assertTrue(
+        responseContent.getString("account").equals(Base58.encode58Check(freezeForQuery))
+    );
+    Assert.assertTrue(
+        responseContent.getJSONArray("toAccounts")
+            .contains(Base58.encode58Check(receiverResourceAddress))
+    );
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceAccountIndexV2Solidity(
+            httpSoliditynode,
+            receiverResourceAddress,
+            true
+        )
+    );
+    Assert.assertTrue(
+        responseContent.getString("account").equals(Base58.encode58Check(receiverResourceAddress))
+    );
+    Assert.assertTrue(
+        responseContent.getJSONArray("fromAccounts").contains(Base58.encode58Check(freezeForQuery))
+    );
+    //query pbft
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceAccountIndexV2Pbft(
+            httpPbftNode,
+            freezeForQuery,
+            true
+        )
+    );
+    Assert.assertTrue(
+        responseContent.getString("account").equals(Base58.encode58Check(freezeForQuery))
+    );
+    Assert.assertTrue(
+        responseContent.getJSONArray("toAccounts")
+            .contains(Base58.encode58Check(receiverResourceAddress))
+    );
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getDelegatedResourceAccountIndexV2Pbft(
+            httpPbftNode,
+            receiverResourceAddress,
+            true
+        )
+    );
+    Assert.assertTrue(
+        responseContent.getString("account").equals(Base58.encode58Check(receiverResourceAddress))
+    );
+    Assert.assertTrue(
+        responseContent.getJSONArray("fromAccounts").contains(Base58.encode58Check(freezeForQuery))
+    );
 
 
   }
@@ -583,20 +899,40 @@ public class HttpTestFreezeV2001 {
     HttpMethed.waitToProduceOneBlock(httpnode);
     long freezeAmount = 1000000L;
     //without unfreeze, Assert 32
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAvailableUnfreezeCount(httpnode, unfreezeAccount, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAvailableUnfreezeCount(httpnode, unfreezeAccount, true)
+    );
     Assert.assertEquals(32L, responseContent.getLongValue("count"));
 
-    response = HttpMethed.freezeBalanceV2(httpnode, unfreezeAccount, freezeAmount, 0, null, unfreezeAccountKey);
+    response = HttpMethed.freezeBalanceV2(
+        httpnode,
+        unfreezeAccount,
+        freezeAmount,
+        0,
+        null,
+        unfreezeAccountKey
+    );
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
     // unfreezeBalance 1 SUN bandwidth Assert 31
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.unFreezeBalanceV2(httpnode, unfreezeAccount, 1L, 0, unfreezeAccountKey));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.unFreezeBalanceV2(httpnode, unfreezeAccount, 1L, 0, unfreezeAccountKey)
+    );
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     //query fullNode
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAvailableUnfreezeCount(httpnode, unfreezeAccount, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAvailableUnfreezeCount(httpnode, unfreezeAccount, true)
+    );
     Assert.assertEquals(31L, responseContent.getLongValue("count"));
     //query solidity
-    responseContent = HttpMethed.parseResponseContent(HttpMethed.getAvailableUnfreezeCountSolidity(httpSoliditynode, unfreezeAccount, true));
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAvailableUnfreezeCountSolidity(httpSoliditynode, unfreezeAccount, true)
+    );
+    Assert.assertEquals(31L, responseContent.getLongValue("count"));
+    //query pbft
+    responseContent = HttpMethed.parseResponseContent(
+        HttpMethed.getAvailableUnfreezeCountPbft(httpPbftNode, unfreezeAccount, true)
+    );
     Assert.assertEquals(31L, responseContent.getLongValue("count"));
 
   }
@@ -607,7 +943,7 @@ public class HttpTestFreezeV2001 {
   @AfterClass
   public void shutdown() throws InterruptedException {
     response = HttpMethed
-        .unFreezeBalance(httpnode, fromAddress, frozenBalance,0, freezeBandwidthAddress,
+        .unFreezeBalance(httpnode, fromAddress, frozenBalance, 0, freezeBandwidthAddress,
             testKey002);
     HttpMethed.freedResource(httpnode, freezeBandwidthAddress, fromAddress, freezeBandwidthKey);
     HttpMethed.disConnect();

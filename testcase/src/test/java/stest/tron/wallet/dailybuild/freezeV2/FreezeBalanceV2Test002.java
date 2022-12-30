@@ -76,12 +76,18 @@ public class FreezeBalanceV2Test002 {
       .get(0);
   private ManagedChannel channelSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
+  private String pbftnode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+          .get(2);
+  private ManagedChannel channelPbft = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
+
 
   /**
    * constructor.
    */
   @BeforeClass(enabled = true)
-  public void beforeClass() throws Exception{
+  public void beforeClass() throws Exception {
     PublicMethed.printAddress(frozenBandwidthKey);
     PublicMethed.printAddress(frozenEnergyKey);
     PublicMethed.printAddress(receiveBandwidthKey);
@@ -90,7 +96,7 @@ public class FreezeBalanceV2Test002 {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+    if (!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
       if (channelFull != null) {
         channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
       }
@@ -100,6 +106,10 @@ public class FreezeBalanceV2Test002 {
         .usePlaintext(true)
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+    channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
+        .usePlaintext(true)
+        .build();
+    blockingStubPbft= WalletSolidityGrpc.newBlockingStub(channelPbft);
     Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,
         foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(frozenEnergyAddress, sendAmount,
@@ -234,57 +244,131 @@ public class FreezeBalanceV2Test002 {
    */
   @Test(enabled = true, description = "Test GetCanDelegatedMaxSize api")
   public void test03TestGetCanDelegatedMaxSizeApi() throws Exception {
-    Long canDelegatedMaxSizeWithNoNetUsed =  PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
+    Long canDelegatedMaxSizeWithNoNetUsed = PublicMethed
+        .getCanDelegatedMaxSize(frozenBandwidthAddress, 0, blockingStubFull)
+        .get()
         .getMaxSize();
     logger.info("canDelegatedMaxSizeWithNoNetUsed" + canDelegatedMaxSizeWithNoNetUsed);
+    //query solidity
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
+    Long canDelegatedMaxSizeWithNoNetUsedSolidity =  PublicMethed
+        .getCanDelegatedMaxSizeSolidity(frozenBandwidthAddress, 0, blockingStubFullSolidity)
+        .get()
+        .getMaxSize();
+    logger.info(
+        "canDelegatedMaxSizeWithNoNetUsedSolidity"
+        + canDelegatedMaxSizeWithNoNetUsedSolidity
+    );
+    //query pbft
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
+    Long canDelegatedMaxSizeWithNoNetUsedPbft =  PublicMethed
+        .getCanDelegatedMaxSizeSolidity(frozenBandwidthAddress, 0, blockingStubPbft)
+        .get()
+        .getMaxSize();
+    logger.info(
+        "canDelegatedMaxSizeWithNoNetUsedPbft"
+            + canDelegatedMaxSizeWithNoNetUsedPbft
+    );
     int retryTimes = 0;
-    while (PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
+    while (PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress, 0, blockingStubFull).get()
         .getMaxSize() + 1100000 > canDelegatedMaxSizeWithNoNetUsed && retryTimes++ <= 5000) {
-      logger.info("Current" + PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
-          .getMaxSize());
+      logger.info(
+          "Current" + PublicMethed
+              .getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull)
+              .get()
+              .getMaxSize()
+      );
       PublicMethed.sendcoinGetTransactionIdForConstructData(foundationAddress,
-          1L,frozenBandwidthAddress,frozenBandwidthKey,blockingStubFull);
+          1L, frozenBandwidthAddress, frozenBandwidthKey, blockingStubFull);
       Thread.sleep(10L);
     }
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long canDelegatedMaxSizeWithNetUsed =  PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
+    Long canDelegatedMaxSizeWithNetUsed =  PublicMethed.getCanDelegatedMaxSize
+        (frozenBandwidthAddress, 0, blockingStubFull)
+        .get()
         .getMaxSize();
     Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsed > canDelegatedMaxSizeWithNetUsed + 1000000);
     //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    Long canDelegatedMaxSizeWithNetUsedSolidity =  PublicMethed.getCanDelegatedMaxSizeSolidity(frozenBandwidthAddress,0,blockingStubFullSolidity).get()
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
+    Long canDelegatedMaxSizeWithNetUsedSolidity =  PublicMethed.getCanDelegatedMaxSizeSolidity(
+        frozenBandwidthAddress, 0, blockingStubFullSolidity)
+        .get()
         .getMaxSize();
-    Assert.assertTrue(canDelegatedMaxSizeWithNetUsedSolidity > canDelegatedMaxSizeWithNetUsedSolidity + 1000000);
+    Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsedSolidity > canDelegatedMaxSizeWithNetUsedSolidity + 1000000);
+    //query pbft
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
+    Long canDelegatedMaxSizeWithNetUsedPbft =  PublicMethed.getCanDelegatedMaxSizeSolidity(
+        frozenBandwidthAddress, 0, blockingStubPbft)
+        .get()
+        .getMaxSize();
+    Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsedPbft > canDelegatedMaxSizeWithNetUsedPbft + 1000000);
 
 
 
-    Assert.assertFalse(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSizeWithNetUsed + 1,
-        0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
-    Assert.assertTrue(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSizeWithNetUsed,
-        0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
+
+    Assert.assertFalse(
+        PublicMethed.delegateResourceV2(
+            frozenBandwidthAddress,
+            canDelegatedMaxSizeWithNetUsed + 1,
+            0,
+            receiveBandwidthAddress,
+            frozenBandwidthKey,
+            blockingStubFull
+        )
+    );
+    Assert.assertTrue(PublicMethed.delegateResourceV2(
+        frozenBandwidthAddress,
+        canDelegatedMaxSizeWithNetUsed,
+        0,
+        receiveBandwidthAddress,
+        frozenBandwidthKey,
+        blockingStubFull)
+    );
 
 
 
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(foundationAddress,freezeBandwidthBalance,0,foundationKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(foundationAddress,
+        freezeBandwidthBalance, 0, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.delegateResourceV2(foundationAddress,PublicMethed.getCanDelegatedMaxSize(foundationAddress,0,blockingStubFull).get()
-            .getMaxSize(),0,
-        frozenBandwidthAddress,foundationKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(foundationAddress,
+        PublicMethed.getCanDelegatedMaxSize(foundationAddress, 0, blockingStubFull)
+            .get()
+            .getMaxSize(),
+        0,
+        frozenBandwidthAddress,
+        foundationKey,
+        blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Long canDelegatedMaxSizeWithOtherDelegatedToMe =  PublicMethed.getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull).get()
+    Long canDelegatedMaxSizeWithOtherDelegatedToMe =  PublicMethed.getCanDelegatedMaxSize(
+        frozenBandwidthAddress, 0, blockingStubFull)
+        .get()
         .getMaxSize();
 
-    Assert.assertTrue(canDelegatedMaxSizeWithNetUsed + canDelegatedMaxSizeWithOtherDelegatedToMe == freezeBandwidthBalance);
+    Assert.assertTrue(
+        canDelegatedMaxSizeWithNetUsed + canDelegatedMaxSizeWithOtherDelegatedToMe
+            == freezeBandwidthBalance
+    );
     //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
-    Long canDelegatedMaxSizeWithOtherDelegatedToMeSolidity =  PublicMethed.getCanDelegatedMaxSizeSolidity(frozenBandwidthAddress,0,blockingStubFullSolidity).get()
-        .getMaxSize();
-    Assert.assertTrue(canDelegatedMaxSizeWithNetUsedSolidity + canDelegatedMaxSizeWithOtherDelegatedToMeSolidity == freezeBandwidthBalance);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
+    Long canDelegatedMaxSizeWithOtherDelegatedToMeSolidity =
+        PublicMethed.getCanDelegatedMaxSizeSolidity(
+            frozenBandwidthAddress, 0, blockingStubFullSolidity
+        ).get().getMaxSize();
+    Assert.assertTrue(
+        canDelegatedMaxSizeWithNetUsedSolidity + canDelegatedMaxSizeWithOtherDelegatedToMeSolidity
+            == freezeBandwidthBalance
+    );
 
-    Assert.assertTrue(PublicMethed.delegateResourceV2(frozenBandwidthAddress,canDelegatedMaxSizeWithOtherDelegatedToMe,
-        0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.delegateResourceV2(
+        frozenBandwidthAddress,
+        canDelegatedMaxSizeWithOtherDelegatedToMe,
+        0,
+        receiveBandwidthAddress,
+        frozenBandwidthKey,
+        blockingStubFull)
+    );
 
 
   }
@@ -294,7 +378,8 @@ public class FreezeBalanceV2Test002 {
    */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    PublicMethed.freedResource(frozenBandwidthAddress, frozenBandwidthKey, foundationAddress, blockingStubFull);
+    PublicMethed.freedResource(frozenBandwidthAddress,
+        frozenBandwidthKey, foundationAddress, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
