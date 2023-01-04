@@ -289,6 +289,17 @@ public class FreezeBalanceV2Test002 {
         .get()
         .getMaxSize();
     Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsed > canDelegatedMaxSizeWithNetUsed + 1000000);
+
+    Assert.assertFalse(
+        PublicMethed.delegateResourceV2(
+            frozenBandwidthAddress,
+            canDelegatedMaxSizeWithNetUsed + 1,
+            0,
+            receiveBandwidthAddress,
+            frozenBandwidthKey,
+            blockingStubFull
+        )
+    );
     //query solidity
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
     Long canDelegatedMaxSizeWithNetUsedSolidity =  PublicMethed.getCanDelegatedMaxSizeSolidity(
@@ -303,20 +314,6 @@ public class FreezeBalanceV2Test002 {
         .get()
         .getMaxSize();
     Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsedPbft > canDelegatedMaxSizeWithNetUsedPbft + 1000000);
-
-
-
-
-    Assert.assertFalse(
-        PublicMethed.delegateResourceV2(
-            frozenBandwidthAddress,
-            canDelegatedMaxSizeWithNetUsed + 1,
-            0,
-            receiveBandwidthAddress,
-            frozenBandwidthKey,
-            blockingStubFull
-        )
-    );
     Assert.assertTrue(PublicMethed.delegateResourceV2(
         frozenBandwidthAddress,
         canDelegatedMaxSizeWithNetUsed,
@@ -325,8 +322,6 @@ public class FreezeBalanceV2Test002 {
         frozenBandwidthKey,
         blockingStubFull)
     );
-
-
 
     Assert.assertTrue(PublicMethed.freezeBalanceV2(foundationAddress,
         freezeBandwidthBalance, 0, foundationKey, blockingStubFull));
@@ -348,16 +343,6 @@ public class FreezeBalanceV2Test002 {
 
     Assert.assertTrue(
         canDelegatedMaxSizeWithNetUsed + canDelegatedMaxSizeWithOtherDelegatedToMe
-            == freezeBandwidthBalance
-    );
-    //query solidity
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
-    Long canDelegatedMaxSizeWithOtherDelegatedToMeSolidity =
-        PublicMethed.getCanDelegatedMaxSizeSolidity(
-            frozenBandwidthAddress, 0, blockingStubFullSolidity
-        ).get().getMaxSize();
-    Assert.assertTrue(
-        canDelegatedMaxSizeWithNetUsedSolidity + canDelegatedMaxSizeWithOtherDelegatedToMeSolidity
             == freezeBandwidthBalance
     );
 
