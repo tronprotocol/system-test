@@ -5815,4 +5815,82 @@ public class HttpMethed {
     return  response;
   }
 
+  /** constructor. */
+  public static HttpResponse getEstimateEnergy(
+      String httpNode,
+      byte[] ownerAddress,
+      byte[] contractAddress,
+      String functionSelector,
+      String parameter,
+      boolean visible) {
+    try {
+      String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",
+          visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("contract_address",
+          visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+      requestParam.addProperty("function_selector", functionSelector);
+      requestParam.addProperty("parameter", parameter);
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return  response;
+  }
+
+  /** constructor. */
+  public static HttpResponse getEstimateEnergySolidity(
+      String httpNode,
+      byte[] ownerAddress,
+      byte[] contractAddress,
+      String functionSelector,
+      String parameter,
+      boolean visible) {
+    try {
+      String requestUrl = "http://" + httpNode + "/walletsolidity/estimateenergy";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",
+          visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("contract_address",
+          visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+      requestParam.addProperty("function_selector", functionSelector);
+      requestParam.addProperty("parameter", parameter);
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return  response;
+  }
+
+  /** constructor. */
+  public static HttpResponse getEstimateEnergyPBFT(
+      String httpNode,
+      byte[] ownerAddress,
+      byte[] contractAddress,
+      String functionSelector,
+      String parameter,
+      boolean visible) {
+    try {
+      String requestUrl = "http://" + httpNode + "/walletpbft/estimateenergy";
+      JsonObject requestParam = new JsonObject();
+      requestParam.addProperty("owner_address",
+          visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty("contract_address",
+          visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+      requestParam.addProperty("function_selector", functionSelector);
+      requestParam.addProperty("parameter", parameter);
+      requestParam.addProperty("visible", visible);
+      response = createConnect(requestUrl, requestParam);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+    }
+    return  response;
+  }
+
 }

@@ -1034,6 +1034,8 @@ service WalletSolidity {
   }
   rpc GetCanWithdrawUnfreezeAmount (CanWithdrawUnfreezeAmountRequestMessage)returns (CanWithdrawUnfreezeAmountResponseMessage) {
   }
+  rpc EstimateEnergy(TriggerSmartContract) returns(EstimateEnergyMessage){
+  }
 
 
 };
