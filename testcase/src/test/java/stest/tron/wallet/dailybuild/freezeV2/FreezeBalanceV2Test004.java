@@ -112,7 +112,7 @@ public class FreezeBalanceV2Test004 {
       Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,
           freezeBandwidthBalance,2,frozenBandwidthKey,blockingStubFull));
     }
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
 
 
   }

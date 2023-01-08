@@ -116,7 +116,7 @@ public class DynamicEnergyTest001 {
 
 
 
-    //Failed trigger didn't insrease contract energy used
+    //Failed trigger didn't increase contract energy used
     txid = PublicMethed.triggerContract(contractAddress,
         "testUseStorage(uint256)", "5000", false,
         0, maxFeeLimit, testAccountAddress, testAccountKey, blockingStubFull);
@@ -147,7 +147,7 @@ public class DynamicEnergyTest001 {
       logger.info("getDynamicEnergyThreshold : "  + getDynamicEnergyThreshold);
     }
 
-    while (System.currentTimeMillis() + 3000 < nextMaintainTime) {
+    while (System.currentTimeMillis() - 3000 < nextMaintainTime) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
 
