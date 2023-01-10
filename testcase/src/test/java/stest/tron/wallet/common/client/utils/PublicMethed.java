@@ -5359,6 +5359,7 @@ public class PublicMethed {
     String byteCode = null;
     String abI = null;
 
+
     // compile solidity file
     try {
       exec(cmd);
@@ -7582,4 +7583,70 @@ public class PublicMethed {
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
+
+  /** constructor. */
+  public static Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergy(
+      WalletGrpc.WalletBlockingStub blockingStubFull,
+      byte[] owner,
+      byte[] contractAddress,
+      long callValue,
+      String method,
+      String argsStr,
+      Boolean isHex,
+      long tokenValue,
+      String tokenId
+      ) {
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+    if (contractAddress != null) {
+      builder.setContractAddress(ByteString.copyFrom(contractAddress));
+    }
+    byte[] input = new byte[0];
+    if (!method.equalsIgnoreCase("#")) {
+      input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
+    }
+    builder.setData(ByteString.copyFrom(input));
+    builder.setCallValue(callValue);
+    if (tokenId != null && tokenId != "") {
+      builder.setCallTokenValue(tokenValue);
+      builder.setTokenId(Long.parseLong(tokenId));
+    }
+    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage = blockingStubFull.estimateEnergy(builder.build());
+    return Optional.ofNullable(estimateEnergyMessage);
+  }
+
+  /** constructor. */
+  public static Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergySolidity(
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull,
+      byte[] owner,
+      byte[] contractAddress,
+      long callValue,
+      String method,
+      String argsStr,
+      Boolean isHex,
+      long tokenValue,
+      String tokenId
+  ) {
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+    if (contractAddress != null) {
+      builder.setContractAddress(ByteString.copyFrom(contractAddress));
+    }
+    byte[] input = new byte[0];
+    if (!method.equalsIgnoreCase("#")) {
+      input = Hex.decode(AbiUtil.parseMethod(method, argsStr, isHex));
+    }
+    builder.setData(ByteString.copyFrom(input));
+    builder.setCallValue(callValue);
+    if (tokenId != null && tokenId != "") {
+      builder.setCallTokenValue(tokenValue);
+      builder.setTokenId(Long.parseLong(tokenId));
+    }
+    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage = blockingStubFull.estimateEnergy(builder.build());
+    return Optional.ofNullable(estimateEnergyMessage);
+  }
+
+
+
+
 }
