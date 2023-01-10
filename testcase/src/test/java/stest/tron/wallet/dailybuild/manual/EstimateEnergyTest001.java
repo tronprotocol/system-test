@@ -167,16 +167,17 @@ public class EstimateEnergyTest001 {
         contractNameTrc721, abiTrc721, codeTrc721, "", maxFeeLimit,
         0L, 100, null, foundationKey, foundationAddress, blockingStubFull2);
     PublicMethed.waitProduceNextBlock(blockingStubFull2);
-    energyFee = PublicMethed.getChainParametersValue(ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull2);
-    Assert.assertNotEquals(0L,energyFee.longValue());
+    energyFee = PublicMethed
+        .getChainParametersValue(ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull2);
+    Assert.assertNotEquals(0L, energyFee.longValue());
 
   }
 
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "EstimateEnergy by grpc 、solidity、pbft")
-  public void testTriggerFunctionSolidityPbft() {
+  @Test(enabled = true, description = "EstimateEnergy request fullnode solidity pbft")
+  public void test01TriggerFunctionFullnodeSolidityPbft() {
     String method = "writeNumber(uint256)";
     String args = "5";
     boolean isHex = false;
@@ -218,8 +219,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "EstimateEnergy by grpc, Revert")
-  public void testTriggerFunctionRevert() {
+  @Test(enabled = true, description = "EstimateEnergy to a Revert Function")
+  public void test02TriggerFunctionRevert() {
     String method = "writeNumber(uint256)";
     String args = "5";
     long callValue = 1;
@@ -237,8 +238,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "EstimateEnergy as a feelimit can be triggered success")
-  public void testEstimateEnergyUseAsFeeLimit() {
+  @Test(enabled = true, description = "EstimateEnergy use to calculate feelimit can be triggered success")
+  public void test03EstimateEnergyUseToCalculateFeeLimit() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     final byte[] ownerAddress = ecKey1.getAddress();
     final String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -300,8 +301,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "TriggerConstantContract use as feelimit boundary value test")
-  public void testFeeLimitBoundary() {
+  @Test(enabled = true, description = "TriggerConstantContract use to calculate feelimit boundary value test")
+  public void test04FeeLimitBoundary() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     final byte[] ownerAddress = ecKey1.getAddress();
     final String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -365,8 +366,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Estimate a function has emit a Event by grpc")
-  public void testTriggerEventFunction() {
+  @Test(enabled = true, description = "Estimate a function which has emit a event")
+  public void test05TriggerEventFunction() {
     String method = "clockOut(address,string,uint256,bool,uint256)";
     String args = "\"TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes\",\"beijing\",5,true,256";
     boolean isHex = false;
@@ -388,8 +389,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Estimate nonexistent function by grpc")
-  public void testNotExistFunction() {
+  @Test(enabled = true, description = "Estimate nonexistent function")
+  public void test06NotExistFunction() {
     String method = "aaa(address,string,uint256,bool,uint256)";
     String args = "\"TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes\",\"beijing\",5,true,256";
     boolean isHex = false;
@@ -408,8 +409,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Estimate payable function by grpc")
-  public void testPayableFunction() {
+  @Test(enabled = true, description = "Estimate payable function")
+  public void test07PayableFunction() {
     String method = "payMeTRX()";
     String args = "";
     boolean isHex = false;
@@ -432,7 +433,7 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true, description = "Estimate TRC20 important function")
-  public void testTrc20TransferFunction() {
+  public void test08Trc20TransferFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
@@ -460,7 +461,7 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true, description = "Estimate TRC20 important function")
-  public void testTrc20BalanceOfFunction() {
+  public void test09Trc20BalanceOfFunction() {
     String method = "balanceOf(address)";
     String args = "\"" + Base58.encode58Check(foundationAddress) + "\"";
     boolean isHex = false;
@@ -483,7 +484,7 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true, description = "Estimate TRC20 important function")
-  public void testTrc20ApproveFunction() {
+  public void test10Trc20ApproveFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
@@ -510,7 +511,7 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true, description = "Estimate TRC20 important function")
-  public void testTrc20AllowanceFunction() {
+  public void test11Trc20AllowanceFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
@@ -537,8 +538,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Estimate Test eth_estimateEnergy")
-  public void testEthJsonRpcFunction() {
+  @Test(enabled = true, description = "Estimate compare to eth_estimateEnergy")
+  public void test12EthJsonRpcFunction() {
     String method = "writeNumber(uint256)";
     String args = "5";
     boolean isHex = false;
@@ -616,7 +617,7 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true, description = "Estimate TRC721 important function")
-  public void testTrc721BalanceOfFunction() {
+  public void test13Trc721BalanceOfFunction() {
     String method = "balanceOf(address)";
     String args = "\"" + Base58.encode58Check(foundationAddress) + "\"";
     boolean isHex = false;
@@ -641,7 +642,7 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true, description = "Estimate TRC721 important function")
-  public void testTrc721MintFunction() {
+  public void test14Trc721MintFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
@@ -651,7 +652,7 @@ public class EstimateEnergyTest001 {
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
         PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc721, 0, method, args, isHex, 0, null);
-    //Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(),"SUCCESS");
+    Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(),"SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
@@ -664,7 +665,6 @@ public class EstimateEnergyTest001 {
     logger.info("energyEstimateRequired:" + energyEstimateRequired);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
-
 
     String triggerTxidSuccess =
         PublicMethed.triggerContract(
@@ -683,7 +683,7 @@ public class EstimateEnergyTest001 {
    */
   @Test(enabled = true,
       description = "Estimate TRC721 important function")
-  public void testTrc721TransferFromFunction() {
+  public void test15Trc721TransferFromFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
@@ -713,7 +713,7 @@ public class EstimateEnergyTest001 {
    */
   @Test(enabled = true,
       description = "Estimate TRC721 important function")
-  public void testTrc721SafeTransferFromFunction() {
+  public void test16Trc721SafeTransferFromFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
@@ -745,8 +745,8 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true,
-      description = "Estimate TRC721 important function (after mint success)")
-  public void testTrc721MintFunctionApprove() {
+      description = "Estimate TRC721 important function")
+  public void test17Trc721MintFunctionApprove() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);

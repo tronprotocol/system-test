@@ -73,7 +73,7 @@ public class HttpTestEstimateEnergy {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "EstimateEnergy by http,solidity,pbft")
+  @Test(enabled = true, description = "EstimateEnergy request fullnode,solidity,pbft")
   public void testEstimateCanGetValue() {
     String method = "writeNumber(uint256)";
     String param = "0000000000000000000000000000000000000000000000000000000000000006";
