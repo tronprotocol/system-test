@@ -29,11 +29,11 @@ public class HttpTestEstimateEnergy {
   private JSONObject responseContent;
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
+      .get(1);
   private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
+      .getStringList("httpnode.ip.list").get(5);
   private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
+      .getStringList("httpnode.ip.list").get(6);
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
   private ManagedChannel channelFull = null;
@@ -75,21 +75,23 @@ public class HttpTestEstimateEnergy {
    */
   @Test(enabled = true, description = "EstimateEnergy by http,solidity,pbft")
   public void testEstimateCanGetValue() {
+    String method = "writeNumber(uint256)";
+    String param = "0000000000000000000000000000000000000000000000000000000000000006";
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, contractAddress, "getBlockChainId()", "", false);
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, false);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
 
     response = HttpMethed
         .getEstimateEnergySolidity(
-            httpSoliditynode, fromAddress, contractAddress, "getBlockChainId()", "", false);
+            httpSoliditynode, fromAddress, contractAddress, method, param, false);
     Long energyRequiredSolidity =
         HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequiredSolidity >= 0);
 
     response = HttpMethed
         .getEstimateEnergyPBFT(
-            httpPbftNode, fromAddress, contractAddress, "getBlockChainId()", "", false);
+            httpPbftNode, fromAddress, contractAddress, method, param, false);
     Long energyRequiredPbft = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequiredPbft >= 0);
 
@@ -102,13 +104,15 @@ public class HttpTestEstimateEnergy {
    */
   @Test(enabled = true, description = "EstimateEnergy value compare to TriggerConstantContract")
   public void testCompareToTriggerConstantContract() {
+    String method = "writeNumber(uint256)";
+    String param = "0000000000000000000000000000000000000000000000000000000000000006";
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, contractAddress, "getBlockChainId()", "", true);
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, true);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
     response = HttpMethed
         .triggerConstantContract(
-            httpnode, fromAddress, ByteArray.toHexString(contractAddress), "getBlockChainId()", "");
+            httpnode, fromAddress, ByteArray.toHexString(contractAddress), method, param);
     Long energyRequiredConstant =
         HttpMethed.parseResponseContent(response).getLong("energy_used");
     final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);

@@ -9,7 +9,8 @@ public enum ProposalEnum {
   GetDynamicEnergyIncreaseFactor("getDynamicEnergyIncreaseFactor"),
   GetDynamicEnergyMaxFactor("getDynamicEnergyMaxFactor"),
   GetAllowOptimizedReturnValueOfChainId("getAllowOptimizedReturnValueOfChainId"),
-  GetMemoFee("getMemoFee");
+  GetMemoFee("getMemoFee"),
+  GetEnergyFee("getEnergyFee");
 
   private String proposalName;
 

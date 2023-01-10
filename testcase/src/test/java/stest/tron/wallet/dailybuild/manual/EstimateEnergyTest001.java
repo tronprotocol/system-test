@@ -1,4 +1,4 @@
-package stest.tron.wallet.dailybuild.estimateenergy;
+package stest.tron.wallet.dailybuild.manual;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
@@ -21,6 +21,7 @@ import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.*;
 import zmq.socket.pubsub.Pub;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -34,6 +35,7 @@ public class EstimateEnergyTest001 {
   private final byte[] foundationAddress = PublicMethed.getFinalAddress(foundationKey);
 
 
+  //FullNode1 estimateEnergy = False
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode =
@@ -41,12 +43,12 @@ public class EstimateEnergyTest001 {
       .get(0);
   private String soliditynode =
       Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
-      .get(0);
+      .get(1);
   private ManagedChannel channelSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
   private String pbftnode =
       Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
-          .get(2);
+          .get(3);
   private ManagedChannel channelPbft = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
   private byte[] contractAddress = null;
@@ -56,6 +58,7 @@ public class EstimateEnergyTest001 {
   private byte[] contractAddressTrc721 = null;
   private byte[] contractAddressTrc20 = null;
 
+  //FullNode2 estimateEnergy = True
   private ManagedChannel channelFull2 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull2 = null;
   private String fullnode2 =
@@ -69,7 +72,7 @@ public class EstimateEnergyTest001 {
   public static String jsonRpcNode2 =
       Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(1);
 
-
+  private Long energyFee = 0L;
 
 
 
@@ -105,10 +108,10 @@ public class EstimateEnergyTest001 {
     final String txid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0, 100, 10000, "0", 0, null, foundationKey, foundationAddress,
-            blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+            blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
     Optional<Protocol.TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
+        .getTransactionInfoById(txid, blockingStubFull2);
 
     if (txid == null || infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
@@ -142,19 +145,19 @@ public class EstimateEnergyTest001 {
             null,
             foundationKey,
             foundationAddress,
-            blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+            blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
     logger.info("deployTrc20Txid：" + deployTrc20Txid);
     Optional<Protocol.TransactionInfo> info =
-        PublicMethed.getTransactionInfoById(deployTrc20Txid, blockingStubFull);
+        PublicMethed.getTransactionInfoById(deployTrc20Txid, blockingStubFull2);
 
     Assert.assertTrue(info.get().getReceipt().getResult().toString() == "SUCCESS");
     contractAddressTrc20 = info.get().getContractAddress().toByteArray();
 
     //deploy TRC721
 
-    String filePathTrc721 = "./src/test/resources/soliditycode/contractScenario010.sol";
-    String contractNameTrc721 = "TRON_ERC721";
+    String filePathTrc721 = "./src/test/resources/soliditycode/trontrc721.sol";
+    String contractNameTrc721 = "TRC721Token";
     retMap = PublicMethed.getBycodeAbi(filePathTrc721, contractNameTrc721);
 
     String codeTrc721 = retMap.get("byteCode").toString();
@@ -162,40 +165,47 @@ public class EstimateEnergyTest001 {
 
     contractAddressTrc721 = PublicMethed.deployContract(
         contractNameTrc721, abiTrc721, codeTrc721, "", maxFeeLimit,
-        0L, 100, null, foundationKey, foundationAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+        0L, 100, null, foundationKey, foundationAddress, blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
+    energyFee = PublicMethed.getChainParametersValue(ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull2);
+    Assert.assertNotEquals(0L,energyFee.longValue());
+
   }
 
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "EstimateEnergy by grpc Pure Function")
-  public void testTriggerPureFunction() {
-    String method = "getMax(uint256,uint256)";
-    String args = "5,6";
+  @Test(enabled = true, description = "EstimateEnergy by grpc 、solidity、pbft")
+  public void testTriggerFunctionSolidityPbft() {
+    String method = "writeNumber(uint256)";
+    String args = "5";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
         PublicMethed.estimateEnergy(
-            blockingStubFull, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
+            blockingStubFull2, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddress, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
     //if do not wait, contact can be null
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull2, blockingStubFullSolidity);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull2, blockingStubPbft);
     //query solidity , query pbft
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessageSolidity =
         PublicMethed.estimateEnergySolidity(
             blockingStubFullSolidity, foundationAddress,
             contractAddress, 0, method, args, isHex, 0, null);
+    logger.info("energyEstimateRequired:" + energyEstimateRequired);
+    logger.info("estimateEnergyMessageSolidity:"
+        + estimateEnergyMessageSolidity.get().getEnergyRequired());
+    logger.info(estimateEnergyMessage.get().toString());
+    logger.info(estimateEnergyMessageSolidity.get().toString());
     Assert.assertTrue(
         energyEstimateRequired == estimateEnergyMessageSolidity.get().getEnergyRequired());
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessagePbft =
@@ -209,50 +219,48 @@ public class EstimateEnergyTest001 {
    * constructor.
    */
   @Test(enabled = true, description = "EstimateEnergy by grpc, Revert")
-  public void testTriggerPureFunctionRevert() {
-    String method = "getMax(uint256,uint256)";
-    String args = "5,6";
+  public void testTriggerFunctionRevert() {
+    String method = "writeNumber(uint256)";
+    String args = "5";
     long callValue = 1;
     //give a non payable function a callValue to make REVERT opcode executed
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddress, callValue, method, args, false, 0, null);
     Assert.assertEquals(
         estimateEnergyMessage.get().getResult().getCode().toString(), "CONTRACT_EXE_ERROR");
     Assert.assertEquals(
         estimateEnergyMessage.get().getResult().getMessage().toStringUtf8(),
         "REVERT opcode executed");
-
   }
 
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "EstimateEnergy as a feelimit can be trigger")
+  @Test(enabled = true, description = "EstimateEnergy as a feelimit can be triggered success")
   public void testEstimateEnergyUseAsFeeLimit() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     final byte[] ownerAddress = ecKey1.getAddress();
     final String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     Assert.assertTrue(
         PublicMethed.sendcoin(ownerAddress, 100000000L,
-            foundationAddress, foundationKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+            foundationAddress, foundationKey, blockingStubFull2));
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
 
     String method = "writeNumber(uint256)";
     String args = "6";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, ownerAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, ownerAddress,
             contractAddress, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddress, method, args, false, 0,
-            maxFeeLimit, "#", 0L, ownerAddress, ownerKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, ownerAddress, ownerKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     logger.info("energyUsedConstant:" + energyUsedConstant);
     logger.info("energyEstimateRequired:" + energyEstimateRequired);
@@ -264,10 +272,10 @@ public class EstimateEnergyTest001 {
     String triggerTxidSuccess =
         PublicMethed.triggerContract(
             contractAddress, method, args, isHex,
-            0L, feeLimit, ownerAddress, ownerKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+            0L, feeLimit, ownerAddress, ownerKey, blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
     Optional<Protocol.TransactionInfo> info =
-        PublicMethed.getTransactionInfoById(triggerTxidSuccess, blockingStubFull);
+        PublicMethed.getTransactionInfoById(triggerTxidSuccess, blockingStubFull2);
     logger.info(info.get().getReceipt().toString());
     Assert.assertEquals(info.get().getReceipt().getResult().toString(), "SUCCESS");
 
@@ -275,17 +283,83 @@ public class EstimateEnergyTest001 {
     args = "8";
     te =  PublicMethed.triggerConstantContractForExtention(
         contractAddress, method, args, false, 0,
-        maxFeeLimit, "#", 0L, ownerAddress, ownerKey, blockingStubFull);
+        maxFeeLimit, "#", 0L, ownerAddress, ownerKey, blockingStubFull2);
     energyUsedConstant = te.getEnergyUsed();
     feeLimit = energyUsedConstant - energyFee;
     String triggerTxidFail =
         PublicMethed.triggerContract(
             contractAddress, method, args, isHex, 0L,
-            feeLimit, ownerAddress, ownerKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    info = PublicMethed.getTransactionInfoById(triggerTxidFail, blockingStubFull);
+            feeLimit, ownerAddress, ownerKey, blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
+    info = PublicMethed.getTransactionInfoById(triggerTxidFail, blockingStubFull2);
     logger.info(info.get().getReceipt().toString());
     Assert.assertEquals(info.get().getReceipt().getResult().toString(), "OUT_OF_ENERGY");
+  }
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "TriggerConstantContract use as feelimit boundary value test")
+  public void testFeeLimitBoundary() {
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    final byte[] ownerAddress = ecKey1.getAddress();
+    final String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    logger.info("bse58:" + Base58.encode58Check(ownerAddress));
+    Assert.assertTrue(
+        PublicMethed.sendcoin(ownerAddress, 10000000000L,
+            foundationAddress, foundationKey, blockingStubFull2));
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
+    Assert.assertTrue(PublicMethed
+        .freezeBalanceGetEnergy(ownerAddress, 1000000000L, 3L, 1, ownerKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
+
+    String method = "writeNumber(uint256)";
+    String args = "6";
+    boolean isHex = false;
+    Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
+        PublicMethed.estimateEnergy(blockingStubFull2, ownerAddress,
+            contractAddress, 0, method, args, isHex, 0, null);
+    Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
+    Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
+    GrpcAPI.TransactionExtention te =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddress, method, args, false, 0,
+            maxFeeLimit, "#", 0L, ownerAddress, ownerKey, blockingStubFull2);
+    Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
+    Long energyUsedConstant = te.getEnergyUsed();
+    //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
+    logger.info("energyUsedConstant:" + energyUsedConstant);
+    logger.info("energyEstimateRequired:" + energyEstimateRequired);
+    Assert.assertNotEquals(energyEstimateRequired.longValue(), energyUsedConstant.longValue());
+    Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
+
+    Long feeLimit = energyEstimateRequired * energyFee;
+    logger.info("FeeLimit:" + feeLimit);
+    Long feeLimitConstant = energyUsedConstant * energyFee;
+    logger.info("feeLimitConstant:" + feeLimitConstant);
+    Assert.assertTrue(feeLimitConstant <= feeLimit);
+    String failTxid =
+        PublicMethed.triggerContract(
+            contractAddress, method, args, isHex,
+            0L, feeLimitConstant - 1L, ownerAddress, ownerKey, blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
+    Optional<Protocol.TransactionInfo> infofail =
+        PublicMethed.getTransactionInfoById(failTxid, blockingStubFull2);
+    logger.info(infofail.get().getReceipt().toString());
+    Assert.assertEquals(infofail.get().getReceipt().getResult().toString(), "OUT_OF_ENERGY");
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
+
+    String triggerTxidSuccess =
+        PublicMethed.triggerContract(
+            contractAddress, method, args, isHex,
+            0L, feeLimitConstant, ownerAddress, ownerKey, blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
+    Optional<Protocol.TransactionInfo> info =
+        PublicMethed.getTransactionInfoById(triggerTxidSuccess, blockingStubFull2);
+    logger.info(info.get().getReceipt().toString());
+    Assert.assertEquals(info.get().getReceipt().getResult().toString(), "SUCCESS");
+
   }
 
   /**
@@ -297,17 +371,16 @@ public class EstimateEnergyTest001 {
     String args = "\"TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes\",\"beijing\",5,true,256";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddress, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(),  "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddress, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
   }
@@ -322,7 +395,7 @@ public class EstimateEnergyTest001 {
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
         PublicMethed.estimateEnergy(
-            blockingStubFull, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
+            blockingStubFull2, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
     Assert.assertEquals(
         estimateEnergyMessage.get().getResult().getCode().toString(), "CONTRACT_EXE_ERROR");
     Assert.assertEquals(
@@ -330,29 +403,7 @@ public class EstimateEnergyTest001 {
         "REVERT opcode executed");
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Estimate a Write function by grpc")
-  public void testWriteFunction() {
-    String method = "writeNumber(uint256)";
-    String args = "256";
-    boolean isHex = false;
-    Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(
-            blockingStubFull, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
-    Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
-    Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
-    GrpcAPI.TransactionExtention te =
-        PublicMethed.triggerConstantContractForExtention(
-            contractAddress, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
-    Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
-    Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
-    //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
-    Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
-  }
+
 
   /**
    * constructor.
@@ -363,45 +414,19 @@ public class EstimateEnergyTest001 {
     String args = "";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddress, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =  PublicMethed.triggerConstantContractForExtention(
         contractAddress, method, args, false, 10000000L,
-        maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+        maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
 
   }
-
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Estimate a view function by grpc")
-  public void testViewFunction() {
-    String method = "getBlockChainId()";
-    String args = "";
-    boolean isHex = false;
-    Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
-            contractAddress, 0, method, args, isHex, 0, null);
-    Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
-    Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
-    GrpcAPI.TransactionExtention te =
-        PublicMethed.triggerConstantContractForExtention(
-            contractAddress, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
-    Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
-    Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
-    //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
-    Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
-  }
-
 
   /**
    * constructor.
@@ -417,17 +442,16 @@ public class EstimateEnergyTest001 {
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
         PublicMethed.estimateEnergy(
-            blockingStubFull, foundationAddress,
+            blockingStubFull2, foundationAddress,
             contractAddressTrc20, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc20, method, args, false, 0L,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
   }
@@ -441,17 +465,16 @@ public class EstimateEnergyTest001 {
     String args = "\"" + Base58.encode58Check(foundationAddress) + "\"";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc20, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc20, method, args, false, 0L,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
   }
@@ -469,17 +492,16 @@ public class EstimateEnergyTest001 {
     String args = "\"" + coinReceiverBase58 + "\",256";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc20, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc20, method, args, false, 0L,
-            maxFeeLimit, "#",  0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#",  0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
   }
@@ -498,17 +520,16 @@ public class EstimateEnergyTest001 {
         + coinReceiverBase58 + "\"";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc20, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(),  "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc20, method, args, false, 0L,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
   }
@@ -518,17 +539,18 @@ public class EstimateEnergyTest001 {
    */
   @Test(enabled = true, description = "Estimate Test eth_estimateEnergy")
   public void testEthJsonRpcFunction() {
-    String method = "getMax(uint256,uint256)";
-    String args = "1,256";
+    String method = "writeNumber(uint256)";
+    String args = "5";
     boolean isHex = false;
-    //fullnode vm.estimateEnergy = true  fullnode2 vm.estimateEnergy = false
-    //query fullnode2 failed and eth_estimateEnergy == triggerConstantContract
+    //fullnode1 vm.estimateEnergy = false  fullnode2 vm.estimateEnergy = true
+    //query fullnode1 failed and eth_estimateEnergy == triggerConstantContract
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
             contractAddress, 0, method, args, isHex, 0, null);
     logger.info(estimateEnergyMessage.get().toString());
     Assert.assertEquals(
         estimateEnergyMessage.get().getResult().getCode().toString(), "CONTRACT_VALIDATE_ERROR");
+    Assert.assertEquals(estimateEnergyMessage.get().getResult().getMessage().toStringUtf8(), "Contract validate error : this node does not support estimate energy");
     //query json rpc
     JsonObject param = new JsonObject();
     param.addProperty("from", ByteArray.toHexString(foundationAddress));
@@ -537,15 +559,15 @@ public class EstimateEnergyTest001 {
     param.addProperty("gasPrice", "0x0");
     param.addProperty("value", "0x0");
     param.addProperty("data",
-        "0x26b23020"
-            + "0000000000000000000000000000000000000000000000000000000000000001"
-            + "0000000000000000000000000000000000000000000000000000000000000100");
+        "0x5637a79c"
+            + "0000000000000000000000000000000000000000000000000000000000000005");
     JsonArray params = new JsonArray();
     params.add(param);
     JsonRpcBase jrpc = new JsonRpcBase();
     JsonObject requestBody = JsonRpcBase.getJsonRpcBody("eth_estimateGas", params);
-    response = jrpc.getJsonRpc(jsonRpcNode2, requestBody);
+    response = jrpc.getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
+    logger.info(responseContent.toJSONString());
     Assert.assertNotNull(responseContent.getString("result"));
     Long energyEstimateFromjrpc =
         Long.valueOf(responseContent.getString("result").replace("0x", ""), 16);
@@ -553,31 +575,30 @@ public class EstimateEnergyTest001 {
     GrpcAPI.TransactionExtention transactionExtention =
         PublicMethed.triggerConstantContractForExtention(
             contractAddress, method, args, false, 0,
-            maxFeeLimit, "", 0L, foundationAddress, foundationKey, blockingStubFull2);
+            maxFeeLimit, "", 0L, foundationAddress, foundationKey, blockingStubFull);
     logger.info("triggerConstantContract" + transactionExtention.getResult().toString());
     logger.info("triggerConstantContract energyUsed:" + transactionExtention.getEnergyUsed());
     Assert.assertEquals(transactionExtention.getResult().getCode().toString(), "SUCCESS");
     Assert.assertTrue(
         transactionExtention.getEnergyUsed() == energyEstimateFromjrpc.longValue());
 
-    //query fullnode1
+    //query fullnode2
     //eth_estimateEnergy == estimateEnergy
     //eth_estimateEnergy >= triggerConstantContract energyUsed
     estimateEnergyMessage = PublicMethed.estimateEnergy(
-        blockingStubFull, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
+        blockingStubFull2, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddress, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
 
-    response = jrpc.getJsonRpc(jsonRpcNode, requestBody);
+    response = jrpc.getJsonRpc(jsonRpcNode2, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     Assert.assertNotNull(responseContent.getString("result"));
     energyEstimateFromjrpc =
@@ -600,17 +621,16 @@ public class EstimateEnergyTest001 {
     String args = "\"" + Base58.encode58Check(foundationAddress) + "\"";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc721, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc721, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     logger.info("energyUsedConstant:" + energyUsedConstant);
     logger.info("energyEstimateRequired:" + energyEstimateRequired);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
@@ -620,27 +640,26 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "Estimate TRC721 important function")
-  public void testTrc721TakeOwnershipFunction() {
+  @Test(enabled = true, description = "Estimate TRC721 important function")
+  public void testTrc721MintFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
-    String method = "takeOwnership(uint256)";
-    String args = "0";
+    String method = "mintWithTokenURI(address,uint256,string)";
+    String args = "\"" + Base58.encode58Check(foundationAddress) + "\",1,\"sdd\"";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc721, 0, method, args, isHex, 0, null);
     //Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(),"SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc721, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     logger.info(te.getResult().toString());
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     logger.info("energyUsedConstant:" + energyUsedConstant);
     logger.info("energyEstimateRequired:" + energyEstimateRequired);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
@@ -650,10 +669,10 @@ public class EstimateEnergyTest001 {
     String triggerTxidSuccess =
         PublicMethed.triggerContract(
             contractAddressTrc721, method, args, isHex, 0L,
-            maxFeeLimit, foundationAddress, foundationKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+            maxFeeLimit, foundationAddress, foundationKey, blockingStubFull2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull2);
     Optional<Protocol.TransactionInfo> info =
-        PublicMethed.getTransactionInfoById(triggerTxidSuccess, blockingStubFull);
+        PublicMethed.getTransactionInfoById(triggerTxidSuccess, blockingStubFull2);
     logger.info(info.get().getReceipt().toString());
     Assert.assertEquals(info.get().getReceipt().getResult().toString(), "SUCCESS");
   }
@@ -662,8 +681,8 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = false,
-      description = "Estimate TRC721 important function, testTRC721TakeOwnershipFunction must pass")
+  @Test(enabled = true,
+      description = "Estimate TRC721 important function")
   public void testTrc721TransferFromFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
@@ -673,17 +692,16 @@ public class EstimateEnergyTest001 {
         + coinReceiverBase58 + "\",1";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc721, 0, method, args, isHex, 0, null);
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc721, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     logger.info("energyUsedConstant:" + energyUsedConstant);
     logger.info("energyEstimateRequired:" + energyEstimateRequired);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
@@ -693,27 +711,62 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = false,
-      description = "Estimate TRC721 important function, testTRC721TakeOwnershipFunction must pass")
-  public void testTrc721TransferFunction() {
+  @Test(enabled = true,
+      description = "Estimate TRC721 important function")
+  public void testTrc721SafeTransferFromFunction() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] coinReceiverAddress = ecKey1.getAddress();
     String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
-    String method = "transfer(address,uint256)";
-    String args = "\"" + coinReceiverBase58 + "\",1";
+    String method = "safeTransferFrom(address,address,uint256)";
+    String args = "\"" + Base58.encode58Check(foundationAddress) + "\"," + "\""
+        + coinReceiverBase58 + "\",1";
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
-        PublicMethed.estimateEnergy(blockingStubFull, foundationAddress,
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
             contractAddressTrc721, 0, method, args, isHex, 0, null);
+    logger.info(estimateEnergyMessage.get().toString());
     Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
+
     Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
     GrpcAPI.TransactionExtention te =
         PublicMethed.triggerConstantContractForExtention(
             contractAddressTrc721, method, args, false, 0,
-            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull);
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
+    logger.info(te.toString());
     Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
     Long energyUsedConstant = te.getEnergyUsed();
-    Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
+    logger.info("energyUsedConstant:" + energyUsedConstant);
+    logger.info("energyEstimateRequired:" + energyEstimateRequired);
+    //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
+    Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true,
+      description = "Estimate TRC721 important function (after mint success)")
+  public void testTrc721MintFunctionApprove() {
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] coinReceiverAddress = ecKey1.getAddress();
+    String coinReceiverBase58 = Base58.encode58Check(coinReceiverAddress);
+    String method = "approve(address,uint256)";
+    String args = "\"" + coinReceiverBase58 + "\",1";
+    boolean isHex = false;
+    Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
+        PublicMethed.estimateEnergy(blockingStubFull2, foundationAddress,
+            contractAddressTrc721, 0, method, args, isHex, 0, null);
+    logger.info(estimateEnergyMessage.get().toString());
+    Assert.assertEquals(estimateEnergyMessage.get().getResult().getCode().toString(), "SUCCESS");
+
+    Long energyEstimateRequired = estimateEnergyMessage.get().getEnergyRequired();
+    GrpcAPI.TransactionExtention te =
+        PublicMethed.triggerConstantContractForExtention(
+            contractAddressTrc721, method, args, false, 0,
+            maxFeeLimit, "#", 0L, foundationAddress, foundationKey, blockingStubFull2);
+    logger.info(te.toString());
+    Assert.assertEquals(te.getResult().getCode().toString(), "SUCCESS");
+    Long energyUsedConstant = te.getEnergyUsed();
     logger.info("energyUsedConstant:" + energyUsedConstant);
     logger.info("energyEstimateRequired:" + energyEstimateRequired);
     //energyEstimateRequired is bigger than energyUsedConstant but not more than 1 TRX.
