@@ -70,7 +70,7 @@ public class EstimateEnergyTest001 {
   public static String jsonRpcNode =
       Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(0);
   public static String jsonRpcNode2 =
-      Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(1);
+      Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(2);
 
   private Long energyFee = 0L;
 
