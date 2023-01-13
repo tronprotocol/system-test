@@ -157,8 +157,30 @@ public class HttpTestAccount002 {
   /**
    * constructor.
    */
+  @Test(enabled = true, description = "UnFreezeBalance with bandwidth for others by http")
+  public void test006UnFreezebalanceOfBandwidthForOthers() {
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
+
+    //UnFreeze balance with bandwidth for others
+    response = HttpMethed
+        .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,0, receiverResourceAddress,
+            freezeBalanceKey);
+    Assert.assertTrue(HttpMethed.verificationResult(response));
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
+    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
+    } else {
+      Assert.assertEquals(afterBalance, berforeBalance);
+    }
+  }
+
+  /**
+   * constructor.
+   */
   @Test(enabled = true, description = "Get Delegated Resource by http")
-  public void test006GetDelegatedResource() {
+  public void test007GetDelegatedResource() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
@@ -180,7 +202,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "Get Delegated Resource from solidity by http")
-  public void test007GetDelegatedResourceFromSolidity() {
+  public void test008GetDelegatedResourceFromSolidity() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
@@ -204,7 +226,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "Get Delegated Resource from PBFT by http")
-  public void test008GetDelegatedResourceFromPbft() {
+  public void test009GetDelegatedResourceFromPbft() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
@@ -228,7 +250,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "Get Delegated Resource Account Index by http")
-  public void test009GetDelegatedResourceAccountIndex() {
+  public void test010GetDelegatedResourceAccountIndex() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
@@ -244,7 +266,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "Get Delegated Resource Account Index from solidity by http")
-  public void test010GetDelegatedResourceAccountIndexFromSolidity() {
+  public void test011GetDelegatedResourceAccountIndexFromSolidity() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
@@ -261,7 +283,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "Get Delegated Resource Account Index from PBFT by http")
-  public void test011GetDelegatedResourceAccountIndexFromPbft() {
+  public void test012GetDelegatedResourceAccountIndexFromPbft() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
@@ -275,28 +297,7 @@ public class HttpTestAccount002 {
   }
 
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "UnFreezeBalance with bandwidth for others by http")
-  public void test012UnFreezebalanceOfBandwidthForOthers() {
-    HttpMethed.waitToProduceOneBlock(httpnode);
-    berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
-    //UnFreeze balance with bandwidth for others
-    response = HttpMethed
-        .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,0, receiverResourceAddress,
-            freezeBalanceKey);
-    Assert.assertTrue(HttpMethed.verificationResult(response));
-    HttpMethed.waitToProduceOneBlock(httpnode);
-    afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-    if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
-      Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
-    } else {
-      Assert.assertEquals(afterBalance, berforeBalance);
-    }
-
-  }
 
   /**
    * constructor.
