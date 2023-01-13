@@ -279,9 +279,10 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "UnFreezeBalance with bandwidth for others by http")
-  public void test012UnFreezebalanceOfBandwidthForOthers() throws InterruptedException {
+  public void test012UnFreezebalanceOfBandwidthForOthers() {
     HttpMethed.waitToProduceOneBlock(httpnode);
-    Thread.sleep(5000L);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
     //UnFreeze balance with bandwidth for others
     response = HttpMethed
