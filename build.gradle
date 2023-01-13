@@ -18,7 +18,9 @@ subprojects {
         repositories {
             mavenCentral()
             jcenter()
-            maven { url 'https://jitpack.io' }
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
         }
         dependencies {
             classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.12'
@@ -30,7 +32,9 @@ subprojects {
         mavenLocal()
         mavenCentral()
         maven { url 'https://repo.spring.io/plugins-release' }
-        maven { url 'https://jitpack.io' }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     dependencies {
