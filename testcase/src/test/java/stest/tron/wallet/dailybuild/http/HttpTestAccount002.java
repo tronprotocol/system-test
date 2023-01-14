@@ -154,6 +154,7 @@ public class HttpTestAccount002 {
     Assert.assertTrue(berforeBalance - afterBalance == frozenBalance);
   }
 
+
   /**
    * constructor.
    */
@@ -274,29 +275,34 @@ public class HttpTestAccount002 {
     Assert.assertEquals(toAddress, ByteArray.toHexString(receiverResourceAddress));
   }
 
-
   /**
    * constructor.
    */
   @Test(enabled = true, description = "UnFreezeBalance with bandwidth for others by http")
   public void test012UnFreezebalanceOfBandwidthForOthers() {
     HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.waitToProduceOneBlock(httpnode);
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
-
     //UnFreeze balance with bandwidth for others
     response = HttpMethed
         .unFreezeBalance(httpnode, freezeBalanceAddress, frozenBalance,0, receiverResourceAddress,
             freezeBalanceKey);
+    logger.info(HttpMethed.parseResponseContent(response).toJSONString());
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     afterBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
     if(HttpMethed.getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
       Assert.assertTrue(afterBalance - berforeBalance == frozenBalance);
     } else {
-      Assert.assertEquals(afterBalance, berforeBalance);
-    }
+      logger.info("afterBalance:" + afterBalance);
+      logger.info("berforeBalance:" + berforeBalance);
+      //another case's unfreeze balance has been expired
+      Assert.assertTrue(afterBalance == berforeBalance + frozenBalance);
 
+    }
   }
+
 
   /**
    * constructor.
