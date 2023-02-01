@@ -55,21 +55,21 @@ public class WalletTestBlock001 {
   @BeforeClass
   public void beforeClass() {
     // Add metadata as grpc headers
-    Metadata contentLength = new Metadata();
-    contentLength.put(Metadata.Key.of("content-length", Metadata.ASCII_STRING_MARSHALLER), "5");
-    contentLength
+    Metadata headers = new Metadata();
+    headers.put(Metadata.Key.of("content-length", Metadata.ASCII_STRING_MARSHALLER), "5");
+    headers
         .put(Metadata.Key.of("Content-Type", Metadata.ASCII_STRING_MARSHALLER), "application/grpc");
-    contentLength
+    headers
         .put(Metadata.Key.of("Host", Metadata.ASCII_STRING_MARSHALLER), "grpc.demo.com");
-    contentLength
+    headers
         .put(Metadata.Key.of("x-trace-id", Metadata.ASCII_STRING_MARSHALLER), "testGroupAutoTest");
-    contentLength
+    headers
         .put(Metadata.Key.of("x-trace-path", Metadata.ASCII_STRING_MARSHALLER), "123 23123");
-    contentLength
+    headers
         .put(Metadata.Key.of("x-trace-name", Metadata.ASCII_STRING_MARSHALLER), "!@^&$!* ()^&%");
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] randomAddress = ecKey1.getAddress();
-    contentLength
+    headers
         .put(Metadata.Key.of("address-bin", Metadata.BINARY_BYTE_MARSHALLER), randomAddress);
 
 
@@ -77,7 +77,7 @@ public class WalletTestBlock001 {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull)
-        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(contentLength));
+        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
     //blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
@@ -85,7 +85,7 @@ public class WalletTestBlock001 {
         .build();
     //blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity)
-        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(contentLength));
+        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
   }
 
   /**
