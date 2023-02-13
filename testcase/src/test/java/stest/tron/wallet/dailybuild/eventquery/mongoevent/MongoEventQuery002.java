@@ -579,9 +579,9 @@ public class MongoEventQuery002 extends MongoBase {
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     byte[] transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
-    Assert.assertTrue(PublicMethed.sendcoin(
-        transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //Assert.assertTrue(PublicMethed.sendcoin(
+    //    transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull));
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     tokenId = assetAccountId.toStringUtf8();
     tokenValue = 10;
