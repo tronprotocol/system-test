@@ -3,8 +3,10 @@ package stest.tron.wallet.dailybuild.tvmnewcommand.tvmFreeze;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
@@ -54,9 +56,16 @@ public class FreezeSuicideTest001 {
    */
 
   @BeforeClass(enabled = true)
-  public void beforeClass() {
+  public void beforeClass() throws Exception{
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      if (channelFull != null) {
+        channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+      }
+      throw new SkipException("Skipping freezeV2 test case");
+    }
 
     Assert.assertTrue(PublicMethed.sendcoin(testAddress001,2000_000000L,
         testFoundationAddress,testFoundationKey,blockingStubFull));

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -15,6 +16,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
@@ -44,12 +46,20 @@ public class WalletTestAccount012 {
    * constructor.
    */
   @BeforeClass(enabled = true)
-  public void beforeClass() {
+  public void beforeClass() throws Exception{
     PublicMethed.printAddress(frozenKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+
+    if(!PublicMethed.tronPowerProposalIsOpen(blockingStubFull) || !PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      if (channelFull != null) {
+        channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+      }
+      throw new SkipException("Skipping tronPower or freezeV2 test case");
+    }
+
 
   }
 
@@ -71,16 +81,14 @@ public class WalletTestAccount012 {
 
     Assert.assertTrue(PublicMethed.freezeBalanceGetTronPower(frozenAddress,frozenAmountForTronPower,
         0,2,null,frozenKey,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetTronPower(frozenAddress,frozenAmountForNet,
-        0,0,null,frozenKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Long afterFrozenTime = System.currentTimeMillis();
     Account account = PublicMethed.queryAccount(frozenAddress,blockingStubFull);
-    Assert.assertEquals(account.getTronPower().getFrozenBalance(),frozenAmountForTronPower);
-    Assert.assertTrue(account.getTronPower().getExpireTime() > beforeFrozenTime
+    Assert.assertEquals(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)
+  ? account.getFrozenV2(2).getAmount() : account.getTronPower().getFrozenBalance(),frozenAmountForTronPower);
+    Assert.assertTrue(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull) ? true : account.getTronPower().getExpireTime() > beforeFrozenTime
         && account.getTronPower().getExpireTime() < afterFrozenTime);
-
     accountResource = PublicMethed
         .getAccountResource(frozenAddress, blockingStubFull);
     Long afterTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
@@ -104,6 +112,9 @@ public class WalletTestAccount012 {
 
     Assert.assertEquals(afterTronPowerLimit - beforeTronPowerLimit,
         6);
+
+
+
 
 
   }
@@ -146,7 +157,7 @@ public class WalletTestAccount012 {
   }
 
   @Test(enabled = true,description = "Tron power is not allow to others")
-  public void test03TronPowerIsNotAllowToOthers() {
+  public void test03TronPowerIsNotAllowToOthers() throws Exception{
     Assert.assertFalse(PublicMethed.freezeBalanceGetTronPower(frozenAddress,
         frozenAmountForTronPower, 0,2,
         ByteString.copyFrom(foundationAddress),frozenKey,blockingStubFull));
@@ -158,23 +169,21 @@ public class WalletTestAccount012 {
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(foundationAddress, blockingStubFull);
     final Long beforeTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
-
-
-    Assert.assertTrue(PublicMethed.unFreezeBalance(frozenAddress,frozenKey,2,
-        null,blockingStubFull));
+    Long canUnfreezeAmount = PublicMethed.getFrozenV2Amount(frozenAddress,2,blockingStubFull);
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenAddress,frozenKey,canUnfreezeAmount,2,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethed
         .getAccountResource(frozenAddress, blockingStubFull);
     Long afterTotalTronPowerWeight = accountResource.getTotalTronPowerWeight();
-    Assert.assertEquals(beforeTotalTronPowerWeight - afterTotalTronPowerWeight,
-        6);
+    Assert.assertTrue(beforeTotalTronPowerWeight - afterTotalTronPowerWeight == canUnfreezeAmount / 1000000);
 
     Assert.assertEquals(accountResource.getTronPowerLimit(),0L);
     Assert.assertEquals(accountResource.getTronPowerUsed(),0L);
 
     Account account = PublicMethed.queryAccount(frozenAddress,blockingStubFull);
-    Assert.assertEquals(account.getTronPower().getFrozenBalance(),0);
+    Assert.assertTrue(PublicMethed.getFrozenV2Amount(frozenAddress,2,blockingStubFull) == 0);
+
 
 
   }

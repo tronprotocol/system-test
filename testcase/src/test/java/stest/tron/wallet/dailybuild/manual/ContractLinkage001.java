@@ -63,7 +63,7 @@ public class ContractLinkage001 {
 
   @Test(enabled = true, description = "Deploy contract with valid or invalid value")
   public void deployContentValue() {
-    Assert.assertTrue(PublicMethed.sendcoin(linkage001Address, 20000000000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(linkage001Address, 30000000000L, fromAddress,
         testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -141,11 +141,12 @@ public class ContractLinkage001 {
     Assert.assertTrue(afterEnergyUsed == 0);
     Assert.assertTrue(afterFreeNetUsed > 0);
 
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(linkage001Address, 50000000L,
+    Long freezeBalance = 2000000000L;
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(linkage001Address, freezeBalance,
         0, 1, linkage001Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    maxFeeLimit = maxFeeLimit - 50000000L;
+    //maxFeeLimit = maxFeeLimit - freezeBalance;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage resourceInfo1 = PublicMethed.getAccountResource(linkage001Address,
         blockingStubFull);
@@ -263,7 +264,7 @@ public class ContractLinkage001 {
     Assert.assertEquals(beforeBalance2, afterBalance2);
 
     //Value is account all balance.use freezeBalanceGetEnergy ,freezeBalanceGetNet .Balance ==0
-    Assert.assertTrue(PublicMethed.freezeBalance(linkage001Address, 5000000L,
+    Assert.assertTrue(PublicMethed.freezeBalance(linkage001Address, freezeBalance,
         0, linkage001Key, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage resourceInfo3 = PublicMethed.getAccountResource(linkage001Address,

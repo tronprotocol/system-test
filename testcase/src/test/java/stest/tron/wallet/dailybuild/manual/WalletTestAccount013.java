@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -74,6 +75,7 @@ public class WalletTestAccount013 {
    */
   @BeforeClass(enabled = true)
   public void beforeClass() {
+
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -93,6 +95,10 @@ public class WalletTestAccount013 {
         .usePlaintext(true)
         .build();
     blockingStubPbft = WalletSolidityGrpc.newBlockingStub(channelPbft);
+
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping delegate resource v1 test case");
+    }
   }
 
   @Test(enabled = true, description = "Delegate resource for bandwidth and energy")
