@@ -54,7 +54,7 @@ public class NewFeatureForSolc0818 {
             testNetAccountAddress, testNetAccountKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    String filePath = "src/test/resources/soliditycode/NewFeature0819.sol";
+    String filePath = "src/test/resources/soliditycode/NewFeature0818.sol";
     String contractName = "C";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
 
