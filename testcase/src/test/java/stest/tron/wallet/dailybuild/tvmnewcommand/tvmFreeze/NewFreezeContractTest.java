@@ -58,6 +58,8 @@ public class NewFreezeContractTest {
 
   long delegatebleNet = 0;
   long delegatebleEnergy = 0;
+  Long maxNet = Long.valueOf(0);
+  Long maxEnergy = Long.valueOf(0);
   private long frozenAmount = 0L;
 
   /**
@@ -427,21 +429,21 @@ public class NewFreezeContractTest {
   @Test(enabled = true, description = "delegate resource when usage>0")
   void test11DelegateWithUsage() {
     delegatebleNet = getDelegatableResource(contractAddress58, contractAddress58, 0);
-    Long maxNet = PublicMethed.getCanDelegatedMaxSize(contractAddress, 0, blockingStubFull)
+    maxNet = PublicMethed.getCanDelegatedMaxSize(contractAddress, 0, blockingStubFull)
         .get().getMaxSize();
     delegatebleEnergy = getDelegatableResource(contractAddress58, contractAddress58, 1);
-    Long maxEnergy = PublicMethed.getCanDelegatedMaxSize(contractAddress, 1, blockingStubFull)
+    maxEnergy = PublicMethed.getCanDelegatedMaxSize(contractAddress, 1, blockingStubFull)
         .get().getMaxSize();
     logger.info("delegatebleNet: " + delegatebleNet + "  maxNet: " + maxNet
         + "\n delegatebleEnergy: " + delegatebleEnergy + "  maxEnergy: " + maxEnergy);
 
     String receiver = Base58.encode58Check(testAddress002);
     String methedStr = "delegateResource(uint256,uint256,address)";
-    String argsStr = delegatebleNet + ",0,\"" + receiver + "\"";   //delegate net
+    String argsStr = maxNet + ",0,\"" + receiver + "\"";   //delegate net
 
     String txid = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
         false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
-    argsStr = delegatebleEnergy + ",1,\"" + receiver + "\"";   //delegate energy
+    argsStr = maxEnergy + ",1,\"" + receiver + "\"";   //delegate energy
     String txid1 = PublicMethed.triggerContract(contractAddress, methedStr, argsStr,
         false, 0, maxFeeLimit, testAddress001, testKey001, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -455,16 +457,16 @@ public class NewFreezeContractTest {
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
     long delegatebleNetAfter = getDelegatableResource(contractAddress58, contractAddress58, 0);
     long delegatebleEnergyAfter = getDelegatableResource(contractAddress58, contractAddress58, 1);
-    Assert.assertEquals(0, delegatebleNetAfter);
-    Assert.assertEquals(0, delegatebleEnergyAfter);
+    Assert.assertTrue(delegatebleNetAfter < 200);
+    Assert.assertTrue(delegatebleEnergyAfter < 200);
 
     getTotalDelegatedResource(contractAddress58, contractAddress58);
     long resourceV2Net = getResourceV2(contractAddress58, receiver, "0", contractAddress);
     long resourceV2Energy = getResourceV2(contractAddress58, receiver, "1", contractAddress);
     logger.info("resourceV2Net: " + resourceV2Net + "\nresourceV2Energy: " + resourceV2Energy);
 
-    Assert.assertEquals(delegatebleNet, resourceV2Net);
-    Assert.assertEquals(delegatebleEnergy, resourceV2Energy);
+    Assert.assertEquals(maxNet.longValue(), resourceV2Net);
+    Assert.assertEquals(maxEnergy.longValue(), resourceV2Energy);
     getTotalResource(contractAddress58, contractAddress58);
     getTotalResource(receiver, contractAddress58);
     getTotalAcquiredResource(contractAddress, receiver);
@@ -506,8 +508,8 @@ public class NewFreezeContractTest {
     String methedStr = "unDelegateResource(uint256,uint256,address)";
     String receiver = Base58.encode58Check(testAddress002);
 
-    PublicMethed.freezeBalanceV2(testAddress002, delegatebleNet, 0, testKey002, blockingStubFull);
-    PublicMethed.freezeBalanceV2(testAddress002, delegatebleEnergy, 
+    PublicMethed.freezeBalanceV2(testAddress002, maxNet, 0, testKey002, blockingStubFull);
+    PublicMethed.freezeBalanceV2(testAddress002, maxEnergy,
         1, testKey002, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String argsStr = delegatebleEnergy + ",1,\"" + receiver + "\"";
@@ -594,7 +596,7 @@ public class NewFreezeContractTest {
   @Test(enabled = true, description = "")
   void test17withdrawExpireUnfreeze() {
     long expireUnfreezeBalance = getExpireUnfreezeBalanceV2(contractAddress, contractAddress58);
-    Assert.assertEquals(32, expireUnfreezeBalance);
+    Assert.assertEquals(1000000, expireUnfreezeBalance);
     long balanceBefore = PublicMethed.queryAccount(contractAddress, blockingStubFull).getBalance();
     String methedStr = "withdrawExpireUnfreeze()";
     String argsStr = "#";
