@@ -4,6 +4,7 @@
 
      uint pos0;
      mapping(address => uint) pos1;
+     uint pos2;
      trcToken idCon = 0;
      uint256 tokenValueCon=0;
      uint256 callValueCon = 0;
@@ -36,6 +37,11 @@
     function Storage() public {
         pos0 = 1234;
         pos1[msg.sender] = 5678;
+        pos2 = 1;
     }
 
+
+     function changePos2() public {
+         pos2 = 2;
+     }
  }
