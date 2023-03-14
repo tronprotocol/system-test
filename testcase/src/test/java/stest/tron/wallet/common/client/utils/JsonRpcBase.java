@@ -46,6 +46,8 @@ public class JsonRpcBase {
       Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(0);
   public static String jsonRpcNodeForSolidity =
       Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(1);
+  public static String stateTreeNode =
+      Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(2);
   public static String httpFullNode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
   public static String httpsolidityNode =
@@ -73,6 +75,7 @@ public class JsonRpcBase {
   public static String contractAddressFromHex;
   public static ByteString shieldAddressByteString;
   public static byte[] shieldAddressByte;
+  public static byte[] selfDestructAddressByte;
   public static String shieldAddress;
   public static String deployTrc20Txid;
   public static String deployShieldTxid;
@@ -184,6 +187,7 @@ public class JsonRpcBase {
     deployContract();
     triggerContract();
     deployTrc20Contract();
+    deploySelfDestructContract();
   }
 
   /** constructor. */
@@ -439,6 +443,25 @@ public class JsonRpcBase {
             (PublicMethed.getTransactionInfoById(trc20Txid, blockingStubFull)
                 .get()
                 .getBlockNumber());
+  }
+
+
+  /** constructor. */
+  public void deploySelfDestructContract() throws InterruptedException {
+    String filePath = "./src/test/resources/soliditycode/contractGrammar002test6Grammar013.sol";
+    String contractName = "Counter";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+
+    selfDestructAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, jsonRpcOwnerKey,
+        jsonRpcOwnerAddress, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed.getContract(selfDestructAddressByte,blockingStubFull).hasAbi());
+
+
+
   }
 
   /** constructor. */
