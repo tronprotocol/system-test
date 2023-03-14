@@ -33,7 +33,8 @@ public class NewFreezeContractTest {
   private byte[] testFoundationAddress = PublicMethed.getFinalAddress(testFoundationKey);
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
-  private String fullnode = "39.106.55.169:50051";
+  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+      .get(0);
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
