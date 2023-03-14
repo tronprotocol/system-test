@@ -286,7 +286,7 @@ public class StateTree001 extends JsonRpcBase {
         .toHexString(PublicMethed.getContract(selfDestructAddressByte,blockingStubFull)
             .getBytecode().toByteArray());
 
-    logger.info("Get contract batecode: " + getCodeFromGetContract);
+    logger.info("Get contract bytecode: " + getCodeFromGetContract);
 
     JsonArray params = new JsonArray();
     params.add(ByteArray.toHexString(selfDestructAddressByte));
@@ -364,6 +364,85 @@ public class StateTree001 extends JsonRpcBase {
     String wrongMessage = responseContent.getJSONObject("error").getString("message");
     Assert.assertEquals(wrongMessage,"QUANTITY not supported, just support TAG as latest");
   }
+
+  @Test(enabled = true, description = "State tree with eth_getStorageAt")
+  public void test05StateTreeWithEthGetStorageAt() throws Exception {
+    JsonArray params = new JsonArray();
+    params.add(contractAddressFrom58);
+    params.add("0x2");
+    params.add("latest");
+    JsonObject requestBody = getJsonRpcBody("eth_getStorageAt", params);
+    response = getJsonRpc(stateTreeNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String result = responseContent.getString("result").substring(2);
+    long beforePos2 = Long.parseLong(result, 16);
+    logger.info("beforePos2:" + beforePos2);
+    final Long beforeBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+
+    txid =
+        PublicMethed.triggerContract(
+            ByteArray.fromHexString(contractAddressFrom58),
+            "changePos2()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            jsonRpcOwnerAddress,
+            jsonRpcOwnerKey,
+            blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
+        .getReceipt().getResult(), contractResult.SUCCESS);
+
+    final Long afterBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+
+
+    //Assert before pos2 eth_getStorageAt
+    params = new JsonArray();
+    params.add(contractAddressFrom58);
+    params.add("0x2");
+    params.add("0x" + Long.toHexString(beforeBlockNumber));
+
+    requestBody = getJsonRpcBody("eth_getStorageAt", params);
+    response = getJsonRpc(stateTreeNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    Long beforeNumberEthGetStorageAt = Long.parseLong(responseContent.getString("result").substring(2),16);
+    logger.info("Before change pos2 : " + beforeNumberEthGetStorageAt);
+
+    Assert.assertEquals((long)beforeNumberEthGetStorageAt,beforePos2);
+
+
+    //Assert after change pos2
+    params = new JsonArray();
+    params.add(contractAddressFrom58);
+    params.add("0x2");
+    params.add("0x" + Long.toHexString(afterBlockNumber));
+    requestBody = getJsonRpcBody("eth_getStorageAt", params);
+    response = getJsonRpc(stateTreeNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    Long afterNumberEthGetStorageAt = Long.parseLong(responseContent.getString("result").substring(2),16);
+
+    Assert.assertEquals((long)afterNumberEthGetStorageAt,2);
+
+
+
+    //State tree not open didn't support block number
+    params = new JsonArray();
+    params.add(contractAddressFrom58);
+    params.add("0x2");
+    params.add("0x" + Long.toHexString(afterBlockNumber));
+    requestBody = getJsonRpcBody("eth_getStorageAt", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String wrongMessage = responseContent.getJSONObject("error").getString("message");
+    Assert.assertEquals(wrongMessage,"QUANTITY not supported, just support TAG as latest");
+  }
+
 
 
 
