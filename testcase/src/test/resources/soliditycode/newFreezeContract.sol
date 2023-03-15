@@ -148,6 +148,11 @@ contract NewFreezeV2 {
     function withdrawReward() external returns(uint) {
         return withdrawreward();
     }
+
+
+    function testConsumeEnergy(int x, int y) external returns (int){
+        return x + y;
+    }
 }
 
 contract C {
