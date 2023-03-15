@@ -529,7 +529,7 @@ public class StateTree001 extends JsonRpcBase {
 
 
   @Test(enabled = true, description = "eth_getStorageAt with create2 address")
-  public void test06StateTreeWithEthGetStorageAt() {
+  public void test07StateTreeWithEthGetStorageAt() {
     JsonArray params = new JsonArray();
     params.add(create2AddressFrom58);
     params.add("0x2");
