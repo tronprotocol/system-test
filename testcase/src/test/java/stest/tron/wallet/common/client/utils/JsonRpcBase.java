@@ -72,6 +72,7 @@ public class JsonRpcBase {
   public static String trc20AddressHex;
   public static String contractAddressFrom58;
   public static String contractTrc20AddressFrom58;
+  public static String create2AddressFrom58;
   public static String contractAddressFromHex;
   public static ByteString shieldAddressByteString;
   public static byte[] shieldAddressByte;
@@ -461,6 +462,23 @@ public class JsonRpcBase {
     Assert.assertTrue(PublicMethed.getContract(selfDestructAddressByte,blockingStubFull).hasAbi());
 
 
+
+  }
+
+  /** constructor. */
+  public void deployCreate2Contract() {
+    String filePath = "./src/test/resources/soliditycode/contractTrcToken001.sol";
+    String contractName = "C";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+
+    byte[] create2AddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, jsonRpcOwnerKey,
+        jsonRpcOwnerAddress, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(!PublicMethed.getContract(create2AddressByte,blockingStubFull).getBytecode().isEmpty());
+    create2AddressFrom58 = Base58.encode58Check(create2AddressByte);
 
   }
 
