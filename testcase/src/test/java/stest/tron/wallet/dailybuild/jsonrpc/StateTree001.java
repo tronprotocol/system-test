@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.jsonrpc;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -119,8 +120,8 @@ public class StateTree001 extends JsonRpcBase {
   }
 
 
-  @Test(enabled = true, description = "State tree with tron_getToken10")
-  public void test02StateTreeWithTronGetToken10() throws Exception {
+  @Test(enabled = true, description = "State tree with tron_getAssets")
+  public void test02StateTreeWithTronGetAssets() throws Exception {
     Assert.assertTrue(PublicMethed.transferAsset(getBalanceTestAddress, jsonRpcAssetId.getBytes(),sendAmount,
         jsonRpcOwnerAddress,jsonRpcOwnerKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -143,41 +144,124 @@ public class StateTree001 extends JsonRpcBase {
     JsonArray params = new JsonArray();
     params.add("0x" + ByteArray.toHexString(getBalanceTestAddress).substring(2));
     params.add("0x" + Long.toHexString(beforeBlockNumber));
-    JsonObject requestBody = getJsonRpcBody("tron_getToken10", params);
+    JsonObject requestBody = getJsonRpcBody("tron_getAssets", params);
     response = getJsonRpc(stateTreeNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
-    String balance = responseContent.getString("result").substring(2);
-    Long assertBalance = Long.parseLong(balance, 16);
+    JSONArray jsonArray = responseContent.getJSONArray("result");
+    Assert.assertEquals(jsonArray.size(),1);
+    Long tokenId = Long.parseLong(jsonArray.getJSONObject(0).getString("key").substring(2),16);
+    Long assertBalance = Long.parseLong(jsonArray.getJSONObject(0).getString("value").substring(2),16);
     Assert.assertEquals(assertBalance,beforeBalance);
+    Assert.assertEquals(String.valueOf(tokenId),jsonRpcAssetId);
 
 
     //Assert after balance
     params = new JsonArray();
     params.add("0x" + ByteArray.toHexString(getBalanceTestAddress).substring(2));
     params.add("0x" + Long.toHexString(afterBlockNumber));
-    requestBody = getJsonRpcBody("tron_getToken10", params);
+    requestBody = getJsonRpcBody("tron_getAssets", params);
     response = getJsonRpc(stateTreeNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
-    balance = responseContent.getString("result").substring(2);
-    assertBalance = Long.parseLong(balance, 16);
+    jsonArray = responseContent.getJSONArray("result");
+    Assert.assertEquals(jsonArray.size(),1);
+    tokenId = Long.parseLong(jsonArray.getJSONObject(0).getString("key").substring(2),16);
+    assertBalance = Long.parseLong(jsonArray.getJSONObject(0).getString("value").substring(2),16);
     Assert.assertEquals(assertBalance,afterBalance);
-
+    Assert.assertEquals(String.valueOf(tokenId),jsonRpcAssetId);
 
 
     //State tree not open didn't support block number
     params = new JsonArray();
     params.add("0x" + ByteArray.toHexString(getBalanceTestAddress).substring(2));
     params.add("0x" + Long.toHexString(afterBlockNumber));
-    requestBody = getJsonRpcBody("tron_getToken10", params);
+    requestBody = getJsonRpcBody("tron_getAssets", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     String wrongMessage = responseContent.getJSONObject("error").getString("message");
     Assert.assertEquals(wrongMessage,"QUANTITY not supported, just support TAG as latest");
+
+
+
+
+
+
+  }
+
+
+  @Test(enabled = true, description = "State tree with tron_getAssetById")
+  public void test03StateTreeWithTronGetAssetById() throws Exception {
+    ECKey getBalanceECKey = new ECKey(Utils.getRandom());
+    byte[] getBalanceTestAddress = getBalanceECKey.getAddress();
+    String getBalanceTestKey = ByteArray.toHexString(getBalanceECKey.getPrivKeyBytes());
+    PublicMethed.printAddress(getBalanceTestKey);
+    Assert.assertTrue(PublicMethed.transferAsset(getBalanceTestAddress, jsonRpcAssetId.getBytes(),sendAmount,
+        jsonRpcOwnerAddress,jsonRpcOwnerKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    final Long beforeBalance = sendAmount;
+    final Long beforeBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Assert.assertTrue(PublicMethed.transferAsset(getBalanceTestAddress, jsonRpcAssetId.getBytes(),transferAmount,
+        jsonRpcOwnerAddress,jsonRpcOwnerKey, blockingStubFull));
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    final Long afterBalance = sendAmount + transferAmount;
+    final Long afterBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+
+
+    //Assert before trc10 balance
+    JsonArray params = new JsonArray();
+    params.add("0x" + ByteArray.toHexString(getBalanceTestAddress).substring(2));
+    params.add("0x" + Long.toHexString(Long.valueOf(jsonRpcAssetId)));
+    params.add("0x" + Long.toHexString(beforeBlockNumber));
+    JsonObject requestBody = getJsonRpcBody("tron_getAssetById", params);
+    response = getJsonRpc(stateTreeNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    Long tokenId = Long.parseLong(responseContent.getJSONObject("result").getString("key").substring(2),16);
+    Long assertBalance = Long.parseLong(responseContent.getJSONObject("result").getString("value").substring(2),16);
+    Assert.assertEquals(assertBalance,beforeBalance);
+    Assert.assertEquals(String.valueOf(tokenId),jsonRpcAssetId);
+
+
+    //Assert after balance
+    params = new JsonArray();
+    params.add("0x" + ByteArray.toHexString(getBalanceTestAddress).substring(2));
+    params.add("0x" + Long.toHexString(Long.valueOf(jsonRpcAssetId)));
+    params.add("0x" + Long.toHexString(afterBlockNumber));
+    requestBody = getJsonRpcBody("tron_getAssetById", params);
+    response = getJsonRpc(stateTreeNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    tokenId = Long.parseLong(responseContent.getJSONObject("result").getString("key").substring(2),16);
+    assertBalance = Long.parseLong(responseContent.getJSONObject("result").getString("value").substring(2),16);
+
+    Assert.assertEquals(assertBalance,afterBalance);
+    Assert.assertEquals(String.valueOf(tokenId),jsonRpcAssetId);
+
+
+    //State tree not open didn't support block number
+    params = new JsonArray();
+    params.add("0x" + ByteArray.toHexString(getBalanceTestAddress).substring(2));
+    params.add("0x" + Long.toHexString(Long.valueOf(jsonRpcAssetId)));
+    params.add("0x" + Long.toHexString(afterBlockNumber));
+    requestBody = getJsonRpcBody("tron_getAssetById", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String wrongMessage = responseContent.getJSONObject("error").getString("message");
+    Assert.assertEquals(wrongMessage,"QUANTITY not supported, just support TAG as latest");
+
+
+
+
+
+
   }
 
 
   @Test(enabled = true, description = "State tree with eth_call")
-  public void test03StateTreeWithEthCall() throws Exception {
+  public void test04StateTreeWithEthCall() throws Exception {
     String selector = "transfer(address,uint256)";
     String addressParam =
         "000000000000000000000000"
@@ -281,7 +365,7 @@ public class StateTree001 extends JsonRpcBase {
 
 
   @Test(enabled = true, description = "State tree with eth_getCode")
-  public void test04StateTreeWithEthGetCode() throws Exception {
+  public void test05StateTreeWithEthGetCode() throws Exception {
     String getCodeFromGetContract = ByteArray
         .toHexString(PublicMethed.getContract(selfDestructAddressByte,blockingStubFull)
             .getBytecode().toByteArray());
@@ -366,7 +450,7 @@ public class StateTree001 extends JsonRpcBase {
   }
 
   @Test(enabled = true, description = "State tree with eth_getStorageAt")
-  public void test05StateTreeWithEthGetStorageAt() throws Exception {
+  public void test06StateTreeWithEthGetStorageAt() throws Exception {
     JsonArray params = new JsonArray();
     params.add(contractAddressFrom58);
     params.add("0x2");
