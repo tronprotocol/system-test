@@ -169,11 +169,6 @@ public class MutiSignSmartContractTest002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     long balanceAfter = PublicMethed.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
-
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 1, ownerAddress, blockingStubFull));
   }
 
   /**

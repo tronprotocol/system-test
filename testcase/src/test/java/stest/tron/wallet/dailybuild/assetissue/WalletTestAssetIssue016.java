@@ -171,6 +171,7 @@ public class WalletTestAssetIssue016 {
 
   @Test(enabled = true, description = "Get asset issue by name from Solidity")
   public void test02GetAssetIssueByNameFromSolidity() {
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
     Assert.assertEquals(PublicMethed.getAssetIssueByNameFromSolidity(name,
         blockingStubSolidity).getTotalSupply(), totalSupply);
   }

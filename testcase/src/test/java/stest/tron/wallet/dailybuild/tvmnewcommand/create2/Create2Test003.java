@@ -117,7 +117,7 @@ public class Create2Test003 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
@@ -196,7 +196,7 @@ public class Create2Test003 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
@@ -269,7 +269,7 @@ public class Create2Test003 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
@@ -342,7 +342,7 @@ public class Create2Test003 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
@@ -415,7 +415,7 @@ public class Create2Test003 {
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();

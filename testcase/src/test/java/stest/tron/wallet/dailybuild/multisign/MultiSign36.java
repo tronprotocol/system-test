@@ -259,7 +259,7 @@ public class MultiSign36 {
   public void getTransactionApprovedList_03() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
-    long amount = updateAccountPermissionFee + 1;
+    long amount = updateAccountPermissionFee + 1 + 1100000;
 
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, amount, fromAddress, testKey002,
@@ -332,7 +332,7 @@ public class MultiSign36 {
   public void getTransactionApprovedList_06() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
-    long amount = updateAccountPermissionFee + 1;
+    long amount = updateAccountPermissionFee + 1 + 1100000;
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, amount, fromAddress, testKey002,
             blockingStubFull));
@@ -401,7 +401,7 @@ public class MultiSign36 {
   public void getTransactionApprovedList_07() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
-    long amount = updateAccountPermissionFee + 1;
+    long amount = updateAccountPermissionFee + 1100000;
 
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, amount, fromAddress, testKey002,

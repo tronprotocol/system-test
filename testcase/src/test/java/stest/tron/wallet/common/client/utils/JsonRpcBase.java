@@ -8,6 +8,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -116,29 +117,7 @@ public class JsonRpcBase {
             foundationAccountKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    proposalMap.put(44L, 1L); //getAllowMarketTransaction
-    proposalMap.put(30L, 1L); //getChangeDelegation
-    proposalMap.put(59L, 1L); //getAllowTvmVote
-    proposalMap.put(1L, 9999000000L); //getAccountUpgradeCost
-    proposalMap.put(2L, 100000L); //getCreateAccountFee
-    proposalMap.put(3L, 1000L); //getTransactionFee
-    proposalMap.put(4L, 1024000000L); //getAssetIssueFee
-    proposalMap.put(5L, 16000000L); //getWitnessPayPerBlock
-    proposalMap.put(6L, 115200000000L); //getWitnessStandbyAllowance
-    proposalMap.put(7L, 1000000L); //getCreateNewAccountFeeInSystemContract
-    proposalMap.put(11L, 280L); //getEnergyFee
-    proposalMap.put(12L, 1024000000L); //getExchangeCreateFee
-    proposalMap.put(13L, 80L); //getMaxCpuTimeOfOneTx
-    //proposalMap.put(17L, 90000000000L); //getTotalEnergyLimit
-    proposalMap.put(19L, 90000000000L); //getTotalEnergyCurrentLimit
-    proposalMap.put(22L, 100000000L); //getUpdateAccountPermissionFee
-    proposalMap.put(23L, 1000000L); //getMultiSignFee
-    proposalMap.put(33L, 10L); //getAdaptiveResourceLimitTargetRatio
-    proposalMap.put(29L, 1000L); //getAdaptiveResourceLimitMultiplier
-    proposalMap.put(31L, 160000000L); //getWitness127PayPerBlock
-    proposalMap.put(47L, 10000000000L); //getMaxFeeLimit
-    proposalMap.put(61L, 1500L); //getFreeNetLimit
-    proposalMap.put(62L, 43200000000L); //getTotalNetLimit
+    getCommitData();
     openProposal(proposalMap);
     waitProposalApprove(13, blockingStubFull);
     Assert.assertTrue(
@@ -191,6 +170,15 @@ public class JsonRpcBase {
     deploySelfDestructContract();
   }
 
+  void getCommitData() {
+    List<String> commitList = Configuration.getByPath("testng.conf").getStringList("commitData.commit.list");
+    for (String ent : commitList) {
+      String[] str = ent.split(":");
+      System.out.println(str[0] + " : " + str[1]);
+      proposalMap.put(Long.valueOf(str[0]), Long.valueOf(str[1]));
+    }
+  }
+
   /** constructor. */
   public void waitProposalApprove(Integer proposalIndex,
                                          WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -212,7 +200,7 @@ public class JsonRpcBase {
   /** constructor. */
   public void openProposal(HashMap<Long, Long> proposalMap)  {
 
-    if (ProposalGetAllowMarketTransactionIsOpen()) {
+    if (ProposalGetAllowMarketTransactionIsOpen() || proposalMap.size() == 0) {
       return;
     }
     PublicMethed.sendcoin(witness001Address,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);

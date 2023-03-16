@@ -30,6 +30,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.MongoBase;
+import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
@@ -565,16 +566,8 @@ public class MongoEventQuery002 extends MongoBase {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
     }
 
-    Assert.assertTrue(
-        PublicMethed.freezeBalanceForReceiver(
-            fromAddress,
-            PublicMethed.getFreezeBalanceCount(
-                user001Address, user001Key, 50000L, blockingStubFull),
-            0,
-            1,
-            ByteString.copyFrom(user001Address),
-            testKey002,
-            blockingStubFull));
+    Assert.assertTrue(PublicMethed.sendcoin(
+        user001Address, 2000000000, fromAddress, testKey002, blockingStubFull));
 
     Assert.assertTrue(
         PublicMethed.transferAsset(
@@ -586,9 +579,9 @@ public class MongoEventQuery002 extends MongoBase {
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     byte[] transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
-    PublicMethed.sendcoin(
-        transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //Assert.assertTrue(PublicMethed.sendcoin(
+    //    transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull));
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     tokenId = assetAccountId.toStringUtf8();
     tokenValue = 10;
@@ -978,14 +971,6 @@ public class MongoEventQuery002 extends MongoBase {
   /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(
-            testNetAccountAddress, testNetAccountKey, 1, null, blockingStubFull));
-
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(event002Address, event002Key, 1, null, blockingStubFull));
-
     PublicMethed.freedResource(event002Address, event002Key, fromAddress, blockingStubFull);
 
     if (channelFull != null) {

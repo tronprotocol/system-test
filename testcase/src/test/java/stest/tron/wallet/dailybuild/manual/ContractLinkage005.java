@@ -242,21 +242,22 @@ public class ContractLinkage005 {
     logger.info("beforeFreeNetUsed4:" + beforeFreeNetUsed4);
     txid = PublicMethed.triggerContract(contractAddress,
         "testUseStorage(uint256)", zeroForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    fee = infoById.get().getFee();
+        0, 1000000000L, linkage005Address, linkage005Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
-    Account infoafter4 = PublicMethed.queryAccount(linkage005Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter4 = PublicMethed.getAccountResource(linkage005Address,
+    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    fee = infoById.get().getFee();
+
+    Account infoAfter4 = PublicMethed.queryAccount(linkage005Address, blockingStubFull1);
+    AccountResourceMessage resourceInfoAfter4 = PublicMethed.getAccountResource(linkage005Address,
         blockingStubFull1);
-    Long afterBalance4 = infoafter4.getBalance();
-    Long afterEnergyLimit4 = resourceInfoafter4.getEnergyLimit();
-    Long afterEnergyUsed4 = resourceInfoafter4.getEnergyUsed();
-    Long afterFreeNetLimit4 = resourceInfoafter4.getFreeNetLimit();
-    Long afterNetLimit4 = resourceInfoafter4.getNetLimit();
-    Long afterNetUsed4 = resourceInfoafter4.getNetUsed();
-    Long afterFreeNetUsed4 = resourceInfoafter4.getFreeNetUsed();
+    Long afterBalance4 = infoAfter4.getBalance();
+    Long afterEnergyLimit4 = resourceInfoAfter4.getEnergyLimit();
+    Long afterEnergyUsed4 = resourceInfoAfter4.getEnergyUsed();
+    Long afterFreeNetLimit4 = resourceInfoAfter4.getFreeNetLimit();
+    Long afterNetLimit4 = resourceInfoAfter4.getNetLimit();
+    Long afterNetUsed4 = resourceInfoAfter4.getNetUsed();
+    Long afterFreeNetUsed4 = resourceInfoAfter4.getFreeNetUsed();
     logger.info("afterBalance4:" + afterBalance4);
     logger.info("afterEnergyLimit4:" + afterEnergyLimit4);
     logger.info("afterEnergyUsed4:" + afterEnergyUsed4);

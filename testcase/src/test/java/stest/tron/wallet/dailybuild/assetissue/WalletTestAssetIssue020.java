@@ -102,9 +102,9 @@ public class WalletTestAssetIssue020 {
     PublicMethed.printAddress(asset020SecondKey);
     logger.info(name);
 
-    Assert.assertTrue(PublicMethed.sendcoin(asset020Address, 2048000000, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(asset020Address, 204800000000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(asset020SecondAddress, 2048000000, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(asset020SecondAddress, 204800000000L, fromAddress,
         testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -199,21 +199,21 @@ public class WalletTestAssetIssue020 {
     Assert.assertEquals(PublicMethed.getAssetIssueListByNameFromSolidity(name,
         blockingStubPbft).get().getAssetIssue(0).getTotalSupply(), totalSupply);
   }
-
   @Test(enabled = true, description = "freeAssetNetUsed decreasing "
-      + "in getassetissuebyid and getaccount ")
-  public void test06NetusedDecrease() {
+      + "in getAssetIssueById and getAccount")
+  public void test06NetUsedDecrease() {
     ECKey ecKeyOwner = new ECKey(Utils.getRandom());
     byte[] assetOwnerAddress = ecKeyOwner.getAddress();
     String assetOwnerKey = ByteArray.toHexString(ecKeyOwner.getPrivKeyBytes());
     PublicMethed.printAddress(assetOwnerKey);
-    Assert.assertTrue(PublicMethed.sendcoin(assetOwnerAddress, 2000000000, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(assetOwnerAddress, 200000000000L, fromAddress,
         testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(assetOwnerAddress, assetOwnerKey, 170000L,
+        PublicMethed.getFreezeBalanceCount(assetOwnerAddress, assetOwnerKey, 500000L,
             blockingStubFull), 0, 1,
         ByteString.copyFrom(assetOwnerAddress), testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_0000_00000L,
         0, 0, ByteString.copyFrom(assetOwnerAddress), testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -233,7 +233,7 @@ public class WalletTestAssetIssue020 {
     ECKey ecKeyFrom = new ECKey(Utils.getRandom());
     byte[] assetFromAddress = ecKeyFrom.getAddress();
     String assetFromKey = ByteArray.toHexString(ecKeyFrom.getPrivKeyBytes());
-    Assert.assertTrue(PublicMethed.sendcoin(assetFromAddress, 1000000000, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(assetFromAddress, 100000000000L, fromAddress,
         testKey002, blockingStubFull));
     PublicMethed.transferAsset(assetFromAddress,
         assetAccountId.toByteArray(), 100L, assetOwnerAddress, assetOwnerKey, blockingStubFull);

@@ -5,6 +5,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
+
+import io.grpc.Metadata;
+import io.grpc.stub.MetadataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
@@ -19,7 +22,9 @@ import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestBlock001 {
@@ -49,15 +54,38 @@ public class WalletTestBlock001 {
 
   @BeforeClass
   public void beforeClass() {
+    // Add metadata as grpc headers
+    Metadata headers = new Metadata();
+    headers.put(Metadata.Key.of("content-length", Metadata.ASCII_STRING_MARSHALLER), "5");
+    headers
+        .put(Metadata.Key.of("Content-Type", Metadata.ASCII_STRING_MARSHALLER), "application/grpc");
+    headers
+        .put(Metadata.Key.of("Host", Metadata.ASCII_STRING_MARSHALLER), "grpc.demo.com");
+    headers
+        .put(Metadata.Key.of("x-trace-id", Metadata.ASCII_STRING_MARSHALLER), "testGroupAutoTest");
+    headers
+        .put(Metadata.Key.of("x-trace-path", Metadata.ASCII_STRING_MARSHALLER), "123 23123");
+    headers
+        .put(Metadata.Key.of("x-trace-name", Metadata.ASCII_STRING_MARSHALLER), "!@^&$!* ()^&%");
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] randomAddress = ecKey1.getAddress();
+    headers
+        .put(Metadata.Key.of("address-bin", Metadata.BINARY_BYTE_MARSHALLER), randomAddress);
+
+
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    blockingStubFull = WalletGrpc.newBlockingStub(channelFull)
+        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+    //blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
         .usePlaintext(true)
         .build();
-    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+    //blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity)
+        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
   }
 
   /**

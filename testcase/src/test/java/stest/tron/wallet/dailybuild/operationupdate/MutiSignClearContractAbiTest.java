@@ -136,7 +136,7 @@ public class MutiSignClearContractAbiTest {
         blockingStubFull, ownerKeyString);
 
     Long maxFeeLimit = 1000000000L;
-    String filePath = "src/test/resources/soliditycode/TriggerConstant004.sol";
+    String filePath = "./src/test/resources/soliditycode/TriggerConstant004.sol";
     String contractName = "testConstantContract";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
@@ -152,12 +152,8 @@ public class MutiSignClearContractAbiTest {
     Assert.assertTrue(PublicMethedForMutiSign
         .clearContractAbi(contractAddress, ownerAddress, ownerKey,
             blockingStubFull, 2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 1, ownerAddress, blockingStubFull));
+
   }
 
   @Test(enabled = true, threadPoolSize = 1, invocationCount = 1)
@@ -214,7 +210,7 @@ public class MutiSignClearContractAbiTest {
         blockingStubFull, ownerKeyString);
 
     Long maxFeeLimit = 1000000000L;
-    String filePath = "src/test/resources/soliditycode/TriggerConstant004.sol";
+    String filePath = "./src/test/resources/soliditycode/TriggerConstant004.sol";
     String contractName = "testConstantContract";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
@@ -231,12 +227,7 @@ public class MutiSignClearContractAbiTest {
     Assert.assertTrue(PublicMethedForMutiSign
         .clearContractAbi(contractAddress, ownerAddress, ownerKey,
             blockingStubFull, 2, permissionKeyString));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 1, ownerAddress, blockingStubFull));
   }
 
 
@@ -271,7 +262,7 @@ public class MutiSignClearContractAbiTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Long maxFeeLimit = 1000000000L;
-    String filePath = "src/test/resources/soliditycode/TriggerConstant004.sol";
+    String filePath = "./src/test/resources/soliditycode/TriggerConstant004.sol";
     String contractName = "testConstantContract";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
@@ -288,11 +279,6 @@ public class MutiSignClearContractAbiTest {
         .clearContractAbi(contractAddress, ownerAddress, ownerKey,
             blockingStubFull, 2, activeDefaultKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, ownerAddress, blockingStubFull));
-    Assert.assertTrue(
-        PublicMethed.unFreezeBalance(fromAddress, testKey002, 1, ownerAddress, blockingStubFull));
   }
 
   /**

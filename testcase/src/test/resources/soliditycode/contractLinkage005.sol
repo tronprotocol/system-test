@@ -9,6 +9,11 @@ contract timeoutTest {
         iarray1 = "12345678";
     }
 
+    function getRevertTransaction() public  returns (uint256){
+        require(1 == 2);
+        return 1;
+    }
+
     function testUseCpu(uint256 a) public returns (uint256){
         uint256 count = 0;
         for (uint256 i = 0; i < a; i++) {

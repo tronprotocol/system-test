@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -66,7 +67,7 @@ public class Create2Test021 {
    */
 
   @BeforeClass(enabled = true)
-  public void beforeClass() {
+  public void beforeClass() throws Exception {
     PublicMethed.printAddress(contractExcKey);
     PublicMethed.printAddress(resourceOnwerKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
@@ -82,6 +83,13 @@ public class Create2Test021 {
         .usePlaintext(true)
         .build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+
+    if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
+      if (channelFull != null) {
+        channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+      }
+      throw new SkipException("Skipping freezeV2 test case");
+    }
 
   }
 
