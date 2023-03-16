@@ -118,7 +118,8 @@ public class Opcode {
         || trueRes.startsWith("0000000000000000000000003ed7d77d2eb807375a34e1a0043c5ba7e8926265"));
   }
 
-  @Test(enabled = true, description = "test opcode difficulty,block.difficulty is always 0")
+  @Test(enabled = false, description = "test opcode difficulty,block.difficulty is always 0,"
+      + " Deprecate since 0.8.18")
   public void test04Difficulty() {
     GrpcAPI.TransactionExtention transactionExtention = PublicMethed
         .triggerConstantContractForExtention(mapKeyContract,

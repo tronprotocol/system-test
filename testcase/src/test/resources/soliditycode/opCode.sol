@@ -27,8 +27,8 @@ contract A {
         return block.coinbase;
     }
 
-    function ddifficulty() public returns (uint256) {
-        return block.difficulty;
+    function ddifficulty() public view returns (uint256) {
+        return block.difficulty;   //Deprecate since 0.8.18
     }
 
     function gggaslimit() public returns (uint256) {
