@@ -106,6 +106,9 @@ public class JsonRpcBase {
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
   public void deployJsonRpcUseResource() throws Exception {
+    if(1 == 1) {
+      return;
+    }
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
@@ -252,7 +255,7 @@ public class JsonRpcBase {
     param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
     param.addProperty("name", "transferTokenContract");
     param.addProperty("gas", "0x245498");
-    String filePath = "./src/test/resources/soliditycode/contractTrcToken001.sol";
+    String filePath = "testcase/src/test/resources/soliditycode/contractTrcToken001.sol";
     String contractName = "tokenTest";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
 
@@ -437,7 +440,7 @@ public class JsonRpcBase {
 
   /** constructor. */
   public void deploySelfDestructContract() throws InterruptedException {
-    String filePath = "./src/test/resources/soliditycode/contractGrammar002test6Grammar013.sol";
+    String filePath = "testcase/src/test/resources/soliditycode/contractGrammar002test6Grammar013.sol";
     String contractName = "Counter";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
@@ -455,7 +458,7 @@ public class JsonRpcBase {
 
   /** constructor. */
   public void deployCreate2Contract() {
-    String filePath = "./src/test/resources/soliditycode/contractTrcToken001.sol";
+    String filePath = "testcase/src/test/resources/soliditycode/contractTrcToken001.sol";
     String contractName = "C";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();

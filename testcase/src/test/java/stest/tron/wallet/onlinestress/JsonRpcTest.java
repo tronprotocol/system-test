@@ -27,12 +27,18 @@ import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.AccountContract.AccountCreateContract;
 import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
+import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
+import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
+import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.WithdrawBalanceContract;
+import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
 import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract;
 import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
+import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
@@ -66,7 +72,8 @@ public class JsonRpcTest extends JsonRpcBase {
    */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    fullnode = "47.94.243.150:50051";
+    //fullnode = "47.94.243.150:50051";
+    fullnode = "39.106.55.169:50051";
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -190,10 +197,12 @@ public class JsonRpcTest extends JsonRpcBase {
     Assert.assertEquals((long)stateTreeBalance,PublicMethed.queryAccount(address.toByteArray(),blockingStubFull).getBalance());
   }
 
-  public String noStateTreeNode = "47.94.243.150:50545";
-  public String stateTreeNode = "39.106.110.245:50545";
+  //public String noStateTreeNode = "47.94.243.150:50545";
+  public String noStateTreeNode = "39.106.55.169:50545";
+  //public String stateTreeNode = "39.106.110.245:50545";
+  public String stateTreeNode = "39.106.55.169:50546";
   public HashSet<ByteString> addressSet = new HashSet<>();
-  public Long blockNum = 49393642L;
+  public Long blockNum = 6000L;
 
   @Test(enabled = true, description = "State tree with eth_getBalance")
   public void test01StateTreeWithEthGetBalance() throws Exception {
@@ -201,7 +210,8 @@ public class JsonRpcTest extends JsonRpcBase {
 
 
     Long startNum = blockNum;
-    Long endNum = startNum - 20000;;
+    //Long endNum = startNum - 20000;;
+    Long endNum = 0L;
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(startNum);
     HashSet<ByteString> set = new HashSet<>();
@@ -252,9 +262,9 @@ public class JsonRpcTest extends JsonRpcBase {
               AccountCreateContract accountCreateContract = any.unpack(AccountCreateContract.class);
               doCheck(accountCreateContract.getOwnerAddress());
               break;
-              /* case 4:
+               case 4:
               VoteWitnessContract voteWitnessContract = any.unpack(VoteWitnessContract.class);
-              doCheck(voteWitnessContract.getOwnerAddress());*/
+              doCheck(voteWitnessContract.getOwnerAddress());
             case 12:
               UnfreezeBalanceContract unfreezeBalanceContract
                   = any.unpack(UnfreezeBalanceContract.class);
@@ -268,6 +278,33 @@ public class JsonRpcTest extends JsonRpcBase {
               AccountPermissionUpdateContract accountPermissionUpdateContract
                   = any.unpack(AccountPermissionUpdateContract.class);
               doCheck(accountPermissionUpdateContract.getOwnerAddress());
+              break;
+            case 54:
+              FreezeBalanceV2Contract freezeBalanceV2Contract
+                  = any.unpack(FreezeBalanceV2Contract.class);
+              doCheck(freezeBalanceV2Contract.getOwnerAddress());
+              break;
+            case 55:
+              UnfreezeBalanceV2Contract unfreezeBalanceV2Contract
+                  = any.unpack(UnfreezeBalanceV2Contract.class);
+              doCheck(unfreezeBalanceV2Contract.getOwnerAddress());
+              break;
+            case 56:
+              WithdrawExpireUnfreezeContract withdrawExpireUnfreezeContract
+                  = any.unpack(WithdrawExpireUnfreezeContract.class);
+              doCheck(withdrawExpireUnfreezeContract.getOwnerAddress());
+              break;
+            case 57:
+              DelegateResourceContract delegateResourceContract
+                  = any.unpack(DelegateResourceContract.class);
+              doCheck(delegateResourceContract.getOwnerAddress());
+              doCheck(delegateResourceContract.getReceiverAddress());
+              break;
+            case 58:
+              UnDelegateResourceContract unDelegateResourceContract
+                  = any.unpack(UnDelegateResourceContract.class);
+              doCheck(unDelegateResourceContract.getOwnerAddress());
+              doCheck(unDelegateResourceContract.getReceiverAddress());
               break;
             default:
               logger.info("Unknown type:" + contractType);
