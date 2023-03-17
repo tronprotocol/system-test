@@ -269,7 +269,7 @@ public class StateTree001 extends JsonRpcBase {
 
     String transferValueParam = "0000000000000000000000000000000000000000000000000000000000000100";
     String paramString = addressParam + transferValueParam;
-    trc20Txid =
+    String trc20Txid01 =
         PublicMethed.triggerContract(
             ByteArray.fromHexString(trc20AddressHex),
             selector,
@@ -283,7 +283,7 @@ public class StateTree001 extends JsonRpcBase {
             jsonRpcOwnerKey,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(trc20Txid,blockingStubFull).get()
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(trc20Txid01,blockingStubFull).get()
         .getLogCount() == 1);
 
 
@@ -292,7 +292,7 @@ public class StateTree001 extends JsonRpcBase {
         .getBlockHeader().getRawData().getNumber();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    trc20Txid =
+    trc20Txid01 =
         PublicMethed.triggerContract(
             ByteArray.fromHexString(trc20AddressHex),
             selector,
@@ -307,7 +307,7 @@ public class StateTree001 extends JsonRpcBase {
             blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.getTransactionInfoById(trc20Txid,blockingStubFull).get()
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(trc20Txid01,blockingStubFull).get()
         .getLogCount() == 1);
 
     final Long afterBalance = beforeBalance + beforeBalance;
@@ -390,7 +390,7 @@ public class StateTree001 extends JsonRpcBase {
         .getBlockHeader().getRawData().getNumber();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    txid =
+    String txid02 =
         PublicMethed.triggerContract(
             selfDestructAddressByte,
             "kill()",
@@ -405,7 +405,7 @@ public class StateTree001 extends JsonRpcBase {
             blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
+    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid02,blockingStubFull).get()
         .getReceipt().getResult(), contractResult.SUCCESS);
     final Long afterBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
         .getBlockHeader().getRawData().getNumber();
@@ -464,7 +464,7 @@ public class StateTree001 extends JsonRpcBase {
     final Long beforeBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
         .getBlockHeader().getRawData().getNumber();
 
-    txid =
+    String txid00 =
         PublicMethed.triggerContract(
             ByteArray.fromHexString(contractAddressFrom58),
             "changePos2()",
@@ -479,7 +479,7 @@ public class StateTree001 extends JsonRpcBase {
             blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
+    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid00,blockingStubFull).get()
         .getReceipt().getResult(), contractResult.SUCCESS);
 
     final Long afterBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
@@ -543,7 +543,7 @@ public class StateTree001 extends JsonRpcBase {
     final Long beforeBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
         .getBlockHeader().getRawData().getNumber();
 
-    txid =
+    String txid01 =
         PublicMethed.triggerContract(
             ByteArray.fromHexString(create2AddressFrom58),
             "changePos2()",
@@ -558,7 +558,7 @@ public class StateTree001 extends JsonRpcBase {
             blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get()
+    Assert.assertEquals(PublicMethed.getTransactionInfoById(txid01,blockingStubFull).get()
         .getReceipt().getResult(), contractResult.SUCCESS);
 
     final Long afterBlockNumber = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
