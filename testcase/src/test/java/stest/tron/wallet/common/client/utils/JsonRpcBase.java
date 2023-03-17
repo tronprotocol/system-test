@@ -168,6 +168,7 @@ public class JsonRpcBase {
     triggerContract();
     deployTrc20Contract();
     deploySelfDestructContract();
+    deployCreate2Contract();
   }
 
   void getCommitData() {
