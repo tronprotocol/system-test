@@ -116,7 +116,16 @@ public class JsonRpcTest extends JsonRpcBase {
 
   }
 
+  public HashSet<String> smartContractSet = new HashSet<>();
+
   public void compareBalance(ByteString userAddress,ByteString contractAddress) throws Exception {
+    if(smartContractSet.contains(Base58.encode58Check(userAddress.toByteArray()) + Base58.encode58Check(contractAddress.toByteArray()))) {
+      return;
+    }
+    smartContractSet.add(Base58.encode58Check(userAddress.toByteArray()) + Base58.encode58Check(contractAddress.toByteArray()));
+    if(smartContractSet.size() % 100 == 0) {
+      logger.info("smartContractSet size : " + smartContractSet.size());
+    }
     String paramString = "\"" + Base58.encode58Check(userAddress.toByteArray()) + "\"";
     BigInteger constantBalance = new BigInteger(ByteArray.toHexString(PublicMethed.triggerConstantContractForExtention(contractAddress.toByteArray(),
         "balanceOf(address)",paramString,
@@ -162,8 +171,9 @@ public class JsonRpcTest extends JsonRpcBase {
         byte[] fromAddress = ByteArray.fromHexString("41" + ByteArray.toHexString(transactionInfo.getLog(0).getTopics(1).toByteArray()).substring(24));
         byte[] toAddress = ByteArray.fromHexString("41" + ByteArray.toHexString(transactionInfo.getLog(0).getTopics(2).toByteArray()).substring(24));
 
-        compareBalance(ByteString.copyFrom(fromAddress),contractAddress);
-        compareBalance(ByteString.copyFrom(toAddress),contractAddress);
+        ByteString logContractAddress = transactionInfo.getLog(0).getAddress();
+        compareBalance(ByteString.copyFrom(fromAddress),logContractAddress);
+        compareBalance(ByteString.copyFrom(toAddress),logContractAddress);
 
 
 
