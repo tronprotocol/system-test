@@ -73,7 +73,7 @@ public class JsonRpcBase {
   public static String trc20AddressHex;
   public static String contractAddressFrom58;
   public static String contractTrc20AddressFrom58;
-  public static String create2AddressFrom58;
+  public static String create2AddressFrom41;
   public static String contractAddressFromHex;
   public static ByteString shieldAddressByteString;
   public static byte[] shieldAddressByte;
@@ -462,12 +462,24 @@ public class JsonRpcBase {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    byte[] create2AddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    byte[] cAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, jsonRpcOwnerKey,
         jsonRpcOwnerAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(!PublicMethed.getContract(create2AddressByte,blockingStubFull).getBytecode().isEmpty());
-    create2AddressFrom58 = Base58.encode58Check(create2AddressByte);
+    Assert.assertTrue(!PublicMethed.getContract(cAddressByte,blockingStubFull).getBytecode().isEmpty());
+    String methedStr = "createWithSalted(bytes32)";
+    String argsStr = "1232";
+    String txid = PublicMethed.triggerContract(cAddressByte, methedStr, argsStr,
+        false, 0, maxFeeLimit, jsonRpcOwnerAddress, jsonRpcOwnerKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Protocol.TransactionInfo infoById =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
+    logger.info("Trigger InfobyId: " + infoById);
+    Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, infoById.getResult());
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.getReceipt().getResult());
+    create2AddressFrom41 = "41" + ByteArray.toHexString(infoById.getContractResult(0).toByteArray()).substring(24);
+    logger.info("create2AddressFrom41: " + create2AddressFrom41);
 
   }
 

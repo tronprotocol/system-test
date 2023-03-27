@@ -45,3 +45,11 @@
          pos2 = 2;
      }
  }
+
+ contract C{
+     constructor() public payable{}
+     function createWithSalted(bytes32 salt) public returns(address) {
+         tokenTest e = new tokenTest{salt: salt}();
+         return address(e);
+     }
+ }
