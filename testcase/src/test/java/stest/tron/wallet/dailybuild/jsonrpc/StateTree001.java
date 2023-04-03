@@ -531,7 +531,7 @@ public class StateTree001 extends JsonRpcBase {
   @Test(enabled = true, description = "eth_getStorageAt with create2 address")
   public void test07StateTreeWithEthGetStorageAt() {
     JsonArray params = new JsonArray();
-    params.add(create2AddressFrom58);
+    params.add(create2AddressFrom41);
     params.add("0x2");
     params.add("latest");
     JsonObject requestBody = getJsonRpcBody("eth_getStorageAt", params);
@@ -545,7 +545,7 @@ public class StateTree001 extends JsonRpcBase {
 
     String txid01 =
         PublicMethed.triggerContract(
-            ByteArray.fromHexString(create2AddressFrom58),
+            ByteArray.fromHexString(create2AddressFrom41),
             "changePos2()",
             "#",
             false,
@@ -567,7 +567,7 @@ public class StateTree001 extends JsonRpcBase {
 
     //Assert before pos2 eth_getStorageAt
     params = new JsonArray();
-    params.add(create2AddressFrom58);
+    params.add(create2AddressFrom41);
     params.add("0x2");
     params.add("0x" + Long.toHexString(beforeBlockNumber));
 
@@ -582,7 +582,7 @@ public class StateTree001 extends JsonRpcBase {
 
     //Assert after change pos2
     params = new JsonArray();
-    params.add(create2AddressFrom58);
+    params.add(create2AddressFrom41);
     params.add("0x2");
     params.add("0x" + Long.toHexString(afterBlockNumber));
     requestBody = getJsonRpcBody("eth_getStorageAt", params);
@@ -596,7 +596,7 @@ public class StateTree001 extends JsonRpcBase {
 
     //State tree not open didn't support block number
     params = new JsonArray();
-    params.add(create2AddressFrom58);
+    params.add(create2AddressFrom41);
     params.add("0x2");
     params.add("0x" + Long.toHexString(afterBlockNumber));
     requestBody = getJsonRpcBody("eth_getStorageAt", params);

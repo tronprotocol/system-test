@@ -34,10 +34,13 @@ public class StateTree002 extends JsonRpcBase {
   byte[] callerContract;
   byte[] calledContract;
   byte[] cContract;
+  byte[] create2Contract;
   Long afterBlockNumber01;
   Long afterBlockNumber02;
   Long afterBlockNumber03;
   Long afterBlockNumber04;
+  Long afterBlockNumber051;
+  Long afterBlockNumber052;
 
 
   /**
@@ -190,6 +193,60 @@ public class StateTree002 extends JsonRpcBase {
     checkResult03();
   }
 
+  @Test(enabled = true, description = "eth_call get trx and trc10 balance around create2 contract kill")
+  public void test05StateTreeWithEthCall() {
+    //generate create2 contract
+    String method = "createWithSalted(bytes32)";
+    String param = "1232";
+    String txid = PublicMethed.triggerContract(cContract, method,
+        param, false, 0, 1000000000L, "0",
+        0, callerAddress, callerPrivKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Protocol.TransactionInfo infoById =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
+    logger.info("Trigger InfobyId: " + infoById);
+    Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, infoById.getResult());
+    Assert.assertEquals(contractResult.SUCCESS, infoById.getReceipt().getResult());
+    String create241 = "41" + ByteArray.toHexString(infoById.getContractResult(0).toByteArray()).substring(24);
+    create2Contract = ByteArray.fromHexString(create241);
+
+    //trans 1 trc10 to create2 contract
+    method = "trans(address,uint256,trcToken)";
+    param = "\"" + Base58.encode58Check(create2Contract) + "\",1,\"" + jsonRpcAssetId + "\"";
+    PublicMethed.triggerContract(cContract, method,
+        param, false, 0, 1000000000L, "0",
+        0, callerAddress, callerPrivKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    afterBlockNumber051 = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+    //check create2 add 1 jsonRpcAssetId
+    Long create2ContractTokenBalance01 = getAssetById(create2Contract, jsonRpcAssetId, afterBlockNumber051, stateTreeNode);
+    Assert.assertEquals(1, create2ContractTokenBalance01.longValue());
+
+    //check cContract decrease 1 jsonRpcAssetId
+    Long cContractTokenBalance01 = getAssetById(cContract, jsonRpcAssetId, afterBlockNumber051, stateTreeNode);
+    Assert.assertEquals(97, cContractTokenBalance01.longValue());
+
+    //kill create2 contract and set cContract as receiver
+    method = "destroy(address)";
+    param = "\"" + Base58.encode58Check(cContract) + "\"";
+    PublicMethed.triggerContract(create2Contract, method,
+        param, false, 0, 1000000000L, "0",
+        0, callerAddress, callerPrivKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    afterBlockNumber052 = blockingStubFull.getNowBlock(EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+
+    //check create2 has no jsonRpcAssetId
+    Long create2ContractTokenBalance02 = getAssetById(create2Contract, jsonRpcAssetId, afterBlockNumber052, stateTreeNode);
+    Assert.assertEquals(0, create2ContractTokenBalance02.longValue());
+
+    //check cContract add 1 jsonRpcAssetId
+    Long cContractTokenBalance02 = getAssetById(cContract, jsonRpcAssetId, afterBlockNumber052, stateTreeNode);
+    Assert.assertEquals(98, cContractTokenBalance02.longValue());
+
+  }
 
 
   void checkResult01() {
@@ -524,6 +581,20 @@ public class StateTree002 extends JsonRpcBase {
     balance = responseContent.getString("result").substring(2);
     Long cTokenBalance03 = Long.parseLong(balance, 16);
     Assert.assertEquals(cTokenBalance01, cTokenBalance03);
+  }
+
+  long getAssetById(byte[] address, String assetId, long blockNum, String node) {
+    JsonArray params = new JsonArray();
+    params.add("0x" + ByteArray.toHexString(address).substring(2));
+    params.add("0x" + Long.toHexString(Long.valueOf(jsonRpcAssetId)));
+    params.add("0x" + Long.toHexString(blockNum));
+    JsonObject requestBody = getJsonRpcBody("tron_getAssetById", params);
+    response = getJsonRpc(node, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    long tokenId = Long.parseLong(responseContent.getJSONObject("result").getString("key").substring(2),16);
+    Assert.assertEquals(assetId, String.valueOf(tokenId));
+    Long cContractTokenBalance01 = Long.parseLong(responseContent.getJSONObject("result").getString("value").substring(2),16);
+    return cContractTokenBalance01;
   }
 
   /**
