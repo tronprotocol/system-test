@@ -15,22 +15,43 @@ package stest.tron.wallet.common.client.utils;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import java.lang.reflect.Constructor;
+import java.nio.charset.StandardCharsets;
 import java.security.SignatureException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
+import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.contract.AccountContract.AccountCreateContract;
+import org.tron.protos.contract.AccountContract.AccountUpdateContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass;
 import org.tron.protos.contract.BalanceContract;
+import org.tron.protos.contract.BalanceContract.TransferContract;
 import org.tron.protos.contract.SmartContractOuterClass;
+import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract;
 import org.tron.protos.contract.VoteAssetContractOuterClass;
 import org.tron.protos.contract.WitnessContract;
+import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
+import org.tron.protos.contract.WitnessContract.WitnessUpdateContract;
 import stest.tron.wallet.common.client.utils.ECKey.ECDSASignature;
 @Slf4j
 public class TransactionUtils {
@@ -40,6 +61,7 @@ public class TransactionUtils {
   public static final int EXECUTINGDEFERREDTRANSACTION = 2;
 //  private static final Logger logger = LoggerFactory.getLogger("Transaction");
   private static final int RESERVE_BALANCE = 10;
+  public static HashMap<ContractType,Class<?>> transactionMap = new HashMap<>();
 
   /**
    * constructor.
@@ -192,6 +214,163 @@ public class TransactionUtils {
       logger.warn("err transaction, please check, " + transaction + " err: " + e.getMessage());
     }
     return transaction;
+  }
+
+
+  public static byte[] generateContractAddress(Transaction trx, byte[] ownerAddress) {
+    // get tx hash
+    byte[] txRawDataHash = Sha256Hash
+        .of(CommonParameter.getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())
+        .getBytes();
+
+    // combine
+    byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
+    System.arraycopy(txRawDataHash, 0, combined, 0, txRawDataHash.length);
+    System.arraycopy(ownerAddress, 0, combined, txRawDataHash.length, ownerAddress.length);
+
+    return Hash.sha3omit12(combined);
+  }
+
+
+  public static void initTransactionMap() {
+    if(transactionMap.isEmpty()) {
+      transactionMap.put(ContractType.TransferContract,TransferContract.class);
+      transactionMap.put(ContractType.AccountUpdateContract, AccountUpdateContract.class);
+      transactionMap.put(ContractType.VoteWitnessContract, VoteWitnessContract.class);
+      transactionMap.put(ContractType.WitnessUpdateContract, WitnessUpdateContract.class);
+      transactionMap.put(ContractType.AccountCreateContract,AccountCreateContract.class);
+    }
+  }
+
+  public static JSONObject printTransactionToJSON(Transaction transaction, boolean selfType) {
+
+    JSONObject jsonTransaction = JSONObject
+        .parseObject(JsonFormat.printToString(transaction, selfType));
+    JSONArray contracts = new JSONArray();
+    transaction.getRawData().getContractList().stream().forEach(contract -> {
+      try {
+        JSONObject contractJson = null;
+        Any contractParameter = contract.getParameter();
+        switch (contract.getType()) {
+          case CreateSmartContract:
+            CreateSmartContract deployContract = contractParameter
+                .unpack(CreateSmartContract.class);
+            contractJson = JSONObject
+                .parseObject(JsonFormat.printToString(deployContract, selfType));
+            byte[] ownerAddress = deployContract.getOwnerAddress().toByteArray();
+            byte[] contractAddress = generateContractAddress(transaction, ownerAddress);
+            jsonTransaction.put("contract_address", ByteArray.toHexString(contractAddress));
+            break;
+          default:
+            Class clazz = transactionMap.get(contract.getType());
+            if (clazz != null) {
+              contractJson = JSONObject
+                  .parseObject(JsonFormat.printToString(contractParameter.unpack(clazz), selfType));
+            }
+            break;
+        }
+
+        JSONObject parameter = new JSONObject();
+        parameter.put("value", contractJson);
+        parameter.put("type_url", contract.getParameterOrBuilder().getTypeUrl());
+        JSONObject jsonContract = new JSONObject();
+        jsonContract.put("parameter", parameter);
+        jsonContract.put("type", contract.getType());
+        if (contract.getPermissionId() > 0) {
+          jsonContract.put("Permission_id", contract.getPermissionId());
+        }
+        contracts.add(jsonContract);
+      } catch (InvalidProtocolBufferException e) {
+        logger.debug("InvalidProtocolBufferException: {}", e.getMessage());
+      }
+    });
+
+    JSONObject rawData = JSONObject.parseObject(jsonTransaction.get("raw_data").toString());
+    rawData.put("contract", contracts);
+    jsonTransaction.put("raw_data", rawData);
+    String rawDataHex = ByteArray.toHexString(transaction.getRawData().toByteArray());
+    jsonTransaction.put("raw_data_hex", rawDataHex);
+    String txID = ByteArray.toHexString(Sha256Hash
+        .hash(CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
+    jsonTransaction.put("txID", txID);
+    return jsonTransaction;
+  }
+
+  /**
+   * Note: the contracts of the returned transaction may be empty
+   */
+  public static Transaction packTransaction(String strTransaction, boolean selfType) {
+    initTransactionMap();
+    JSONObject jsonTransaction = JSON.parseObject(strTransaction);
+    JSONObject rawData = jsonTransaction.getJSONObject("raw_data");
+    JSONArray contracts = new JSONArray();
+    JSONArray rawContractArray = rawData.getJSONArray("contract");
+
+    String contractType = null;
+    for (int i = 0; i < rawContractArray.size(); i++) {
+      try {
+        JSONObject contract = rawContractArray.getJSONObject(i);
+        JSONObject parameter = contract.getJSONObject("parameter");
+        contractType = contract.getString("type");
+        if (StringUtils.isEmpty(contractType)) {
+          logger.debug("no type in the transaction, ignore");
+          continue;
+        }
+
+        Any any = null;
+        Class clazz = transactionMap.get(ContractType.valueOf(contractType));
+        if (clazz != null) {
+          Constructor<GeneratedMessageV3> constructor = clazz.getDeclaredConstructor();
+          constructor.setAccessible(true);
+          GeneratedMessageV3 generatedMessageV3 = constructor.newInstance();
+          Message.Builder builder = generatedMessageV3.toBuilder();
+          JsonFormat.merge(parameter.getJSONObject("value").toJSONString(), builder, selfType);
+          any = Any.pack(builder.build());
+        }
+        if (any != null) {
+          String value = ByteArray.toHexString(any.getValue().toByteArray());
+          parameter.put("value", value);
+          contract.put("parameter", parameter);
+          contracts.add(contract);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+
+      }
+    }
+    rawData.put("contract", contracts);
+    jsonTransaction.put("raw_data", rawData);
+    Transaction.Builder transactionBuilder = Transaction.newBuilder();
+    try {
+      JsonFormat.merge(jsonTransaction.toJSONString(), transactionBuilder, selfType);
+      return transactionBuilder.build();
+    } catch (Exception e) {
+      logger.debug(" {}", e.getMessage());
+      return null;
+    }
+  }
+
+  public static String getTransactionSign(String transaction, String priKey,
+      boolean visible) {
+
+    byte[] privateKey = ByteArray.fromHexString(priKey);
+    try {
+      TransactionCapsule trx = new TransactionCapsule(packTransaction(transaction,visible));
+      trx.sign(privateKey);
+      return printTransactionToJSON(trx.getInstance(),visible).toJSONString();
+    } catch (Exception e) {
+      logger.error("{}", e);
+    }
+    return null;
+  }
+
+  public static TransactionCapsule addTransactionSign(Transaction transaction, String priKey)
+      throws  SignatureException {
+    byte[] privateKey = ByteArray.fromHexString(priKey);
+    TransactionCapsule trx = new TransactionCapsule(transaction);
+    trx.addSign(privateKey);
+    return trx;
   }
 
   /**

@@ -57,6 +57,8 @@ public class HttpTestAccount003 {
   @Test(enabled = true, description = "Update account by http")
   public void test01UpdateAccount() {
     response = HttpMethed.sendCoin(httpnode, fromAddress, updateAccountAddress, amount, testKey002);
+    responseContent = HttpMethed.parseResponseContent(response);
+
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 

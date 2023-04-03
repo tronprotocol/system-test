@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannel;
 import io.netty.util.internal.StringUtil;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Assert;
 import org.testng.collections.Lists;
 import org.tron.api.GrpcAPI;
+import org.tron.api.WalletGrpc;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 
@@ -1509,18 +1511,9 @@ public class HttpMethed {
   /** constructor. */
   public static String gettransactionsign(
       String httpNode, String transactionString, String privateKey) {
-    try {
-      String requestUrl = "http://" + httpNode + "/wallet/gettransactionsign";
-      JsonObject userBaseObj2 = new JsonObject();
-      userBaseObj2.addProperty("transaction", transactionString);
-      userBaseObj2.addProperty("privateKey", privateKey);
-      response = createConnect(requestUrl, userBaseObj2);
-      transactionSignString = EntityUtils.toString(response.getEntity());
-    } catch (Exception e) {
-      e.printStackTrace();
-      httppost.releaseConnection();
-      return null;
-    }
+    boolean visible = transactionString.contains("visible\":true");
+    transactionSignString = TransactionUtils.getTransactionSign(transactionString, privateKey,
+        visible);
     return transactionSignString;
   }
 
