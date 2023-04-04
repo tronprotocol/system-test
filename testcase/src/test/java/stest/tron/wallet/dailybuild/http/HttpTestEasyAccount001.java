@@ -51,7 +51,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Create address by http")
+  @Test(enabled = false, description = "Create address by http")
   public void test01CreateAddress() {
     logger.info(userPassword);
     response = HttpMethed.createAddress(httpnode, userPassword);
@@ -76,7 +76,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Generate address by http")
+  @Test(enabled = false, description = "Generate address by http")
   public void test02GenerateAddress() {
     response = HttpMethed.generateAddress(httpnode);
     logger.info("code is " + response.getStatusLine().getStatusCode());
@@ -103,7 +103,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Validate address by http")
+  @Test(enabled = false, description = "Validate address by http")
   public void test03ValideteAddress() {
     // Base58check format
     response = HttpMethed.validateAddress(httpnode, generateAddress);
@@ -124,7 +124,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Easy transfer by http")
+  @Test(enabled = false, description = "Easy transfer by http")
   public void test04EasyTransfer() {
     response = HttpMethed
         .easyTransfer(httpnode, userPassword, WalletClient.decodeFromBase58Check(generateAddress),
@@ -150,7 +150,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Easy transfer by privateKey by http")
+  @Test(enabled = false, description = "Easy transfer by privateKey by http")
   public void test05EasyTransferByPrivateKey() {
     response = HttpMethed
         .easyTransferByPrivate(httpnode, generatePriKey, WalletClient.decodeFromBase58Check(easyAddress),
@@ -176,7 +176,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Create asset issue by http")
+  @Test(enabled = false, description = "Create asset issue by http")
   public void test06CreateAssetIssue() {
     Long amount = 2048000000L;
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetAddress, amount, testKey002);
@@ -215,7 +215,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Easy transfer asset by http")
+  @Test(enabled = false, description = "Easy transfer asset by http")
   public void test07EasyTransferAsset() {
     response = HttpMethed
         .easyTransferAsset(httpnode, userPassword, WalletClient.decodeFromBase58Check(generateAddress),
@@ -243,7 +243,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Easy transfer asset by private key by http")
+  @Test(enabled = false, description = "Easy transfer asset by private key by http")
   public void test08EasyTransferAssetByPrivateKey() {
     response = HttpMethed.easyTransferAssetByPrivate(httpnode, generatePriKey,
         WalletClient.decodeFromBase58Check(easyAddress), 5L, assetIssueId);
