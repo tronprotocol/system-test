@@ -358,9 +358,10 @@ public class TransactionUtils {
     String rawDataHex = ByteArray.toHexString(transaction.getRawData().toByteArray());
     jsonTransaction.put("raw_data_hex", rawDataHex);
     String txID = ByteArray.toHexString(Sha256Hash
-        .hash(CommonParameter.getInstance().isECKeyCryptoEngine(),
+        .hash(true,
             transaction.getRawData().toByteArray()));
     jsonTransaction.put("txID", txID);
+    jsonTransaction.put("visible",selfType);
     return jsonTransaction;
   }
 
