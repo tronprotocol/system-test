@@ -42,12 +42,24 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.contract.AccountContract.AccountCreateContract;
+import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
 import org.tron.protos.contract.AccountContract.AccountUpdateContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass;
+import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
 import org.tron.protos.contract.BalanceContract;
+import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
+import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
+import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
+import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
+import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
+import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
+import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
+import org.tron.protos.contract.ExchangeContract.ExchangeWithdrawContract;
 import org.tron.protos.contract.SmartContractOuterClass;
+import org.tron.protos.contract.SmartContractOuterClass.ClearABIContract;
 import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract;
+import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
 import org.tron.protos.contract.VoteAssetContractOuterClass;
 import org.tron.protos.contract.WitnessContract;
 import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
@@ -239,6 +251,20 @@ public class TransactionUtils {
       transactionMap.put(ContractType.VoteWitnessContract, VoteWitnessContract.class);
       transactionMap.put(ContractType.WitnessUpdateContract, WitnessUpdateContract.class);
       transactionMap.put(ContractType.AccountCreateContract,AccountCreateContract.class);
+      transactionMap.put(ContractType.AccountPermissionUpdateContract,
+          AccountPermissionUpdateContract.class);
+      transactionMap.put(ContractType.AssetIssueContract, AssetIssueContract.class);
+      transactionMap.put(ContractType.ClearABIContract, ClearABIContract.class);
+      transactionMap.put(ContractType.CreateSmartContract,CreateSmartContract.class);
+      transactionMap.put(ContractType.DelegateResourceContract, DelegateResourceContract.class);
+      transactionMap.put(ContractType.ExchangeCreateContract, ExchangeCreateContract.class);
+      transactionMap.put(ContractType.ExchangeInjectContract, ExchangeInjectContract.class);
+      transactionMap.put(ContractType.ExchangeWithdrawContract, ExchangeWithdrawContract.class);
+      transactionMap.put(ContractType.ExchangeTransactionContract, ExchangeTransactionContract.class);
+      transactionMap.put(ContractType.FreezeBalanceV2Contract, FreezeBalanceV2Contract.class);
+      transactionMap.put(ContractType.UnfreezeBalanceV2Contract, UnfreezeBalanceV2Contract.class);
+      transactionMap.put(ContractType.UnDelegateResourceContract, UnDelegateResourceContract.class);
+      transactionMap.put(ContractType.TriggerSmartContract, TriggerSmartContract.class);
     }
   }
 
@@ -365,13 +391,7 @@ public class TransactionUtils {
     return null;
   }
 
-  public static TransactionCapsule addTransactionSign(Transaction transaction, String priKey)
-      throws  SignatureException {
-    byte[] privateKey = ByteArray.fromHexString(priKey);
-    TransactionCapsule trx = new TransactionCapsule(transaction);
-    trx.addSign(privateKey);
-    return trx;
-  }
+
 
   /**
    * constructor.
