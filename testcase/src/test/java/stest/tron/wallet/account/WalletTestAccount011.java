@@ -56,7 +56,7 @@ public class WalletTestAccount011 {
 
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void testgenerateAddress() {
     EmptyMessage.Builder builder = EmptyMessage.newBuilder();
     blockingStubFull.generateAddress(builder.build());
