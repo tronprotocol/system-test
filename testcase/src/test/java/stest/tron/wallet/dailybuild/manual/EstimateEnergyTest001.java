@@ -773,6 +773,37 @@ public class EstimateEnergyTest001 {
     Assert.assertTrue((energyEstimateRequired - energyUsedConstant) * energyFee <= 1000000L);
   }
 
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Estimate function with call_value")
+  public void test18EstimateWithCallvalue() {
+    String method = "test()";
+    String args = "";
+    boolean isHex = false;
+    Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
+        PublicMethed.estimateEnergy(
+            blockingStubFull2, foundationAddress, contractAddress, 10, method, args, isHex, 0, null);
+    Assert.assertEquals(true, estimateEnergyMessage.get().getResult().getResult());
+    Assert.assertEquals(10533, estimateEnergyMessage.get().getEnergyRequired());
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Estimate function with call_value and command after call")
+  public void test19EstimateWithCallvalueAndCommandAfterCall() {
+    String method = "test1()";
+    String args = "";
+    boolean isHex = false;
+    Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
+        PublicMethed.estimateEnergy(
+            blockingStubFull2, foundationAddress, contractAddress, 10, method, args, isHex, 0, null);
+    Assert.assertEquals(true, estimateEnergyMessage.get().getResult().getResult());
+    Assert.assertEquals(28678, estimateEnergyMessage.get().getEnergyRequired());
+  }
+
+
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {

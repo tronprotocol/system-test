@@ -13,4 +13,16 @@ contract TCtoken{
         emit EmployeeClockIn(employee, employeePlace, currentTime, isLate, fine);
         return false;
     }
+
+    uint a;
+    function test() payable external {
+        payable(msg.sender).transfer(msg.value);
+        //         a = msg.value;
+    }
+
+    function test1() payable external {
+        payable(msg.sender).transfer(msg.value);
+        a = msg.value;
+    }
+
 }
