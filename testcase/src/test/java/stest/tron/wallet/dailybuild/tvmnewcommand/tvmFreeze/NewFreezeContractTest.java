@@ -176,11 +176,13 @@ public class NewFreezeContractTest {
     logger.info(info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertEquals("freezeBalanceV2ForBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     info = PublicMethed.getTransactionInfoById(txid1, blockingStubFull).get();
     logger.info(info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertEquals("freezeBalanceV2ForEnergy", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     HashMap<String, Long> map = getResource(contractAddress58, blockingStubFull);
     Assert.assertEquals(temAmt, map.get("netFrozenBalanceV2").longValue());
@@ -203,6 +205,7 @@ public class NewFreezeContractTest {
     logger.info("unfreeze 1trx info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertEquals("unfreezeBalanceV2ForBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
   }
 
   @Test(enabled = true, description = "cannot delegate resource to self")
@@ -292,10 +295,12 @@ public class NewFreezeContractTest {
     logger.info("delegate net info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertEquals("delegateResourceOfBandwidth", info.getInternalTransactions(0).getNote().toStringUtf8());
     info = PublicMethed.getTransactionInfoById(txid1, blockingStubFull).get();
     logger.info("delegate energy info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertEquals("delegateResourceOfEnergy", info.getInternalTransactions(0).getNote().toStringUtf8());
     delegatebleNet = getDelegatableResource(contractAddress58, contractAddress58, 0);
     delegatebleEnergy = getDelegatableResource(contractAddress58, contractAddress58, 1);
     Assert.assertEquals(0, delegatebleNet);
@@ -413,11 +418,14 @@ public class NewFreezeContractTest {
     logger.info("undelegate energy info0: " + info0.toString());
     Assert.assertEquals(code.SUCESS, info0.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info0.getReceipt().getResult());
+    Assert.assertEquals("unDelegateResourceOfEnergy", info0.getInternalTransactions(0).getNote().toStringUtf8());
+
 
     TransactionInfo info1 = PublicMethed.getTransactionInfoById(txid1, blockingStubFull).get();
     logger.info("undelegate bandwidth info1: " + info1.toString());
     Assert.assertEquals(code.SUCESS, info1.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info1.getReceipt().getResult());
+    Assert.assertEquals("unDelegateResourceOfBandwidth", info1.getInternalTransactions(0).getNote().toStringUtf8());
 
     long resourceV2Net = getResourceV2(contractAddress58, receiver, "0", contractAddress);
     long resourceV2Energy = getResourceV2(contractAddress58, receiver, "1", contractAddress);
@@ -697,6 +705,7 @@ public class NewFreezeContractTest {
     logger.info("cancel all unfreeze info0: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertEquals("cancelAllUnfreezeV2", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     size = getAvailableUnfreezeV2Size(contractAddress, contractAddress58);
     Assert.assertEquals(32, size);
@@ -791,6 +800,7 @@ public class NewFreezeContractTest {
     Assert.assertEquals(0, transactionInfo.getResultValue());
     Assert.assertEquals(contractResult.SUCCESS,
         transactionInfo.getReceipt().getResult());
+    Assert.assertEquals("voteWitness", transactionInfo.getInternalTransactions(0).getNote().toStringUtf8());
     logger.info("transactionInfo:  " + transactionInfo.toString());
   }
 
