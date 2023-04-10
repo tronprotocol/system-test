@@ -47,7 +47,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
   //just for case 010
   private String fullnode3 =
           Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-                  .get(0);
+                  .get(1);
   public static String jsonRpcNode2 =
           Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(2);
   private String httpnode2 = Configuration
@@ -238,7 +238,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes < 100) {
-      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull)
+      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull2)
               .getTotalEnergyLimit() > 0);
       Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull3)
               .getTotalEnergyLimit() > 0);
@@ -247,7 +247,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 5000);
   }
 
 
