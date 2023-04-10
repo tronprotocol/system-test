@@ -189,8 +189,67 @@ public class UsdtTest {
     Assert.assertTrue(infoById.get().getReceipt().getOriginEnergyUsage() == 0);
     Assert.assertTrue(infoById.get().getReceipt().getNetUsage() > 0);
 
+  }
+
+  @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger has "
+      + "no balance, has energyLimit,feeLimit is 0 when transfer USDT")
+  public void test04() {
+    // no balance, has energyLimit,feeLimit is 0
+    long balance = PublicMethed.queryAccount(callerddress, blockingStubFull).getBalance();
+    PublicMethed.delegateResourceV2(testNetAccountAddress, 600000000L, 1, callerddress, testNetAccountKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed
+        .sendcoin(testNetAccountAddress, balance, callerddress, callerKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    String methedStr = "transfer(address,uint256)";
+    String argsStr = "\"" + dev58 + "\",1";
+    long origin_window_size_before = PublicMethed.queryAccount(dev001Address,blockingStubFull)
+        .getAccountResource().getEnergyWindowSize();
+    String txid = PublicMethed.triggerContract(usdtAddress, methedStr, argsStr,
+        false, 0, 0, callerddress, callerKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    long origin_window_size_after = PublicMethed.queryAccount(dev001Address,blockingStubFull)
+        .getAccountResource().getEnergyWindowSize();
+
+    Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    logger.info("22222 infoById: " + infoById);
+    logger.info("origin_window_size_before: " + origin_window_size_before);
+    logger.info("origin_window_size_after: " + origin_window_size_after);
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY, infoById.get().getReceipt().getResult());
+    Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() == 0);
+    Assert.assertTrue(infoById.get().getReceipt().getOriginEnergyUsage() == 0);
+    Assert.assertTrue(infoById.get().getReceipt().getNetUsage() > 0);
 
   }
+
+  @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger has "
+      + "has balance and energyLimit, feeLimit is 0 when transfer USDT")
+  public void test05() {
+    // has balance, has energyLimit,feeLimit is 0
+    Assert.assertTrue(PublicMethed
+        .sendcoin(callerddress,  1000000000L, testNetAccountAddress, testNetAccountKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    String methedStr = "transfer(address,uint256)";
+    String argsStr = "\"" + dev58 + "\",1";
+    long origin_window_size_before = PublicMethed.queryAccount(dev001Address,blockingStubFull)
+        .getAccountResource().getEnergyWindowSize();
+    String txid = PublicMethed.triggerContract(usdtAddress, methedStr, argsStr,
+        false, 0, 0, callerddress, callerKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    long origin_window_size_after = PublicMethed.queryAccount(dev001Address,blockingStubFull)
+        .getAccountResource().getEnergyWindowSize();
+
+    Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    logger.info("22222 infoById: " + infoById);
+    logger.info("origin_window_size_before: " + origin_window_size_before);
+    logger.info("origin_window_size_after: " + origin_window_size_after);
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY, infoById.get().getReceipt().getResult());
+    Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() == 0);
+    Assert.assertTrue(infoById.get().getReceipt().getOriginEnergyUsage() == 0);
+    Assert.assertTrue(infoById.get().getReceipt().getNetUsage() > 0);
+
+  }
+
   /**
    * constructor.
    */
