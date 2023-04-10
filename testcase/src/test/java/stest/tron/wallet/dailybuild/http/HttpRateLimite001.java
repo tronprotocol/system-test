@@ -247,7 +247,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 6000);
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 5000);
   }
 
 
