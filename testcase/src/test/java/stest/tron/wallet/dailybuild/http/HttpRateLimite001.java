@@ -3,6 +3,7 @@ package stest.tron.wallet.dailybuild.http;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -34,11 +35,38 @@ public class HttpRateLimite001 extends JsonRpcBase {
   private String httpPbftNode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
 
-  
+  //FullNode2 only rate.limiter.global.ip.qps=15
+  private ManagedChannel channelFull2 = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull2 = null;
+  private String fullnode2 =
+          Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+                  .get(1);
+  private ManagedChannel channelFull3 = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull3 = null;
 
+  //just for case 010
+  private String fullnode3 =
+          Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+                  .get(0);
+  public static String jsonRpcNode2 =
+          Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(2);
+  private String httpnode2 = Configuration
+          .getByPath("testng.conf")
+          .getStringList("httpnode.ip.list")
+          .get(1);
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
+    channelFull2 = ManagedChannelBuilder.forTarget(fullnode2)
+            .usePlaintext(true)
+            .build();
+
+    blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
+
+    channelFull3 = ManagedChannelBuilder.forTarget(fullnode3)
+            .usePlaintext(true)
+            .build();
+    blockingStubFull3 = WalletGrpc.newBlockingStub(channelFull3);
   }
 
   /** constructor. */
@@ -150,20 +178,40 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
-
-
-
-
   }
 
 
   /** constructor. */
   @Test(enabled = true, description = "Rate limit global qps for grpc api")
-  public void test09GlobalQpsRateForJsonRpc() {
+  public void test09GlobalQpsRateForGrpc() {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 100) {
+      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull)
+              .getTotalEnergyLimit() > 0);
+    }
+    Long endTimesStamp = System.currentTimeMillis();
+    logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
+
+  }
+
+  /** constructor. */
+  @Test(enabled = true, description = "Rate limit global qps for mix api")
+  public void test10GlobalQpsRateForMix() {
+
+    Long startTimeStamp = System.currentTimeMillis();
+    Integer repeatTimes = 0;
+    while (repeatTimes < 100) {
+
+      Assert.assertTrue(PublicMethed.queryAccount(foundationAccountAddress, blockingStubFull)
+              .getBalance() > 0);
+
+      response = HttpMethed.getAccount(httpnode, foundationAccountAddress);
+      responseContent = HttpMethed.parseResponseContent(response);
+      Assert.assertTrue(responseContent.getLong("balance") > 0);
+
       JsonArray params = new JsonArray();
       params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
       params.add("latest");
@@ -172,33 +220,67 @@ public class HttpRateLimite001 extends JsonRpcBase {
       responseContent = HttpMethed.parseResponseContent(response);
       String balance = responseContent.getString("result");
       Assert.assertTrue(balance.contains("0x"));
+
+      repeatTimes += 3;
     }
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
+    logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
     Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
 
+  }
 
+  /** constructor. */
+  @Test(enabled = true, description
+          = "Rate limit global qps with different blockingStubFull instance but same node")
+  public void test11GlobalQpsRateForGrpcDifferentPort() {
 
-
+    Long startTimeStamp = System.currentTimeMillis();
+    Integer repeatTimes = 0;
+    while (repeatTimes < 100) {
+      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull)
+              .getTotalEnergyLimit() > 0);
+      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull3)
+              .getTotalEnergyLimit() > 0);
+      repeatTimes += 2;
+    }
+    Long endTimesStamp = System.currentTimeMillis();
+    logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
+    logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
   }
 
 
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit global qps for grpc api")
-  public void test10GlobalQpsRateForGrpc() {
+  @Test(enabled = true, description = "Rate limit global ip qps for mix api"
+          + "witness2 must set rate.limiter.global.ip.qps = 15")
+  public void test12GlobalIpQpsRateForMix() {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
-    while (repeatTimes++ < 100) {
-      Assert.assertTrue(PublicMethed.queryAccount(foundationAccountAddress,blockingStubFull)
-          .getBalance() > 0);
+    while (repeatTimes < 100) {
+
+      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull2).getTotalEnergyLimit() > 0);
+
+      response = HttpMethed.getAccount(httpnode2, foundationAccountAddress);
+      responseContent = HttpMethed.parseResponseContent(response);
+      Assert.assertTrue(responseContent.getLong("balance") > 0);
+
+      JsonArray params = new JsonArray();
+      params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
+      params.add("latest");
+      JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
+      response = getJsonRpc(jsonRpcNode2, requestBody);
+      responseContent = HttpMethed.parseResponseContent(response);
+      String balance = responseContent.getString("result");
+      Assert.assertTrue(balance.contains("0x"));
+
+      repeatTimes += 3;
     }
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
-
-
-
+    logger.info("QPS:" + repeatTimes/((endTimesStamp - startTimeStamp) / 1000));
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 6000);
 
   }
 
