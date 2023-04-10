@@ -55,7 +55,7 @@ public class UsdtTest {
     Assert.assertTrue(PublicMethed
         .sendcoin(dev001Address, 10000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
-    PublicMethed.freezeBalanceV2(testNetAccountAddress, 4000000000L, 1, testNetAccountKey, blockingStubFull);
+    PublicMethed.freezeBalanceV2(testNetAccountAddress, 1000000000L, 0, testNetAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.freezeBalanceForReceiver(testNetAccountAddress, 2000000000L,
         0, 1, ByteString.copyFrom(dev001Address), testNetAccountKey, blockingStubFull);
@@ -86,8 +86,8 @@ public class UsdtTest {
    * constructor.
    */
 
-  @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger " +
-      "has no balance and no energyLimit when transfer USDT")
+  @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger "
+      + "has no balance and no energyLimit when transfer USDT")
   public void test01() {
 
     Assert.assertTrue(PublicMethed
@@ -129,8 +129,8 @@ public class UsdtTest {
    * constructor.
    */
 
-  @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger " +
-      "has no no energyLimit and feeLimit is 0 when transfer USDT")
+  @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger "
+      + "has no energyLimit and feeLimit is 0 when transfer USDT")
   public void test02() {
 
     Assert.assertTrue(PublicMethed
@@ -160,14 +160,16 @@ public class UsdtTest {
 
   }
 
-  @Test(enabled = false, description = "orgin_energy_used>0, caller.balance > 0, caller.energyLimit=0,feelimit=0")
+  @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger has "
+      + "no balance,no energyLimit,feeLimit is 0 when transfer USDT")
   public void test03() {
-
+    long balance = PublicMethed.queryAccount(callerddress, blockingStubFull).getBalance();
+    PublicMethed.delegateResourceV2(testNetAccountAddress, 100000000L, 0, callerddress, testNetAccountKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed
-        .sendcoin(callerddress, 10000000L, testNetAccountAddress, testNetAccountKey,
+        .sendcoin(testNetAccountAddress, balance, callerddress, callerKey,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     String methedStr = "transfer(address,uint256)";
     String argsStr = "\"" + dev58 + "\",1";
     long origin_window_size_before = PublicMethed.queryAccount(dev001Address,blockingStubFull)
@@ -183,9 +185,9 @@ public class UsdtTest {
     logger.info("origin_window_size_before: " + origin_window_size_before);
     logger.info("origin_window_size_after: " + origin_window_size_after);
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY, infoById.get().getReceipt().getResult());
-//    Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() == 0);
-//    Assert.assertTrue(infoById.get().getReceipt().getOriginEnergyUsage() == 0);
-//    Assert.assertTrue(infoById.get().getReceipt().getNetUsage() > 0);
+    Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal() == 0);
+    Assert.assertTrue(infoById.get().getReceipt().getOriginEnergyUsage() == 0);
+    Assert.assertTrue(infoById.get().getReceipt().getNetUsage() > 0);
 
 
   }
@@ -197,6 +199,7 @@ public class UsdtTest {
     PublicMethed.freedResource(dev001Address, dev001Key, testNetAccountAddress, blockingStubFull);
     PublicMethed.freedResource(callerddress, callerKey, testNetAccountAddress, blockingStubFull);
     PublicMethed.unDelegateResourceV2(testNetAccountAddress, 1000000000L, 1, dev001Address, testNetAccountKey, blockingStubFull);
+    PublicMethed.unDelegateResourceV2(testNetAccountAddress, 100000000L, 0, callerddress, testNetAccountKey, blockingStubFull);
 
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
