@@ -136,7 +136,10 @@ public class DynamicEnergyTest001 {
 
 
     argsStr = "1200";
+    int repeatTimes = 0;
     while (currentContractUsed < getDynamicEnergyThreshold) {
+      //if repeat too many times , set case to fail
+      Assert.assertTrue(repeatTimes < 25);
       PublicMethed.triggerContract(contractAddress,
           "testUseStorage(uint256)", argsStr, false,
           0, maxFeeLimit, testAccountAddress, testAccountKey, blockingStubFull);
@@ -145,6 +148,7 @@ public class DynamicEnergyTest001 {
       currentContractUsed = contractState.getEnergyUsage();
       logger.info("currentContractUsed       : "  + currentContractUsed);
       logger.info("getDynamicEnergyThreshold : "  + getDynamicEnergyThreshold);
+      repeatTimes += 1;
     }
 
     while (System.currentTimeMillis() - 3000 < nextMaintainTime) {
