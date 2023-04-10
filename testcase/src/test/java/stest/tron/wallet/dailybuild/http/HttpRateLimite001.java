@@ -238,16 +238,16 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes < 100) {
-      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull)
-              .getTotalEnergyLimit() > 0);
-      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull3)
-              .getTotalEnergyLimit() > 0);
+      Assert.assertTrue(PublicMethed.queryAccount(foundationAccountAddress, blockingStubFull)
+              .getBalance() > 0);
+      Assert.assertTrue(PublicMethed.queryAccount(foundationAccountAddress, blockingStubFull3)
+              .getBalance() > 0);
       repeatTimes += 2;
     }
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 30000);
   }
 
 
