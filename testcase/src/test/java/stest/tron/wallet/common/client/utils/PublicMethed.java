@@ -9,13 +9,8 @@ import com.google.gson.JsonParser;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import io.netty.util.internal.StringUtil;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -7644,6 +7639,31 @@ public class PublicMethed {
     }
     GrpcAPI.EstimateEnergyMessage estimateEnergyMessage = blockingStubFull.estimateEnergy(builder.build());
     return Optional.ofNullable(estimateEnergyMessage);
+  }
+
+
+  public static void replaceConfig(String path, String oldConfig, String newConfig) {
+    try {
+      File file = new File(path);
+      FileReader in = new FileReader(file);
+      BufferedReader bufIn = new BufferedReader(in);
+      CharArrayWriter tempStream = new CharArrayWriter();
+      String line = null;
+      while ((line = bufIn.readLine()) != null) {
+        line = line.replaceAll(oldConfig, newConfig);
+        tempStream.write(line);
+        tempStream.append(System.getProperty("line.separator"));
+      }
+      bufIn.close();
+      FileWriter out = new FileWriter(file);
+      tempStream.writeTo(out);
+      out.close();
+      System.out.println("====path:" + path);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
 
