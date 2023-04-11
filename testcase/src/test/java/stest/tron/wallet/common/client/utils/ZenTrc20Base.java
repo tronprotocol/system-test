@@ -57,8 +57,7 @@ public class ZenTrc20Base {
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
 
-  public static long maxFeeLimit = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.maxFeeLimit");
+  public static long maxFeeLimit = 0L;
   public com.google.protobuf.ByteString contractAddressByteString;
   public static byte[] contractAddressByte;
   public static String contractAddress;
@@ -85,6 +84,9 @@ public class ZenTrc20Base {
    */
   @BeforeSuite(enabled = true, description = "Deploy shield trc20 depend contract")
   public void deployShieldTrc20DependContract() {
+    PublicMethed.replaceConfig("src/test/resources/testng.conf", "maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
+    maxFeeLimit =
+            Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();

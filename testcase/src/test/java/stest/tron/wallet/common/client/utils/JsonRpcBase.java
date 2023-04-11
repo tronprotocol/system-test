@@ -101,9 +101,11 @@ public class JsonRpcBase {
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
   public void deployJsonRpcUseResource() throws Exception {
-    PublicMethed.replaceConfig("testng.conf", "maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
+
+    PublicMethed.replaceConfig("src/test/resources/testng.conf", "maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
     maxFeeLimit =
             Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
+    logger.info("maxFeeLimit: " + maxFeeLimit);
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
