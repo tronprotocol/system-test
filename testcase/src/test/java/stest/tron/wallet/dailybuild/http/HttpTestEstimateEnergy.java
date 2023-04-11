@@ -39,6 +39,9 @@ public class HttpTestEstimateEnergy {
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private byte[] contractAddress = null;
+  long deployContractEnergy = 0;
+  String code;
+  String abi;
 
 
   @BeforeClass
@@ -51,8 +54,8 @@ public class HttpTestEstimateEnergy {
     String filePath = "src/test/resources/soliditycode/estimateenergy.sol";
     String contractName = "TCtoken";
     HashMap retMap = PublicMethed.getBycodeAbiNoOptimize(filePath, contractName);
-    String code = retMap.get("byteCode").toString();
-    String abi = retMap.get("abI").toString();
+    code = retMap.get("byteCode").toString();
+    abi = retMap.get("abI").toString();
     final String txid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", 1000000000L,
             0, 100, 10000, "0", 0, null, testKey002, fromAddress,
@@ -66,6 +69,7 @@ public class HttpTestEstimateEnergy {
           .toStringUtf8());
     }
     contractAddress = infoById.get().getContractAddress().toByteArray();
+    deployContractEnergy = infoById.get().getReceipt().getEnergyUsageTotal();
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
   }
@@ -74,11 +78,11 @@ public class HttpTestEstimateEnergy {
    * constructor.
    */
   @Test(enabled = true, description = "EstimateEnergy request fullnode,solidity,pbft")
-  public void testEstimateCanGetValue() {
+  public void test01EstimateCanGetValue() {
     String method = "writeNumber(uint256)";
     String param = "0000000000000000000000000000000000000000000000000000000000000006";
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, false);
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, null,false);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
 
@@ -103,11 +107,11 @@ public class HttpTestEstimateEnergy {
    * constructor.
    */
   @Test(enabled = true, description = "EstimateEnergy value compare to TriggerConstantContract")
-  public void testCompareToTriggerConstantContract() {
+  public void test02CompareToTriggerConstantContract() {
     String method = "writeNumber(uint256)";
     String param = "0000000000000000000000000000000000000000000000000000000000000006";
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, true);
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, null,true);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
     response = HttpMethed
@@ -120,6 +124,32 @@ public class HttpTestEstimateEnergy {
     logger.info("energyRequiredConstant" + energyRequiredConstant);
     Assert.assertTrue(energyRequired >= energyRequiredConstant);
     Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Estimate energy deploy contract")
+  public void test03EstimateDeployContract() {
+    String method = null;
+    String param = null;
+    response = HttpMethed
+        .getEstimateEnergy(httpnode, fromAddress, null, method, param, code,true);
+    Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
+    Assert.assertTrue(energyRequired >= 0);
+    response = HttpMethed
+        .triggerConstantContractWithData(
+            httpnode, fromAddress, null, method, param, code);
+    Long energyRequiredConstant =
+        HttpMethed.parseResponseContent(response).getLong("energy_used");
+    final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
+    logger.info("energyRequired: " + energyRequired);
+    logger.info("energyRequiredConstant: " + energyRequiredConstant);
+    logger.info("deployEnergyCost: " + deployContractEnergy);
+    Assert.assertTrue(energyRequired >= energyRequiredConstant);
+    Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
+    Assert.assertTrue((energyRequired - deployContractEnergy) * energyFee <= 1000000L);
+
   }
 
   /**

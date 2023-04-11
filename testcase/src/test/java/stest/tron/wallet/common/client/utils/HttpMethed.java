@@ -1064,6 +1064,36 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static HttpResponse triggerConstantContractWithData(
+      String httpNode,
+      byte[] ownerAddress,
+      String contractAddress,
+      String functionSelector,
+      String parameter,
+      String data) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/triggerconstantcontract";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
+      if(contractAddress == null) {
+        String tem = null;
+        userBaseObj2.addProperty("contract_address", tem);
+      }else {
+        userBaseObj2.addProperty("contract_address", contractAddress);
+      }
+      userBaseObj2.addProperty("function_selector", functionSelector);
+      userBaseObj2.addProperty("parameter", parameter);
+      userBaseObj2.addProperty("data", data);
+      response = createConnect(requestUrl, userBaseObj2);
+      return response;
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+  }
+
+  /** constructor. */
   public static HttpResponse triggerConstantContractFromSolidity(
       String httSoliditypNode,
       byte[] ownerAddress,
@@ -5815,16 +5845,23 @@ public class HttpMethed {
       byte[] contractAddress,
       String functionSelector,
       String parameter,
+      String data,
       boolean visible) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
       JsonObject requestParam = new JsonObject();
       requestParam.addProperty("owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
-      requestParam.addProperty("contract_address",
-          visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+      if(contractAddress == null){
+        String tem = null;
+        requestParam.addProperty("contract_address", tem);
+      }else {
+        requestParam.addProperty("contract_address",
+            visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+      }
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
+      requestParam.addProperty("data", data);
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
