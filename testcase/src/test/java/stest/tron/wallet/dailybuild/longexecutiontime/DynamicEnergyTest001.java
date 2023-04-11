@@ -45,7 +45,7 @@ public class DynamicEnergyTest001 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] testAccountAddress = ecKey1.getAddress();
   String testAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = 10000000000L;
+  private Long maxFeeLimit = Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
   byte[] contractAddress;
 
