@@ -17,11 +17,7 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class ContractScenario011 {
@@ -54,6 +50,8 @@ public class ContractScenario011 {
   private Long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
 
+  private Long energyFee = 0L;
+  private double feeLimitRate = 1.0;
 
 
   /**
@@ -80,6 +78,9 @@ public class ContractScenario011 {
         .usePlaintext(true)
         .build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
+
+    energyFee = PublicMethed.getChainParametersValue(ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull);
+    feeLimitRate = energyFee / 280.0;
   }
 
   @Test(enabled = true, description = "Deploy Erc721 contract \"Kitty Core\"")
@@ -314,20 +315,20 @@ public class ContractScenario011 {
     //Create one gen0 cat.
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
         "createGen0Auction(uint256)", "-1000000000000000", false,
-        0, 100000000L, deployAddress, deployKey, blockingStubFull);
+        0, (long)(100000000L * feeLimitRate), deployAddress, deployKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
         "gen0CreatedCount()", "#", false,
-        0, 100000000L, deployAddress, deployKey, blockingStubFull);
+        0, (long)(100000000L * feeLimitRate), deployAddress, deployKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
-        "getKitty(uint256)", "1", false, 0, 10000000, triggerAddress,
+        "getKitty(uint256)", "1", false, 0, (long) (10000000L * feeLimitRate), triggerAddress,
         triggerKey, blockingStubFull);
     logger.info("getKitty " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -338,7 +339,7 @@ public class ContractScenario011 {
         + "\"";
 
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
-        "setCOO(address)", newCxoAddress, false, 0, 10000000, deployAddress,
+        "setCOO(address)", newCxoAddress, false, 0, (long) (10000000L * feeLimitRate), deployAddress,
         deployKey, blockingStubFull);
     logger.info("COO " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -346,7 +347,7 @@ public class ContractScenario011 {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
-        "setCFO(address)", newCxoAddress, false, 0, 10000000, deployAddress,
+        "setCFO(address)", newCxoAddress, false, 0, (long) (10000000L * feeLimitRate), deployAddress,
         deployKey, blockingStubFull);
     logger.info("CFO " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -354,7 +355,7 @@ public class ContractScenario011 {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
 
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
-        "setCEO(address)", newCxoAddress, false, 0, 1000000000, deployAddress,
+        "setCEO(address)", newCxoAddress, false, 0, (long) (1000000000L * feeLimitRate), deployAddress,
         deployKey, blockingStubFull);
     logger.info("CEO " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -449,7 +450,7 @@ public class ContractScenario011 {
 
     txid = PublicMethed.triggerContract(kittyCoreContractAddress,
         "createGen0Auction(uint256)", "0", false,
-        0, 100000000L, triggerUseTriggerEnergyUsageAddress, triggerUseTriggerEnergyUsageKey,
+        0, (long) (100000000L * feeLimitRate), triggerUseTriggerEnergyUsageAddress, triggerUseTriggerEnergyUsageKey,
         blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);

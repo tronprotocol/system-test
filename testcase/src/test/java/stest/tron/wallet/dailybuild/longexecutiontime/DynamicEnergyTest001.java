@@ -41,13 +41,14 @@ public class DynamicEnergyTest001 {
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
 
-  Long sendAmount = 1000000000000L;
+  Long sendAmount = 100000000000000L;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] testAccountAddress = ecKey1.getAddress();
   String testAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private Long maxFeeLimit = Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
-
+  private Long maxFeeLimit = 10000000000L;
+  private Long energyFee = 0L;
   byte[] contractAddress;
+  private Long chainMaxFeeLimit = 0L;
 
 
   /**
@@ -68,7 +69,9 @@ public class DynamicEnergyTest001 {
       }
       throw new SkipException("Skipping getAllowDynamicEnergy test case");
     }
-
+    chainMaxFeeLimit = PublicMethed.getChainParametersValue(ProposalEnum.getMaxFeeLimit.getProposalName(), blockingStubFull);
+    energyFee = PublicMethed.getChainParametersValue(ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull);
+    maxFeeLimit = Math.min((long) (maxFeeLimit * (energyFee / 280.0)), chainMaxFeeLimit);
     PublicMethed.sendcoin(testAccountAddress,sendAmount,foundationAddress,foundationKey,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "./src/test/resources/soliditycode/contractLinkage005.sol";

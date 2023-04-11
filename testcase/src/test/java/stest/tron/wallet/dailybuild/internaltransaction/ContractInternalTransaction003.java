@@ -490,7 +490,7 @@ public class ContractInternalTransaction003 {
     String txid = "";
     txid = PublicMethed.triggerContract(contractAddress,
         "test1(address,address)", initParmes, false,
-        100000, 2000000000L, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
+        100000, 2 * maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
@@ -502,7 +502,7 @@ public class ContractInternalTransaction003 {
       // retry 5 times
       txid = PublicMethed.triggerContract(contractAddress,
           "test1(address,address)", initParmes, false,
-          100000, 2000000000L, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
+          100000, 2 * maxFeeLimit, internalTxsAddress, testKeyForinternalTxsAddress, blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
