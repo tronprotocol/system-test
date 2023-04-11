@@ -15,10 +15,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import org.tron.protos.contract.SmartContractOuterClass;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class NewFeatureForSolc086 {
@@ -37,6 +34,7 @@ public class NewFeatureForSolc086 {
 
   private String fullnode = Configuration.getByPath("testng.conf")
       .getStringList("fullnode.ip.list").get(0);
+  private Long energyFee = 0L;
 
 
   /**
@@ -69,6 +67,9 @@ public class NewFeatureForSolc086 {
     SmartContractOuterClass.SmartContract smartContract = PublicMethed.getContract(mapKeyContract,
         blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
+    energyFee = PublicMethed.getChainParametersValue(
+            ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull);
+
   }
 
 
@@ -124,7 +125,7 @@ public class NewFeatureForSolc086 {
     Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS,
         transactionInfo.get().getReceipt().getResult());
-    Assert.assertTrue(transactionInfo.get().getFee() < 83880);
+    Assert.assertTrue(transactionInfo.get().getFee() < 83880 * (energyFee / 280));
   }
 
   @Test(enabled = true, description = "fix kecca256 bug: differt length return same code")

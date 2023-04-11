@@ -69,7 +69,7 @@ public class ContractScenario015 {
     PublicMethed.printAddress(contract014Key);
     PublicMethed.printAddress(receiverKey);
 
-    Assert.assertTrue(PublicMethed.sendcoin(contract014Address, 500000000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(contract014Address, 1000000000L, fromAddress,
         testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     //Deploy contract1, contract1 has a function to transaction 5 sun to target account
@@ -90,12 +90,12 @@ public class ContractScenario015 {
     String siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\"";
     txid = PublicMethed
         .triggerContract(contractAddress1, "balanceOf(address)", siringContractString,
-            false, 0, 10000000L, contract014Address, contract014Key, blockingStubFull);
+            false, 0, 30000000L, contract014Address, contract014Key, blockingStubFull);
     logger.info(txid);
 
     siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\",\"" + 17 + "\"";
     txid = PublicMethed.triggerContract(contractAddress1, "transfer(address,uint256)",
-        siringContractString, false, 0, 10000000L, contract014Address,
+        siringContractString, false, 0, 30000000L, contract014Address,
         contract014Key, blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -107,7 +107,7 @@ public class ContractScenario015 {
     siringContractString = "\"" + Base58.encode58Check(fromAddress) + "\"";
     txid = PublicMethed
         .triggerContract(contractAddress1, "balanceOf(address)",
-            siringContractString, false, 0, 10000000L, contract014Address,
+            siringContractString, false, 0, 30000000L, contract014Address,
             contract014Key, blockingStubFull);
     logger.info(txid);
   }

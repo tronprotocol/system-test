@@ -68,9 +68,9 @@ public class Create2Test015 {
 
   @Test(enabled = true, description = "Deploy caller contract")
   public void test01DeployCallerContract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 1000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 1000_000_000L, fromAddress,
         testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
