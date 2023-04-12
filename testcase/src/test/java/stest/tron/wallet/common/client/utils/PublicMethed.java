@@ -7644,21 +7644,13 @@ public class PublicMethed {
 
   public static void replaceConfig(String path, String oldConfig, String newConfig) {
     try {
-
       File file = new File(System.getProperty("user.dir") + '/' + path);
-      logger.info(System.getProperty("user.dir") + '/' + path);
       FileReader in = new FileReader(file);
       BufferedReader bufIn = new BufferedReader(in);
       CharArrayWriter tempStream = new CharArrayWriter();
       String line = null;
       while ((line = bufIn.readLine()) != null) {
-        if (line.contains("maxFeeLimit")) {
-          logger.info(line);
-        }
         line = line.replaceAll(oldConfig, newConfig);
-        if (line.contains("maxFeeLimit")) {
-          logger.info(line);
-        }
         tempStream.write(line);
         tempStream.append(System.getProperty("line.separator"));
       }

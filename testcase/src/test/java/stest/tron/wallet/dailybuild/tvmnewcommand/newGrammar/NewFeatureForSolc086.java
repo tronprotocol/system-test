@@ -125,7 +125,7 @@ public class NewFeatureForSolc086 {
     Assert.assertEquals(0, transactionInfo.get().getResultValue());
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS,
         transactionInfo.get().getReceipt().getResult());
-    Assert.assertTrue(transactionInfo.get().getFee() < 83880 * (energyFee / 280));
+    Assert.assertTrue(transactionInfo.get().getFee() < 83880 * (energyFee / 280.0));
   }
 
   @Test(enabled = true, description = "fix kecca256 bug: differt length return same code")
