@@ -5,9 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.primitives.Longs;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.netty.util.internal.StringUtil;
 
 import java.io.*;
@@ -20,6 +23,7 @@ import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpResponse;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,6 +152,16 @@ public class PublicMethed {
   public static volatile Integer witnessNum;
 
   public static volatile String freezeV2Txid;
+
+  public static String code;
+
+  private static final String fullnode2 = Configuration.getByPath("testng.conf")
+          .getStringList("fullnode.ip.list").get(1);
+  private static ManagedChannel channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext(true).build();
+  private static WalletGrpc.WalletBlockingStub blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
+
+
+
 
   /** constructor. */
   public static Integer getWitnessNum(WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -2413,6 +2427,15 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
+
+    //estimateEnergyDeployContract
+    if (null != libraryAddress) {
+      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    } else {
+      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    }
+
+
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
@@ -2540,6 +2563,13 @@ public class PublicMethed {
     contractBuilder.setTokenId(Long.parseLong(tokenId));
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
+
+    //estimateEnergyDeployContract
+    if (null != libraryAddress) {
+      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    } else {
+      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    }
 
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
@@ -2733,6 +2763,13 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
+    //estimateEnergyDeployContract
+    if (null != libraryAddress) {
+      estimateDeployContractEnergy(PublicMethed.code, value, "0", 0L, ownerAddress, blockingStubFull);
+    } else {
+      estimateDeployContractEnergy(code, value, "0", 0L, ownerAddress, blockingStubFull);
+    }
+
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
@@ -2890,6 +2927,14 @@ public class PublicMethed {
     contractBuilder.setTokenId(Long.parseLong(tokenId));
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
+
+    //estimateEnergyDeployContract
+    if (null != libraryAddress) {
+      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    } else {
+      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    }
+
 
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
@@ -3302,6 +3347,7 @@ public class PublicMethed {
       Matcher m = Pattern.compile(beReplaced).matcher(code);
       code = m.replaceAll(libraryAddressHex);
     }
+    PublicMethed.code = code;
 
     return Hex.decode(code);
   }
@@ -3343,6 +3389,8 @@ public class PublicMethed {
       Matcher m = Pattern.compile(beReplaced).matcher(code);
       code = m.replaceAll(libraryAddressHex);
     }
+
+    PublicMethed.code = code;
 
     return Hex.decode(code);
   }
@@ -4192,6 +4240,13 @@ public class PublicMethed {
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
 
+    //estimateEnergyDeployContract
+    if (null != libraryAddress) {
+      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    } else {
+      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    }
+
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
@@ -4846,6 +4901,15 @@ public class PublicMethed {
     contractBuilder.setTokenId(Long.parseLong(tokenId));
     CreateSmartContract contractDeployContract =
         contractBuilder.setNewContract(builder.build()).build();
+
+
+    //estimateEnergyDeployContract
+    if (null != libraryAddress) {
+      estimateDeployContractEnergy(PublicMethed.code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    } else {
+      estimateDeployContractEnergy(code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
+    }
+
 
     TransactionExtention transactionExtention =
         blockingStubFull.deployContract(contractDeployContract);
@@ -7641,6 +7705,28 @@ public class PublicMethed {
     return Optional.ofNullable(estimateEnergyMessage);
   }
 
+  public static Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyDeployContract(
+          WalletGrpc.WalletBlockingStub blockingStubFull,
+          byte[] owner,
+          long callValue,
+          long tokenValue,
+          String tokenId,
+          String code
+  ) {
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+    builder.setData(ByteString.copyFrom(Hex.decode(code)));
+    builder.setCallValue(callValue);
+    if (tokenId != null && tokenId != "") {
+      builder.setCallTokenValue(tokenValue);
+      builder.setTokenId(Long.parseLong(tokenId));
+    }
+    GrpcAPI.EstimateEnergyMessage estimateEnergyMessage = blockingStubFull.estimateEnergy(builder.build());
+    return Optional.ofNullable(estimateEnergyMessage);
+  }
+
+
+
 
   public static void replaceConfig(String path, String oldConfig, String newConfig) {
     try {
@@ -7664,6 +7750,98 @@ public class PublicMethed {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public static void estimateDeployContractEnergy(
+          String code,
+          long value,
+          String tokenId,
+          long tokenValue,
+          byte[] ownerAddress,
+          WalletGrpc.WalletBlockingStub blockingStubFull
+  ) {
+    String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+            .get(1);
+    try {
+
+      logger.info("triggerConstantContract ------------ start -----------");
+      HttpResponse response = HttpMethed
+              .triggerConstantContractWithData(
+                      httpnode,
+                      ownerAddress, null, null, null, code, value, tokenValue, Long.parseLong(tokenId));
+      JSONObject jsonObject = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(jsonObject);
+      Long constantEnergy = jsonObject.getLong("energy_used");
+      logger.info("constantEnergy:" + constantEnergy);
+
+      TransactionExtention trx = PublicMethed
+              .triggerConstantContractDeployContract(
+                      code, ownerAddress, value, tokenId, tokenValue, blockingStubFull);
+      Long grpcConstantEnergy = trx.getEnergyUsed();
+      logger.info("grpcConstantEnergy:" + grpcConstantEnergy);
+      Assert.assertEquals(grpcConstantEnergy.longValue(), constantEnergy.longValue());
+      logger.info("triggerConstantContract ------------ end    -----------");
+
+      Long energyFee = PublicMethed.getChainParametersValue(
+              ProposalEnum.GetEnergyFee.getProposalName(), blockingStubFull);
+      logger.info("energyFee:" + energyFee);
+
+
+      logger.info("EstimateEnergy -------- start ------");
+      response = HttpMethed.getEstimateEnergyDeployContract(httpnode,
+              ownerAddress, null, null, null, code, value, tokenValue, Long.parseLong(tokenId), true);
+      jsonObject = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(jsonObject);
+      Long estimateEnergy = jsonObject.getLong("energy_required");
+      logger.info("estimateEnergy:" + estimateEnergy);
+
+
+      Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
+              PublicMethed.estimateEnergyDeployContract(blockingStubFull2,
+                      ownerAddress,
+                      value,
+                      tokenValue,
+                      tokenId,
+                      code);
+      logger.info(estimateEnergyMessage.get().toString());
+      Long grpcEstimateEnergy = estimateEnergyMessage.get().getEnergyRequired();
+      logger.info("grpcEstimateEnergy: " + grpcEstimateEnergy);
+      logger.info("EstimateEnergy ------------ end    -----------");
+
+      logger.info("(estimateEnergy - constantEnergy) * energyFee: "
+              + (estimateEnergy - constantEnergy) * energyFee);
+      Assert.assertEquals(grpcEstimateEnergy.longValue(), estimateEnergy.longValue());
+      Assert.assertTrue((estimateEnergy - constantEnergy) * energyFee < 1000000L);
+
+    } catch (Exception e) {
+      logger.error("EnergyEstimateDeploy: catch Exception!!");
+      e.printStackTrace();
+    }
+
+  }
+
+  /** constructor. */
+  public static TransactionExtention triggerConstantContractDeployContract(
+          String code,
+          byte[] ownerAddress,
+          long callValue,
+          String tokenId,
+          long tokenValue,
+          WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    byte[] owner = ownerAddress;
+    TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+    builder.setData(ByteString.copyFrom(Hex.decode(code)));
+    builder.setCallValue(callValue);
+    if (tokenId != null && !tokenId.equals("")) {
+      builder.setTokenId(Long.parseLong(tokenId));
+      builder.setCallTokenValue(tokenValue);
+    }
+    TriggerSmartContract triggerContract = builder.build();
+    TransactionExtention transactionExtention =
+            blockingStubFull.triggerConstantContract(triggerContract);
+    return transactionExtention;
   }
 
 
