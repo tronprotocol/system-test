@@ -117,7 +117,7 @@ public class HttpTestConstantContract001 {
     String param = null;
     response = HttpMethed
         .triggerConstantContractWithData(
-            httpnode, fromAddress, contractAddress, method, param, null, 10, 0, null);
+            httpnode, fromAddress, contractAddress, method, param, null, 10, 0, 0);
     HttpMethed.waitToProduceOneBlock(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);

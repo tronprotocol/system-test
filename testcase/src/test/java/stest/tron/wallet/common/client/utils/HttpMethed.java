@@ -1073,7 +1073,7 @@ public class HttpMethed {
       String data,
       long call_value,
       long call_token_value,
-      String token_id) {
+      long token_id) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/triggerconstantcontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1088,10 +1088,10 @@ public class HttpMethed {
       userBaseObj2.addProperty("parameter", parameter);
       userBaseObj2.addProperty("data", data);
       userBaseObj2.addProperty("call_value", call_value);
-      if (token_id != null && token_id != "") {
-        userBaseObj2.addProperty("token_id", Long.parseLong(token_id));
-        userBaseObj2.addProperty("call_token_value", call_token_value);
-      }
+
+      userBaseObj2.addProperty("token_id", token_id);
+      userBaseObj2.addProperty("call_token_value", call_token_value);
+
       response = createConnect(requestUrl, userBaseObj2);
       return response;
     } catch (Exception e) {
@@ -5940,7 +5940,7 @@ public class HttpMethed {
           String data,
           long call_value,
           long call_token_value,
-          String token_id,
+          long token_id,
           boolean visible) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
@@ -5958,10 +5958,10 @@ public class HttpMethed {
       requestParam.addProperty("parameter", parameter);
       requestParam.addProperty("data", data);
       requestParam.addProperty("call_value", call_value);
-      if (token_id != null && !token_id.equals("") ) {
-        requestParam.addProperty("call_token_value", call_token_value);
-        requestParam.addProperty("token_id", Long.parseLong(token_id));
-      }
+
+      requestParam.addProperty("call_token_value", call_token_value);
+      requestParam.addProperty("token_id", token_id);
+
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {

@@ -2765,9 +2765,9 @@ public class PublicMethed {
 
     //estimateEnergyDeployContract
     if (null != libraryAddress) {
-      estimateDeployContractEnergy(PublicMethed.code, value, null, 0L, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(PublicMethed.code, value, "0", 0L, ownerAddress, blockingStubFull);
     } else {
-      estimateDeployContractEnergy(code, value, null, 0L, ownerAddress, blockingStubFull);
+      estimateDeployContractEnergy(code, value, "0", 0L, ownerAddress, blockingStubFull);
     }
 
     TransactionExtention transactionExtention =
@@ -7768,7 +7768,7 @@ public class PublicMethed {
       HttpResponse response = HttpMethed
               .triggerConstantContractWithData(
                       httpnode,
-                      ownerAddress, null, null, null, code, value, tokenValue, tokenId);
+                      ownerAddress, null, null, null, code, value, tokenValue, Long.parseLong(tokenId));
       JSONObject jsonObject = HttpMethed.parseResponseContent(response);
       HttpMethed.printJsonContent(jsonObject);
       Long constantEnergy = jsonObject.getLong("energy_used");
@@ -7789,7 +7789,7 @@ public class PublicMethed {
 
       logger.info("EstimateEnergy -------- start ------");
       response = HttpMethed.getEstimateEnergyDeployContract(httpnode,
-              ownerAddress, null, null, null, code, value, tokenValue, tokenId, true);
+              ownerAddress, null, null, null, code, value, tokenValue, Long.parseLong(tokenId), true);
       jsonObject = HttpMethed.parseResponseContent(response);
       HttpMethed.printJsonContent(jsonObject);
       Long estimateEnergy = jsonObject.getLong("energy_required");
