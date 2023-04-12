@@ -164,7 +164,7 @@ public class UsdtTest {
       + "no balance,no energyLimit,feeLimit is 0 when transfer USDT")
   public void test03() {
     long balance = PublicMethed.queryAccount(callerddress, blockingStubFull).getBalance();
-    PublicMethed.delegateResourceV2(testNetAccountAddress, 100000000L, 0, callerddress, testNetAccountKey, blockingStubFull);
+    PublicMethed.delegateResourceV2(testNetAccountAddress, 300000000L, 0, callerddress, testNetAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed
         .sendcoin(testNetAccountAddress, balance, callerddress, callerKey,
@@ -198,8 +198,10 @@ public class UsdtTest {
     long balance = PublicMethed.queryAccount(callerddress, blockingStubFull).getBalance();
     PublicMethed.delegateResourceV2(testNetAccountAddress, 600000000L, 1, callerddress, testNetAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed
-        .sendcoin(testNetAccountAddress, balance, callerddress, callerKey, blockingStubFull));
+    if (balance != 0) {
+      Assert.assertTrue(PublicMethed
+          .sendcoin(testNetAccountAddress, balance, callerddress, callerKey, blockingStubFull));
+    }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String methedStr = "transfer(address,uint256)";
     String argsStr = "\"" + dev58 + "\",1";
@@ -258,7 +260,7 @@ public class UsdtTest {
     PublicMethed.freedResource(dev001Address, dev001Key, testNetAccountAddress, blockingStubFull);
     PublicMethed.freedResource(callerddress, callerKey, testNetAccountAddress, blockingStubFull);
     PublicMethed.unDelegateResourceV2(testNetAccountAddress, 1000000000L, 1, dev001Address, testNetAccountKey, blockingStubFull);
-    PublicMethed.unDelegateResourceV2(testNetAccountAddress, 100000000L, 0, callerddress, testNetAccountKey, blockingStubFull);
+    PublicMethed.unDelegateResourceV2(testNetAccountAddress, 300000000L, 0, callerddress, testNetAccountKey, blockingStubFull);
 
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
