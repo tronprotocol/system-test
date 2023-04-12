@@ -252,8 +252,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
 
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit global ip qps for mix api"
-          + "witness2 must set rate.limiter.global.ip.qps = 15")
+  @Test(enabled = true, description = "Rate limit global ip qps for mix api")
   public void test12GlobalIpQpsRateForMix() {
 
     Long startTimeStamp = System.currentTimeMillis();

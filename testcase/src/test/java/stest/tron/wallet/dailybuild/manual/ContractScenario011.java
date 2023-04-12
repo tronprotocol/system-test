@@ -419,7 +419,7 @@ public class ContractScenario011 {
     Assert.assertTrue(infoById.get().getReceipt().getEnergyFee() > 10000);
     //    Assert.assertTrue(infoById.get().getReceipt().getOriginEnergyUsage() > 10000);
     Assert.assertTrue(infoById.get().getReceipt().getEnergyUsageTotal()
-        == infoById.get().getReceipt().getEnergyFee() / 280 + infoById.get().getReceipt()
+        == infoById.get().getReceipt().getEnergyFee() / energyFee + infoById.get().getReceipt()
         .getOriginEnergyUsage());
 
     Long fee = infoById.get().getFee();
