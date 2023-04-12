@@ -1070,7 +1070,10 @@ public class HttpMethed {
       String contractAddress,
       String functionSelector,
       String parameter,
-      String data) {
+      String data,
+      long call_value,
+      long call_token_value,
+      String token_id) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/triggerconstantcontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1084,6 +1087,9 @@ public class HttpMethed {
       userBaseObj2.addProperty("function_selector", functionSelector);
       userBaseObj2.addProperty("parameter", parameter);
       userBaseObj2.addProperty("data", data);
+      userBaseObj2.addProperty("call_value", call_value);
+      userBaseObj2.addProperty("call_token_value", call_token_value);
+      userBaseObj2.addProperty("token_id", token_id);
       response = createConnect(requestUrl, userBaseObj2);
       return response;
     } catch (Exception e) {

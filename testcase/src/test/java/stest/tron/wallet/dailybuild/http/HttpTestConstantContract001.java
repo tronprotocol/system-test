@@ -111,6 +111,29 @@ public class HttpTestConstantContract001 {
   /**
    * constructor.
    */
+  @Test(enabled = true, description = "Trigger constant contract with call_value")
+  public void test4TriggerConstantContract() {
+    String method = "testCallValue()";
+    String param = null;
+    response = HttpMethed
+        .triggerConstantContractWithData(
+            httpnode, fromAddress, contractAddress, method, param, null, 10, 0, null);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    Assert.assertTrue(!responseContent.getString("transaction").isEmpty());
+    JSONObject transactionObject = responseContent.getJSONObject("transaction");
+
+    boolean result = responseContent.getJSONObject("result").getBoolean("result");
+    Assert.assertTrue(result);
+    Assert.assertTrue(!transactionObject.getString("raw_data").isEmpty());
+    Assert.assertTrue(!transactionObject.getString("raw_data_hex").isEmpty());
+    Assert.assertEquals(189, responseContent.getIntValue("energy_used") );
+  }
+
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     HttpMethed.freedResource(httpnode, assetOwnerAddress, fromAddress, assetOwnerKey);

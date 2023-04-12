@@ -139,7 +139,7 @@ public class HttpTestEstimateEnergy {
     Assert.assertTrue(energyRequired >= 0);
     response = HttpMethed
         .triggerConstantContractWithData(
-            httpnode, fromAddress, null, method, param, code);
+            httpnode, fromAddress, null, method, param, code, 0, 0, null);
     Long energyRequiredConstant =
         HttpMethed.parseResponseContent(response).getLong("energy_used");
     final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
