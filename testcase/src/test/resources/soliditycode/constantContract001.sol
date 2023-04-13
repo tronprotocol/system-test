@@ -10,4 +10,11 @@ return i + x + y;
         require(msg.value > 3);
         return msg.value;
     }
+
+    function killme(address payable target) external {
+        selfdestruct(target);
+    }
+
+    constructor() payable {
+    }
 }

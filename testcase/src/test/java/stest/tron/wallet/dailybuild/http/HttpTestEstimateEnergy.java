@@ -82,7 +82,7 @@ public class HttpTestEstimateEnergy {
     String method = "writeNumber(uint256)";
     String param = "0000000000000000000000000000000000000000000000000000000000000006";
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, null,false);
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, null,false, 0, 0, 0);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
 
@@ -111,7 +111,7 @@ public class HttpTestEstimateEnergy {
     String method = "writeNumber(uint256)";
     String param = "0000000000000000000000000000000000000000000000000000000000000006";
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, null,true);
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, null,true, 0, 0, 0);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
     response = HttpMethed
@@ -134,7 +134,7 @@ public class HttpTestEstimateEnergy {
     String method = null;
     String param = null;
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, null, method, param, code,true);
+        .getEstimateEnergy(httpnode, fromAddress, null, method, param, code,true, 0, 0, 0);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
     response = HttpMethed
