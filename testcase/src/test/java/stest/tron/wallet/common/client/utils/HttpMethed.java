@@ -5854,7 +5854,10 @@ public class HttpMethed {
       String functionSelector,
       String parameter,
       String data,
-      boolean visible) {
+      boolean visible,
+      long call_value,
+      long call_token_value,
+      long token_id) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
       JsonObject requestParam = new JsonObject();
