@@ -152,7 +152,6 @@ public class HttpTestConstantContract001 {
     response = HttpMethed
         .triggerConstantContractWithData(
             httpnode, fromAddress, contractAddress, method, param, null, 0, 0, 0);
-    HttpMethed.waitToProduceOneBlock(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info("triggerconstant result: " + responseContent);
     HttpMethed.printJsonContent(responseContent);
