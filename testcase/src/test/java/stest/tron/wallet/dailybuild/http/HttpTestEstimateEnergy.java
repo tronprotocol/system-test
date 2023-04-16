@@ -2,6 +2,7 @@ package stest.tron.wallet.dailybuild.http;
 
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
@@ -12,9 +13,11 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -150,6 +153,35 @@ public class HttpTestEstimateEnergy {
     Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
     Assert.assertTrue((energyRequired - deployContractEnergy) * energyFee <= 1000000L);
 
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Estimate function out_of_time by estimateEnergy and triggerConstant")
+  public void test04EstimateWithCallvalueAndCommandAfterCall() {
+    String method = "testUseCpu(int256)";
+    String args = "00000000000000000000000000000000000000000000000000000000001324b0";
+    response = HttpMethed
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, args, null,true, 0, 0, 0);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info("EstimateEnergy result: " + responseContent.toJSONString());
+    Assert.assertTrue( responseContent.containsKey("result"));
+    JSONObject res = responseContent.getJSONObject("result");
+    Assert.assertEquals(2, res.keySet().size());
+    Assert.assertEquals("OTHER_ERROR".toLowerCase(), res.getString("code").toLowerCase());
+    Assert.assertTrue( res.getString("message").contains("CPU timeout"));
+
+    response = HttpMethed
+        .triggerConstantContractWithData(
+            httpnode, fromAddress, ByteArray.toHexString(contractAddress), method, args,null,0,0,0);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info("triggerconstant result: " + responseContent);
+    Assert.assertTrue( responseContent.containsKey("result"));
+    res = responseContent.getJSONObject("result");
+    Assert.assertEquals(2, res.keySet().size());
+    Assert.assertEquals("OTHER_ERROR".toLowerCase(), res.getString("code").toLowerCase());
+    Assert.assertTrue(ByteString.copyFrom(ByteArray.fromHexString(res.getString("message"))).toStringUtf8().contains("CPU timeout"));
   }
 
   /**
