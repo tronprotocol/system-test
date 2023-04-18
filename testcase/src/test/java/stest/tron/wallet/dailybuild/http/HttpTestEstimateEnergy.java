@@ -43,6 +43,7 @@ public class HttpTestEstimateEnergy {
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private byte[] contractAddress = null;
   long deployContractEnergy = 0;
+  long energyFee;
   String code;
   String abi;
 
@@ -74,6 +75,7 @@ public class HttpTestEstimateEnergy {
     contractAddress = infoById.get().getContractAddress().toByteArray();
     deployContractEnergy = infoById.get().getReceipt().getEnergyUsageTotal();
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
+    energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
 
   }
 
@@ -122,7 +124,6 @@ public class HttpTestEstimateEnergy {
             httpnode, fromAddress, ByteArray.toHexString(contractAddress), method, param);
     Long energyRequiredConstant =
         HttpMethed.parseResponseContent(response).getLong("energy_used");
-    final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     logger.info("energyRequired: " + energyRequired);
     logger.info("energyRequiredConstant" + energyRequiredConstant);
     Assert.assertTrue(energyRequired >= energyRequiredConstant);
@@ -145,7 +146,6 @@ public class HttpTestEstimateEnergy {
             httpnode, fromAddress, null, method, param, code, 0, 0, 0);
     Long energyRequiredConstant =
         HttpMethed.parseResponseContent(response).getLong("energy_used");
-    final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     logger.info("energyRequired: " + energyRequired);
     logger.info("energyRequiredConstant: " + energyRequiredConstant);
     logger.info("deployEnergyCost: " + deployContractEnergy);
@@ -182,6 +182,80 @@ public class HttpTestEstimateEnergy {
     Assert.assertEquals(2, res.keySet().size());
     Assert.assertEquals("OTHER_ERROR".toLowerCase(), res.getString("code").toLowerCase());
     Assert.assertTrue(ByteString.copyFrom(ByteArray.fromHexString(res.getString("message"))).toStringUtf8().contains("CPU timeout"));
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "estimateEnergy and triggerconstantcontract "
+      + "without function_selector but with contract address and data ")
+  public void test05EstimateOnlyHasCalldata() {
+    // function is  writeNumber(uint256);
+    String data = "5637a79c0000000000000000000000000000000000000000000000000000000000000006";
+    response = HttpMethed
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, null, null, data,true, 0, 0, 0);
+    Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
+    Assert.assertTrue(energyRequired >= 0);
+    response = HttpMethed
+        .triggerConstantContractWithData(
+            httpnode, fromAddress, ByteArray.toHexString(contractAddress), null, null,data,0,0,0);
+    Long energyRequiredConstant =
+        HttpMethed.parseResponseContent(response).getLong("energy_used");
+    logger.info("energyRequired: " + energyRequired);
+    logger.info("energyRequiredConstant" + energyRequiredConstant);
+    Assert.assertTrue(energyRequired >= energyRequiredConstant);
+    Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
+  }
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "estimateEnergy and triggerconstantcontract "
+      + "only with contract address. and it will trigger fallback function ")
+  public void test06EstimateOnlyContractAddress() {
+    response = HttpMethed
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, null, null, null,true, 0, 0, 0);
+    Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
+    Assert.assertTrue(energyRequired >= 0);
+    response = HttpMethed
+        .triggerConstantContractWithData(
+            httpnode, fromAddress, ByteArray.toHexString(contractAddress), null, null,null,0,0,0);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info(responseContent.toJSONString());
+    Assert.assertTrue(responseContent.getJSONObject("result").getBoolean("result"));
+    Assert.assertEquals(1, responseContent.getJSONArray("logs").size());
+    Long energyRequiredConstant = responseContent.getLong("energy_used");
+    logger.info("energyRequired: " + energyRequired);
+    logger.info("energyRequiredConstant" + energyRequiredConstant);
+    Assert.assertTrue(energyRequired >= energyRequiredConstant);
+    Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
+  }
+
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "estimateEnergy and triggerconstantcontract "
+      + "with contract address, function_selector and data. and it will triggerContract use function_selector ")
+  public void test07EstimatePreferFunctionSelector() {
+    String method = "writeNumber(uint256)";
+    String param = "0000000000000000000000000000000000000000000000000000000000000006";
+    String data = "56d14afe00000000000000000000000000000000000000000000000000000000001324b0";
+    response = HttpMethed
+        .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, data,true, 0, 0, 0);
+    Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
+    Assert.assertTrue(energyRequired >= 0);
+    response = HttpMethed
+        .triggerConstantContractWithData(
+            httpnode, fromAddress, ByteArray.toHexString(contractAddress), method, param, data,0,0,0);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info(responseContent.toJSONString());
+    Long energyRequiredConstant = responseContent.getLong("energy_used");
+    logger.info("energyRequired: " + energyRequired);
+    logger.info("energyRequiredConstant" + energyRequiredConstant);
+    Assert.assertTrue(energyRequired >= energyRequiredConstant);
+    Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
   }
 
   /**
