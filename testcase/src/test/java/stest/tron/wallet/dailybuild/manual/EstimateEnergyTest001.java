@@ -396,7 +396,7 @@ public class EstimateEnergyTest001 {
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
         PublicMethed.estimateEnergy(
-            blockingStubFull2, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
+            blockingStubFull2, foundationAddress, contractAddressTrc721, 0, method, args, isHex, 0, null);
     Assert.assertEquals(
         estimateEnergyMessage.get().getResult().getCode().toString(), "CONTRACT_EXE_ERROR");
     Assert.assertEquals(
