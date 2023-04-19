@@ -910,6 +910,7 @@ public class HttpMethed {
       Long callValue,
       Integer tokenId,
       Long tokenValue,
+      String data,
       String fromKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/triggersmartcontract";
@@ -922,6 +923,7 @@ public class HttpMethed {
       userBaseObj2.addProperty("call_value", callValue);
       userBaseObj2.addProperty("token_id", tokenId);
       userBaseObj2.addProperty("call_token_value", tokenValue);
+      userBaseObj2.addProperty("data", data);
       response = createConnect(requestUrl, userBaseObj2);
       transactionString = EntityUtils.toString(response.getEntity());
       logger.info(transactionString);

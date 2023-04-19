@@ -241,6 +241,7 @@ public class HttpTestEstimateEnergy {
   public void test07EstimatePreferFunctionSelector() {
     String method = "writeNumber(uint256)";
     String param = "0000000000000000000000000000000000000000000000000000000000000006";
+    //testUseCpu(int256)
     String data = "56d14afe00000000000000000000000000000000000000000000000000000000001324b0";
     response = HttpMethed
         .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, data,true, 0, 0, 0);
@@ -256,6 +257,37 @@ public class HttpTestEstimateEnergy {
     logger.info("energyRequiredConstant" + energyRequiredConstant);
     Assert.assertTrue(energyRequired >= energyRequiredConstant);
     Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "triggerSmartContract using data")
+  public void test08triggerSmartContractWithData() {
+    //testUseCpu(int256)
+    String data = "56d14afe00000000000000000000000000000000000000000000000000000000001324b0";
+    String contractHex = ByteArray.toHexString(contractAddress);
+    String txid =
+        HttpMethed.triggerContractGetTxid(
+            httpnode,
+            fromAddress,
+            contractHex,
+            null,
+            null,
+            1000000000L,
+            0L,
+            0,
+            0L,
+            data,
+            testKey002);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    logger.info(txid);
+    response = HttpMethed.getTransactionById(httpnode, txid);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    JSONObject res = responseContent.getJSONArray("ret").getJSONObject(0);
+    Assert.assertEquals(1, res.keySet().size());
+    Assert.assertEquals("OUT_OF_TIME".toLowerCase(), res.getString("contractRet").toLowerCase());
   }
 
   /**
