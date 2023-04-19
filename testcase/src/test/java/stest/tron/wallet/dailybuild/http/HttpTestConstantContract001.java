@@ -30,6 +30,8 @@ public class HttpTestConstantContract001 {
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
       .get(0);
+  private String httpnode1 = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+      .get(1);
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
 
@@ -165,7 +167,7 @@ public class HttpTestConstantContract001 {
     long energyRequiredTriggerConstant =  responseContent.getIntValue("energy_used");
 
     response = HttpMethed
-        .getEstimateEnergy(httpnode, fromAddress, ByteArray.fromHexString(contractAddress), method, param, null,false, 0, 0, 0);
+        .getEstimateEnergy(httpnode1, fromAddress, ByteArray.fromHexString(contractAddress), method, param, null,false, 0, 0, 0);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info("estimate result: " + responseContent.toJSONString());
     long energyRequiredEstimate = responseContent.getLong("energy_required");
