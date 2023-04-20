@@ -275,7 +275,7 @@ public class HttpTestEstimateEnergy {
     String txid =
         HttpMethed.triggerContractGetTxid(
             httpnode,
-            fromAddress,
+            triggerAddress,
             contractHex,
             null,
             null,
@@ -284,7 +284,7 @@ public class HttpTestEstimateEnergy {
             0,
             0L,
             data,
-            testKey002);
+            triggerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
     logger.info(txid);
     response = HttpMethed.getTransactionById(httpnode, txid);
