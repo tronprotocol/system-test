@@ -13,14 +13,14 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.Utils;
 
 
 
@@ -46,6 +46,9 @@ public class HttpTestEstimateEnergy {
   long energyFee;
   String code;
   String abi;
+  ECKey triggerECKey = new ECKey(Utils.getRandom());
+  byte[] triggerAddress = triggerECKey.getAddress();
+  String triggerKey = ByteArray.toHexString(triggerECKey.getPrivKeyBytes());
 
 
   @BeforeClass
@@ -54,7 +57,9 @@ public class HttpTestEstimateEnergy {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
+    Assert.assertTrue(PublicMethed.sendcoin(triggerAddress, 10000000000L,
+    fromAddress, testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/estimateenergy.sol";
     String contractName = "TCtoken";
     HashMap retMap = PublicMethed.getBycodeAbiNoOptimize(filePath, contractName);
@@ -62,7 +67,7 @@ public class HttpTestEstimateEnergy {
     abi = retMap.get("abI").toString();
     final String txid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", 1000000000L,
-            0, 100, 10000, "0", 0, null, testKey002, fromAddress,
+            0, 100, 10000, "0", 0, null, triggerKey, triggerAddress,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> infoById = PublicMethed
