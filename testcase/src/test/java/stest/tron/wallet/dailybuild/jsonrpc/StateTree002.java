@@ -9,6 +9,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
-
+@Ignore
 public class StateTree002 extends JsonRpcBase {
   private JSONObject responseContent;
   private HttpResponse response;

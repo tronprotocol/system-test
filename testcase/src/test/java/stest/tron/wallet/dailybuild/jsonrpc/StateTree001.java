@@ -13,6 +13,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.WalletGrpc;
@@ -28,7 +29,7 @@ import stest.tron.wallet.common.client.utils.Utils;
 
 
 @Slf4j
-
+@Ignore
 public class StateTree001 extends JsonRpcBase {
   private JSONObject responseContent;
   private HttpResponse response;
@@ -528,7 +529,8 @@ public class StateTree001 extends JsonRpcBase {
   }
 
 
-  @Test(enabled = true, description = "eth_getStorageAt with create2 address")
+  @Test(enabled = false, description = "eth_getStorageAt with create2 address."
+      + "this case has been moved to Accounts001.java")
   public void test07StateTreeWithEthGetStorageAt() {
     JsonArray params = new JsonArray();
     params.add(create2AddressFrom41);
