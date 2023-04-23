@@ -50,7 +50,7 @@ public class StateTree002 extends JsonRpcBase {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     if(!stateRootIsOpen()) {
-      throw new SkipException("Skipping this freezeV1 test case");
+      throw new SkipException("Skipping this state root test case");
     }
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
