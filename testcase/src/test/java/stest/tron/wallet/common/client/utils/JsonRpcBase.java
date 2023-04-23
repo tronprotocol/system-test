@@ -547,10 +547,7 @@ public class JsonRpcBase {
     return jsonObject;
   }
 
-  public static Boolean stateRootIsOpen() {
-    String foundationAccountKey =
-        Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
-    byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
+  public Boolean stateRootIsOpen() {
     JsonArray params = new JsonArray();
     params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
     params.add("0x" + Long.toHexString(1));
