@@ -7,6 +7,7 @@ import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Ignore;
@@ -23,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
-@Ignore
 public class StateTree002 extends JsonRpcBase {
   private JSONObject responseContent;
   private HttpResponse response;
@@ -49,6 +49,9 @@ public class StateTree002 extends JsonRpcBase {
    */
   @BeforeClass(enabled = true)
   public void beforeClass() {
+    if(!stateRootIsOpen()) {
+      throw new SkipException("Skipping this freezeV1 test case");
+    }
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
