@@ -150,7 +150,7 @@ task stest(type: Test) {
     }
 }
 
-task dailyBuild(type: Test) {
+task dailyBuildOrigin(type: Test) {
     useTestNG {
         suites(file('src/test/resources/daily-build.xml'))
         parallel 'tests'
@@ -158,11 +158,11 @@ task dailyBuild(type: Test) {
     }
 }
 
-task dailyBuildBatch(type: Test) {
+task dailyBuild(type: Test) {
     useTestNG {
         suites(file('src/test/resources/daily-build-batch.xml'))
         parallel 'tests'
-        threadCount 1
+        threadCount 4
     }
 }
 
