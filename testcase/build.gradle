@@ -158,6 +158,14 @@ task dailyBuild(type: Test) {
     }
 }
 
+task dailyBuildBatch(type: Test) {
+    useTestNG {
+        suites(file('src/test/resources/daily-build-batch.xml'))
+        parallel 'tests'
+        threadCount 1
+    }
+}
+
 task leveldbTest(type: Test) {
     useTestNG {
         suites(file('src/test/resources/leveldb.xml'))

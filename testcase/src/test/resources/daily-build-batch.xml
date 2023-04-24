@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="Daily build batch" parallel="tests" thread-count="4">
+  <listeners>
+    <listener class-name="stest.tron.wallet.common.client.utils.DailyBuildReport"></listener>
+  </listeners>
+  <test name="tvm">
+    <packages>
+      <package name="stest.tron.wallet.dailybuild.tvmnewcommand">
+      </package>
+    </packages>
+  </test>
+  <test name="trc token">
+    <packages>
+      <package name="stest.tron.wallet.dailybuild.trctoken">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.manual">
+      </package>
+    </packages>
+  </test>
+  <test name="internal transaction">
+    <packages>
+      <package name="stest.tron.wallet.dailybuild.internaltransaction">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.longexecutiontime">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.operationupdate">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.http">
+      </package>
+    </packages>
+  </test>
+  <test name="system contract">
+    <packages>
+      <package name="stest.tron.wallet.dailybuild.account">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.eventquery">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.jsonrpc">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.assetissue">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.assetmarket">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.exceptionfee">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.freezeV2">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.transaction">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.tvmnewcommand">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.zentrc20token">
+      </package>
+    </packages>
+  </test>
+</suite>
