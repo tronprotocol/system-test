@@ -65,7 +65,7 @@ public class GetAccountBalance001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Test get account balance")
+  @Test(enabled = true, priority=1,description = "Test get account balance")
   public void test01GetAccountBalance() {
     Protocol.Block currentBlock = blockingStubFull
         .getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
@@ -76,7 +76,7 @@ public class GetAccountBalance001 {
 
   }
 
-  @Test(enabled = true, description = "Test get block balance")
+  @Test(enabled = true, priority=1,description = "Test get block balance")
   public void test02GetBlockBalance() {
     String txid = PublicMethed.sendcoinGetTransactionId(testAddress, sendAmount, sendAddress,
         sendKey, blockingStubFull);

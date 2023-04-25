@@ -25,4 +25,18 @@ contract TCtoken{
         a = msg.value;
     }
 
+    event LogFallback(uint256 ind);
+    fallback() payable external{
+        emit LogFallback(2);
+    }
+
+    function testUseCpu(int256 count) external{
+        for(int i = 0; i < count;i++){
+            for(int j = 0; j < count;j++){
+                int r = 2*2;
+                r = r * 2;
+            }
+        }
+    }
+
 }

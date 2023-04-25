@@ -1475,6 +1475,23 @@ public class Accounts001 extends JsonRpcBase {
         responseContent.get(2).getJSONObject("result");
     Assert.assertEquals(result, resultForGetTransactionByBlockHashAndIndex);
   }
+
+  @Test(enabled = true, description = "eth_getStorageAt with create2 address")
+  public void test53StateTreeWithEthGetStorageAt() {
+    JsonArray params = new JsonArray();
+    params.add(create2AddressFrom41);
+    params.add("0x2");
+    params.add("latest");
+    JsonObject requestBody = getJsonRpcBody("eth_getStorageAt", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String result = responseContent.getString("result").substring(2);
+    long beforePos2 = Long.parseLong(result, 16);
+    logger.info("beforePos2:" + beforePos2);
+    Assert.assertEquals(1, beforePos2);
+  }
+
+
   /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {

@@ -47,6 +47,8 @@ public class JsonRpcBase {
       Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(0);
   public static String jsonRpcNodeForSolidity =
       Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(1);
+  public static String stateTreeNode =
+      Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(2);
   public static String httpFullNode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
   public static String httpsolidityNode =
@@ -70,9 +72,11 @@ public class JsonRpcBase {
   public static String trc20AddressHex;
   public static String contractAddressFrom58;
   public static String contractTrc20AddressFrom58;
+  public static String create2AddressFrom41;
   public static String contractAddressFromHex;
   public static ByteString shieldAddressByteString;
   public static byte[] shieldAddressByte;
+  public static byte[] selfDestructAddressByte;
   public static String shieldAddress;
   public static String deployTrc20Txid;
   public static String deployShieldTxid;
@@ -165,6 +169,8 @@ public class JsonRpcBase {
     deployContract();
     triggerContract();
     deployTrc20Contract();
+    deploySelfDestructContract();
+    deployCreate2Contract();
   }
 
   void getCommitData() {
@@ -431,6 +437,54 @@ public class JsonRpcBase {
                 .getBlockNumber());
   }
 
+
+  /** constructor. */
+  public void deploySelfDestructContract() throws InterruptedException {
+    String filePath = "./src/test/resources/soliditycode/contractGrammar002test6Grammar013.sol";
+    String contractName = "Counter";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+
+    selfDestructAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, jsonRpcOwnerKey,
+        jsonRpcOwnerAddress, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed.getContract(selfDestructAddressByte,blockingStubFull).hasAbi());
+
+
+
+  }
+
+  /** constructor. */
+  public void deployCreate2Contract() {
+    String filePath = "./src/test/resources/soliditycode/contractTrcToken001.sol";
+    String contractName = "C";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+
+    byte[] cAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+        0L, 100, null, jsonRpcOwnerKey,
+        jsonRpcOwnerAddress, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(!PublicMethed.getContract(cAddressByte,blockingStubFull).getBytecode().isEmpty());
+    String methedStr = "createWithSalted(bytes32)";
+    String argsStr = "1232";
+    String txid = PublicMethed.triggerContract(cAddressByte, methedStr, argsStr,
+        false, 0, maxFeeLimit, jsonRpcOwnerAddress, jsonRpcOwnerKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Protocol.TransactionInfo infoById =
+        PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
+    logger.info("Trigger InfobyId: " + infoById);
+    Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, infoById.getResult());
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.getReceipt().getResult());
+    create2AddressFrom41 = "41" + ByteArray.toHexString(infoById.getContractResult(0).toByteArray()).substring(24);
+    logger.info("create2AddressFrom41: " + create2AddressFrom41);
+
+  }
+
   /** constructor. */
   public static HttpResponse getEthHttps(String ethHttpsNode, JsonObject jsonRpcObject) {
     try {
@@ -489,5 +543,22 @@ public class JsonRpcBase {
     jsonObject.addProperty("id", id);
 
     return jsonObject;
+  }
+
+  public Boolean stateRootIsOpen() {
+    JsonArray params = new JsonArray();
+    params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
+    params.add("0x" + Long.toHexString(1));
+    JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
+    response = getJsonRpc(stateTreeNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String resStr = responseContent.toJSONString();
+    logger.info(resStr);
+
+    if(resStr.contains("QUANTITY not supported, just support TAG as latest")){
+      return false;
+    }else {
+      return true;
+    }
   }
 }

@@ -534,6 +534,34 @@ public class Create2Test001 {
 
   }
 
+  @Test(enabled = true, description = "test create2 with constructor has params")
+  public void test06TriggerTestContract() {
+    int start = 3;
+    String triggerTxid = PublicMethed.triggerContract(factoryContractAddress,
+        "create2WithParams(bytes32,uint256)", "1," + start, false, 0,
+        1000000000L, "0", 0, user001Address, user001Key,
+        blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    logger.info(infoById.get().toString());
+    String trueRes = ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
+    String create2Hex = "41"+trueRes.substring(24);
+    String create2Base58 = Base58.encode58Check(ByteArray.fromHexString(create2Hex));
+    logger.info(create2Hex);
+    logger.info(create2Base58);
+    triggerTxid = PublicMethed.triggerContract(PublicMethed.decode58Check(create2Base58),
+        "plusOne()", "#", false, 0,
+        1000000000L, "0", 0, user001Address, user001Key,
+        blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    infoById = PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull);
+    logger.info(infoById.get().toString());
+    Assert.assertEquals(start + 1, ByteArray.toLong(infoById.get().getContractResult(0).toByteArray()));
+  }
+
   /**
    * constructor.
    */

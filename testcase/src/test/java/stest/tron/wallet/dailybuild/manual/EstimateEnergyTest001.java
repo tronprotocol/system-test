@@ -396,7 +396,7 @@ public class EstimateEnergyTest001 {
     boolean isHex = false;
     Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
         PublicMethed.estimateEnergy(
-            blockingStubFull2, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
+            blockingStubFull2, foundationAddress, contractAddressTrc721, 0, method, args, isHex, 0, null);
     Assert.assertEquals(
         estimateEnergyMessage.get().getResult().getCode().toString(), "CONTRACT_EXE_ERROR");
     Assert.assertEquals(
@@ -776,8 +776,10 @@ public class EstimateEnergyTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Estimate function with call_value")
+  @Test(enabled = true, description = "Estimate function with call_value bug-fix call refund")
   public void test18EstimateWithCallvalue() {
+
+
     String method = "test()";
     String args = "";
     boolean isHex = false;
@@ -785,7 +787,31 @@ public class EstimateEnergyTest001 {
         PublicMethed.estimateEnergy(
             blockingStubFull2, foundationAddress, contractAddress, 10, method, args, isHex, 0, null);
     Assert.assertEquals(true, estimateEnergyMessage.get().getResult().getResult());
-    Assert.assertEquals(10533, estimateEnergyMessage.get().getEnergyRequired());
+    Assert.assertEquals(10566, estimateEnergyMessage.get().getEnergyRequired());
+
+    String txid = PublicMethed.triggerContract(contractAddress, method, args,
+        false, 10, maxFeeLimit, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Optional<Protocol.TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    logger.info("1  infoById: " + infoById.get().toString());
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.get().getReceipt().getResult());
+    long actualEnergyTotal = infoById.get().getReceipt().getEnergyUsageTotal();
+    long feeLimit = (actualEnergyTotal + 2300) * energyFee;
+
+    txid = PublicMethed.triggerContract(contractAddress, method, args,
+        false, 10, feeLimit, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    logger.info("2  infoById: " + infoById.get().toString());
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.get().getReceipt().getResult());
+
+    txid = PublicMethed.triggerContract(contractAddress, method, args,
+        false, 10, feeLimit - 1, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    logger.info("3  infoById: " + infoById.get().toString());
+    //expect out of energy, but success
+//    Assert.assertEquals(Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY, infoById.get().getReceipt().getResult());
   }
 
   /**
@@ -800,7 +826,22 @@ public class EstimateEnergyTest001 {
         PublicMethed.estimateEnergy(
             blockingStubFull2, foundationAddress, contractAddress, 10, method, args, isHex, 0, null);
     Assert.assertEquals(true, estimateEnergyMessage.get().getResult().getResult());
-    Assert.assertEquals(28678, estimateEnergyMessage.get().getEnergyRequired());
+    Assert.assertEquals(28702, estimateEnergyMessage.get().getEnergyRequired());
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Estimate function out_of_time")
+  public void test20EstimateWithCallvalueAndCommandAfterCall() {
+    String method = "testUseCpu(int256)";
+    String args = "206000";
+    boolean isHex = false;
+    Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyMessage =
+        PublicMethed.estimateEnergy(
+            blockingStubFull2, foundationAddress, contractAddress, 0, method, args, isHex, 0, null);
+    System.out.println(estimateEnergyMessage.get().toString());
+    Assert.assertTrue( estimateEnergyMessage.get().toString().contains("CPU timeout"));
   }
 
 

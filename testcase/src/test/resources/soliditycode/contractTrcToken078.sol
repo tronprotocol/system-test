@@ -11,6 +11,11 @@ contract callerContract {
     function sendToB3(address called_address,address c) public payable{
         called_address.delegatecall(abi.encodeWithSignature("transferTo(address)",c));
     }
+
+    function getBalance(address add) view public returns (uint256 r) {
+        r = add.balance;
+    }
+
 }
    contract calledContract {
         fallback() external payable{}

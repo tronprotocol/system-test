@@ -2,17 +2,17 @@ package stest.tron.wallet.dailybuild.http;
 
 import com.alibaba.fastjson.JSONObject;
 import java.util.HashMap;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import org.tron.api.WalletGrpc;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class HttpTestConstantContract001 {
@@ -30,6 +30,10 @@ public class HttpTestConstantContract001 {
   private HttpResponse response;
   private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
       .get(0);
+  private String httpnode1 = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+      .get(1);
+  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+      .get(0);
 
   /**
    * constructor.
@@ -39,6 +43,14 @@ public class HttpTestConstantContract001 {
     PublicMethed.printAddress(assetOwnerKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, testKey002);
+    String jsonRpcOwnerKey =
+        Configuration.getByPath("testng.conf").getString("defaultParameter.jsonRpcOwnerKey");
+    byte[] jsonRpcOwnerAddress = PublicMethed.getFinalAddress(jsonRpcOwnerKey);
+    response = HttpMethed.getAccount(httpnode, jsonRpcOwnerAddress);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String tokenId = responseContent.getString("asset_issued_ID");
+    response = HttpMethed.transferAsset(httpnode, jsonRpcOwnerAddress, assetOwnerAddress, tokenId, 10L, jsonRpcOwnerKey);
+
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
     String filePath = "src/test/resources/soliditycode/constantContract001.sol";
@@ -48,7 +60,7 @@ public class HttpTestConstantContract001 {
     String abi = retMap.get("abI").toString();
     String txid = HttpMethed
         .deployContractGetTxid(httpnode, contractName, abi, code, 1000000L, 1000000000L, 100,
-            11111111111111L, 0L, 0, 0L, assetOwnerAddress, assetOwnerKey);
+            11111111111111L, 100L, Integer.valueOf(tokenId), 5L, assetOwnerAddress, assetOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
     logger.info(txid);
@@ -128,7 +140,43 @@ public class HttpTestConstantContract001 {
     Assert.assertTrue(result);
     Assert.assertTrue(!transactionObject.getString("raw_data").isEmpty());
     Assert.assertTrue(!transactionObject.getString("raw_data_hex").isEmpty());
-    Assert.assertEquals(189, responseContent.getIntValue("energy_used") );
+    Assert.assertEquals(211, responseContent.getIntValue("energy_used") );
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = " estimate kill function by triggerconstant")
+  public void test5TriggerConstantContract() {
+    String assetOwnerAddress41 = ByteArray.toHexString(assetOwnerAddress);
+    String method = "killme(address)";
+    String param = "0000000000000000000000"+assetOwnerAddress41;
+    response = HttpMethed
+        .triggerConstantContractWithData(
+            httpnode, fromAddress, contractAddress, method, param, null, 0, 0, 0);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info("triggerconstant result: " + responseContent);
+    HttpMethed.printJsonContent(responseContent);
+    Assert.assertTrue(!responseContent.getString("transaction").isEmpty());
+    JSONObject transactionObject = responseContent.getJSONObject("transaction");
+
+    boolean result = responseContent.getJSONObject("result").getBoolean("result");
+    Assert.assertTrue(result);
+    Assert.assertTrue(!transactionObject.getString("raw_data").isEmpty());
+    Assert.assertTrue(!transactionObject.getString("raw_data_hex").isEmpty());
+    long energyRequiredTriggerConstant =  responseContent.getIntValue("energy_used");
+
+    response = HttpMethed
+        .getEstimateEnergy(httpnode1, fromAddress, ByteArray.fromHexString(contractAddress), method, param, null,false, 0, 0, 0);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info("estimate result: " + responseContent.toJSONString());
+    long energyRequiredEstimate = responseContent.getLong("energy_required");
+    ManagedChannel channelFull = ManagedChannelBuilder.forTarget(fullnode)
+        .usePlaintext(true)
+        .build();
+    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
+    Assert.assertTrue((energyRequiredEstimate - energyRequiredTriggerConstant) * energyFee <= 1000000L);
   }
 
   /**

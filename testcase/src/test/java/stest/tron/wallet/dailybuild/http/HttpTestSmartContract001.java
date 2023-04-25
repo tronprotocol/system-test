@@ -181,6 +181,7 @@ public class HttpTestSmartContract001 {
             callValue,
             Integer.parseInt(assetIssueId),
             20L,
+            null,
             assetOwnerKey);
 
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -237,6 +238,7 @@ public class HttpTestSmartContract001 {
               callValue,
               Integer.parseInt(assetIssueId),
               20L,
+              null,
               assetOwnerKey);
       txid2 =
           HttpMethed.triggerContractGetTxid(
@@ -249,6 +251,7 @@ public class HttpTestSmartContract001 {
               callValue,
               Integer.parseInt(assetIssueId),
               20L,
+              null,
               assetOwnerKey);
       HttpMethed.waitToProduceOneBlock(httpnode);
       response = HttpMethed.getTransactionInfoById(httpnode, txid1);
