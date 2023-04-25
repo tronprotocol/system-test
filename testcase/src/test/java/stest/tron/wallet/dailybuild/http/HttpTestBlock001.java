@@ -174,7 +174,7 @@ public class HttpTestBlock001 {
 
   /** constructor. */
   @Test(enabled = true, description = "Get block with block num and detail true from http")
-  public void get06GetBlockWithGblockNumFromHttp() {
+  public void get06GetBlockWithGetblockNumFromHttp() {
     response = HttpMethed.getBlock(httpnode, String.valueOf(blockNumForType),true);
     JSONObject getBlockObject = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(getBlockObject);
@@ -311,7 +311,7 @@ public class HttpTestBlock001 {
 
   /** constructor. */
   @Test(enabled = true, description = "get next maintenance time by http")
-  public void get17NextMaintaenanceTime() {
+  public void get17NextMaintenanceTime() {
     response = HttpMethed.getNextmaintenanceTime(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);

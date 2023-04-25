@@ -4,19 +4,27 @@
   <listeners>
     <listener class-name="stest.tron.wallet.common.client.utils.DailyBuildReport"></listener>
   </listeners>
-  <test name="daily build" parallel = "classes" thread-count = "4">
+  <test name="daily build"  parallel = "classes" thread-count = "6">
     <packages>
       <package name="stest.tron.wallet.dailybuild.*">
         <exclude name="stest.tron.wallet.dailybuild.multisign"></exclude>
         <exclude name="stest.tron.wallet.dailybuild.http"></exclude>
+        <exclude name="stest.tron.wallet.dailybuild.freezeV2"></exclude>
+        <exclude name="stest.tron.wallet.dailybuild.zentrc20token"></exclude>
+        <exclude name="stest.tron.wallet.dailybuild.separateExecution"></exclude>
       </package>
     </packages>
   </test>
-  <test name="http">
+  <test name="http" parallel = "classes" thread-count = "1">
     <packages>
       <package name="stest.tron.wallet.dailybuild.http.*">
       </package>
+      <package name="stest.tron.wallet.dailybuild.freezeV2.*">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.zentrc20token.*">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.separateExecution.*">
+      </package>
     </packages>
-
   </test>
 </suite>
