@@ -114,12 +114,13 @@ public class FreezeBalanceV2Test001 {
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long beforeTotalNetWeight = accountResource.getTotalNetWeight();
-    
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,
-        freezeBandwidthBalance, 0, frozenBandwidthKey, blockingStubFull));
+
+    String txId = PublicMethed.freezeBalanceV2AndGetTxId(frozenBandwidthAddress,
+            freezeBandwidthBalance, 0, frozenBandwidthKey, blockingStubFull);
+    Assert.assertNotNull(txId);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Transaction transaction =
-        PublicMethed.getTransactionById(PublicMethed.freezeV2Txid, blockingStubFull).get();
+        PublicMethed.getTransactionById(txId, blockingStubFull).get();
     Any any = transaction.getRawData().getContract(0).getParameter();
     FreezeBalanceV2Contract freezeBalanceV2Contract
         = any.unpack(FreezeBalanceV2Contract.class);
@@ -153,13 +154,14 @@ public class FreezeBalanceV2Test001 {
         .getAccountResource(frozenEnergyAddress, blockingStubFull);
     final Long beforeTotalEnergyWeight = accountResource.getTotalEnergyWeight();
 
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenEnergyAddress,
-        freezeEnergyBalance, 1, frozenEnergyKey, blockingStubFull));
+    String txId = PublicMethed.freezeBalanceV2AndGetTxId(frozenEnergyAddress,
+            freezeEnergyBalance, 1, frozenEnergyKey, blockingStubFull);
+    Assert.assertNotNull(txId);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
     Transaction transaction =
-        PublicMethed.getTransactionById(PublicMethed.freezeV2Txid, blockingStubFull).get();
+        PublicMethed.getTransactionById(txId, blockingStubFull).get();
     Any any = transaction.getRawData().getContract(0).getParameter();
     FreezeBalanceV2Contract freezeBalanceV2Contract
         = any.unpack(FreezeBalanceV2Contract.class);
@@ -198,12 +200,13 @@ public class FreezeBalanceV2Test001 {
         .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long beforeTotalNetWeight = accountResource.getTotalNetWeight();
 
-    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,
-        frozenBandwidthKey, freezeBandwidthBalance, 0, blockingStubFull));
+    String txId = PublicMethed.unFreezeBalanceV2AndGetTxId(frozenBandwidthAddress,
+            frozenBandwidthKey, freezeBandwidthBalance, 0, blockingStubFull);
+    Assert.assertNotNull(txId);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Transaction transaction =
-        PublicMethed.getTransactionById(PublicMethed.freezeV2Txid, blockingStubFull).get();
+        PublicMethed.getTransactionById(txId, blockingStubFull).get();
     Any any = transaction.getRawData().getContract(0).getParameter();
     UnfreezeBalanceV2Contract unfreezeBalanceV2Contract
         = any.unpack(UnfreezeBalanceV2Contract.class);
@@ -248,12 +251,12 @@ public class FreezeBalanceV2Test001 {
         .getAccountResource(frozenEnergyAddress, blockingStubFull);
     final Long beforeTotalEnergyWeight = accountResource.getTotalEnergyWeight();
 
-
-    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenEnergyAddress,
-        frozenEnergyKey, freezeEnergyBalance, 1, blockingStubFull));
+    String txId = PublicMethed.unFreezeBalanceV2AndGetTxId(frozenEnergyAddress,
+            frozenEnergyKey, freezeEnergyBalance, 1, blockingStubFull);
+    Assert.assertNotNull(txId);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,
+    Transaction transaction = PublicMethed.getTransactionById(txId,
         blockingStubFull).get();
     Any any = transaction.getRawData().getContract(0).getParameter();
     UnfreezeBalanceV2Contract unfreezeBalanceV2Contract

@@ -150,7 +150,27 @@ task stest(type: Test) {
     }
 }
 
+task replaceConfig(){
+    String path = "testcase/src/test/resources/testng.conf";
+    File file = new File(path);
+    logger.info("find config path to change:" + file.getAbsolutePath());
+    FileReader fin = new FileReader(file);
+    BufferedReader bufIn = new BufferedReader(fin);
+    CharArrayWriter tempStream = new CharArrayWriter();
+    String line = null;
+    while ((line = bufIn.readLine()) != null) {
+        line = line.replaceAll("maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
+        tempStream.write(line);
+        tempStream.append(System.getProperty("line.separator"));
+    }
+    bufIn.close();
+    FileWriter out = new FileWriter(file);
+    tempStream.writeTo(out);
+    out.close();
+}
+
 task dailyBuild(type: Test) {
+    dependsOn(replaceConfig)
     useTestNG {
         suites(file('src/test/resources/daily-build.xml'))
         parallel 'tests'
@@ -165,6 +185,7 @@ task leveldbTest(type: Test) {
         threadCount 1
     }
 }
+
 
 
 task mainnetReplayQuery(type: Test) {
