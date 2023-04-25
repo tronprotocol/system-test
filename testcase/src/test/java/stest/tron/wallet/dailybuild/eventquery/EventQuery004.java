@@ -113,7 +113,7 @@ public class EventQuery004 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Filter  contractTopic event query for contract log")
+  @Test(enabled = true, priority=3, description = "Filter  contractTopic event query for contract log")
   public void test01filterContractTopicEventQueryForContractLog() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
@@ -169,7 +169,7 @@ public class EventQuery004 {
     Assert.assertTrue(retryTimes < 0);
   }
 
-  @Test(enabled = true, description = "Filter  contractTopic event query for solidity contract log")
+  @Test(enabled = true, priority=3, description = "Filter  contractTopic event query for solidity contract log")
   public void test02filterContractTopicEventQueryForContractSolidityLog() {
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     ZMQ.Context context = ZMQ.context(1);
@@ -252,7 +252,7 @@ public class EventQuery004 {
     Assert.assertTrue(retryTimes < 0);
   }
 
-  @Test(enabled = true, description = "Event query for contract log")
+  @Test(enabled = true, priority=3, description = "Event query for contract log")
   public void test03EventQueryForContractLog() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
@@ -319,7 +319,7 @@ public class EventQuery004 {
     Assert.assertEquals(blockObject.getString("triggerName"), "contractLogTrigger");
   }
 
-  @Test(enabled = true, description = "Event query for solidity contract log")
+  @Test(enabled = true, priority=3, description = "Event query for solidity contract log")
   public void test04EventQueryForContractSolidityLog() {
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     ZMQ.Context context = ZMQ.context(1);

@@ -104,7 +104,7 @@ public class MongoEventQuery003 extends MongoBase {
     logger.info("contractAddress:" + contractAddress);
   }
 
-  @Test(enabled = true, description = "MongoDB Event query for contract event")
+  @Test(enabled = true, priority=4, description = "MongoDB Event query for contract event")
   public void test01MongoDbEventQueryForContractEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -173,7 +173,7 @@ public class MongoEventQuery003 extends MongoBase {
     testLatestSolidifiedBlockNumber(jsonObject);
   }
 
-  @Test(enabled = true, description = "MongoDb Event query for solidity contract event")
+  @Test(enabled = true, priority=4, description = "MongoDb Event query for solidity contract event")
   public void test02MongoDbEventQueryForContractSolidityEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
