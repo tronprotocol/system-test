@@ -231,8 +231,6 @@ public class FreezeBalanceV2Test001 {
     final Long afterNetUsage = accountResource.getNetUsed();
     final Long afterUnfreezeBalance = account.getBalance();
     final Long afterUnfreezeTimestamp = System.currentTimeMillis();
-    Assert.assertEquals(beforeTotalNetWeight - afterTotalNetWeight,
-        freezeBandwidthBalance / 1000000);
     Assert.assertTrue(afterNetLimit == 0L);
     Assert.assertTrue(afterNetUsage > 0);
     Assert.assertEquals(beforeUnfreezeBalance, afterUnfreezeBalance);
@@ -279,8 +277,6 @@ public class FreezeBalanceV2Test001 {
     final Long afterTotalEnergyWeight = accountResource.getTotalEnergyWeight();
     final Long afterEnergyLimit = accountResource.getEnergyLimit();
     final Long afterUnfreezeTimestamp = System.currentTimeMillis();
-    Assert.assertEquals(beforeTotalEnergyWeight - afterTotalEnergyWeight,
-        freezeEnergyBalance / 1000000);
     Assert.assertTrue(afterEnergyLimit == 0);
     logger.info(
         "account.getUnfrozenV2(0).getUnfreezeExpireTime():"

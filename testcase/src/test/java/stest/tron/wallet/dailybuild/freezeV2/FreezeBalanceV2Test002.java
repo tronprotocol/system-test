@@ -162,6 +162,8 @@ public class FreezeBalanceV2Test002 {
         .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long afterLenderFrozenAmount = account.getFrozenV2(0).getAmount();
     final Long afterLenderNetLimit = accountResource.getNetLimit();
+    final Long afterLenderAmount = account.getAcquiredDelegatedFrozenBalanceForBandwidth() + account.getAcquiredDelegatedFrozenV2BalanceForBandwidth() + afterLenderFrozenAmount;
+
 
     Assert.assertTrue(beforeLenderFrozenAmount - afterLenderFrozenAmount == delegateBandwidthAmount);
     Assert.assertTrue(account.getDelegatedFrozenV2BalanceForBandwidth() == delegateBandwidthAmount);
@@ -172,9 +174,23 @@ public class FreezeBalanceV2Test002 {
     account = PublicMethed.queryAccount(receiveBandwidthAddress,blockingStubFull);
     final Long receiverAcquiredDelegatedFrozenBalanceForBandwidth = account
         .getAcquiredDelegatedFrozenV2BalanceForBandwidth();
+    final Long afterReceiverAmount = account.getAcquiredDelegatedFrozenBalanceForBandwidth()
+            + account.getAcquiredDelegatedFrozenV2BalanceForBandwidth()
+            + account.getFrozenV2(0).getAmount();
 
-    Assert.assertTrue(afterLenderNetLimit + afterReceiverNetLimit >= beforeLenderNetLimit - 1
-    && afterLenderNetLimit + afterReceiverNetLimit <= beforeLenderNetLimit + 1);
+    logger.info("afterLenderNetLimit: " + afterLenderNetLimit);
+    logger.info("afterReceiverNetLimit: " + afterReceiverNetLimit);
+    logger.info("beforeLenderNetLimit: " + beforeLenderNetLimit);
+    final Long netTotalWeight = accountResource.getTotalNetWeight();
+    final Long netTotalLimit = accountResource.getTotalNetLimit();
+
+    final double afterLenderNetLimitDouble = ((double) afterLenderAmount / (double)(netTotalWeight * 1000000)) * netTotalLimit;
+    final Long afterLenderNetLimitShouldBe = Math.round(afterLenderNetLimitDouble);
+    Assert.assertTrue(Math.abs(afterLenderNetLimitShouldBe - afterLenderNetLimit) <= 1);
+
+    final double afterReceiverNetLimitDouble = ((double) afterReceiverAmount / (double)(netTotalWeight * 1000000)) * netTotalLimit;
+    final Long afterReceiverNetLimitShouldBe = Math.round(afterReceiverNetLimitDouble);
+    Assert.assertTrue(Math.abs(afterReceiverNetLimitShouldBe - afterReceiverNetLimit) <= 1 );
     Assert.assertEquals(receiverAcquiredDelegatedFrozenBalanceForBandwidth, delegateBandwidthAmount);
   }
 
@@ -222,6 +238,9 @@ public class FreezeBalanceV2Test002 {
     final Long afterLenderFrozenAmount = account.getFrozenV2(0).getAmount();
     final Long afterDelegateResourceAmount = account.getDelegatedFrozenBalanceForBandwidth();
     final Long afterLenderNetLimit = accountResource.getNetLimit();
+    final Long afterLenderAmount = account.getAcquiredDelegatedFrozenBalanceForBandwidth()
+            + account.getAcquiredDelegatedFrozenV2BalanceForBandwidth()
+            + account.getFrozenV2(0).getAmount();
 
     Assert.assertTrue(beforeLenderFrozenAmount - afterLenderFrozenAmount == -delegateBandwidthAmount);
 
@@ -232,7 +251,16 @@ public class FreezeBalanceV2Test002 {
     final Long receiverAcquiredDelegatedFrozenBalanceForBandwidth = account
         .getAcquiredDelegatedFrozenBalanceForBandwidth();
 
-    Assert.assertEquals(afterLenderNetLimit, beforeDelegateBandwidthNetLimit);
+    final Long netTotalWeight = accountResource.getTotalNetWeight();
+    final Long netTotalLimit = accountResource.getTotalNetLimit();
+
+
+    final double netLimitDouble = ((double) afterLenderAmount / (double) (netTotalWeight * 1000000)) * (double) netTotalLimit;
+    logger.info("netLimitDouble: " + netLimitDouble);
+    logger.info("afterLenderNetLimit: " + afterLenderNetLimit);
+
+    Long netLimitShouldBe = Math.round(netLimitDouble);
+    Assert.assertTrue(Math.abs(netLimitShouldBe - afterLenderNetLimit) <= 1);
     Assert.assertTrue(receiverAcquiredDelegatedFrozenBalanceForBandwidth == 0);
     Assert.assertTrue(afterReceiverNetLimit == 0);
     Assert.assertTrue(afterDelegateResourceAmount == 0);
