@@ -125,6 +125,10 @@ public class DailyBuildReport extends TestListenerAdapter {
     endBlockNum = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
             .getBlockHeader().getRawData().getNumber();
     System.out.println("-----startnum :" + startBlockNum + "-----endnum:" + endBlockNum);
+    if(endBlockNum >= 8000) {
+      System.out.println("Not daily build env, skip this step");
+      return new ArrayList<>();
+    }
     List<Protocol.Transaction> listTrans;
     List<Protocol.Transaction.Contract> listContract;
     Protocol.Block block;
