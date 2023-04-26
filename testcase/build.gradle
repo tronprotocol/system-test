@@ -131,68 +131,85 @@ test {
 }
 
 task stest(type: Test) {
+    doFirst{
+        println "sssssssss  111"
+        useTestNG {
+            suites(file('src/test/resources/testng.xml'))
+            parallel 'tests'
+            threadCount 4
 
-    useTestNG {
-        suites(file('src/test/resources/testng.xml'))
-        parallel 'tests'
-        threadCount 4
+        }
 
-    }
+        testLogging {
+            exceptionFormat = 'full'
+            showStackTraces = "true"
+        }
 
-    testLogging {
-        exceptionFormat = 'full'
-        showStackTraces = "true"
-    }
-
-    jacoco {
-        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
-        classDumpDir = file("$buildDir/jacoco/classpathdumps")
+        jacoco {
+            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+            classDumpDir = file("$buildDir/jacoco/classpathdumps")
+        }
+        println "sssssssss 222"
     }
 }
 
-task replaceConfig(){
-    String path = "testcase/src/test/resources/testng.conf";
-    File file = new File(path);
-    logger.info("find config path to change:" + file.getAbsolutePath());
-    FileReader fin = new FileReader(file);
-    BufferedReader bufIn = new BufferedReader(fin);
-    CharArrayWriter tempStream = new CharArrayWriter();
-    String line = null;
-    while ((line = bufIn.readLine()) != null) {
-        line = line.replaceAll("maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
-        tempStream.write(line);
-        tempStream.append(System.getProperty("line.separator"));
+
+
+task replaceConfig(type: Test){
+    doFirst{
+        String path = "testcase/src/test/resources/testng.conf";
+        File file = new File(path);
+        println "find config path to change:"
+        logger.info("find config path to change:" + file.getAbsolutePath());
+        FileReader fin = new FileReader(file);
+        BufferedReader bufIn = new BufferedReader(fin);
+        CharArrayWriter tempStream = new CharArrayWriter();
+        String line = null;
+        while ((line = bufIn.readLine()) != null) {
+            line = line.replaceAll("maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
+            tempStream.write(line);
+            tempStream.append(System.getProperty("line.separator"));
+        }
+        bufIn.close();
+        FileWriter out = new FileWriter(file);
+        tempStream.writeTo(out);
+        out.close();
     }
-    bufIn.close();
-    FileWriter out = new FileWriter(file);
-    tempStream.writeTo(out);
-    out.close();
+
 }
 
-task dailyBuild(type: Test) {
-    dependsOn(replaceConfig)
-    useTestNG {
-        suites(file('src/test/resources/daily-build.xml'))
-        parallel 'tests'
-        threadCount 2
+task dailyBuild(type: Test, dependsOn: replaceConfig ) {
+    doFirst{
+        println "ddddddddd 111"
+        useTestNG {
+            suites(file('src/test/resources/daily-build.xml'))
+            parallel 'tests'
+            threadCount 2
+        }
+        println "ddddddddd 22222"
     }
+
 }
 
 task leveldbTest(type: Test) {
-    useTestNG {
-        suites(file('src/test/resources/leveldb.xml'))
-        parallel 'tests'
-        threadCount 1
+    doFirst{
+        useTestNG {
+            suites(file('src/test/resources/leveldb.xml'))
+            parallel 'tests'
+            threadCount 1
+        }
     }
 }
 
 
 
 task mainnetReplayQuery(type: Test) {
-    useTestNG {
-        suites(file('src/test/resources/mainnet-replay-query.xml'))
-        parallel 'tests'
-        threadCount 1
+    doFirst{
+        useTestNG {
+            suites(file('src/test/resources/mainnet-replay-query.xml'))
+            parallel 'tests'
+            threadCount 1
+        }
     }
 }
 
