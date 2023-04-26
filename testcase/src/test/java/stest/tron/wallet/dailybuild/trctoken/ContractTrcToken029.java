@@ -81,6 +81,7 @@ public class ContractTrcToken029 {
     Assert.assertTrue(PublicMethed.createAssetIssue(dev001Address, tokenName, TotalSupply, 1,
         100, start, end, 1, description, url, 10000L,
         10000L, 1L, 1L, dev001Key, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     assetAccountId = PublicMethed.queryAccount(dev001Address, blockingStubFull).getAssetIssuedID();
 

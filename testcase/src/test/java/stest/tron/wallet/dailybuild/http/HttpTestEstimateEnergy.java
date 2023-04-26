@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -65,20 +66,16 @@ public class HttpTestEstimateEnergy {
     HashMap retMap = PublicMethed.getBycodeAbiNoOptimize(filePath, contractName);
     code = retMap.get("byteCode").toString();
     abi = retMap.get("abI").toString();
-    final String txid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", 1000000000L,
-            0, 100, 10000, "0", 0, null, triggerKey, triggerAddress,
-            blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<Protocol.TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
 
-    if (txid == null || infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
-          .toStringUtf8());
-    }
-    contractAddress = infoById.get().getContractAddress().toByteArray();
-    deployContractEnergy = infoById.get().getReceipt().getEnergyUsageTotal();
+    String txid = HttpMethed.deployContractGetTxid(httpnode, contractName, abi, code, 10000L,
+            1000000000L, 100, 10000L,
+            0L, null, 0L, triggerAddress, triggerKey);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    response = HttpMethed.getTransactionInfoById(httpnode, txid);
+    responseContent = HttpMethed.parseResponseContent(response);
+    Assert.assertTrue(!responseContent.getString("contract_address").isEmpty());
+    contractAddress = ByteArray.fromHexString(responseContent.getString("contract_address"));
+    deployContractEnergy = responseContent.getJSONObject("receipt").getLong("energy_usage_total");
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
 
@@ -95,7 +92,7 @@ public class HttpTestEstimateEnergy {
         .getEstimateEnergy(httpnode, fromAddress, contractAddress, method, param, null,false, 0, 0, 0);
     Long energyRequired = HttpMethed.parseResponseContent(response).getLong("energy_required");
     Assert.assertTrue(energyRequired >= 0);
-
+    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed
         .getEstimateEnergySolidity(
             httpSoliditynode, fromAddress, contractAddress, method, param, false);
@@ -129,8 +126,9 @@ public class HttpTestEstimateEnergy {
             httpnode, fromAddress, ByteArray.toHexString(contractAddress), method, param);
     Long energyRequiredConstant =
         HttpMethed.parseResponseContent(response).getLong("energy_used");
+    final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);
     logger.info("energyRequired: " + energyRequired);
-    logger.info("energyRequiredConstant" + energyRequiredConstant);
+    logger.info("energyRequiredConstant: " + energyRequiredConstant);
     Assert.assertTrue(energyRequired >= energyRequiredConstant);
     Assert.assertTrue((energyRequired - energyRequiredConstant) * energyFee <= 1000000L);
   }

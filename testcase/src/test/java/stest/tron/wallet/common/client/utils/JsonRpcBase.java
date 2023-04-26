@@ -105,8 +105,6 @@ public class JsonRpcBase {
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
   public void deployJsonRpcUseResource() throws Exception {
-
-    PublicMethed.replaceConfig("src/test/resources/testng.conf", "maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
     maxFeeLimit =
             Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
     logger.info("maxFeeLimit: " + maxFeeLimit);

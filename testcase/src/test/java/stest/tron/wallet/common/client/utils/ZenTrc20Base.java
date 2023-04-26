@@ -84,9 +84,9 @@ public class ZenTrc20Base {
    */
   @BeforeSuite(enabled = true, description = "Deploy shield trc20 depend contract")
   public void deployShieldTrc20DependContract() {
-    PublicMethed.replaceConfig("src/test/resources/testng.conf", "maxFeeLimit = 1000000000", "maxFeeLimit = 1500000000");
     maxFeeLimit =
             Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
+    logger.info("maxFeeLimit:" + maxFeeLimit);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
