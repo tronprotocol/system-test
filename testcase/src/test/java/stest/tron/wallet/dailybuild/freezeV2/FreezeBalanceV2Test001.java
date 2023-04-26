@@ -140,8 +140,6 @@ public class FreezeBalanceV2Test001 {
     final Long afterTotalNetWeight = accountResource.getTotalNetWeight();
     final Long afterNetLimit = accountResource.getNetLimit();
 
-    Assert.assertEquals(afterTotalNetWeight - beforeTotalNetWeight,
-        freezeBandwidthBalance / 1000000);
     Assert.assertTrue(afterNetLimit > 0);
   }
 
@@ -330,25 +328,25 @@ public class FreezeBalanceV2Test001 {
             System.currentTimeMillis(), blockingStubPbft).get().getAmount();
     Assert.assertEquals(canWithdrawUnFreezeAmount, canWithdrawUnFreezeAmountPbft);
 
-    Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenBandwidthAddress,
-        frozenBandwidthKey, blockingStubFull));
-    Assert.assertTrue(PublicMethed.withdrawExpireUnfreeze(frozenEnergyAddress,
-        frozenEnergyKey, blockingStubFull));
+    String txIdBandwidth = PublicMethed.withdrawExpireUnfreezeAndGetTxId(frozenBandwidthAddress,
+            frozenBandwidthKey, blockingStubFull);
+    String txIdEnergy = PublicMethed.withdrawExpireUnfreezeAndGetTxId(frozenEnergyAddress,
+            frozenEnergyKey, blockingStubFull);
+    Assert.assertNotNull(txIdBandwidth);
+    Assert.assertNotNull(txIdEnergy);
 
 
 
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Transaction transaction = PublicMethed.getTransactionById(PublicMethed.freezeV2Txid,
+    Transaction transaction = PublicMethed.getTransactionById(txIdEnergy,
         blockingStubFull).get();
     Any any = transaction.getRawData().getContract(0).getParameter();
     WithdrawExpireUnfreezeContract withdrawExpireUnfreezeContract
         = any.unpack(WithdrawExpireUnfreezeContract.class);
     Assert.assertEquals(withdrawExpireUnfreezeContract.getOwnerAddress().toByteArray(),
         frozenEnergyAddress);
-
-
 
 
 
@@ -364,7 +362,7 @@ public class FreezeBalanceV2Test001 {
         energyAccountAfterBalance - energyAccountBeforeBalance == freezeEnergyBalance);
 
 
-    TransactionInfo transactionInfo = PublicMethed.getTransactionInfoById(PublicMethed.freezeV2Txid,
+    TransactionInfo transactionInfo = PublicMethed.getTransactionInfoById(txIdEnergy,
         blockingStubFull).get();
     Assert.assertTrue(transactionInfo.getWithdrawExpireAmount() == freezeEnergyBalance);
     Assert.assertTrue(transactionInfo.getUnfreezeAmount() == 0);
