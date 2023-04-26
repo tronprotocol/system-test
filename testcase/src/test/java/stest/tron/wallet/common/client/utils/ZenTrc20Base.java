@@ -33,7 +33,7 @@ import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 
 @Slf4j
-public class ZenTrc20Base {
+public class ZenTrc20Base extends JsonRpcBase{
 
   public final String foundationAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -90,10 +90,6 @@ public class ZenTrc20Base {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    JsonRpcBase jsonRpcBase = new JsonRpcBase();
-    getCommitData();
-    jsonRpcBase.openProposal(proposalMap);
-    jsonRpcBase.waitProposalApprove(13, blockingStubFull);
     getDailyBuildStartNum();
     Assert.assertTrue(PublicMethed.sendcoin(zenTrc20TokenOwnerAddress, 10000000000000L,
         foundationAccountAddress, foundationAccountKey, blockingStubFull));
