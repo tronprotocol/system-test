@@ -120,6 +120,7 @@ public class FreezeBalanceV2Test006 {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long beforeLockTrueTime = System.currentTimeMillis();
+
     Assert.assertTrue(PublicMethed.delegateResourceV2Lock(frozenBandwidthAddress,
         delegateBalance, 0, true,
         receiverAddress, frozenBandwidthKey, blockingStubFull));
