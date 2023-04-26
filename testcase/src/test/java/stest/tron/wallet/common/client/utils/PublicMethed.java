@@ -1040,6 +1040,36 @@ public class PublicMethed {
     return response.getResult();
   }
 
+  public static String withdrawExpireUnfreezeAndGetTxId(
+          byte[] address,
+          String priKey,
+          WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    WithdrawExpireUnfreezeContract.Builder builder = WithdrawExpireUnfreezeContract.newBuilder();
+    ByteString byteAddreess = ByteString.copyFrom(address);
+    builder.setOwnerAddress(byteAddreess);
+
+    WithdrawExpireUnfreezeContract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.withdrawExpireUnfreeze(contract);
+    Transaction transaction = transactionExtention.getTransaction();
+    transaction = signTransaction(ecKey, transaction);
+    String freezeV2Txid = ByteArray.toHexString(
+            Sha256Hash.hash(
+                    CommonParameter.getInstance().isECKeyCryptoEngine(),
+                    transaction.getRawData().toByteArray()));
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+
+    return freezeV2Txid;
+  }
+
+
   public static Boolean freezeV2ProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
     return PublicMethed.getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays
         .getProposalName(), blockingStubFull) > 0;

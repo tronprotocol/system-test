@@ -9,11 +9,8 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.netty.util.internal.StringUtil;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -36,7 +33,7 @@ import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 
 @Slf4j
-public class ZenTrc20Base {
+public class ZenTrc20Base extends JsonRpcBase{
 
   public final String foundationAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -77,6 +74,8 @@ public class ZenTrc20Base {
   static JSONObject responseContent;
   public static Integer scalingFactorLogarithm = 0;
   public static Long totalSupply = 1000000000000L;
+  public HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
+
 
 
   /**
@@ -91,7 +90,6 @@ public class ZenTrc20Base {
         .usePlaintext(true)
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
     getDailyBuildStartNum();
     Assert.assertTrue(PublicMethed.sendcoin(zenTrc20TokenOwnerAddress, 10000000000000L,
         foundationAccountAddress, foundationAccountKey, blockingStubFull));
@@ -151,6 +149,16 @@ public class ZenTrc20Base {
 
 
   }
+
+  void getCommitData() {
+    List<String> commitList = Configuration.getByPath("testng.conf").getStringList("commitData.commit.list");
+    for (String ent : commitList) {
+      String[] str = ent.split(":");
+      System.out.println(str[0] + " : " + str[1]);
+      proposalMap.put(Long.valueOf(str[0]), Long.valueOf(str[1]));
+    }
+  }
+
 
   /**
    * constructor.
