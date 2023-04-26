@@ -25,11 +25,11 @@
       <totalSizeCap>20GB</totalSizeCap>
     </rollingPolicy>
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %p [%c{1}] %m%n</pattern>
+      <pattern>%.7thread %d{HH:mm:ss.SSS} %p [%c{1}] %m%n</pattern>
     </encoder>
   </appender>
 
-  <root level="DEBUG">
+  <root level="INFO">
     <appender-ref ref="STDOUT"/>
     <appender-ref ref="FILE"/>
   </root>
