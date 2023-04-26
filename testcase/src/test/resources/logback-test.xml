@@ -25,7 +25,7 @@
       <totalSizeCap>20GB</totalSizeCap>
     </rollingPolicy>
     <encoder>
-      <pattern>%.7thread %d{HH:mm:ss.SSS} %p [%c{1}] %m%n</pattern>
+      <pattern>%thread %d{HH:mm:ss.SSS} %p [%c{1}] %m%n</pattern>
     </encoder>
   </appender>
 
