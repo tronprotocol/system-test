@@ -24,10 +24,7 @@ import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class FreezeBalanceV2Test004 {
@@ -138,9 +135,13 @@ public class FreezeBalanceV2Test004 {
       Thread.sleep(100L);
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress
-        ,blockingStubFull).get().getCount() == 0);
+    logger.info("frozenBandwidthAddress111: " + Base58.encode58Check(frozenBandwidthAddress));
+    Long count = PublicMethed.getAvailableUnfreezeCount(frozenBandwidthAddress
+            , blockingStubFull).get().getCount();
+    Account accountFrozenBandwidthAddress = PublicMethed.queryAccount(frozenBandwidthAddress, blockingStubFull);
+    logger.info("account++: ");
+    logger.info(accountFrozenBandwidthAddress.toString());
+    Assert.assertEquals(count.longValue(), 0L);
     //query solidity
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
     Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress

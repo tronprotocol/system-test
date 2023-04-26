@@ -10,6 +10,8 @@
         <exclude name="stest.tron.wallet.dailybuild.multisign"></exclude>
         <exclude name="stest.tron.wallet.dailybuild.http"></exclude>
         <exclude name="stest.tron.wallet.dailybuild.separateExecution"></exclude>
+        <exclude name="stest.tron.wallet.dailybuild.jsonrpc"></exclude>
+        <exclude name="stest.tron.wallet.dailybuild.eventquery"></exclude>
       </package>
     </packages>
   </test>
@@ -18,6 +20,10 @@
       <package name="stest.tron.wallet.dailybuild.http.*">
       </package>
       <package name="stest.tron.wallet.dailybuild.separateExecution.*">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.jsonrpc">
+      </package>
+      <package name="stest.tron.wallet.dailybuild.eventquery">
       </package>
     </packages>
   </test>
