@@ -179,7 +179,7 @@ public class ContractTrcToken082 {
         "kill(address)",
         param1, false, 0, 100000000L, "0",
         0, fromAddress, testKey002, blockingStubFull);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> info1 =
         PublicMethed.getTransactionInfoById(txid1, blockingStubFull);
     Assert.assertEquals(TransactionInfo.code.SUCESS, info1.get().getResult());
