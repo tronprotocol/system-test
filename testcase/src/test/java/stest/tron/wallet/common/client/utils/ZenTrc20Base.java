@@ -150,14 +150,6 @@ public class ZenTrc20Base extends JsonRpcBase{
 
   }
 
-  void getCommitData() {
-    List<String> commitList = Configuration.getByPath("testng.conf").getStringList("commitData.commit.list");
-    for (String ent : commitList) {
-      String[] str = ent.split(":");
-      System.out.println(str[0] + " : " + str[1]);
-      proposalMap.put(Long.valueOf(str[0]), Long.valueOf(str[1]));
-    }
-  }
 
 
   /**
