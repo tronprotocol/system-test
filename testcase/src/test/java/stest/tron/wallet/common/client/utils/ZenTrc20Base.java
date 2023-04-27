@@ -74,7 +74,6 @@ public class ZenTrc20Base extends JsonRpcBase{
   static JSONObject responseContent;
   public static Integer scalingFactorLogarithm = 0;
   public static Long totalSupply = 1000000000000L;
-  public HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
 
 
 
