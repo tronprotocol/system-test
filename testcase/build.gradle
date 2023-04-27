@@ -181,7 +181,7 @@ task replaceConfig(type: Test){
 task dailyBuild(type: Test, dependsOn: replaceConfig ) {
     doFirst{
         println "ddddddddd 111"
-        maxHeapSize = "2048m"
+        maxHeapSize = "3072m"
         useTestNG {
             suites(file('src/test/resources/daily-build.xml'))
             parallel 'tests'
