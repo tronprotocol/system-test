@@ -37,8 +37,8 @@ public class WalletTestBlock003 {
   private ManagedChannel channelSolidity = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-//  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-  private String fullnode = "39.106.55.169:50051";
+  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+      .get(0);
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
 
