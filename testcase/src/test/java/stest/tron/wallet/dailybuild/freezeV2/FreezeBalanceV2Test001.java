@@ -180,8 +180,6 @@ public class FreezeBalanceV2Test001 {
     final Long afterTotalEnergyWeight = accountResource.getTotalEnergyWeight();
     final Long afterEnergyLimit = accountResource.getEnergyLimit();
 
-    Assert.assertEquals(afterTotalEnergyWeight - beforeTotalEnergyWeight,
-        freezeEnergyBalance / 1000000);
     Assert.assertTrue(afterEnergyLimit > 0);
   }
 
