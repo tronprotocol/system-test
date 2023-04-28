@@ -171,11 +171,13 @@ public class FreezeBalanceV2Test004 {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
     logger.info("Final System.currentTimeMillis()" + System.currentTimeMillis());
-    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,0,blockingStubFull));
 
+    String txId = PublicMethed.unFreezeBalanceV2AndGetTxId(frozenBandwidthAddress,frozenBandwidthKey,unfreezeBalance,0,blockingStubFull);
+
+    Assert.assertNotNull(txId);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    TransactionInfo transactionInfo = PublicMethed.getTransactionInfoById(PublicMethed.freezeV2Txid,blockingStubFull).get();
+    TransactionInfo transactionInfo = PublicMethed.getTransactionInfoById(txId, blockingStubFull).get();
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
     Long afterBalance = account.getBalance();
