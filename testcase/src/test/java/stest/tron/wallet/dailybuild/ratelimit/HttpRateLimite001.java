@@ -1,4 +1,4 @@
-package stest.tron.wallet.dailybuild.http;
+package stest.tron.wallet.dailybuild.ratelimit;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;

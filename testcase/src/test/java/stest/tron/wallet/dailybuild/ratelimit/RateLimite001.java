@@ -1,4 +1,4 @@
-package stest.tron.wallet.dailybuild.manual;
+package stest.tron.wallet.dailybuild.ratelimit;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
