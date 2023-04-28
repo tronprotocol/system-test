@@ -187,16 +187,15 @@ public class HttpTestSmartContract001 {
     HttpMethed.waitToProduceOneBlock(httpnode);
     // String txid = "49a30653d6e648da1e9a104b051b1b55c185fcaa0c2885405ae1d2fb258e3b3c";
     logger.info(txid);
-    response = HttpMethed.getTransactionById(httpnode, txid);
+    response = HttpMethed.getTransactionInfoById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
-    Assert.assertEquals(txid, responseContent.getString("txID"));
-    Assert.assertTrue(!responseContent.getString("raw_data").isEmpty());
-    Assert.assertTrue(!responseContent.getString("raw_data_hex").isEmpty());
+    Assert.assertEquals(txid, responseContent.getString("id"));
+    Assert.assertEquals("SUCCESS", responseContent.getJSONObject("receipt").getString("result"));
     Long afterBalance = HttpMethed.getBalance(httpnode, assetOwnerAddress);
     logger.info("beforeBalance: " + beforeBalance);
     logger.info("afterBalance: " + afterBalance);
-    Assert.assertTrue(beforeBalance - afterBalance == callValue);
+    Assert.assertTrue(beforeBalance - afterBalance == callValue + (long)responseContent.getOrDefault("fee",0L));
 
     response = HttpMethed.getTransactionInfoById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
