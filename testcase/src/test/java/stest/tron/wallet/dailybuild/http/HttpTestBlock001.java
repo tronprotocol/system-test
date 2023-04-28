@@ -156,10 +156,12 @@ public class HttpTestBlock001 {
     Integer retryTimes = 5;
 
     while (retryTimes-- >= 0) {
-      response = HttpMethed.getBlock(httpnode, null,null);
-      JSONObject getBlockObject = HttpMethed.parseResponseContent(response);
-      response = HttpMethed.getNowBlock(httpnode);
-      JSONObject getNowBlockObject = HttpMethed.parseResponseContent(response);
+      HttpResponse response1 = HttpMethed.getBlock(httpnode, null,null);
+      HttpResponse response2 = HttpMethed.getNowBlock(httpnode);
+      JSONObject getBlockObject = HttpMethed.parseResponseContent(response1);
+      JSONObject getNowBlockObject = HttpMethed.parseResponseContent(response2);
+      logger.info("get05GetBlockGetNowBlock getBlockObject:  " + getBlockObject.toJSONString());
+      logger.info("get05GetBlockGetNowBlock getNowBlockObject: " + getNowBlockObject.toJSONString());
       if(getBlockObject.equals(getNowBlockObject) && null != getBlockObject) {
         getBlockEqualGetNowBlock = true;
         break;
