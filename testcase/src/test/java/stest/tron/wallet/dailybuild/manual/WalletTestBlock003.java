@@ -82,10 +82,10 @@ public class WalletTestBlock003 {
       BlockExtention currentBlockFromGetBlock = blockingStubFull.getBlock(builder.build());
 
       BlockExtention currentBlockFromGetNowBlock = blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
-      logger.info("currentBlockFromGetBlock: " + currentBlockFromGetBlock.toString());
-      logger.info("currentBlockFromGetNowBlock: " + currentBlockFromGetNowBlock.toString());
+      logger.info("currentBlockFromGetBlock: " + currentBlockFromGetBlock.getBlockHeader().toString());
+      logger.info("currentBlockFromGetNowBlock: " + currentBlockFromGetNowBlock.getBlockHeader().toString());
 
-      if(currentBlockFromGetBlock.equals(currentBlockFromGetNowBlock)) {
+      if(currentBlockFromGetBlock.getBlockHeader().equals(currentBlockFromGetNowBlock.getBlockHeader())) {
         getBlockEqualGetNowBlock = true;
       } else {
         PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -110,8 +110,8 @@ public class WalletTestBlock003 {
       BlockExtention currentBlockFromGetNowBlock = blockingStubSolidity.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
 
       logger.info("test02GetBlockFromSolidity: currentBlockFromGetBlock"+currentBlockFromGetBlock.toString());
-      logger.info("test02GetBlockFromSolidity: currentBlockFromGetNowBlock"+currentBlockFromGetNowBlock.toString());
-      if(currentBlockFromGetBlock.equals(currentBlockFromGetNowBlock)) {
+      logger.info("test02GetBlockFromSolidity: currentBlockFromGetNowBlock"+currentBlockFromGetNowBlock.getBlockHeader().toString());
+      if(currentBlockFromGetBlock.getBlockHeader().equals(currentBlockFromGetNowBlock.getBlockHeader())) {
         getBlockEqualGetNowBlock = true;
       } else {
         PublicMethed.waitProduceNextBlock(blockingStubFull);

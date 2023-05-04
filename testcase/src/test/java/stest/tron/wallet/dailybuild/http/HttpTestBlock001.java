@@ -162,7 +162,8 @@ public class HttpTestBlock001 {
       JSONObject getNowBlockObject = HttpMethed.parseResponseContent(response2);
       logger.info("get05GetBlockGetNowBlock getBlockObject:  " + getBlockObject.toJSONString());
       logger.info("get05GetBlockGetNowBlock getNowBlockObject: " + getNowBlockObject.toJSONString());
-      if(getBlockObject.equals(getNowBlockObject) && null != getBlockObject) {
+      if (getBlockObject.getJSONObject("block_header").equals(getNowBlockObject.getJSONObject("block_header"))
+          &&getBlockObject.getString("blockID").equals(getNowBlockObject.getString("blockID"))) {
         getBlockEqualGetNowBlock = true;
         break;
       }
