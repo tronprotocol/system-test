@@ -830,6 +830,9 @@ public class MongoEventQuery002 extends MongoBase {
     response = HttpMethed.getTransactionInfoById(httpFullNode, txIdIndex);
     responseContent = HttpMethed.parseResponseContent(response);
 
+    logger.info("expectInformationFromGetTransactionInfoById jsonObjectTxIdIndex0: " + jsonObjectTxIdIndex0.toJSONString());
+    logger.info("expectInformationFromGetTransactionInfoById jsonObjectTxIdIndex2: " + jsonObjectTxIdIndex2.toJSONString());
+    logger.info("expectInformationFromGetTransactionInfoById responseContent: " + responseContent.toJSONString());
     logger.info("timestamp:" + responseContent.getString("blockTimeStamp"));
     logger.info("timestamp:" + jsonObjectTxIdIndex0.getString("timeStamp"));
     logger.info("contractRetFromHttp:" + responseContent.getJSONArray("contractResult").size());
