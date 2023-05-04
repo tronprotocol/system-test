@@ -315,7 +315,7 @@ public class HttpTestSmartContract001 {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpRealSolidityNode);
     HttpResponse responseByBlocknum =
         HttpMethed.getTransactionInfoByBlocknumFromSolidity(
-            httpRealSolidityNode, responseContent.getLong("blockNumber"));
+            httpRealSolidityNode, responseCon1.getLong("blockNumber"));
     List<JSONObject> responseContentByBlocknum =
         HttpMethed.parseResponseContentArray(responseByBlocknum);
     boolean flag1 = false;
