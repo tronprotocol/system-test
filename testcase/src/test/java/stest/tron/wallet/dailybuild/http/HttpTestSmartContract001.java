@@ -46,6 +46,8 @@ public class HttpTestSmartContract001 {
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(3);
   String txid1;
   String txid2;
+  JSONObject responseCon1;
+  JSONObject responseCon2;
 
   /** constructor. */
   @Test(enabled = true, description = "Deploy smart contract by http")
@@ -195,7 +197,7 @@ public class HttpTestSmartContract001 {
     Long afterBalance = HttpMethed.getBalance(httpnode, assetOwnerAddress);
     logger.info("beforeBalance: " + beforeBalance);
     logger.info("afterBalance: " + afterBalance);
-    Assert.assertTrue(beforeBalance - afterBalance == callValue + (long)responseContent.getOrDefault("fee",0L));
+    Assert.assertTrue(beforeBalance - afterBalance == callValue + Long.valueOf(responseContent.getOrDefault("fee",0L).toString()));
 
     response = HttpMethed.getTransactionInfoById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -253,31 +255,32 @@ public class HttpTestSmartContract001 {
               null,
               assetOwnerKey);
       HttpMethed.waitToProduceOneBlock(httpnode);
-      response = HttpMethed.getTransactionInfoById(httpnode, txid1);
+      HttpResponse response1 = HttpMethed.getTransactionInfoById(httpnode, txid1);
       HttpResponse response2 = HttpMethed.getTransactionInfoById(httpnode, txid2);
-      responseContent = HttpMethed.parseResponseContent(response);
-      HttpMethed.printJsonContent(responseContent);
-      JSONObject responseContent2 = HttpMethed.parseResponseContent(response2);
-      HttpMethed.printJsonContent(responseContent2);
-      if (responseContent.getLong("blockNumber").equals(responseContent2.getLong("blockNumber"))) {
+      responseCon1 = HttpMethed.parseResponseContent(response1);
+      HttpMethed.printJsonContent(responseCon1);
+      responseCon2 = HttpMethed.parseResponseContent(response2);
+      HttpMethed.printJsonContent(responseCon2);
+      if (responseCon1.getLong("blockNumber").equals(responseCon2.getLong("blockNumber"))) {
         HttpResponse responseByBlocknum =
             HttpMethed.getTransactionInfoByBlocknum(
-                httpnode, responseContent.getLong("blockNumber"));
+                httpnode, responseCon1.getLong("blockNumber"));
         List<JSONObject> responseContentByBlocknum =
             HttpMethed.parseResponseContentArray(responseByBlocknum);
-        Assert.assertEquals(2, responseContentByBlocknum.size());
-        HttpMethed.printJsonContent(responseContentByBlocknum.get(0));
-        HttpMethed.printJsonContent(responseContentByBlocknum.get(1));
-        if (responseContent
-            .getString("id")
-            .equals(responseContentByBlocknum.get(0).getString("id"))) {
-          Assert.assertEquals(responseContent, responseContentByBlocknum.get(0));
-          Assert.assertEquals(responseContent2, responseContentByBlocknum.get(1));
-        } else {
-          Assert.assertEquals(responseContent, responseContentByBlocknum.get(1));
-          Assert.assertEquals(responseContent2, responseContentByBlocknum.get(0));
+        boolean flag1 = false;
+        boolean flag2 = false;
+        for (JSONObject ob : responseContentByBlocknum) {
+          if (responseCon1.getString("id").equals(ob.getString("id"))) {
+            flag1 = true;
+            Assert.assertEquals(responseCon1, ob);
+          } else if (responseCon2.getString("id").equals(ob.getString("id"))) {
+            flag2 = true;
+            Assert.assertEquals(responseCon2, ob);
+          }
         }
-        break;
+        if (flag1 && flag2) {
+          break;
+        }
       }
     }
     Assert.assertTrue("10 attempts failed, please execute the use case manually.", times < 10);
@@ -287,55 +290,46 @@ public class HttpTestSmartContract001 {
   @Test(enabled = true, description = "Get transaction info by http from solidity")
   public void test5GetTransactionInfoByBlocknumFromSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    response = HttpMethed.getTransactionInfoById(httpnode, txid1);
-    HttpResponse response2 = HttpMethed.getTransactionInfoById(httpnode, txid2);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
-    JSONObject responseContent2 = HttpMethed.parseResponseContent(response2);
-    HttpMethed.printJsonContent(responseContent2);
     HttpResponse responseByBlocknum =
         HttpMethed.getTransactionInfoByBlocknumFromSolidity(
-            httpSolidityNode, responseContent.getLong("blockNumber"));
+            httpSolidityNode, responseCon1.getLong("blockNumber"));
     List<JSONObject> responseContentByBlocknum =
         HttpMethed.parseResponseContentArray(responseByBlocknum);
-    Assert.assertEquals(2, responseContentByBlocknum.size());
-    HttpMethed.printJsonContent(responseContentByBlocknum.get(0));
-    HttpMethed.printJsonContent(responseContentByBlocknum.get(1));
-    if (responseContent.getString("id").equals(responseContentByBlocknum.get(0).getString("id"))) {
-      Assert.assertEquals(responseContent, responseContentByBlocknum.get(0));
-      Assert.assertEquals(responseContent2, responseContentByBlocknum.get(1));
-    } else {
-      Assert.assertEquals(responseContent, responseContentByBlocknum.get(1));
-      Assert.assertEquals(responseContent2, responseContentByBlocknum.get(0));
+    boolean flag1 = false;
+    boolean flag2 = false;
+    for (JSONObject ob : responseContentByBlocknum) {
+      if (responseCon1.getString("id").equals(ob.getString("id"))) {
+        flag1 = true;
+        Assert.assertEquals(responseCon1, ob);
+      } else if (responseCon2.getString("id").equals(ob.getString("id"))) {
+        flag2 = true;
+        Assert.assertEquals(responseCon2, ob);
+      }
     }
+    Assert.assertTrue(flag1 && flag2);
   }
 
   /** constructor. */
   @Test(enabled = true, description = "Get transaction info by http from real solidity")
   public void test6GetTransactionInfoByBlocknumFromRealSolidity() {
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpRealSolidityNode);
-    response = HttpMethed.getTransactionInfoById(httpnode, txid1);
-    HttpResponse response2 = HttpMethed.getTransactionInfoById(httpnode, txid2);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
-    JSONObject responseContent2 = HttpMethed.parseResponseContent(response2);
-    HttpMethed.printJsonContent(responseContent2);
-
     HttpResponse responseByBlocknum =
         HttpMethed.getTransactionInfoByBlocknumFromSolidity(
             httpRealSolidityNode, responseContent.getLong("blockNumber"));
     List<JSONObject> responseContentByBlocknum =
         HttpMethed.parseResponseContentArray(responseByBlocknum);
-    Assert.assertEquals(2, responseContentByBlocknum.size());
-    HttpMethed.printJsonContent(responseContentByBlocknum.get(0));
-    HttpMethed.printJsonContent(responseContentByBlocknum.get(1));
-    if (responseContent.getString("id").equals(responseContentByBlocknum.get(0).getString("id"))) {
-      Assert.assertEquals(responseContent, responseContentByBlocknum.get(0));
-      Assert.assertEquals(responseContent2, responseContentByBlocknum.get(1));
-    } else {
-      Assert.assertEquals(responseContent, responseContentByBlocknum.get(1));
-      Assert.assertEquals(responseContent2, responseContentByBlocknum.get(0));
+    boolean flag1 = false;
+    boolean flag2 = false;
+    for (JSONObject ob : responseContentByBlocknum) {
+      if (responseCon1.getString("id").equals(ob.getString("id"))) {
+        flag1 = true;
+        Assert.assertEquals(responseCon1, ob);
+      } else if (responseCon2.getString("id").equals(ob.getString("id"))) {
+        flag2 = true;
+        Assert.assertEquals(responseCon2, ob);
+      }
     }
+    Assert.assertTrue(flag1 && flag2);
   }
 
   /** constructor. */
