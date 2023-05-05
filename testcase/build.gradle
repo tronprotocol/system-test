@@ -185,7 +185,7 @@ task dailyBuild(type: Test, dependsOn: replaceConfig ) {
         useTestNG {
             suites(file('src/test/resources/daily-build.xml'))
             parallel 'tests'
-            threadCount 2
+            threadCount 1
         }
         println "ddddddddd 22222"
     }
