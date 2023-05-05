@@ -30,10 +30,15 @@ public class HttpRateLimite001 extends JsonRpcBase {
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
   private String httpSoliditynode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(3);
+  private String httpSoliditynode2 =
+          Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(5);
+
   private String realHttpSoliditynode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
   private String httpPbftNode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
+  private String httpPbftNode2 =
+          Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(6);
 
   //FullNode2 only rate.limiter.global.ip.qps=15
   private ManagedChannel channelFull2 = null;
@@ -54,6 +59,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
           .getByPath("testng.conf")
           .getStringList("httpnode.ip.list")
           .get(1);
+
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
@@ -75,7 +81,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 15) {
-      HttpMethed.listwitnesses(httpnode);
+      HttpMethed.listwitnesses(httpnode2);
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
@@ -88,7 +94,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 15) {
-      HttpMethed.listNodes(httpnode);
+      HttpMethed.listNodes(httpnode2);
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
@@ -105,8 +111,8 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 15) {
-      HttpMethed.getBlockByLastNumFromSolidity(httpSoliditynode, 5);
-      HttpMethed.getBlockByLastNumFromPbft(httpPbftNode, 5);
+      HttpMethed.getBlockByLastNumFromSolidity(httpSoliditynode2, 5);
+      HttpMethed.getBlockByLastNumFromPbft(httpPbftNode2, 5);
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
@@ -122,8 +128,8 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 15) {
-      HttpMethed.getBlockByLastNumFromSolidity(httpSoliditynode, 5);
-      HttpMethed.getBlockByLastNumFromPbft(httpPbftNode, 5);
+      HttpMethed.getBlockByLastNumFromSolidity(httpSoliditynode2, 5);
+      HttpMethed.getBlockByLastNumFromPbft(httpPbftNode2, 5);
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
@@ -170,7 +176,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
       params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
       params.add("latest");
       JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
-      response = getJsonRpc(jsonRpcNode, requestBody);
+      response = getJsonRpc(jsonRpcNode2, requestBody);
       responseContent = HttpMethed.parseResponseContent(response);
       String balance = responseContent.getString("result");
       Assert.assertTrue(balance.contains("0x"));
@@ -188,7 +194,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 100) {
-      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull)
+      Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull2)
               .getTotalEnergyLimit() > 0);
     }
     Long endTimesStamp = System.currentTimeMillis();
@@ -205,10 +211,10 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Integer repeatTimes = 0;
     while (repeatTimes < 100) {
 
-      Assert.assertTrue(PublicMethed.queryAccount(foundationAccountAddress, blockingStubFull)
+      Assert.assertTrue(PublicMethed.queryAccount(foundationAccountAddress, blockingStubFull2)
               .getBalance() > 0);
 
-      response = HttpMethed.getAccount(httpnode, foundationAccountAddress);
+      response = HttpMethed.getAccount(httpnode2, foundationAccountAddress);
       responseContent = HttpMethed.parseResponseContent(response);
       Assert.assertTrue(responseContent.getLong("balance") > 0);
 
@@ -216,7 +222,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
       params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
       params.add("latest");
       JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
-      response = getJsonRpc(jsonRpcNode, requestBody);
+      response = getJsonRpc(jsonRpcNode2, requestBody);
       responseContent = HttpMethed.parseResponseContent(response);
       String balance = responseContent.getString("result");
       Assert.assertTrue(balance.contains("0x"));

@@ -25,10 +25,18 @@ public class RateLimite001 {
   private WalletSolidityGrpc.WalletSolidityBlockingStub realBlockingStubSolidity = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
+  //soliditynode is SR-2 RPC solidity port
   private String soliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(1);
   private String realSoliditynode = Configuration.getByPath("testng.conf")
       .getStringList("solidityNode.ip.list").get(0);
+
+  private ManagedChannel channelFull2 = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull2 = null;
+  private String fullnode2 = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
+          .get(1);
+
+
 
 
 
@@ -50,6 +58,12 @@ public class RateLimite001 {
         .usePlaintext(true)
         .build();
     realBlockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelRealSolidity);
+    channelFull2 = ManagedChannelBuilder.forTarget(fullnode2)
+            .usePlaintext(true)
+            .build();
+    blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
+
+
   }
 
   /**
@@ -60,7 +74,7 @@ public class RateLimite001 {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 20) {
-      blockingStubFull.listWitnesses(EmptyMessage.newBuilder().build());
+      blockingStubFull2.listWitnesses(EmptyMessage.newBuilder().build());
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
@@ -75,7 +89,7 @@ public class RateLimite001 {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 20) {
-      blockingStubFull.listNodes(EmptyMessage.newBuilder().build());
+      blockingStubFull2.listNodes(EmptyMessage.newBuilder().build());
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
