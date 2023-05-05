@@ -93,7 +93,7 @@ public class FreezeWeightDeflationV2Test {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Freeze net cause weight deflation issue fix test")
+  @Test(enabled = true, priority=3, description = "Freeze net cause weight deflation issue fix test")
   public void test01FreezeNetCauseWeightDeflationTest() {
     final Long beforeNetWeight = PublicMethed.getAccountResource(frozen1Address, blockingStubFull)
         .getTotalNetWeight();
@@ -155,7 +155,7 @@ public class FreezeWeightDeflationV2Test {
 
 
 
-  @Test(enabled = true, description = "Freeze energy cause weight deflation issue fix test")
+  @Test(enabled = true, priority=3 ,description = "Freeze energy cause weight deflation issue fix test")
   public void test02FreezeEnergyCauseWeightDeflationTest() {
     final Long beforeEnergyWeight =
         PublicMethed.getAccountResource(frozen1Address, blockingStubFull)

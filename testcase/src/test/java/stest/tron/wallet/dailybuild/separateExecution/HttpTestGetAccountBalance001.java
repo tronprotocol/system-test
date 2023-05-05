@@ -94,7 +94,7 @@ public class HttpTestGetAccountBalance001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Get account balance by http")
+  @Test(enabled = true, priority=2, description = "Get account balance by http")
   public void test01GetAccountBalance() {
     response = HttpMethed.getAccountBalance(httpnode, assetOwnerAddress,
         sendcoinBlockNumber, sendcoinBlockHash);
@@ -129,7 +129,7 @@ public class HttpTestGetAccountBalance001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Get block balance by http")
+  @Test(enabled = true, priority=2, description = "Get block balance by http")
   public void test02GetBlockBalance() {
     response = HttpMethed.getBlockBalance(httpnode,
         sendcoinBlockNumber, sendcoinBlockHash);
@@ -166,7 +166,7 @@ public class HttpTestGetAccountBalance001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "Get burn trx by http")
+  @Test(enabled = true, priority=2, description = "Get burn trx by http")
   public void test03GetBurnTrx() {
 
     ECKey ecKey2 = new ECKey(Utils.getRandom());
@@ -193,7 +193,7 @@ public class HttpTestGetAccountBalance001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "Get receipt root by http")
+  @Test(enabled = false, priority=2, description = "Get receipt root by http")
   public void test04GetReceiptRootByHttp() {
     response = HttpMethed.getBlockByNum(httpnode, sendcoinBlockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
