@@ -828,6 +828,7 @@ public class NewFreezeContractTest {
   }
 
   void onlyFreeze(byte[] con, long amount) {
+    logger.info("onlyFreeze con: " +  PublicMethed.queryAccount(con, blockingStubFull).toString());
     String methedStr = "freezeBalanceV2(uint256,uint256)";
     String argsStr = amount + ",0";
     String txid = PublicMethed.triggerContract(con, methedStr, argsStr,
