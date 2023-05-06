@@ -199,13 +199,9 @@ public class HttpTestSmartContract001 {
     logger.info("afterBalance: " + afterBalance);
     Assert.assertTrue(beforeBalance - afterBalance == callValue + Long.valueOf(responseContent.getOrDefault("fee",0L).toString()));
 
-    response = HttpMethed.getTransactionInfoById(httpnode, txid);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
-    String receiptString = responseContent.getString("receipt");
-    Assert.assertEquals(
-        HttpMethed.parseStringContent(receiptString).getString("result"), "SUCCESS");
-    Assert.assertTrue(HttpMethed.parseStringContent(receiptString).getLong("energy_usage") > 0);
+    JSONObject receiptString = responseContent.getJSONObject("receipt");
+    Assert.assertEquals(receiptString.getString("result"), "SUCCESS");
+    Assert.assertTrue(receiptString.getLong("energy_usage_total") > 0);
     Assert.assertTrue(responseContent.getLong("blockNumber") > 0);
 
     response = HttpMethed.getAccount(httpnode, assetReceiverAddress);
