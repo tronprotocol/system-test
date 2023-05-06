@@ -144,12 +144,12 @@ public class FreezeBalanceV2Test004 {
     Assert.assertEquals(count.longValue(), 0L);
     //query solidity
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubFullSolidity);
+    //query pbft
+    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress
+            ,blockingStubPbft).get().getCount() == 0);
     Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress
         ,blockingStubFullSolidity).get().getCount() == 0);
-    //query pbft
-    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubPbft);
-    Assert.assertTrue(PublicMethed.getAvailableUnfreezeCountSolidity(frozenBandwidthAddress
-        ,blockingStubPbft).get().getCount() == 0);
+
 
 
     account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
