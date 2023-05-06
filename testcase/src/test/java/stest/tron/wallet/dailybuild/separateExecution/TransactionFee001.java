@@ -1,6 +1,7 @@
 package stest.tron.wallet.dailybuild.separateExecution;
 
 import com.google.protobuf.ByteString;
+import com.sun.scenario.effect.impl.prism.ps.PPSBlend_ADDPeer;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.math.BigInteger;
@@ -570,6 +571,14 @@ public class TransactionFee001 {
 
   @Test(enabled = true, priority=2, description = "Test create account with netFee to sr")
   public void test04AccountCreate() {
+    //use new account to create account cost 1.1 TRX
+    ECKey creatorEcKey = new ECKey(Utils.getRandom());
+    byte[] creatorAddress = creatorEcKey.getAddress();
+    final String creatorKey = ByteArray.toHexString(creatorEcKey.getPrivKeyBytes());
+    PublicMethed.sendcoin(creatorAddress, 100000000L, fromAddress, testKey002, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
     startNum =
         blockingStubFull
             .getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
@@ -587,7 +596,7 @@ public class TransactionFee001 {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] lowBalAddress = ecKey.getAddress();
     txid =
-        PublicMethed.createAccountGetTxid(fromAddress, lowBalAddress, testKey002, blockingStubFull);
+        PublicMethed.createAccountGetTxid(creatorAddress, lowBalAddress, creatorKey, blockingStubFull);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     endNum =

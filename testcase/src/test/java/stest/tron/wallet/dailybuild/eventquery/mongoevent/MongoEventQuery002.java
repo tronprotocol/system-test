@@ -333,6 +333,7 @@ public class MongoEventQuery002 extends MongoBase {
 
     query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    txIdIndex2 = txId;
     query.put("transactionId", txIdIndex2);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
