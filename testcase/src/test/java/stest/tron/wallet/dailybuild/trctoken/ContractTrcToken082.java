@@ -175,6 +175,7 @@ public class ContractTrcToken082 {
     String argsStr = "7";
     String txid2 = PublicMethed.triggerContract(contractD, methedStr, argsStr,
         false, 0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
+    logger.info("test02KillCreate2Kill create2Address: " + PublicMethed.getContract(create2Address,blockingStubFull).toString());
     String txid3 = PublicMethed.triggerContract(create2Address,
         "kill(address)",
         param1, false, 0, 100000000L, "0",
