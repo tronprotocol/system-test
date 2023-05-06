@@ -107,12 +107,12 @@ public class RateLimite001 {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(5);
 
-    while (repeatTimes++ < 100) {
+    while (repeatTimes++ < 20) {
       blockingStubSolidity.getBlockByNum2(builder.build());
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
-    Assert.assertTrue(endTimesStap - startTimeStamp > 7000);
+    Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
   /**
@@ -125,12 +125,12 @@ public class RateLimite001 {
     Integer repeatTimes = 0;
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(5);
-    while (repeatTimes++ < 100) {
+    while (repeatTimes++ < 20) {
       blockingStubSolidity.getBlockByNum(builder.build());
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
-    Assert.assertTrue(endTimesStap - startTimeStamp > 7000);
+    Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
   /**
@@ -144,12 +144,12 @@ public class RateLimite001 {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(5);
 
-    while (repeatTimes++ < 100) {
+    while (repeatTimes++ < 20) {
       realBlockingStubSolidity.getBlockByNum2(builder.build());
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
-    Assert.assertTrue(endTimesStap - startTimeStamp > 7000);
+    Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
   /**
@@ -162,12 +162,12 @@ public class RateLimite001 {
     Integer repeatTimes = 0;
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(5);
-    while (repeatTimes++ < 100) {
+    while (repeatTimes++ < 20) {
       realBlockingStubSolidity.getBlockByNum(builder.build());
     }
     Long endTimesStap = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStap - startTimeStamp));
-    Assert.assertTrue(endTimesStap - startTimeStamp > 7000);
+    Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
 
