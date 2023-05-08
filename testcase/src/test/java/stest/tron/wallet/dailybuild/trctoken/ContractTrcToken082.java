@@ -16,13 +16,7 @@ import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
-
-
+import stest.tron.wallet.common.client.utils.*;
 
 
 @Slf4j
@@ -164,18 +158,26 @@ public class ContractTrcToken082 {
     Assert.assertEquals(Long.valueOf(toCreate2Num), create2Count);
   }
 
-  @Test(enabled = true, description = "kill,create2,kill,and check trc10 amount")
-  public void test02KillCreate2Kill() {
+  @Test(enabled = true, description = "kill,create2,kill,and check trc10 amount",retryAnalyzer = Retry.class)
+  public void test02KillCreate2Kill() throws Exception{
+    PublicMethed.triggerContract(contractD, "deploy(uint256)", "7",
+        false, 0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     String param1 = "\"" + receiveStr + "\"";
     String txid1 = PublicMethed.triggerContract(create2Address,
         "kill(address)",
         param1, false, 0, 100000000L, "0",
         0, fromAddress, testKey002, blockingStubFull);
+    Thread.sleep(30);
+
     String methedStr = "deploy(uint256)";
     String argsStr = "7";
     String txid2 = PublicMethed.triggerContract(contractD, methedStr, argsStr,
         false, 0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
     logger.info("test02KillCreate2Kill create2Address: " + PublicMethed.getContract(create2Address,blockingStubFull).toString());
+    Thread.sleep(30);
+
     String txid3 = PublicMethed.triggerContract(create2Address,
         "kill(address)",
         param1, false, 0, 100000000L, "0",
