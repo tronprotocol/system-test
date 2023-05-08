@@ -246,8 +246,10 @@ public class MongoEventQuery003 extends MongoBase {
   }
 
   private void testLatestSolidifiedBlockNumber(JSONObject jsonObject) {
+    HttpMethed.printJsonContent(jsonObject);
     response = HttpMethed.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
     Long latestSolidifiedBlockNumber =
         responseContent.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertTrue(
