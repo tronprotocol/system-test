@@ -159,7 +159,7 @@ public class HttpTestAccount003 {
   /** constructor. */
   @Test(enabled = true, description = "Update witness by http")
   public void test07UpdateWitness() {
-    response = HttpMethed.updateWitness(httpnode, witness1Address, updateUrl, witnessKey001);
+    response = HttpMethed.updateWitness(httpnode, witness2Address, updateUrl, witnessKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
 
