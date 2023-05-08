@@ -193,7 +193,7 @@ public class HttpTestGetAccountBalance001 {
     //HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
     Long afterBurnTrxAmount = HttpMethed.getBurnTrx(httpnode);
     logger.info(afterBurnTrxAmount + "  :   " + beforeBurnTrxAmount);
-    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount >= 1100000L);
+    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == 1100000L);
 
     Assert.assertEquals(afterBurnTrxAmount, HttpMethed.getBurnTrxFromSolidity(httpSolidityNode));
     Assert.assertEquals(afterBurnTrxAmount, HttpMethed.getBurnTrxFromPbft(httpPbftNode));

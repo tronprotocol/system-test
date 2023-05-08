@@ -3108,6 +3108,7 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse createConnect(String url, JsonObject requestBody) {
+    logger.info("Thread count :" + Thread.activeCount());
     try {
       httpClient
           .getParams()
