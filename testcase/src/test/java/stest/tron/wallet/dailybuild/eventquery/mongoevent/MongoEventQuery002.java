@@ -32,6 +32,7 @@ import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.MongoBase;
 import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.Retry;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
@@ -263,7 +264,7 @@ public class MongoEventQuery002 extends MongoBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "MongoDB Event query for transaction")
+  @Test(enabled = true, retryAnalyzer = Retry.class, description = "MongoDB Event query for transaction")
   public void test01EventQueryForTransaction() throws InterruptedException {
     BasicDBObject query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -326,17 +327,15 @@ public class MongoEventQuery002 extends MongoBase {
       transactionIdList.add(
           i, responseContent.getJSONArray("transactions").getJSONObject(i).getString("txID"));
     }
-/*
     txIdIndex0 = transactionIdList.get(0);
     logger.info("txIDIndex0:" + txIdIndex0);
     txIdIndex2 = transactionIdList.get(2);
     logger.info("txIDIndex2:" + txIdIndex2);
-*/
 
     query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     txIdIndex0 = txId;
-    txIdIndex2 = txId;
+    //txIdIndex2 = txId;
     query.put("transactionId", txIdIndex2);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
