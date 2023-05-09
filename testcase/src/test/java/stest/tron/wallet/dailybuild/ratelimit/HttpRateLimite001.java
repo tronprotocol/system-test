@@ -168,22 +168,21 @@ public class HttpRateLimite001 extends JsonRpcBase {
   /** constructor. */
   @Test(enabled = true, description = "Rate limit global qps for all jsonrpc api")
   public void test08GlobalQpsRate() {
-
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
-    while (repeatTimes++ < 100) {
-      JsonArray params = new JsonArray();
-      params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
-      params.add("latest");
-      JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
+    JsonArray params = new JsonArray();
+    params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
+    params.add("latest");
+    JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
+    while (repeatTimes++ < 200) {
       response = getJsonRpc(jsonRpcNode2, requestBody);
       responseContent = HttpMethed.parseResponseContent(response);
       String balance = responseContent.getString("result");
       Assert.assertTrue(balance.contains("0x"));
     }
     Long endTimesStamp = System.currentTimeMillis();
-    logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
+    logger.info("startTimeStamp - endTimesStamp:" + (endTimesStamp - startTimeStamp));
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 7500);
   }
 
 
@@ -193,13 +192,13 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
-    while (repeatTimes++ < 100) {
+    while (repeatTimes++ < 200) {
       Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull2)
               .getTotalEnergyLimit() > 0);
     }
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 7500);
 
   }
 
@@ -209,7 +208,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
-    while (repeatTimes < 100) {
+    while (repeatTimes < 200) {
 
       Assert.assertTrue(PublicMethed.queryAccount(foundationAccountAddress, blockingStubFull2)
               .getBalance() > 0);
@@ -243,7 +242,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
-    while (repeatTimes < 100) {
+    while (repeatTimes < 200) {
       Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull2)
               .getTotalEnergyLimit() > 0);
       Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull3)
@@ -253,7 +252,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 5000);
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
   }
 
 
@@ -263,7 +262,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
-    while (repeatTimes < 100) {
+    while (repeatTimes < 200) {
 
       Assert.assertTrue(PublicMethed.getAccountResource(foundationAccountAddress, blockingStubFull2).getTotalEnergyLimit() > 0);
 
@@ -285,7 +284,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     logger.info("QPS:" + repeatTimes/((endTimesStamp - startTimeStamp) / 1000));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 6000);
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
 
   }
 

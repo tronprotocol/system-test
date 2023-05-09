@@ -326,19 +326,21 @@ public class MongoEventQuery002 extends MongoBase {
       transactionIdList.add(
           i, responseContent.getJSONArray("transactions").getJSONObject(i).getString("txID"));
     }
+/*
     txIdIndex0 = transactionIdList.get(0);
     logger.info("txIDIndex0:" + txIdIndex0);
     txIdIndex2 = transactionIdList.get(2);
     logger.info("txIDIndex2:" + txIdIndex2);
+*/
 
     query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     txIdIndex0 = txId;
-    //txIdIndex2 = txId;
+    txIdIndex2 = txId;
     query.put("transactionId", txIdIndex2);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
-    retryTimes = 30;
+    retryTimes = 50;
     document = null;
     while (retryTimes-- > 0) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -360,7 +362,7 @@ public class MongoEventQuery002 extends MongoBase {
     query.put("transactionId", txIdIndex0);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
-    retryTimes = 20;
+    retryTimes = 50;
     document = null;
 
     while (retryTimes-- > 0) {
