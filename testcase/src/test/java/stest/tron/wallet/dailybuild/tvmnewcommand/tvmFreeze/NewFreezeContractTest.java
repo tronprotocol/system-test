@@ -818,6 +818,7 @@ public class NewFreezeContractTest {
     create2AddBytes = ByteArray.fromHexString(create2Add41);
     create2Add58 = Base58.encode58Check(create2AddBytes);
     PublicMethed.sendcoin(create2AddBytes, 100000000, testFoundationAddress, testFoundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     methedStr = "createDSalted(bytes32)";
     PublicMethed.triggerContract(contractAddressD, methedStr, argsStr,
         false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
