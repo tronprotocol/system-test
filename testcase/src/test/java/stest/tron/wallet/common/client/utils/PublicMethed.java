@@ -5453,7 +5453,7 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public static HashMap<String, String> getBycodeAbi(String solFile, String contractName) {
+  public synchronized static HashMap<String, String> getBycodeAbi(String solFile, String contractName) {
     final String compile =
         Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
 
