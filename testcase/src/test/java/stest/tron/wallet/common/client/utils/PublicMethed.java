@@ -905,7 +905,12 @@ public class PublicMethed {
       byte[] receiverAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     if(freezeV2ProposalIsOpen(blockingStubFull)) {
-      return unFreezeBalanceV2(address,priKey,0,resourceCode,blockingStubFull);
+      long amount = queryAccount(address, blockingStubFull).getFrozenV2(resourceCode).getAmount();
+      logger.info("unFreezeBalance amount:  " + amount);
+      if(amount <= 0) {
+        return false;
+      }
+      return unFreezeBalanceV2(address,priKey,amount, resourceCode,blockingStubFull);
     } else {
       return unFreezeBalanceV1(address,priKey,resourceCode,receiverAddress,blockingStubFull);
     }
@@ -5310,6 +5315,11 @@ public class PublicMethed {
   /** constructor. */
   public static GrpcAPI.Return broadcastTransaction(
       Transaction transaction, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    String txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
+    logger.info("broadcastTransaction: " + txid);
     int i = 10;
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
     while (!response.getResult() && response.getCode() == response_code.SERVER_BUSY && i > 0) {
@@ -5443,7 +5453,7 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public static HashMap<String, String> getBycodeAbi(String solFile, String contractName) {
+  public synchronized static HashMap<String, String> getBycodeAbi(String solFile, String contractName) {
     final String compile =
         Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
 
