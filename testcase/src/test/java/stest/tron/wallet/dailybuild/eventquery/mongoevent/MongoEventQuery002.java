@@ -264,16 +264,16 @@ public class MongoEventQuery002 extends MongoBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, retryAnalyzer = Retry.class, description = "MongoDB Event query for transaction")
+  @Test(enabled = true, description = "MongoDB Event query for transaction")
   public void test01EventQueryForTransaction() throws InterruptedException {
     BasicDBObject query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", deployContractTxId);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
     MongoCursor<org.bson.Document> mongoCursor = findIterable.iterator();
     Document document = null;
-    int retryTimes = 40;
+    int retryTimes = 10;
     while (retryTimes-- > 0) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       if (!mongoCursor.hasNext()) {
@@ -294,26 +294,42 @@ public class MongoEventQuery002 extends MongoBase {
         WalletClient.encode58Check(ByteArray.fromHexString(contractAddressStartWith41));
     Assert.assertEquals(contractAddressFromHttp, jsonObject.getString("contractAddress"));
 
-    int times = 3;
-    logger.info("event003Key:" + event003Key);
-    while (times > 0) {
-      contractAddress = ByteArray.fromHexString(contractAddressStartWith41);
-      runTimes = 10;
-      txId =
-          PublicMethed.triggerContract(
-              contractAddress,
-              "depositForLogCycle(uint256)",
-              String.valueOf(runTimes),
-              false,
-              0,
-              maxFeeLimit,
-              event003Address,
-              event003Key,
-              blockingStubFull);
+    contractAddress = ByteArray.fromHexString(contractAddressStartWith41);
+    runTimes = 10;
+    txIdIndex0 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "depositForLogCycle(uint256)",
+            String.valueOf(runTimes),
+            false,
+            0,
+            maxFeeLimit,
+            event003Address,
+            event003Key,
+            blockingStubFull);
 
-      times--;
-      logger.info("log_txId:" + txId);
-    }
+    PublicMethed.triggerContract(
+        contractAddress,
+        "depositForLogCycle(uint256)",
+        String.valueOf(runTimes),
+        false,
+        0,
+        maxFeeLimit,
+        event003Address,
+        event003Key,
+        blockingStubFull);
+
+    txIdIndex2 =
+        PublicMethed.triggerContract(
+            contractAddress,
+            "depositForLogCycle(uint256)",
+            String.valueOf(runTimes),
+            false,
+            0,
+            maxFeeLimit,
+            event003Address,
+            event003Key,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     response = HttpMethed.getTransactionInfoById(httpFullNode, txId);
     responseContent = HttpMethed.parseResponseContent(response);
@@ -321,6 +337,7 @@ public class MongoEventQuery002 extends MongoBase {
     logger.info("blockNumber:" + blockNumber);
     response = HttpMethed.getBlockByNum(httpFullNode, blockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
+/*
     index = 2;
     transactionIdList = new ArrayList<>();
     for (int i = 0; i < responseContent.getJSONArray("transactions").size(); i++) {
@@ -331,15 +348,16 @@ public class MongoEventQuery002 extends MongoBase {
     logger.info("txIDIndex0:" + txIdIndex0);
     txIdIndex2 = transactionIdList.get(2);
     logger.info("txIDIndex2:" + txIdIndex2);
+*/
 
     query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    txIdIndex0 = txId;
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //txIdIndex0 = txId;
     //txIdIndex2 = txId;
     query.put("transactionId", txIdIndex2);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
-    retryTimes = 50;
+    retryTimes = 10;
     document = null;
     while (retryTimes-- > 0) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -357,7 +375,7 @@ public class MongoEventQuery002 extends MongoBase {
         contractAddressFromHttp, jsonObjectTxIdIndex2, txIdIndex2);
 
     query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txIdIndex0);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
@@ -453,7 +471,7 @@ public class MongoEventQuery002 extends MongoBase {
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
     MongoCursor<org.bson.Document> mongoCursor = findIterable.iterator();
-    int retryTimes = 40;
+    int retryTimes = 10;
 
     Document document = null;
     while (retryTimes-- > 0) {
