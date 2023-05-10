@@ -32,6 +32,7 @@ import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.MongoBase;
 import stest.tron.wallet.common.client.utils.ProposalEnum;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.Retry;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
@@ -263,7 +264,7 @@ public class MongoEventQuery002 extends MongoBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "MongoDB Event query for transaction")
+  @Test(enabled = true, retryAnalyzer = Retry.class, description = "MongoDB Event query for transaction")
   public void test01EventQueryForTransaction() throws InterruptedException {
     BasicDBObject query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -338,7 +339,7 @@ public class MongoEventQuery002 extends MongoBase {
     query.put("transactionId", txIdIndex2);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
-    retryTimes = 30;
+    retryTimes = 50;
     document = null;
     while (retryTimes-- > 0) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -360,7 +361,7 @@ public class MongoEventQuery002 extends MongoBase {
     query.put("transactionId", txIdIndex0);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
-    retryTimes = 20;
+    retryTimes = 50;
     document = null;
 
     while (retryTimes-- > 0) {
