@@ -43,6 +43,8 @@ public class FullFlow {
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = "grpc.nile.trongrid.io:50051";
+
+  private String zkEvmErc20MappingAddress;
   private Long depositTrxAmount = 1000000L;
   private Long depositUsdtAmount = 1000000L;
   private Long trxToZkEvmPrecision = 1000000000000L;
@@ -169,10 +171,18 @@ public class FullFlow {
 
   @Test(enabled = true)
   public void test02GetUsdtBalanceFromZkEvm() throws Exception{
+    String url = "http://54.160.226.39:8080/tokenwrapped?orig_token_addr=" + ZkEvmClient.getConvertAddress(usdtErc20Contract) + "&orig_net=0";
+    JSONObject jsonObject = HttpMethed.parseResponseContent(HttpMethed.createConnectForGet(url));
+
+    HttpMethed.printJsonContent(jsonObject);
+
+    zkEvmErc20MappingAddress = jsonObject.getJSONObject("tokenwrapped").getString("wrapped_token_addr");
+    logger.info(zkEvmErc20MappingAddress);
+
 
 
     ReadonlyTransactionManager readonlyTransactionManager = new ReadonlyTransactionManager(ZkEvmClient.getClient(),ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)));
-    String userInfo = readonlyTransactionManager.sendCall(ZkEvmClient.getConvertAddress(usdtErc20Contract), ZkEvmClient.balanceOfEncode + ZkEvmClient.get64LengthStr(ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress))), DefaultBlockParameterName.LATEST);
+    String userInfo = readonlyTransactionManager.sendCall(zkEvmErc20MappingAddress, ZkEvmClient.balanceOfEncode + ZkEvmClient.get64LengthStr(ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress))), DefaultBlockParameterName.LATEST);
     String[] array = ZkEvmClient.stringToStringArray(userInfo.substring(2), 64);
     Long usdtBalance = array.length > 0 ?Long.parseLong(array[0],16) : 0L;
     logger.info("USDT balance: " + usdtBalance);
@@ -182,7 +192,7 @@ public class FullFlow {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
-      userInfo = readonlyTransactionManager.sendCall(ZkEvmClient.getConvertAddress(usdtErc20Contract), ZkEvmClient.balanceOfEncode + ZkEvmClient.get64LengthStr(ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress))), DefaultBlockParameterName.LATEST);
+      userInfo = readonlyTransactionManager.sendCall(zkEvmErc20MappingAddress, ZkEvmClient.balanceOfEncode + ZkEvmClient.get64LengthStr(ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress))), DefaultBlockParameterName.LATEST);
       array = ZkEvmClient.stringToStringArray(userInfo.substring(2), 64);
       usdtBalance = array.length > 0 ?Long.parseLong(array[0],16) : 0L;
       logger.info("USDT balance: " + usdtBalance);
@@ -200,24 +210,18 @@ public class FullFlow {
 
   @Test(enabled = true)
   public void test03DepositAssetFromZkEvmToNile() throws Exception{
-    String url = "http://54.160.226.39:8080/tokenwrapped?orig_token_addr=" + ZkEvmClient.getConvertAddress(usdtErc20Contract) + "&orig_net=0";
-    JSONObject jsonObject = HttpMethed.parseResponseContent(HttpMethed.createConnectForGet(url));
 
-    HttpMethed.printJsonContent(jsonObject);
-
-    String zkEvmErc20MappingAddress = jsonObject.getJSONObject("tokenwrapped").getString("wrapped_token_addr");
-    logger.info(zkEvmErc20MappingAddress);
 
 
     //Deposit trx from zkEvm to Nile
-    ZkEvmClient.bridgeAsset(zkEvmErc20MappingAddress, new BigInteger("1"),
+    ZkEvmClient.bridgeAsset(zkEvmErc20MappingAddress, new BigInteger("0"),
         ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)), new BigInteger(String.valueOf(depositUsdtAmount)).divide(new BigInteger("2")),
         ZkEvmClient.zeroAddressInZkEvm, false, "", testKey);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //Deposit usdt from zkEvm to Nile
-    ZkEvmClient.bridgeAsset(zkEvmErc20MappingAddress, new BigInteger("1"),
+    ZkEvmClient.bridgeAsset(zkEvmErc20MappingAddress, new BigInteger("0"),
         ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)), new BigInteger(String.valueOf(depositUsdtAmount)).divide(new BigInteger("2")),
         zkEvmErc20MappingAddress, false, "", testKey);
 
