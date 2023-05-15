@@ -4,7 +4,6 @@ plugins {
 
 apply plugin: 'application'
 apply plugin: 'checkstyle'
-
 mainClassName = 'org.tron.program.FullNode'
 
 def versions = [
@@ -93,6 +92,9 @@ dependencies {
 //    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
     compile group: leveldbGroup, name: leveldbName, version: leveldbVersion
 
+
+    compile group: 'org.web3j', name: 'core', version: '4.9.4'
+    compile group: 'org.web3j', name: 'abi', version: '4.9.4'
 }
 
 check.dependsOn 'lint'
