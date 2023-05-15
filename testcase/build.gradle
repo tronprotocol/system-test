@@ -168,6 +168,14 @@ task leveldbTest(type: Test) {
     }
 }
 
+task zkEvm(type: Test) {
+    useTestNG {
+        suites(file('src/test/resources/zkEvm.xml'))
+        parallel 'tests'
+        threadCount 1
+    }
+}
+
 
 task mainnetReplayQuery(type: Test) {
     useTestNG {
