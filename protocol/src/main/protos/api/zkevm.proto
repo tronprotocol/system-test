@@ -1,0 +1,379 @@
+/**
+* Bridge service.
+**/
+
+syntax = "proto3";
+package bridge.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/0xPolygonHermez/zkevm-bridge-service/bridgetree/pb";
+
+service BridgeService {
+  // Getters
+  /// Get api version
+  rpc CheckAPI(CheckAPIRequest) returns (CheckAPIResponse) {
+    option (google.api.http) = {
+      get: "/api"
+    };
+  }
+
+  /// Get bridges for the destination address both in L1 and L2
+  rpc GetBridges(GetBridgesRequest) returns (GetBridgesResponse) {
+    option (google.api.http) = {
+      get: "/bridges/{dest_addr}"
+    };
+  }
+
+  /// Get the merkle proof for the specific deposit
+  rpc GetProof(GetProofRequest) returns (GetProofResponse) {
+    option (google.api.http) = {
+      get: "/merkle-proof"
+    };
+  }
+
+  /// Get the specific deposit
+  rpc GetBridge(GetBridgeRequest) returns (GetBridgeResponse) {
+    option (google.api.http) = {
+      get: "/bridge"
+    };
+  }
+
+  /// Get claims for the specific smart contract address both in L1 and L2
+  rpc GetClaims(GetClaimsRequest) returns (GetClaimsResponse) {
+    option (google.api.http) = {
+      get: "/claims/{dest_addr}"
+    };
+  }
+
+  /// Get token wrapped for the specific smart contract address both in L1 and L2
+  rpc GetTokenWrapped(GetTokenWrappedRequest) returns (GetTokenWrappedResponse) {
+    option (google.api.http) = {
+      get: "/tokenwrapped"
+    };
+  }
+
+  /// Get transaction record
+  rpc GetTransactionRecord(GetTransactionRecordRequest) returns (GetTransactionRecordResponse) {
+    option (google.api.http) = {
+      post: "/transaction-record"
+      body: "*"
+      additional_bindings {
+        get: "/transaction-record"
+      }
+    };
+  }
+
+  /// Get transaction info
+  rpc GetTransactionInfo(GetTransactionInfoRequest) returns (GetTransactionInfoResponse) {
+    option (google.api.http) = {
+      post: "/transaction-info"
+      body: "*"
+      additional_bindings {
+        get: "/transaction-info"
+      }
+    };
+  }
+
+  /// Get account token balance
+  rpc GetAccountTokenBalance(GetAccountTokenBalanceRequest) returns (GetAccountTokenBalanceResponse) {
+    option (google.api.http) = {
+      post: "/getAccountTokenBalance"
+      body: "*"
+      additional_bindings {
+        get: "/getAccountTokenBalance"
+      }
+    };
+  }
+
+  /// Get gas estimate
+  rpc GetGasEstimate(GetGasEstimateRequest) returns (GetGasEstimateResponse) {
+    option (google.api.http) = {
+      post: "/gas-estimate"
+      body: "*"
+      additional_bindings {
+        get: "/gas-estimate"
+      }
+    };
+  }
+
+}
+
+// TokenWrapped message
+message TokenWrapped {
+  uint32 orig_net = 1;
+  string original_token_addr = 2;
+  string wrapped_token_addr = 3;
+  uint32 network_id = 4;
+  string name = 5;
+  string symbol = 6;
+  uint32 decimals = 7;
+}
+
+// Deposit message
+message Deposit {
+  uint32 leaf_type = 1;
+  uint32 orig_net = 2;
+  string orig_addr = 3;
+  string amount = 4;
+  uint32 dest_net = 5;
+  string dest_addr = 6;
+  uint64 block_num = 7;
+  uint64 deposit_cnt = 8;
+  uint32 network_id = 9;
+  string tx_hash = 10;
+  string claim_tx_hash = 11;
+  string metadata = 12;
+  bool   ready_for_claim = 13;
+}
+
+// Claim message
+message Claim {
+  uint64 index = 1;
+  uint32 orig_net = 2;
+  string orig_addr = 3;
+  string amount = 4;
+  uint32 network_id = 5;
+  string dest_addr = 6;
+  uint64 block_num = 7;
+  string tx_hash = 8;
+}
+
+// Merkle Proof message
+message Proof {
+  repeated string merkle_proof = 1;
+  string main_exit_root = 2;
+  string rollup_exit_root = 3;
+}
+
+// Get requests
+
+message CheckAPIRequest {}
+
+message GetBridgesRequest {
+  string dest_addr = 1;
+  uint64 offset = 2;
+  uint32 limit = 3;
+}
+
+message GetProofRequest {
+  uint32 net_id = 1;
+  uint64 deposit_cnt = 2;
+}
+
+message GetTokenWrappedRequest {
+  string orig_token_addr = 1;
+  uint32 orig_net = 2;
+}
+
+message GetBridgeRequest {
+  uint32 net_id = 1;
+  uint64 deposit_cnt = 2;
+}
+
+message GetClaimsRequest {
+  string dest_addr = 1;
+  uint64 offset = 2;
+  uint32 limit = 3;
+}
+
+message GetTransactionRecordRequest {
+  string address = 1;
+  //    bool all = 2;
+  int32 start = 3;
+  int32 limit = 4;
+  //    int32 current = 5;
+  int32 status = 6;
+  int32 type = 7;
+  uint64 start_time = 8;
+  uint64 end_time = 9;
+}
+
+message GetTransactionInfoRequest {
+  string from_hash = 1;
+  //    uint32 chain_id = 2;
+}
+
+message GetAccountTokenBalanceRequest {
+  string account_address = 1;
+  //    string content = 2;
+  uint32 from_chain_id = 3;
+  //    uint32 to_chain_id = 4;
+}
+
+message GetGasEstimateRequest {
+  uint32 from_chain_id = 1;
+  //    uint32 to_chain_id = 2;
+  string from_token = 3;
+}
+
+// Get responses
+//enum Code {
+//  SUCCEED = 0;
+//  FAILED = 1;
+//}
+
+message Status {
+  uint32 status_detail = 1;
+  string status_show = 2;
+}
+
+message TransactionZkEvm {
+  Status status = 1;
+  string fee = 2;
+  string srcHashUrl = 3;
+  string destHashUrl = 4;
+  MappedTokenInfo tokenInfo = 5;
+  string src_txid = 6;
+  string dest_txid = 7;
+  uint32 src_chain_id = 8;
+  uint32 dest_chain_id = 9;
+  string from_address = 10;
+  string to_address = 11;
+  string src_token_id = 12;
+  string dest_token_id = 13;
+  uint64 src_time_stamp = 14;
+  uint64 dest_time_stamp = 15;
+  string from_amount = 16;
+  string to_amount = 17;
+  uint32 type = 18;
+  uint64 estimate_time = 19;
+}
+
+message Token {
+  string tokenName = 1;
+  string tokenSymbol = 2;
+  string tokenLogo = 3;
+  uint32 tokenChain = 4;
+  uint32 mapChain = 5;
+  uint32 precision = 6;
+  string token_url = 7;
+  string token_ID = 8;
+}
+
+message TokenInfo {
+  Token srcTokenInfo = 1;
+  Token destTokenInfo = 2;
+}
+
+message MappedTokenInfo {
+  string price = 1;
+  string src_token_name = 2;
+  string src_token_symbol = 3;
+  uint32 src_token_precision = 4;
+  string src_token_url = 5;
+  string src_token_logo = 6;
+  string dest_token_name = 7;
+  string dest_token_symbol = 8;
+  uint32 dest_token_precision = 9;
+  string dest_token_url = 10;
+  string dest_token_logo = 11;
+}
+
+message TransactionRecordData {
+  //    uint64 rangeTotal = 1;
+  uint64 total = 2;
+  //    uint64 showNumber = 3;
+  repeated TransactionZkEvm data = 4;
+}
+
+message TransactionInfoData {
+  TransactionZkEvm transaction = 1;
+  TokenInfo tokenInfo = 2;
+  bool canWithdraw = 3;
+}
+
+message GasTokenInfo {
+  string token_symbol = 1;
+  uint32 token_precision = 2;
+  string token_address = 3;
+  string token_price = 4;
+}
+
+message TokenBalanceInfo {
+  uint32 chainId = 1;
+  string mainTokenName = 2;
+  string mainSymbol = 3;
+  string tokenName = 4;
+  string symbol = 5;
+  string address = 6;
+  uint32 tokenPrecision = 7;
+  string logo = 8;
+}
+
+message TokenBalanceData {
+  uint32 chainId = 1;
+  uint32 isMainChain = 2;
+  string mainTokenName = 3;
+  string mainSymbol = 4;
+  string address = 5;
+  uint32 tokenPrecision = 6;
+  string price = 7;
+  string tokenType = 8;
+  string logo = 9;
+  string balance = 10;
+  uint32 mainChainId = 11;
+  //    uint64 createTimeStamp = 12;
+  repeated TokenBalanceInfo mapTokenInfo = 13;
+}
+
+message GasEstimateData {
+  uint32 chain_id = 1;
+  string gas_amount = 2;
+  string gas_price = 3;
+  string bandwidth_amount = 4;
+  string bandwidth_price = 5;
+  string transaction_fee = 6;
+  string transaction_fee_in_usd = 7;
+  GasTokenInfo token_info = 8;
+}
+
+message CheckAPIResponse {
+  string api = 1;
+}
+
+message GetBridgesResponse {
+  repeated Deposit deposits = 1;
+  uint64 total_cnt = 2;
+}
+
+message GetProofResponse {
+  Proof proof = 1;
+}
+
+message GetTokenWrappedResponse {
+  TokenWrapped tokenwrapped = 1;
+}
+
+message GetBridgeResponse {
+  Deposit deposit = 1;
+}
+
+message GetClaimsResponse {
+  repeated Claim claims = 1;
+  uint64 total_cnt = 2;
+}
+
+message GetTransactionRecordResponse {
+  uint32 code = 1;
+  string msg = 2;
+  TransactionRecordData data = 3;
+}
+
+message GetTransactionInfoResponse {
+  uint32 code = 1;
+  string msg = 2;
+  TransactionInfoData data = 3;
+}
+
+message GetAccountTokenBalanceResponse {
+  uint32 code = 1;
+  string msg = 2;
+  repeated TokenBalanceData data = 3;
+}
+
+message GetGasEstimateResponse {
+  uint32 code = 1;
+  string msg = 2;
+  repeated GasEstimateData data = 3;
+}
