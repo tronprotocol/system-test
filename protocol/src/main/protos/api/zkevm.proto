@@ -236,8 +236,13 @@ message TransactionZkEvm {
   uint64 dest_time_stamp = 15;
   string from_amount = 16;
   string to_amount = 17;
-  uint32 type = 18;
-  uint64 estimate_time = 19;
+  uint32 deposit_cnt = 18;
+  uint32 orig_net = 19;
+  string orig_addr = 20;
+  uint32 type = 21;
+  bool canWithdraw = 22;
+  //    uint64 estimate_time = 23;
+
 }
 
 message Token {

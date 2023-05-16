@@ -46,9 +46,9 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
   private String fullnode = "grpc.nile.trongrid.io:50051";
 
   public static String zkEvmErc20MappingAddress;
-  private Long depositTrxAmount = 1000000000L;
-  private Long depositUsdtAmount = 1000000L;
-  private Long trxToZkEvmPrecision = 1000000000000L;
+  public static Long depositTrxAmount = 1000000000L;
+  public static Long depositUsdtAmount = 1000000L;
+  public static Long trxToZkEvmPrecision = 1000000000000L;
 
   public static ECKey testEcKey = new ECKey(Utils.getRandom());
   public static byte[] testAddress = testEcKey.getAddress();
@@ -59,6 +59,12 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
   public static String usdtErc20Contract;
 
   Long startTime;
+
+  public static String fromHashTrxNileToZkEvm = null;
+  public static String fromHashUsdtNileToZkEvmFirst = null;
+  public static String fromHashUsdtNileToZkEvmSecond = null;
+  public static byte[] destAddress = null;
+
 
 
   /**
@@ -103,6 +109,7 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt()
         .getResultValue() == 1);
+    fromHashTrxNileToZkEvm = String.valueOf(txid);
 
 
     //Deposit usdt contract
@@ -156,6 +163,7 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt()
         .getResultValue() == 1);
+    fromHashUsdtNileToZkEvmFirst = String.valueOf(txid);
 
     //Deposit usdt from nile to zkEvm(second depoist ,exist mapping,ignore mapping)
     txid = PublicMethed.triggerContract(WalletClient.decodeFromBase58Check(ZkEvmClient.nileBridgeAddress),
@@ -166,6 +174,8 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt()
         .getResultValue() == 1);
+    fromHashUsdtNileToZkEvmSecond = String.valueOf(txid);
+    destAddress = testAddress;
 
   }
 
