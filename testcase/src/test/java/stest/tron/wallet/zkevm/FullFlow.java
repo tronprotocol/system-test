@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.tx.ReadonlyTransactionManager;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
@@ -45,7 +46,7 @@ public class FullFlow {
   private String fullnode = "grpc.nile.trongrid.io:50051";
 
   private String zkEvmErc20MappingAddress;
-  private Long depositTrxAmount = 1000000L;
+  private Long depositTrxAmount = 1000000000L;
   private Long depositUsdtAmount = 1000000L;
   private Long trxToZkEvmPrecision = 1000000000000L;
 
@@ -64,10 +65,28 @@ public class FullFlow {
 
   @BeforeClass
   public void beforeClass() {
-    int i = 0;
+
+
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     PublicMethed.printAddress(testKey);
+    int i = 0;
+    if(i == 1 ) {
+/*
+      testKey = ZkEvmClient.nileFoundationKey;
+      testAddress = PublicMethed.getFinalAddress(testKey);
+      depositTrxAmount = depositTrxAmount * 10000L;
+      String data = 1 + "," + "\"" + WalletClient.encode58Check(testAddress) + "\"" + "," + depositTrxAmount + "," + "\"" + ZkEvmClient.zeroAddressInNile + "\"" + ","
+          + false + "," + "\"" + "\"";
+      logger.info(data);
+      String txid = PublicMethed.triggerContract(WalletClient.decodeFromBase58Check(ZkEvmClient.nileBridgeAddress),
+          "bridgeAsset(uint32,address,uint256,address,bool,bytes)", data, false,
+          depositTrxAmount, 5000000000L, PublicMethed.getFinalAddress(ZkEvmClient.nileFoundationKey), ZkEvmClient.nileFoundationKey, blockingStubFull);
+*/
+
+      return;
+    }
+
 
     startTime = System.currentTimeMillis();
     //Deposit trx from nile to zkEvm
@@ -188,7 +207,7 @@ public class FullFlow {
     logger.info("USDT balance: " + usdtBalance);
 
     int retry = 200;
-    while (retry-- >= 0 && !usdtBalance.equals(new BigInteger(String.valueOf(depositUsdtAmount)))) {
+    while (retry-- >= 0 && !usdtBalance.equals(depositUsdtAmount * 2)) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -200,7 +219,7 @@ public class FullFlow {
     }
 
     Assert.assertTrue(retry > 0);
-    Assert.assertEquals(usdtBalance,new BigInteger(String.valueOf(depositUsdtAmount)).multiply(new BigInteger("2")));
+    Assert.assertEquals((long)usdtBalance,(long)depositUsdtAmount * 2);
 
 
   }
@@ -209,26 +228,47 @@ public class FullFlow {
 
 
   @Test(enabled = true)
-  public void test03DepositAssetFromZkEvmToNile() throws Exception{
+  public void test03DepositTrxFromZkEvmToNile() throws Exception{
 
+    BigInteger ethBalance = ZkEvmClient.getClient().ethGetBalance(ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)),DefaultBlockParameterName.LATEST).send().getBalance();
+    logger.info("Eth before deposit trx balance: " + ethBalance);
 
 
     //Deposit trx from zkEvm to Nile
-    ZkEvmClient.bridgeAsset(zkEvmErc20MappingAddress, new BigInteger("0"),
-        ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)), new BigInteger(String.valueOf(depositUsdtAmount)).divide(new BigInteger("2")),
-        ZkEvmClient.zeroAddressInZkEvm, false, "", testKey);
+    BigInteger depositTrxFromZkEvmToNileAmount = new BigInteger(trxToZkEvmPrecision.toString());
+    String txid = ZkEvmClient.bridgeAsset(ZkEvmClient.zkEvmBridgeAddress, new BigInteger("0"),
+        ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)), depositTrxFromZkEvmToNileAmount,
+        ZkEvmClient.zeroAddressInZkEvm, true, "", depositTrxFromZkEvmToNileAmount,testKey);
+
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    EthGetTransactionReceipt ethGetTransactionReceipt = ZkEvmClient.getClient().ethGetTransactionReceipt(txid).send();
+    String status = ethGetTransactionReceipt.getTransactionReceipt().get().getStatus();
+    Assert.assertEquals(status,"0x1");
+
+    ethBalance = ZkEvmClient.getClient().ethGetBalance(ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)),DefaultBlockParameterName.LATEST).send().getBalance();
+    logger.info("Eth after deposit trx balance: " + ethBalance);
+
+
+  }
+
+
+  @Test(enabled = true)
+  public void test04DepositUsdtFromZkEvmToNile() throws Exception{
+    //Set approve mapping usdt contract
+    ZkEvmClient.approve(zkEvmErc20MappingAddress, ZkEvmClient.zkEvmBridgeAddress,testKey);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //Deposit usdt from zkEvm to Nile
-    ZkEvmClient.bridgeAsset(zkEvmErc20MappingAddress, new BigInteger("0"),
-        ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)), new BigInteger(String.valueOf(depositUsdtAmount)).divide(new BigInteger("2")),
-        zkEvmErc20MappingAddress, false, "", testKey);
+    BigInteger depositUsdtFromZkEvmToNileAmount = BigInteger.ONE;
+    String txid = ZkEvmClient.bridgeAsset(ZkEvmClient.zkEvmBridgeAddress, new BigInteger("0"),
+        ZkEvmClient.getConvertAddress(WalletClient.encode58Check(testAddress)), depositUsdtFromZkEvmToNileAmount,
+        zkEvmErc20MappingAddress, true, "" ,BigInteger.ZERO,testKey);
 
-
-
-
-
+    EthGetTransactionReceipt ethGetTransactionReceipt = ZkEvmClient.getClient().ethGetTransactionReceipt(txid).send();
+    String status = ethGetTransactionReceipt.getTransactionReceipt().get().getStatus();
+    Assert.assertEquals(status,"0x1");
 
 
 

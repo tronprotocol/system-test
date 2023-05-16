@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -20,6 +21,7 @@ import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.abi.datatypes.generated.Uint32;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
@@ -171,10 +173,31 @@ public class ZkEvmClient {
   }
 
 
+  public static String approve(String erc20Address, String spenderAddress ,String privateKey) throws Exception {
+    Credentials credentials = Credentials.create(privateKey);
+    BigInteger nonce = getNonce(credentials.getAddress());
+    BigInteger gasPrice = gasPrice();
+    Function function = new Function("approve", Arrays.<Type>asList(
+        new Address(spenderAddress), new Uint256(BigInteger.valueOf(9000000000000000000L))),
+        Arrays.asList(new TypeReference<Utf8String>() {
+        })
+    );
 
-  public static void bridgeAsset(String triggerContractAddress, BigInteger destinationNetwork,
+    String encodedFunction = FunctionEncoder.encode(function);
+
+    BigInteger gasLimit = BigInteger.valueOf(3000000L);
+    RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit, erc20Address, BigInteger.ZERO, encodedFunction);
+    byte[] signMessage = TransactionEncoder.signMessage(rawTransaction,credentials);
+    String hexValue = Numeric.toHexString(signMessage);
+    EthSendTransaction ethSendTransaction = (EthSendTransaction) ZkEvmClient.getClient().ethSendRawTransaction(hexValue).sendAsync().get();
+    return ethSendTransaction.getTransactionHash();
+
+
+  }
+
+  public static String bridgeAsset(String triggerContractAddress, BigInteger destinationNetwork,
       String destinationAddress, BigInteger amount, String erc20TokenAddress,
-      Boolean forceUpdateGlobalExitRoot,String permitData, String privateKey) throws  Exception{
+      Boolean forceUpdateGlobalExitRoot,String permitData, BigInteger value, String privateKey) throws  Exception{
     Integer chainId = 202305;
     Integer gasPriceStep = 10;
 
@@ -185,14 +208,17 @@ public class ZkEvmClient {
 
 
     Function function = new Function("bridgeAsset", Arrays.<Type>asList(
-        new Uint256(destinationNetwork), new Address(destinationAddress),new Uint256(amount),new Address(erc20TokenAddress),
-        new Bool(forceUpdateGlobalExitRoot),new DynamicBytes(utfEncoded)),
-        Arrays.asList(new TypeReference<Utf8String>() {
-        }));
+        new Uint32(destinationNetwork), new Address(destinationAddress),new Uint256(amount),new Address(erc20TokenAddress),
+        new Bool(forceUpdateGlobalExitRoot),new DynamicBytes("".getBytes())),
+        Collections.<TypeReference<?>>emptyList()
+/*        Arrays.asList(new TypeReference<Utf8String>() {
+        })*/
+    );
     String encodedFunction = FunctionEncoder.encode(function);
-    BigInteger gasLimit = getEstimateGas(erc20TokenAddress,credentials.getAddress(),encodedFunction);
-    RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit, triggerContractAddress, BigInteger.ZERO, encodedFunction);
-    byte[] signMessage = TransactionEncoder.signMessage(rawTransaction, chainId,credentials);
+    //BigInteger gasLimit = getEstimateGas(triggerContractAddress, credentials.getAddress(), encodedFunction);
+    BigInteger gasLimit = BigInteger.valueOf(3000000L);
+    RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit, triggerContractAddress, value, encodedFunction);
+    byte[] signMessage = TransactionEncoder.signMessage(rawTransaction,credentials);
     String hexValue = Numeric.toHexString(signMessage);
     EthSendTransaction ethSendTransaction = (EthSendTransaction) ZkEvmClient.getClient().ethSendRawTransaction(hexValue).sendAsync().get();
 
@@ -202,8 +228,8 @@ public class ZkEvmClient {
       Thread.sleep(500);
       gasPrice = gasPrice().multiply(new BigInteger("100").add(new BigInteger(String.valueOf(retryTimes * gasPriceStep)))).divide(new BigInteger("100"));
       System.out.println("Gas price :" + gasPrice);
-      rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit, erc20TokenAddress, BigInteger.ZERO, encodedFunction);
-      signMessage = TransactionEncoder.signMessage(rawTransaction, chainId,credentials);
+      rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit, triggerContractAddress, value, encodedFunction);
+      signMessage = TransactionEncoder.signMessage(rawTransaction,credentials);
       hexValue = Numeric.toHexString(signMessage);
       ethSendTransaction = (EthSendTransaction) ZkEvmClient.getClient().ethSendRawTransaction(hexValue).sendAsync().get();
       logger.info(JSON.toJSONString(ethSendTransaction));
@@ -219,6 +245,10 @@ public class ZkEvmClient {
           System.out.println("Deposit txid :" + ethSendTransaction.getTransactionHash());
           break;
         }
+        if(status.equalsIgnoreCase("0x0")) {
+          System.out.println("Deposit txid revert:" + ethSendTransaction.getTransactionHash());
+          break;
+        }
       } catch (Exception e) {
         logger.info(ethSendTransaction.getTransactionHash() + " 暂时没上链, 重试次数：" + retryTimes);
       }
@@ -226,6 +256,7 @@ public class ZkEvmClient {
       ethGetTransactionReceipt = ZkEvmClient.getClient().ethGetTransactionReceipt(ethSendTransaction.getTransactionHash()).send();
 
     }
+    return ethSendTransaction.getTransactionHash();
 
   }
 
