@@ -71,6 +71,7 @@ public class ZkEvmClient {
   public static String maticAddressInZkEvm = "0x7a6d59A607D2E585Fc9138c80b772374EFab0A89";
   public static String tokenTypeTrx = "TRX";
   public static String tokenTypeErc20 = "ERC20";
+  public static String tokenTypeTrc20 = "TRC20";
 
   private ZkEvmClient() {
   }

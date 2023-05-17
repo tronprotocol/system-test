@@ -116,7 +116,7 @@ public class ZkEvmBridgeApiTest002 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "api getAccountTokenBalance")
+  @Test(enabled = true, description = "api getAccountTokenBalance in zkEvm")
   public void test03GetAccountTokenBalance() {
     HttpResponse response = PublicMethodForZkEvm.getAccountTokenBalanceHttp(queryAddress, Integer.valueOf(ZkEvmClient.netZkEvm));
     JSONObject resContent = PublicMethodForZkEvm.parseResponseContent(response);
@@ -187,8 +187,81 @@ public class ZkEvmBridgeApiTest002 {
   }
 
   /** constructor. */
+  @Test(enabled = true, description = "api getAccountTokenBalance in tron")
+  public void test04GetAccountTokenBalance() {
+    HttpResponse response = PublicMethodForZkEvm.getAccountTokenBalanceHttp(queryAddress, Integer.valueOf(ZkEvmClient.netTron));
+    JSONObject resContent = PublicMethodForZkEvm.parseResponseContent(response);
+    Assert.assertEquals(3, resContent.size());
+    JSONArray dataArray = resContent.getJSONArray("data");
+    Assert.assertEquals(5, dataArray.size());
+    for (Object tem : dataArray) {
+      JSONObject obj = (JSONObject) tem;
+      int chainId = obj.getIntValue("chainId");
+      int isMainChain = obj.getIntValue("isMainChain");
+      String mainTokenName = obj.getString("mainTokenName");
+      String mainSymbol = obj.getString("mainSymbol");
+      String address = obj.getString("address");
+      int tokenPrecision = obj.getIntValue("tokenPrecision");
+      String price = obj.getString("price");
+      String tokenType = obj.getString("tokenType");
+      String logo = obj.getString("logo");
+      String balance = obj.getString("balance");
+      int mainChainId = obj.getIntValue("mainChainId");
+      JSONArray mapTokenInfo = obj.getJSONArray("mapTokenInfo");
+      Assert.assertEquals(mapTokenInfo.size(), 1);
+      JSONObject tokenInfo = mapTokenInfo.getJSONObject(0);
+      Assert.assertEquals(chainId, ZkEvmClient.netTron);
+      Assert.assertEquals(isMainChain, 1);
+      Assert.assertEquals(mainChainId, 0);
+      Assert.assertEquals(tokenInfo.getIntValue("chainId"),ZkEvmClient.netZkEvm);
+      Assert.assertEquals(mainTokenName, tokenInfo.getString("mainTokenName"));
+      Assert.assertEquals(mainSymbol, tokenInfo.getString("mainSymbol"));
+      Assert.assertEquals(mainTokenName, tokenInfo.getString("tokenName"));
+      Assert.assertEquals(mainSymbol, tokenInfo.getString("symbol"));
+
+      Assert.assertTrue(Double.valueOf(price) > 0);
+      Assert.assertTrue(logo.length() > 0);
+      Assert.assertTrue(Double.valueOf(price) > 0);
+      if (address.equalsIgnoreCase(ZkEvmClient.usdtAddressInTron)) {
+        Assert.assertEquals(tokenPrecision, 6);
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeTrc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.usdtAddressInTron);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+//        Assert.assertEquals(balance, FullFlow.depositUsdtAmount *2 - FullFlow.depositUsdtFromZkEvmToNileAmount.longValue());
+      } else if (address.equalsIgnoreCase(ZkEvmClient.zeroAddressInZkEvm)) {
+        Assert.assertEquals(tokenPrecision, 6);
+        Assert.assertEquals(tokenInfo.getIntValue("tokenPrecision"), 18);
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeTrx);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.zeroAddressInZkEvm);
+      } else if (address.equalsIgnoreCase(ZkEvmClient.bttAddressInTron)) {
+        Assert.assertEquals(tokenPrecision, 18);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeTrc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.bttAddressInTron);
+      } else if (address.equalsIgnoreCase(ZkEvmClient.usddAddressInTron)) {
+        Assert.assertEquals(tokenPrecision, 18);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeTrc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.usddAddressInTron);
+      } else if (address.equalsIgnoreCase(ZkEvmClient.maticAddressInTron)) {
+        Assert.assertEquals(tokenPrecision, 18);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeTrc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.maticAddressInTron);
+      }
+    }
+  }
+
+  /** constructor. */
   @Test(enabled = true, description = "api gas-estimate")
-  public void test04GasEstimate() {
+  public void test05GasEstimate() {
+    HttpResponse response = PublicMethodForZkEvm.gasEstimateHttp(ZkEvmClient.netTron, ZkEvmClient.usdtAddressInTron);
+    JSONObject resContent = PublicMethodForZkEvm.parseResponseContent(response);
 
   }
 }
