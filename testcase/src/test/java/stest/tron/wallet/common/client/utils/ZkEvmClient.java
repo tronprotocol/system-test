@@ -58,6 +58,8 @@ public class ZkEvmClient {
   //public static String targetAddress = "0xEBAE50590810B05D4B403F13766F213518EDEF65";
   //public static String targetContract = "0xf999F7C9E427A6cFc2feF0fca050277339DFCFE3";
   public static String receiveAddress = "";
+  public static int netTron = 0;
+  public static int netZkEvm = 1;
 
   private ZkEvmClient() {
   }
