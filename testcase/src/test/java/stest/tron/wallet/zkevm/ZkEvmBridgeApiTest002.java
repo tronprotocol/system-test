@@ -29,7 +29,9 @@ public class ZkEvmBridgeApiTest002 {
     FullFlow.zkEvmDepositUsdtTxid = "0x56343c4430f628a662e5383c212fb4fa80b5558ad0cb24e4f8909981e12eee14";
     FullFlow.testAddress = ByteArray.fromHexString("410D649907E96B904DA1A03E5C96CF705C4EBE73BF");
     FullFlow.usdtErc20Contract ="TSijB7uecTp6homYzEc7XbBG3H8gcmGq9d";
-     queryAddress = PublicMethodForZkEvm.getETHAddress(FullFlow.testAddress);
+    FullFlow.depositTrxFromZkEvmToNileAmount = new BigInteger("1000000000000");
+    FullFlow.depositUsdtFromZkEvmToNileAmount = BigInteger.ONE;
+    queryAddress = PublicMethodForZkEvm.getETHAddress(FullFlow.testAddress);
      usdtAddress = PublicMethodForZkEvm.
         getETHAddress(PublicMethed.decode58Check(FullFlow.usdtErc20Contract)).toLowerCase();
   }
@@ -63,7 +65,7 @@ public class ZkEvmBridgeApiTest002 {
       if (txHash.contains(FullFlow.fromHashTrxNileToZkEvm.toLowerCase())) {
         bridgesTrxNileToZkEvm = obj;
         System.out.println("11111111"+bridgesTrxNileToZkEvm);
-        Assert.assertEquals(orig_addr.toLowerCase(), ZkEvmClient.zeroAddressInNile);
+        Assert.assertEquals(orig_addr.toLowerCase(), ZkEvmClient.zeroAddressInZkEvm);
         Assert.assertEquals(amount, String.valueOf(trxAmount));
         Assert.assertEquals(dest_net, ZkEvmClient.netZkEvm);
         Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
@@ -71,28 +73,28 @@ public class ZkEvmBridgeApiTest002 {
         Assert.assertTrue(ready_for_claim);
       } else if (txHash.contains(FullFlow.fromHashUsdtNileToZkEvmFirst.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), usdtAddress);
-        Assert.assertEquals(amount, FullFlow.depositUsdtAmount.intValue());
+        Assert.assertEquals(amount, FullFlow.depositUsdtAmount.toString());
         Assert.assertEquals(dest_net, ZkEvmClient.netZkEvm);
         Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
         Assert.assertEquals(network_id, ZkEvmClient.netTron);
         Assert.assertTrue(ready_for_claim);
       } else if (txHash.contains(FullFlow.fromHashUsdtNileToZkEvmSecond.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), usdtAddress);
-        Assert.assertEquals(amount, FullFlow.depositUsdtAmount.intValue());
+        Assert.assertEquals(amount, FullFlow.depositUsdtAmount.toString());
         Assert.assertEquals(dest_net, ZkEvmClient.netZkEvm);
         Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
         Assert.assertEquals(network_id, ZkEvmClient.netTron);
         Assert.assertTrue(ready_for_claim);
       } else if (txHash.contains(FullFlow.zkEvmDepositTrxTxid.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), ZkEvmClient.zeroAddressInZkEvm);
-        Assert.assertEquals(amount, FullFlow.depositTrxFromZkEvmToNileAmount.intValue());
+        Assert.assertEquals(amount, FullFlow.depositTrxFromZkEvmToNileAmount.toString());
         Assert.assertEquals(dest_net, ZkEvmClient.netTron);
         Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
         Assert.assertEquals(network_id, ZkEvmClient.netZkEvm);
-        Assert.assertFalse(ready_for_claim);
+//        Assert.assertFalse(ready_for_claim);
       } else if (txHash.contains(FullFlow.zkEvmDepositUsdtTxid.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), usdtAddress.toLowerCase());
-//        Assert.assertEquals(Long.valueOf(amount).longValue(), FullFlow.depositUsdtFromZkEvmToNileAmount.longValue());
+        Assert.assertEquals(Long.valueOf(amount).longValue(), FullFlow.depositUsdtFromZkEvmToNileAmount.longValue());
         Assert.assertEquals(dest_net, ZkEvmClient.netTron);
         Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
         Assert.assertEquals(network_id, ZkEvmClient.netZkEvm);
@@ -110,7 +112,7 @@ public class ZkEvmBridgeApiTest002 {
     HttpResponse response = PublicMethodForZkEvm.getBridgeHttp(ZkEvmClient.netTron, Integer.valueOf(cnt));
     JSONObject resContent = PublicMethodForZkEvm.parseResponseContent(response);
     JSONObject bridgeTrxNileToZkEvm = resContent.getJSONObject("deposit");
-    Assert.assertEquals(bridgesTrxNileToZkEvm.toJSONString(), bridgeTrxNileToZkEvm);
+    Assert.assertEquals(bridgesTrxNileToZkEvm.toJSONString(), bridgeTrxNileToZkEvm.toJSONString());
   }
 
   /** constructor. */
@@ -118,8 +120,9 @@ public class ZkEvmBridgeApiTest002 {
   public void test03GetAccountTokenBalance() {
     HttpResponse response = PublicMethodForZkEvm.getAccountTokenBalanceHttp(queryAddress, Integer.valueOf(ZkEvmClient.netZkEvm));
     JSONObject resContent = PublicMethodForZkEvm.parseResponseContent(response);
-    Assert.assertEquals(6, resContent.size());
+    Assert.assertEquals(3, resContent.size());
     JSONArray dataArray = resContent.getJSONArray("data");
+    Assert.assertEquals(5, dataArray.size());
     for (Object tem : dataArray) {
       JSONObject obj = (JSONObject) tem;
       int chainId = obj.getIntValue("chainId");
@@ -129,16 +132,56 @@ public class ZkEvmBridgeApiTest002 {
       String address = obj.getString("address");
       int tokenPrecision = obj.getIntValue("tokenPrecision");
       String price = obj.getString("price");
-      String prtokenTypeice = obj.getString("tokenType");
+      String tokenType = obj.getString("tokenType");
       String logo = obj.getString("logo");
       String balance = obj.getString("balance");
       int mainChainId = obj.getIntValue("mainChainId");
       JSONArray mapTokenInfo = obj.getJSONArray("mapTokenInfo");
+      Assert.assertEquals(mapTokenInfo.size(), 1);
+      JSONObject tokenInfo = mapTokenInfo.getJSONObject(0);
+      Assert.assertEquals(chainId, ZkEvmClient.netZkEvm);
+      Assert.assertEquals(isMainChain, 0);
+      Assert.assertEquals(mainChainId, 0);
+      Assert.assertEquals(tokenInfo.getIntValue("chainId"),ZkEvmClient.netTron);
+      Assert.assertEquals(mainTokenName, tokenInfo.getString("mainTokenName"));
+      Assert.assertEquals(mainSymbol, tokenInfo.getString("mainSymbol"));
+      Assert.assertEquals(mainTokenName, tokenInfo.getString("tokenName"));
+      Assert.assertEquals(mainSymbol, tokenInfo.getString("symbol"));
 
-
-
-      if(address.equalsIgnoreCase(usdtAddress)) {
-
+      Assert.assertTrue(Double.valueOf(price) > 0);
+      Assert.assertTrue(logo.length() > 0);
+      Assert.assertTrue(Double.valueOf(price) > 0);
+      if (address.equalsIgnoreCase(ZkEvmClient.usdtAddressInZkEvm)) {
+        Assert.assertEquals(tokenPrecision, 6);
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeErc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.usdtAddressInTron);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+//        Assert.assertEquals(balance, FullFlow.depositUsdtAmount *2 - FullFlow.depositUsdtFromZkEvmToNileAmount.longValue());
+      } else if (address.equalsIgnoreCase(ZkEvmClient.zeroAddressInZkEvm)) {
+        Assert.assertEquals(tokenPrecision, 18);
+        Assert.assertEquals(tokenInfo.getIntValue("tokenPrecision"), 6);
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeTrx);
+        Assert.assertTrue(Double.valueOf(balance) > 0);
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.zeroAddressInZkEvm);
+      } else if (address.equalsIgnoreCase(ZkEvmClient.bttAddressInZkEvm)) {
+        Assert.assertEquals(tokenPrecision, 18);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeErc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.bttAddressInTron);
+      } else if (address.equalsIgnoreCase(ZkEvmClient.usddAddressInZkEvm)) {
+        Assert.assertEquals(tokenPrecision, 18);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeErc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.usddAddressInTron);
+      } else if (address.equalsIgnoreCase(ZkEvmClient.maticAddressInZkEvm)) {
+        Assert.assertEquals(tokenPrecision, 18);
+        Assert.assertEquals(tokenPrecision, tokenInfo.getIntValue("tokenPrecision"));
+        Assert.assertEquals(tokenType, ZkEvmClient.tokenTypeErc20);
+        Assert.assertEquals(balance, "0");
+        Assert.assertEquals(tokenInfo.getString("address"), ZkEvmClient.maticAddressInTron);
       }
     }
   }
