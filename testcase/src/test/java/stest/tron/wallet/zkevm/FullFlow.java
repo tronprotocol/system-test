@@ -1,5 +1,6 @@
 package stest.tron.wallet.zkevm;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -8,6 +9,7 @@ import java.math.BigInteger;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -19,13 +21,7 @@ import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.tx.ReadonlyTransactionManager;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
-import stest.tron.wallet.common.client.utils.Base58;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.HttpMethed;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.ZkEvmClient;
+import stest.tron.wallet.common.client.utils.*;
 
 @Slf4j
 public class FullFlow {
@@ -48,6 +44,7 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
   public static String zkEvmErc20MappingAddress;
   public static Long depositTrxAmount = 1000000000L;
   public static Long depositUsdtAmount = 1000000L;
+  public static Long depositRealUsdtAmount = 1L;
   public static Long trxToZkEvmPrecision = 1000000000000L;
 
   public static ECKey testEcKey = new ECKey(Utils.getRandom());
@@ -63,6 +60,7 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
   public static String fromHashTrxNileToZkEvm = null;
   public static String fromHashUsdtNileToZkEvmFirst = null;
   public static String fromHashUsdtNileToZkEvmSecond = null;
+  public static String fromHashRealUsdtNileToZkEvm = null;
   public static byte[] destAddress = null;
 
 
@@ -177,6 +175,42 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
     fromHashUsdtNileToZkEvmSecond = String.valueOf(txid);
     destAddress = testAddress;
 
+
+
+    //deposit real usdt in nile
+    String realUsdt58 = ZkEvmClient.getConvertAddress(ZkEvmClient.usdtAddressInTron);
+    byte[] realUsdtBytes = PublicMethed.decode58Check(realUsdt58);
+    data = "\"" + ZkEvmClient.nileBridgeAddress + "\"" + "," + totalSupply.toString();
+    txid = PublicMethed.triggerContract(realUsdtBytes,
+        "approve(address,uint256)", data, false,
+        0, 5000000000L,PublicMethed.getFinalAddress(ZkEvmClient.nileFoundationKey),ZkEvmClient.nileFoundationKey, blockingStubFull);
+    logger.info("approve real usdt:" + txid);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getReceipt().getResultValue() == 1);
+
+    data = 1 + "," + "\"" + WalletClient.encode58Check(testAddress) + "\"" + "," + depositRealUsdtAmount + "," + "\"" + realUsdt58 + "\"" + ","
+        + true + "," + "\"" + "\"";
+    txid = PublicMethed.triggerContract(WalletClient.decodeFromBase58Check(ZkEvmClient.nileBridgeAddress),
+        "bridgeAsset(uint32,address,uint256,address,bool,bytes)", data, false,
+        0L, 5000000000L, PublicMethed.getFinalAddress(ZkEvmClient.nileFoundationKey), ZkEvmClient.nileFoundationKey, blockingStubFull);
+    logger.info("Deposit real usdt from nile to zkEvm txid: " + txid);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt()
+        .getResultValue() == 1);
+    fromHashRealUsdtNileToZkEvm = String.valueOf(txid);
+
+    //transfer real usdt to testAddress
+    data = "\"" + WalletClient.encode58Check(testAddress) + "\"" + "," + depositRealUsdtAmount;
+    txid = PublicMethed.triggerContract(WalletClient.decodeFromBase58Check(realUsdt58),
+        "transfer(address,uint256)", data, false,
+        0L, 5000000000L, PublicMethed.getFinalAddress(ZkEvmClient.nileFoundationKey), ZkEvmClient.nileFoundationKey, blockingStubFull);
+
+    logger.info("send real usdt to testAddress txid: " + txid);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt()
+        .getResultValue() == 1);
+
   }
 
   @Test(enabled = true)
@@ -197,6 +231,20 @@ public static  BigInteger depositTrxFromZkEvmToNileAmount;
     Assert.assertTrue(retry > 0);
     Assert.assertEquals(ethBalance,new BigInteger(String.valueOf(depositTrxAmount)).multiply(new BigInteger(String.valueOf(trxToZkEvmPrecision))));
     logger.info("Trx deposit auto to zkEvm cost time: " + (System.currentTimeMillis() - startTime));
+
+    HttpResponse response = PublicMethodForZkEvm.getAccountTokenBalanceHttp(PublicMethodForZkEvm.getETHAddress(testAddress), Integer.valueOf(ZkEvmClient.netZkEvm));
+    JSONObject resContent = PublicMethodForZkEvm.parseResponseContent(response);
+    Assert.assertEquals(3, resContent.size());
+    JSONArray dataArray = resContent.getJSONArray("data");
+    Assert.assertEquals(5, dataArray.size());
+    for (Object tem : dataArray) {
+      JSONObject obj = (JSONObject) tem;
+      String address = obj.getString("address");
+      if (address.equalsIgnoreCase(ZkEvmClient.zeroAddressInZkEvm)) {
+        Assert.assertEquals(obj.getString("balance"), ethBalance.toString());
+        break;
+      }
+    }
   }
 
 

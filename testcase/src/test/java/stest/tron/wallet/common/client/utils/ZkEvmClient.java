@@ -60,6 +60,8 @@ public class ZkEvmClient {
   public static String receiveAddress = "";
   public static int netTron = 0;
   public static int netZkEvm = 1;
+  public static int tokenPrecision6 = 6;
+  public static int tokenPrecision18 = 18;
   public static String usdtAddressInTron = "0xECa9bC828A3005B9a3b909f2cc5c2a54794DE05F";
   public static String bttAddressInTron = "0xd5A8752a5Fc64A1cE09Df7B195df6b669d09271F";
   public static String usddAddressInTron = "0x4a3a5dd265bd974B4DE0Bbe33FAa7EFb8b7b87e8";
@@ -72,6 +74,7 @@ public class ZkEvmClient {
   public static String tokenTypeTrx = "TRX";
   public static String tokenTypeErc20 = "ERC20";
   public static String tokenTypeTrc20 = "TRC20";
+
 
   private ZkEvmClient() {
   }
