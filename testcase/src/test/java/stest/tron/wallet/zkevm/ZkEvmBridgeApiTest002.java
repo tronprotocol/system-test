@@ -25,6 +25,7 @@ public class ZkEvmBridgeApiTest002 {
     FullFlow.fromHashTrxNileToZkEvm = "0xf2171b68488dbed50abb082a66b1188285f562d752bb8aff5ff76cfa8c8e5895";
     FullFlow.fromHashUsdtNileToZkEvmFirst = "0xf3e8dde5333891f05051ad91aed9b2a02c88fc6b619f392d18ae71ef818bb9c9";
     FullFlow.fromHashUsdtNileToZkEvmSecond = "0xbe65e8ff5d70920e3e1f7f5183a3a4d82a75dbbb34f64e4565854387730d3724";
+    FullFlow.fromHashRealUsdtNileToZkEvm = "0x815a25402483217099bb1854269a564748b17bd71f3fe6b4ea6429e0adc1a771";
     FullFlow.zkEvmDepositTrxTxid = "0x0x26dd8cdbf2c18a3bfa888f473dd79c9e92d7875641d367e57051506e918f7535";
     FullFlow.zkEvmDepositUsdtTxid = "0x687c72dabe6bb4f032beadf633de7266493fb7e1d94689cffe7bc50046c52767";
     FullFlow.testAddress = ByteArray.fromHexString("418ea3b57809c9266812b30cf546d32eaed9f7536d");
@@ -62,6 +63,7 @@ public class ZkEvmBridgeApiTest002 {
       long block_num = Long.valueOf(obj.getString("block_num"));
       long deposit_cnt = Long.valueOf(obj.getString("deposit_cnt"));
       String claim_tx_hash = obj.getString("claim_tx_hash");
+      String metadata = obj.getString("metadata");
       Assert.assertEquals(leaf_type, 0);
       Assert.assertEquals(orig_net, ZkEvmClient.netTron);
       Assert.assertTrue(block_num > 0);
@@ -76,6 +78,7 @@ public class ZkEvmBridgeApiTest002 {
         Assert.assertEquals(network_id, ZkEvmClient.netTron);
         Assert.assertTrue(ready_for_claim);
         Assert.assertTrue(claim_tx_hash.length() > 0);
+        Assert.assertEquals(metadata, "0x");
       } else if (tx_hash.contains(FullFlow.fromHashUsdtNileToZkEvmFirst.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), usdtAddress);
         Assert.assertEquals(amount, FullFlow.depositUsdtAmount.toString());
@@ -84,6 +87,7 @@ public class ZkEvmBridgeApiTest002 {
         Assert.assertEquals(network_id, ZkEvmClient.netTron);
         Assert.assertTrue(ready_for_claim);
         Assert.assertTrue(claim_tx_hash.length() > 0);
+        Assert.assertTrue(metadata.length() > 2);
       } else if (tx_hash.contains(FullFlow.fromHashUsdtNileToZkEvmSecond.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), usdtAddress);
         Assert.assertEquals(amount, FullFlow.depositUsdtAmount.toString());
@@ -92,12 +96,23 @@ public class ZkEvmBridgeApiTest002 {
         Assert.assertEquals(network_id, ZkEvmClient.netTron);
         Assert.assertTrue(ready_for_claim);
         Assert.assertTrue(claim_tx_hash.length() > 0);
+        Assert.assertTrue(metadata.length() > 2);
+      } else if (tx_hash.contains(FullFlow.fromHashRealUsdtNileToZkEvm.toLowerCase())) {
+        Assert.assertEquals(orig_addr.toLowerCase(), ZkEvmClient.usdtAddressInTron.toLowerCase());
+        Assert.assertEquals(amount, FullFlow.depositRealUsdtAmount.toString());
+        Assert.assertEquals(dest_net, ZkEvmClient.netZkEvm);
+        Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
+        Assert.assertEquals(network_id, ZkEvmClient.netTron);
+        Assert.assertTrue(ready_for_claim);
+        Assert.assertTrue(claim_tx_hash.length() > 0);
+        Assert.assertTrue(metadata.length() > 2);
       } else if (tx_hash.contains(FullFlow.zkEvmDepositTrxTxid.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), ZkEvmClient.zeroAddressInZkEvm);
         Assert.assertEquals(amount, FullFlow.depositTrxFromZkEvmToNileAmount.toString());
         Assert.assertEquals(dest_net, ZkEvmClient.netTron);
         Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
         Assert.assertEquals(network_id, ZkEvmClient.netZkEvm);
+        Assert.assertEquals(metadata, "0x");
 //        Assert.assertFalse(ready_for_claim);
       } else if (tx_hash.contains(FullFlow.zkEvmDepositUsdtTxid.toLowerCase())) {
         Assert.assertEquals(orig_addr.toLowerCase(), usdtAddress.toLowerCase());
@@ -105,6 +120,7 @@ public class ZkEvmBridgeApiTest002 {
         Assert.assertEquals(dest_net, ZkEvmClient.netTron);
         Assert.assertEquals(dest_addr.toLowerCase(), queryAddress.toLowerCase());
         Assert.assertEquals(network_id, ZkEvmClient.netZkEvm);
+        Assert.assertEquals(metadata, "0x");
 //        Assert.assertFalse(ready_for_claim);
       }
     }
