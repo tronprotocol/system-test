@@ -255,6 +255,8 @@ public class MongoEventQuery003 extends MongoBase {
     Assert.assertTrue(
         jsonObject.getLong("latestSolidifiedBlockNumber") < latestSolidifiedBlockNumber);
 
+    logger.info("latestSolidifiedBlockNumber:" + latestSolidifiedBlockNumber);
+    logger.info("jsonObject.getLong(\"latestSolidifiedBlockNumber\"):" + jsonObject.getLong("latestSolidifiedBlockNumber"));
     Assert.assertTrue(
         (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 5);
   }

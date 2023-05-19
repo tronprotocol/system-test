@@ -13,6 +13,7 @@
         <exclude name="stest.tron.wallet.dailybuild.jsonrpc"></exclude>
         <exclude name="stest.tron.wallet.dailybuild.eventquery"></exclude>
         <exclude name="stest.tron.wallet.dailybuild.zentrc20token"></exclude>
+        <exclude name="stest.tron.wallet.dailybuild.eventquery"></exclude>
       </package>
     </packages>
   </test>
@@ -25,6 +26,7 @@
       <package name="stest.tron.wallet.dailybuild.eventquery">
       </package>
       <package name="stest.tron.wallet.dailybuild.zentrc20token"></package>
+      <package name="stest.tron.wallet.dailybuild.eventquery"></package>
       <package name="stest.tron.wallet.dailybuild.separateExecution.*">
       </package>
     </packages>

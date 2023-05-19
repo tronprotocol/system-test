@@ -267,7 +267,7 @@ public class MongoEventQuery002 extends MongoBase {
   @Test(enabled = true, description = "MongoDB Event query for transaction")
   public void test01EventQueryForTransaction() throws InterruptedException {
     BasicDBObject query = new BasicDBObject();
-    //PublicMethed.waitProduceNextBlock(blockingStubFull);
+    logger.info("deployContractTxId:" + deployContractTxId);
     query.put("transactionId", deployContractTxId);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
@@ -331,12 +331,15 @@ public class MongoEventQuery002 extends MongoBase {
             event003Key,
             blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    logger.info("txIdIndex0:" + txIdIndex0);
+    logger.info("txIdIndex2:" + txIdIndex2);
     response = HttpMethed.getTransactionInfoById(httpFullNode, txId);
     responseContent = HttpMethed.parseResponseContent(response);
     blockNumber = responseContent.getInteger("blockNumber");
     logger.info("blockNumber:" + blockNumber);
     response = HttpMethed.getBlockByNum(httpFullNode, blockNumber);
     responseContent = HttpMethed.parseResponseContent(response);
+
 /*
     index = 2;
     transactionIdList = new ArrayList<>();
@@ -379,7 +382,7 @@ public class MongoEventQuery002 extends MongoBase {
     query.put("transactionId", txIdIndex0);
     findIterable = mongoDatabase.getCollection("transaction").find(query);
     mongoCursor = findIterable.iterator();
-    retryTimes = 50;
+    retryTimes = 10;
     document = null;
 
     while (retryTimes-- > 0) {
