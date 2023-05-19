@@ -132,7 +132,6 @@ test {
 
 task stest(type: Test) {
     doFirst{
-        println "sssssssss  111"
         useTestNG {
             suites(file('src/test/resources/testng.xml'))
             parallel 'tests'
@@ -149,7 +148,6 @@ task stest(type: Test) {
             destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
             classDumpDir = file("$buildDir/jacoco/classpathdumps")
         }
-        println "sssssssss 222"
     }
 }
 
@@ -180,14 +178,12 @@ task replaceConfig(type: Test){
 
 task dailyBuild(type: Test, dependsOn: replaceConfig ) {
     doFirst{
-        println "ddddddddd 111"
         maxHeapSize = "3072m"
         useTestNG {
             suites(file('src/test/resources/daily-build.xml'))
             parallel 'tests'
             threadCount 2
         }
-        println "ddddddddd 22222"
     }
 
 }

@@ -905,12 +905,7 @@ public class PublicMethed {
       byte[] receiverAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     if(freezeV2ProposalIsOpen(blockingStubFull)) {
-      long amount = queryAccount(address, blockingStubFull).getFrozenV2(resourceCode).getAmount();
-      logger.info("unFreezeBalance amount:  " + amount);
-      if(amount <= 0) {
-        return false;
-      }
-      return unFreezeBalanceV2(address,priKey,amount, resourceCode,blockingStubFull);
+      return unFreezeBalanceV2(address,priKey,0,resourceCode,blockingStubFull);
     } else {
       return unFreezeBalanceV1(address,priKey,resourceCode,receiverAddress,blockingStubFull);
     }
