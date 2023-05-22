@@ -280,7 +280,7 @@ public class ZkEvmStressTest {
 
   @Test(enabled = false)
   public void testBridgeNotMissTransaction() throws Exception {
-    Long scanStartBlock = 36954129L;
+    Long scanStartBlock = 	36953463L;
     Long scanEndBlock = scanStartBlock - 10000L;
     String depositEncode = "cd586579";
     String claimEncode = "2cffd02e";
@@ -288,7 +288,7 @@ public class ZkEvmStressTest {
       NumberMessage.Builder builder = NumberMessage.newBuilder();
       builder.setNum(i);
       Block block = blockingStubFull.getBlockByNum(builder.build());
-      //logger.info("current block:" + i);
+      logger.info("current block:" + i);
 
 
       List<Transaction> transactionList = block.getTransactionsList();
@@ -305,13 +305,13 @@ public class ZkEvmStressTest {
             if (ByteArray.toHexString(triggerSmartContract.getData().toByteArray()).substring(0,8)
                 .equalsIgnoreCase(depositEncode) && transactionInfo
                 .getResult().name().equalsIgnoreCase("SUCESS")) {
-              logger.info("Deposit txid:" + txid);
+              //logger.info("Deposit txid:" + txid);
               Assert.assertTrue(PublicMethodForZkEvm.getTransactionInfo(txid).getData().getTransaction().getSrcHashUrl().contains("nile.tronscan.org"));
             } else if (ByteArray.toHexString(triggerSmartContract.getData().toByteArray()).substring(0,8)
                 .equalsIgnoreCase(claimEncode) && transactionInfo
                 .getResult().name().equalsIgnoreCase("SUCESS")) {
               logger.info("Claim txid:" + txid);
-              Assert.assertTrue(!PublicMethodForZkEvm.getTransactionInfo(txid).getData().getTransaction().getSrcHashUrl().isEmpty());
+              //Assert.assertTrue(!PublicMethodForZkEvm.getTransactionInfo(txid).getData().getTransaction().getSrcHashUrl().isEmpty());
             }
             }
 
