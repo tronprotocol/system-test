@@ -1,4 +1,4 @@
-package stest.tron.wallet.dailybuild.account;
+package stest.tron.wallet.dailybuild.separateExecution;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -65,7 +65,7 @@ public class GetAccountBalance001 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, priority=1,description = "Test get account balance")
+  @Test(enabled = true, dependsOnMethods = {"test04UnfreezeBalanceForTronPower"},priority=1,description = "Test get account balance")
   public void test01GetAccountBalance() {
     Protocol.Block currentBlock = blockingStubFull
         .getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
@@ -76,7 +76,7 @@ public class GetAccountBalance001 {
 
   }
 
-  @Test(enabled = true, priority=1,description = "Test get block balance")
+  @Test(enabled = true, dependsOnMethods = {"test04UnfreezeBalanceForTronPower"},priority=1,description = "Test get block balance")
   public void test02GetBlockBalance() {
     String txid = PublicMethed.sendcoinGetTransactionId(testAddress, sendAmount, sendAddress,
         sendKey, blockingStubFull);

@@ -63,7 +63,7 @@ public class WalletTestAccount012 {
 
   }
 
-  @Test(enabled = true, description = "Freeze balance to get tron power")
+  @Test(enabled = true, priority = 100,description = "Freeze balance to get tron power")
   public void test01FreezeBalanceGetTronPower() {
 
 
@@ -120,7 +120,7 @@ public class WalletTestAccount012 {
   }
 
 
-  @Test(enabled = true,description = "Vote witness by tron power")
+  @Test(enabled = true,priority = 100,description = "Vote witness by tron power")
   public void test02VotePowerOnlyComeFromTronPower() {
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(frozenAddress, blockingStubFull);
@@ -156,7 +156,7 @@ public class WalletTestAccount012 {
 
   }
 
-  @Test(enabled = true,description = "Tron power is not allow to others")
+  @Test(enabled = true,priority = 100,description = "Tron power is not allow to others")
   public void test03TronPowerIsNotAllowToOthers() throws Exception{
     Assert.assertFalse(PublicMethed.freezeBalanceGetTronPower(frozenAddress,
         frozenAmountForTronPower, 0,2,
@@ -164,7 +164,7 @@ public class WalletTestAccount012 {
   }
 
 
-  @Test(enabled = true,description = "Unfreeze balance for tron power")
+  @Test(enabled = true,priority = 100,description = "Unfreeze balance for tron power")
   public void test04UnfreezeBalanceForTronPower() {
     AccountResourceMessage accountResource = PublicMethed
         .getAccountResource(foundationAddress, blockingStubFull);
