@@ -141,9 +141,9 @@ public class EventQuery002 {
         sendTransaction = true;
       }
     }
-
+    logger.info("Final transaction message:" + transactionMessage);
     Assert.assertTrue(retryTimes > 0);
-    logger.info("transaction message:" + transactionMessage);
+
     JSONObject blockObject = JSONObject.parseObject(transactionMessage);
     Assert.assertTrue(blockObject.containsKey("timeStamp"));
     Assert.assertEquals(blockObject.getString("triggerName"), "transactionTrigger");
