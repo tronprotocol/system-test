@@ -2,6 +2,7 @@ package stest.tron.wallet.zkevm;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -13,12 +14,14 @@ import stest.tron.wallet.common.client.utils.ZkEvmClient;
 
 import java.math.BigInteger;
 
+@Slf4j
 public class ZkEvmBridgeApiTest002 {
   String trxAmount = new BigInteger(String.valueOf(FullFlow.depositTrxAmount))
       .multiply(new BigInteger(String.valueOf(FullFlow.trxToZkEvmPrecision))).toString();
   String queryAddress ;
   String usdtAddress ;
   JSONObject bridgesTrxNileToZkEvm;
+  JSONObject bridgesUsdtZkEvmToNile;
 
   @BeforeClass
   public void beforeClass() {
@@ -115,6 +118,7 @@ public class ZkEvmBridgeApiTest002 {
         Assert.assertEquals(metadata, "0x");
 //        Assert.assertFalse(ready_for_claim);
       } else if (tx_hash.contains(FullFlow.zkEvmDepositUsdtTxid.toLowerCase())) {
+        bridgesUsdtZkEvmToNile = obj;
         Assert.assertEquals(orig_addr.toLowerCase(), usdtAddress.toLowerCase());
         Assert.assertEquals(Long.valueOf(amount).longValue(), FullFlow.depositUsdtFromZkEvmToNileAmount.longValue());
         Assert.assertEquals(dest_net, ZkEvmClient.netTron);
@@ -130,12 +134,19 @@ public class ZkEvmBridgeApiTest002 {
   /** constructor. */
   @Test(enabled = true, description = "api bridge")
   public void test02Bridge() {
-    System.out.println(bridgesTrxNileToZkEvm.toJSONString());
-    String cnt = bridgesTrxNileToZkEvm.getString("deposit_cnt");
-    HttpResponse response = PublicMethodForZkEvm.getBridgeHttp(ZkEvmClient.netTron, Integer.valueOf(cnt));
+    logger.info(bridgesTrxNileToZkEvm.toJSONString());
+    String trxNileToZkEvmCnt = bridgesTrxNileToZkEvm.getString("deposit_cnt");
+    HttpResponse response = PublicMethodForZkEvm.getBridgeHttp(ZkEvmClient.netTron, Integer.valueOf(trxNileToZkEvmCnt));
     JSONObject resContent = PublicMethodForZkEvm.parseResponseContent(response);
     JSONObject bridgeTrxNileToZkEvm = resContent.getJSONObject("deposit");
     Assert.assertEquals(bridgesTrxNileToZkEvm.toJSONString(), bridgeTrxNileToZkEvm.toJSONString());
+
+    logger.info(bridgesUsdtZkEvmToNile.toJSONString());
+    String usdtZkEvmToNileCnt = bridgesUsdtZkEvmToNile.getString("deposit_cnt");
+    response = PublicMethodForZkEvm.getBridgeHttp(ZkEvmClient.netZkEvm, Integer.valueOf(usdtZkEvmToNileCnt));
+    resContent = PublicMethodForZkEvm.parseResponseContent(response);
+    JSONObject bridgeUsdtZkEvmToNile = resContent.getJSONObject("deposit");
+    Assert.assertEquals(bridgesUsdtZkEvmToNile.toJSONString(), bridgeUsdtZkEvmToNile.toJSONString());
   }
 
   /** constructor. */
