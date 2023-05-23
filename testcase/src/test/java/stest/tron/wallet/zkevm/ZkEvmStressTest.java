@@ -5,6 +5,9 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ProtocolStringList;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -280,8 +283,8 @@ public class ZkEvmStressTest {
 
   @Test(enabled = false)
   public void testBridgeNotMissTransaction() throws Exception {
-    Long scanStartBlock = 	36953463L;
-    Long scanEndBlock = scanStartBlock - 10000L;
+    Long scanStartBlock = 	36959733L;
+    Long scanEndBlock = scanStartBlock - 20000L;
     String depositEncode = "cd586579";
     String claimEncode = "2cffd02e";
     for(long i = scanStartBlock; i >= scanEndBlock; i--) {
@@ -306,11 +309,16 @@ public class ZkEvmStressTest {
                 .equalsIgnoreCase(depositEncode) && transactionInfo
                 .getResult().name().equalsIgnoreCase("SUCESS")) {
               //logger.info("Deposit txid:" + txid);
-              Assert.assertTrue(PublicMethodForZkEvm.getTransactionInfo(txid).getData().getTransaction().getSrcHashUrl().contains("nile.tronscan.org"));
+              //Assert.assertTrue(PublicMethodForZkEvm.getTransactionInfo(txid).getData().getTransaction().getSrcHashUrl().contains("nile.tronscan.org"));
+              String[] array = ZkEvmClient.stringToStringArray(ByteArray.toHexString(triggerSmartContract.getData().toByteArray()).substring(8),64);
+              writeDataToCsvFile("zkevm_stress.csv",txid + ","
+                  + ZkEvmClient.getConvertAddress("0x" + array[1].substring(24)) + ","
+              + "0x" + array[1].substring(24));
             } else if (ByteArray.toHexString(triggerSmartContract.getData().toByteArray()).substring(0,8)
                 .equalsIgnoreCase(claimEncode) && transactionInfo
                 .getResult().name().equalsIgnoreCase("SUCESS")) {
               logger.info("Claim txid:" + txid);
+
               //Assert.assertTrue(!PublicMethodForZkEvm.getTransactionInfo(txid).getData().getTransaction().getSrcHashUrl().isEmpty());
             }
             }
@@ -334,6 +342,32 @@ public class ZkEvmStressTest {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
+
+
+
+  /**
+   * constructor.
+   */
+  public static void writeDataToCsvFile(String fileName,String writeData) {
+
+    {
+      try {
+        File file = new File(fileName);
+
+        if (!file.exists()) {
+          file.createNewFile();
+        }
+        FileWriter fileWritter = new FileWriter(file.getName(), true);
+        fileWritter.write(writeData + "\n");
+        fileWritter.close();
+        //System.out.println("finish");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+
 
 }
 
