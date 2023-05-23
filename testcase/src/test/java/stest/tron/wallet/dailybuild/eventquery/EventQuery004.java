@@ -152,10 +152,10 @@ public class EventQuery004 {
                 event001Key,
                 blockingStubFull);
         logger.info(txid);
-        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
+/*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
-        }
+        }*/
       }
 
       if (message != null) {
@@ -234,10 +234,10 @@ public class EventQuery004 {
                 event001Key,
                 blockingStubFull);
         logger.info(txid);
-        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
+/*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
-        }
+        }*/
       }
 
       if (message != null) {
