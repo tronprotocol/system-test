@@ -111,7 +111,7 @@ public class TransactionFee001 {
     blockingStubPbft = WalletSolidityGrpc.newBlockingStub(channelPbft);
   }
 
-  @Test(enabled = true, priority=2, description = "Test deploy contract with energy fee to sr")
+  @Test(enabled = true, retryAnalyzer = Retry.class, priority=2, description = "Test deploy contract with energy fee to sr")
   public void test01DeployContractEnergyFeeToSr() {
     Assert.assertTrue(
         PublicMethed.sendcoin(
