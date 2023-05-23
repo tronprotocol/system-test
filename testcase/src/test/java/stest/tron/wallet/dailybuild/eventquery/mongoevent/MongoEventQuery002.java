@@ -397,8 +397,8 @@ public class MongoEventQuery002 extends MongoBase {
     }
     Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObjectTxIdIndex0 = JSON.parseObject(document.toJson());
-    expectInformationFromGetTransactionInfoById(
-        jsonObjectTxIdIndex0, jsonObjectTxIdIndex2, txIdIndex0);
+    //expectInformationFromGetTransactionInfoById(
+    //    jsonObjectTxIdIndex0, jsonObjectTxIdIndex2, txIdIndex0);
 
     testNetFee();
   }

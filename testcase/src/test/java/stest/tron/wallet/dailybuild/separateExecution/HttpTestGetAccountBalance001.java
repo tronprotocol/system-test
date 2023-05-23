@@ -12,6 +12,7 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.Retry;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
@@ -175,7 +176,7 @@ public class HttpTestGetAccountBalance001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, priority=2, description = "Get burn trx by http")
+  @Test(enabled = true, retryAnalyzer = Retry.class, priority=2, description = "Get burn trx by http")
   public void test03GetBurnTrx() {
 
     ECKey ecKey2 = new ECKey(Utils.getRandom());

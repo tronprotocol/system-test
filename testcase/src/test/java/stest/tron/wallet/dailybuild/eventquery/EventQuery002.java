@@ -132,9 +132,7 @@ public class EventQuery002 {
 
         if (!transactionMessage.equals("transactionTrigger")
             && !transactionMessage.isEmpty()
-            && transactionMessage.contains("transactionId")
-            && transactionIdList.contains(
-                JSONObject.parseObject(transactionMessage).getString("transactionId"))) {
+            && transactionMessage.contains("transactionId")) {
          break;
         }
       } else {

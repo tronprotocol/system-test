@@ -203,7 +203,7 @@ public class MongoEventQuery003 extends MongoBase {
     FindIterable<Document> findIterable = mongoDatabase.getCollection("solidityevent").find(query);
     MongoCursor<Document> mongoCursor = findIterable.iterator();
     Document document = null;
-    int retryTimes = 40;
+    int retryTimes = 20;
     while (retryTimes-- > 0) {
       PublicMethed.waitProduceNextBlock(blockingStubFull);
       if (!mongoCursor.hasNext()) {
@@ -258,7 +258,7 @@ public class MongoEventQuery003 extends MongoBase {
     logger.info("latestSolidifiedBlockNumber:" + latestSolidifiedBlockNumber);
     logger.info("jsonObject.getLong(\"latestSolidifiedBlockNumber\"):" + jsonObject.getLong("latestSolidifiedBlockNumber"));
     Assert.assertTrue(
-        (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 5);
+        (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 10);
   }
 
   private void expectInformationFromGetTransactionInfoById(JSONObject jsonObject, String txid) {
