@@ -13,11 +13,13 @@
         <exclude name="stest.tron.wallet.dailybuild.jsonrpc"></exclude>
         <exclude name="stest.tron.wallet.dailybuild.eventquery"></exclude>
         <exclude name="stest.tron.wallet.dailybuild.zentrc20token"></exclude>
+        <exclude name="stest.tron.wallet.dailybuild.ratelimit"></exclude>
       </package>
     </packages>
   </test>
   <test name="http" parallel = "classes" thread-count = "1" preserve-order="true">
     <packages>
+      <package name="stest.tron.wallet.dailybuild.ratelimit.*"></package>
       <package name="stest.tron.wallet.dailybuild.http.*"></package>
       <package name="stest.tron.wallet.dailybuild.jsonrpc"></package>
       <package name="stest.tron.wallet.dailybuild.zentrc20token"></package>
