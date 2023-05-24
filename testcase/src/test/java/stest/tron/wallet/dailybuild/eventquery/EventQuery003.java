@@ -112,10 +112,9 @@ public class EventQuery003 {
     req.setReceiveTimeOut(10000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 20;
+    Integer retryTimes = 10;
     transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
-      byte[] message = req.recv();
       if (sendTransaction) {
         txid =
             PublicMethed.triggerContract(
@@ -136,6 +135,8 @@ public class EventQuery003 {
           sendTransaction = false;
         }
       }
+      byte[] message = req.recv();
+
 
       if (message != null) {
         transactionMessage = new String(message);

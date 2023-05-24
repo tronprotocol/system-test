@@ -105,7 +105,6 @@ public class EventQuery002 {
     Integer retryTimes = 20;
     transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
-      byte[] message = req.recv();
       if (sendTransaction) {
         txid =
             PublicMethed.triggerContract(
@@ -125,6 +124,8 @@ public class EventQuery002 {
           sendTransaction = false;
         }
       }
+      byte[] message = req.recv();
+
 
       if (message != null) {
         transactionMessage = new String(message);
