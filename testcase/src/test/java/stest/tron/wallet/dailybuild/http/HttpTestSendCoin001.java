@@ -32,7 +32,7 @@ public class HttpTestSendCoin001 {
       .getStringList("httpnode.ip.list").get(4);
   private JSONObject responseContent;
   private HttpResponse response;
-
+  String txid;
   /**
    * constructor.
    */
@@ -49,7 +49,7 @@ public class HttpTestSendCoin001 {
    */
   @Test(enabled = true, description = "Get transaction by id from solidity by http")
   public void test2GetTransactionByIdFromSolidity() {
-    String txid = HttpMethed
+    txid = HttpMethed
         .sendCoinGetTxid(httpnode, fromAddress, receiverAddress, amount, testKey002);
     HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
 
@@ -68,10 +68,6 @@ public class HttpTestSendCoin001 {
    */
   @Test(enabled = true, description = "Get transaction by id from PBFT by http")
   public void test3GetTransactionByIdFromPbft() {
-    String txid = HttpMethed
-        .sendCoinGetTxid(httpnode, fromAddress, receiverAddress, amount, testKey002);
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
-
     response = HttpMethed.getTransactionByIdFromPbft(httpPbftNode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -88,10 +84,6 @@ public class HttpTestSendCoin001 {
    */
   @Test(enabled = true, description = "Get transaction info by id from solidity by http")
   public void test4GetTransactionInfoByIdFromSolidity() {
-    String txid = HttpMethed
-        .sendCoinGetTxid(httpnode, fromAddress, receiverAddress, amount, testKey002);
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.getTransactionInfoByIdFromSolidity(httpSoliditynode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -103,10 +95,6 @@ public class HttpTestSendCoin001 {
    */
   @Test(enabled = true, description = "Get transaction info by id from PBFT by http")
   public void test5GetTransactionInfoByIdFromPbft() {
-    String txid = HttpMethed
-        .sendCoinGetTxid(httpnode, fromAddress, receiverAddress, amount, testKey002);
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.getTransactionInfoByIdFromPbft(httpPbftNode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
