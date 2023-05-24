@@ -1,4 +1,4 @@
-package stest.tron.wallet.dailybuild.eventquery.mongoevent;
+package stest.tron.wallet.dailybuild.eventquery;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
