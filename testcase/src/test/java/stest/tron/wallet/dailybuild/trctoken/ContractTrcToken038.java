@@ -85,8 +85,8 @@ public class ContractTrcToken038 {
     Assert.assertTrue(PublicMethed.createAssetIssue(dev001Address, tokenName, TotalSupply, 1,
         100, start, end, 1, description, url, 10000L,
         10000L, 1L, 1L, dev001Key, blockingStubFull));
-    assetAccountId = PublicMethed.queryAccount(dev001Address, blockingStubFull).getAssetIssuedID();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    assetAccountId = PublicMethed.queryAccount(dev001Address, blockingStubFull).getAssetIssuedID();
     Assert.assertFalse(assetAccountId.toStringUtf8().equals(""));
 
     // deploy transferTokenContract

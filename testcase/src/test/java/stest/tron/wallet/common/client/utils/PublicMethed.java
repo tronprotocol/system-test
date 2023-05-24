@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -154,6 +155,8 @@ public class PublicMethed {
   public static volatile String freezeV2Txid;
 
   public static String code;
+
+  public static AtomicInteger randomFreezeAmount = new AtomicInteger(1);
 
   private static final String fullnode2 = Configuration.getByPath("testng.conf")
           .getStringList("fullnode.ip.list").get(1);
