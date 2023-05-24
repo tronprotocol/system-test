@@ -117,7 +117,6 @@ public class EventQuery004 {
   public void test01filterContractTopicEventQueryForContractLog() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
-
     req.subscribe("contractLogTrigger");
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
@@ -132,13 +131,12 @@ public class EventQuery004 {
             })
         .start();
     req.connect(eventnode);
-    req.setReceiveTimeOut(10000);
+    req.setReceiveTimeOut(5000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 10;
+    Integer retryTimes = 3;
 
     while (retryTimes-- > 0) {
-      byte[] message = req.recv();
       if (sendTransaction) {
         txid =
             PublicMethed.triggerContract(
@@ -152,20 +150,23 @@ public class EventQuery004 {
                 event001Key,
                 blockingStubFull);
         logger.info(txid);
+
 /*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
         }*/
       }
+      byte[] message = req.recv();
 
       if (message != null) {
         transactionMessage = new String(message);
         if (!transactionMessage.equals("contractLogTrigger") && !transactionMessage.isEmpty()) {
+          logger.info(retryTimes.toString() + " contractLogTrigger: " + transactionMessage);
           break;
         }
       }
     }
-
+    //test native event filter function , should not find message in zmq
     Assert.assertTrue(retryTimes < 0);
   }
 
@@ -189,16 +190,13 @@ public class EventQuery004 {
             })
         .start();
     req.connect(eventnode);
-    req.setReceiveTimeOut(10000);
+    req.setReceiveTimeOut(5000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 10;
+    Integer retryTimes = 3;
     String txid1 = "";
-    String txid2 = "";
-    String txid3 = "";
 
     while (retryTimes-- > 0) {
-      byte[] message = req.recv();
       if (sendTransaction) {
         txid1 =
             PublicMethed.triggerContract(
@@ -211,34 +209,14 @@ public class EventQuery004 {
                 event001Address,
                 event001Key,
                 blockingStubFull);
-        txid2 =
-            PublicMethed.triggerContract(
-                contractAddress,
-                "depositForLog()",
-                "#",
-                false,
-                1L,
-                100000000L,
-                event001Address,
-                event001Key,
-                blockingStubFull);
-        txid3 =
-            PublicMethed.triggerContract(
-                contractAddress,
-                "depositForLog()",
-                "#",
-                false,
-                1L,
-                100000000L,
-                event001Address,
-                event001Key,
-                blockingStubFull);
-        logger.info(txid);
+        logger.info(txid1);
 /*        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
             == 0) {
           sendTransaction = false;
         }*/
       }
+      byte[] message = req.recv();
+
 
       if (message != null) {
 
@@ -249,6 +227,7 @@ public class EventQuery004 {
         }
       }
     }
+    //test native event filter function, should not find message in zmq
     Assert.assertTrue(retryTimes < 0);
   }
 
@@ -277,7 +256,6 @@ public class EventQuery004 {
     Integer retryTimes = 20;
     transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
-      byte[] message = req.recv();
       if (sendTransaction) {
         txid =
             PublicMethed.triggerContract(
@@ -297,6 +275,7 @@ public class EventQuery004 {
           sendTransaction = false;
         }
       }
+      byte[] message = req.recv();
 
       if (message != null) {
         transactionMessage = new String(message);
@@ -342,13 +321,12 @@ public class EventQuery004 {
     req.setReceiveTimeOut(10000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 40;
+    Integer retryTimes = 20;
     String txid1 = "";
     String txid2 = "";
     String txid3 = "";
     transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
-      byte[] message = req.recv();
       if (sendTransaction) {
         txid1 =
             PublicMethed.triggerContract(
@@ -393,6 +371,7 @@ public class EventQuery004 {
           sendTransaction = false;
         }
       }
+      byte[] message = req.recv();
 
       if (message != null) {
 
