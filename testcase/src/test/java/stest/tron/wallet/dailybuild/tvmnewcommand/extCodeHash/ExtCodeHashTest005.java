@@ -680,14 +680,6 @@ public class ExtCodeHashTest005 {
         .getContract(extCodeHashContractAddress, blockingStubFull);
     logger.info(smartContract.getBytecode().toStringUtf8());
 
-    PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
-        dev001Address, blockingStubFull);
-    PublicMethed.unFreezeBalance(fromAddress, testKey002, 0,
-        dev001Address, blockingStubFull);
-    PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
-        user001Address, blockingStubFull);
-    PublicMethed.unFreezeBalance(fromAddress, testKey002, 0,
-        user001Address, blockingStubFull);
   }
 
 
@@ -700,6 +692,8 @@ public class ExtCodeHashTest005 {
     PublicMethed.freedResource(dev001Address, dev001Key, fromAddress, blockingStubFull);
     PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, user001Address, blockingStubFull);
     PublicMethed.unFreezeBalance(fromAddress, testKey002, 0, dev001Address, blockingStubFull);
+    PublicMethed.unFreezeBalance(fromAddress, testKey002, 1, dev001Address, blockingStubFull);
+    PublicMethed.unFreezeBalance(fromAddress, testKey002, 1, user001Address, blockingStubFull);
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
