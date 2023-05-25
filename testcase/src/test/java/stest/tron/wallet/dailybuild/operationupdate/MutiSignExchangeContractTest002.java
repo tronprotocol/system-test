@@ -194,11 +194,7 @@ public class MutiSignExchangeContractTest002 {
             assetAccountId2.toByteArray(), secondTokenInitialBalance, exchange001Address,
             exchange001Key, blockingStubFull, 2, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    //for blockingStubFull2 sync in PublicMethod.getExchangeIdByCreatorAddress
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    exchangeId = PublicMethed.getExchangeIdByCreatorAddress(exchange001Address).intValue();
-
+    exchangeId = PublicMethed.getExchangeIdByCreatorAddress(exchange001Address, blockingStubFull).intValue();
     Long balanceAfter = PublicMethed.queryAccount(exchange001Address, blockingStubFull)
         .getBalance();
     logger.info("balanceAfter: " + balanceAfter);
