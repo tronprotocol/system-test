@@ -243,7 +243,7 @@ public class ExtCodeHashTest007 {
             "0", 0, null, dev001Key,
             dev001Address, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();

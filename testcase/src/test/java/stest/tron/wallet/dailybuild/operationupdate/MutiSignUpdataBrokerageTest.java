@@ -112,14 +112,14 @@ public class MutiSignUpdataBrokerageTest {
 
     //Update brokerage
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertEquals(PublicMethed.getBrokerage(witness001Address, blockingStubFull), 20L);
     Assert.assertTrue(PublicMethedForMutiSign
         .updateBrokerage(witness001Address, 70, witnessKey001, 2, permissionKeyString,
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     // wait a MaintenanceTimeInterval
     accountPermissionJson = "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\""
