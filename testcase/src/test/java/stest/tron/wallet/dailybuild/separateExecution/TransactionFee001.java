@@ -563,7 +563,7 @@ public class TransactionFee001 {
     Assert.assertEquals(blackHoleBalance2, blackHoleBalance1);
     Long packingFee = infoById.get().getPackingFee();
     logger.info("receipt:" + infoById.get().getReceipt());
-    Assert.assertTrue(packingFee == 0L);
+    Assert.assertTrue(packingFee == infoById.get().getReceipt().getNetFee());
     Assert.assertTrue(infoById.get().getFee() < maxFeeLimit);
     afterBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
     Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getFee());

@@ -53,7 +53,6 @@ public class HttpTestSmartContract001 {
   @Test(enabled = true, description = "Deploy smart contract by http")
   public void test1DeployContract() {
     PublicMethed.printAddress(assetOwnerKey);
-    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, testKey002);
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetReceiverAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -285,7 +284,7 @@ public class HttpTestSmartContract001 {
   /** constructor. */
   @Test(enabled = true, description = "Get transaction info by http from solidity")
   public void test5GetTransactionInfoByBlocknumFromSolidity() {
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
+    HttpMethed.waitUntilFixedBlockFromSolidity(responseCon1.getIntValue("blockNumber"), httpSolidityNode);
     HttpResponse responseByBlocknum =
         HttpMethed.getTransactionInfoByBlocknumFromSolidity(
             httpSolidityNode, responseCon1.getLong("blockNumber"));
@@ -308,7 +307,7 @@ public class HttpTestSmartContract001 {
   /** constructor. */
   @Test(enabled = true, description = "Get transaction info by http from real solidity")
   public void test6GetTransactionInfoByBlocknumFromRealSolidity() {
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpRealSolidityNode);
+    HttpMethed.waitUntilFixedBlockFromSolidity(responseCon1.getIntValue("blockNumber"), httpRealSolidityNode);
     HttpResponse responseByBlocknum =
         HttpMethed.getTransactionInfoByBlocknumFromSolidity(
             httpRealSolidityNode, responseCon1.getLong("blockNumber"));
@@ -337,7 +336,6 @@ public class HttpTestSmartContract001 {
         HttpMethed.updateSetting(httpnode, assetOwnerAddress, contractAddress, 75, assetOwnerKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
-    responseContent = HttpMethed.parseResponseContent(response);
     response = HttpMethed.getContract(httpnode, contractAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -360,7 +358,6 @@ public class HttpTestSmartContract001 {
             httpnode, assetOwnerAddress, contractAddress, 1234567, assetOwnerKey);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
-    responseContent = HttpMethed.parseResponseContent(response);
     response = HttpMethed.getContract(httpnode, contractAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);

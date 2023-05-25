@@ -2663,6 +2663,26 @@ public class HttpMethed {
   }
 
   /** constructor. */
+  public static void waitUntilFixedBlockFromSolidity(int blockNum, String httpSolidityNode) {
+    response = HttpMethed.getNowBlockFromSolidity(httpSolidityNode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    Integer currentBlockNum = responseContent.getJSONObject("block_header").getJSONObject("raw_data").getIntValue("number");
+    Integer times = 0;
+    while (currentBlockNum < blockNum
+        && times++ <= ((getWitnessNum() >= 27) ? 27 : getWitnessNum() + 4)) {
+      try {
+        Thread.sleep(3000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      response = HttpMethed.getNowBlockFromSolidity(httpSolidityNode);
+      responseContent = HttpMethed.parseResponseContent(response);
+      currentBlockNum = responseContent.getJSONObject("block_header").getJSONObject("raw_data").getIntValue("number");
+    }
+    logger.info("currentBlockNum2:" + currentBlockNum);
+  }
+
+  /** constructor. */
   public static void waitToProduceOneBlockFromPbft(String httpNode, String httpSolidityNode) {
     response = HttpMethed.getNowBlock(httpNode);
     responseContent = HttpMethed.parseResponseContent(response);
