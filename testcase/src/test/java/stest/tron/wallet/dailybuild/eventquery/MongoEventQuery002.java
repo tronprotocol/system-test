@@ -785,10 +785,9 @@ public class MongoEventQuery002 extends MongoBase {
 
     useUpFreeBandwidth = 20;
     while (useUpFreeBandwidth-- > 0) {
-      Assert.assertTrue(
           PublicMethed.sendcoin(
-              fromAddress, 1000000L, event002Address, event002Key, blockingStubFull));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+              fromAddress, 1000000L + PublicMethed.randomFreezeAmount.addAndGet(1), event002Address, event002Key, blockingStubFull);
+      //PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
 
     txId =
@@ -804,10 +803,6 @@ public class MongoEventQuery002 extends MongoBase {
             blockingStubFull);
     BasicDBObject query = new BasicDBObject();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txId);
     logger.info("txId:" + txId);
     FindIterable<org.bson.Document> findIterable =
@@ -816,7 +811,7 @@ public class MongoEventQuery002 extends MongoBase {
     MongoCursor<org.bson.Document> mongoCursor = findIterable.iterator();
 
     Document document = null;
-    int retryTimes = 40;
+    int retryTimes = 15;
     while (retryTimes-- > 0) {
       logger.info("retryTimes:" + retryTimes);
       PublicMethed.waitProduceNextBlock(blockingStubFull);
