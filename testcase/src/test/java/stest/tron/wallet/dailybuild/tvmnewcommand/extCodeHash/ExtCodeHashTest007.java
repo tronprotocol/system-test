@@ -137,8 +137,8 @@ public class ExtCodeHashTest007 {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     testAddressOld = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(testAddressOld,
-        blockingStubFull);
+//    SmartContract smartContract = PublicMethed.getContract(testAddressOld,
+//        blockingStubFull);
   }
 
   @Test(enabled = true, description = "Deploy testNoPayable contract using new solidity")
@@ -204,8 +204,8 @@ public class ExtCodeHashTest007 {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     testAddressNew = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(testAddressNew,
-        blockingStubFull);
+//    SmartContract smartContract = PublicMethed.getContract(testAddressNew,
+//        blockingStubFull);
   }
 
   @Test(enabled = true, description = "Deploy extcodehash contract")
@@ -266,8 +266,8 @@ public class ExtCodeHashTest007 {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(extCodeHashContractAddress,
-        blockingStubFull);
+//    SmartContract smartContract = PublicMethed.getContract(extCodeHashContractAddress,
+//        blockingStubFull);
   }
 
   @Test(enabled = true, description = "Get contract code hash with old solidity")
@@ -502,8 +502,8 @@ public class ExtCodeHashTest007 {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     testAddress2 = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(testAddress2,
-        blockingStubFull);
+//    SmartContract smartContract = PublicMethed.getContract(testAddress2,
+//        blockingStubFull);
   }
 
   @Test(enabled = true, description = "Get contract code hash with test2")
