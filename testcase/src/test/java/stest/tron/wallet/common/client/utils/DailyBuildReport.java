@@ -53,10 +53,17 @@ public class DailyBuildReport extends TestListenerAdapter {
   }
 
   @Override
+  public void onTestStart(ITestResult result) {
+    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Start");
+  }
+
+
+  @Override
   public void onTestSuccess(ITestResult result) {
     passedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
     passedNum++;
+    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Success");
   }
 
   @Override
@@ -64,6 +71,8 @@ public class DailyBuildReport extends TestListenerAdapter {
     failedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
     failedNum++;
+    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Failed");
+
   }
 
   @Override
@@ -71,6 +80,8 @@ public class DailyBuildReport extends TestListenerAdapter {
     skippedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
     skippedNum++;
+    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Skip");
+
   }
 
 
