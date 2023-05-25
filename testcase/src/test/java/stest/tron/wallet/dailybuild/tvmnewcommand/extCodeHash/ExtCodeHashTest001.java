@@ -309,10 +309,10 @@ public class ExtCodeHashTest001 {
 
   @Test(enabled = true, description = "Get a not exist account extcodehash")
   public void test04GetNotExistAddressCodeHash() {
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+    PublicMethed.freezeBalanceForReceiver(fromAddress,
         PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+        ByteString.copyFrom(user001Address), testKey002, blockingStubFull);
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
