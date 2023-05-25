@@ -119,6 +119,7 @@ public class FreezeBalanceV2Test002 {
     Assert.assertTrue(PublicMethed.sendcoin(receiveEnergyAddress, 1L,
         foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,freezeBandwidthBalance,0,frozenBandwidthKey,blockingStubFull));
     Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenEnergyAddress,freezeEnergyBalance,1,frozenEnergyKey,blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);

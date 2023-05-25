@@ -110,7 +110,7 @@ public class DynamicEnergyTest001 {
         "testUseStorage(uint256)", argsStr, false,
         0, maxFeeLimit, testAccountAddress, testAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long energyUsageTotal = PublicMethed.getTransactionInfoById(txid,blockingStubFull).get().getReceipt().getEnergyUsageTotal();
 
     contractState = PublicMethed.getContractInfo(contractAddress,blockingStubFull).getContractState();

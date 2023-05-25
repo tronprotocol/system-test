@@ -272,8 +272,8 @@ public class HttpTestZenToken001 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     HttpMethed.waitToProduceOneBlock(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
+//    HttpMethed.waitToProduceOneBlock(httpnode);
+//    HttpMethed.waitToProduceOneBlock(httpnode);
 
     List<ShieldNoteInfo> shieldNoteInfoByIvkList = HttpMethed
         .scanNoteByIvk(httpnode, shieldAddressOptionalInfo1.get());
@@ -344,7 +344,7 @@ public class HttpTestZenToken001 {
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     HttpMethed.waitToProduceOneBlock(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
+//    HttpMethed.waitToProduceOneBlock(httpnode);
 
     List<ShieldNoteInfo> shieldNoteInfoByOvkList = HttpMethed
         .scanNoteByOvk(httpnode, shieldAddressOptionalInfo3.get());

@@ -146,7 +146,7 @@ public class MutiSignClearContractAbiTest {
         0L, 100, null, ownerKey, ownerAddress, blockingStubFull, 2, permissionKeyString);
     logger.info("address:" + Base58.encode58Check(contractAddress));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString() != null);
     Assert.assertTrue(PublicMethedForMutiSign
@@ -220,7 +220,7 @@ public class MutiSignClearContractAbiTest {
         0L, 100, null, ownerKey, ownerAddress, blockingStubFull, 2, permissionKeyString);
     logger.info("address:" + Base58.encode58Check(contractAddress));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString() != null &&
         !("".equalsIgnoreCase(smartContract.getAbi().toString())));
@@ -272,7 +272,7 @@ public class MutiSignClearContractAbiTest {
         0L, 100, null, ownerKey, ownerAddress, blockingStubFull, 2, activeDefaultKeyString);
     logger.info("address:" + Base58.encode58Check(contractAddress));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getAbi().toString() != null);
     Assert.assertTrue(PublicMethedForMutiSign

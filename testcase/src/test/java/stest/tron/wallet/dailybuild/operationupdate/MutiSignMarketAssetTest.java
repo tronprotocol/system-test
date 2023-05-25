@@ -118,7 +118,7 @@ public class MutiSignMarketAssetTest {
             permissionKeyString,blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     MarketOrderList marketOrder = PublicMethed
         .getMarketOrderByAccount(testAddress001, blockingStubFull).get();
