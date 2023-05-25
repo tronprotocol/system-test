@@ -32,6 +32,7 @@ public class HttpTestClearAbiContract001 {
   String assetOwnerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   String contractAddress;
   String abi;
+  int blockNum;
   Long amount = 2048000000L;
   String description = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetDescription");
@@ -51,7 +52,6 @@ public class HttpTestClearAbiContract001 {
   @Test(enabled = true, description = "Deploy smart contract by http")
   public void test1DeployContract() {
     PublicMethed.printAddress(assetOwnerKey);
-    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -82,9 +82,9 @@ public class HttpTestClearAbiContract001 {
 
     response = HttpMethed.getTransactionInfoById(httpnode, txid);
     responseContent = HttpMethed.parseResponseContent(response);
-    String receiptString = responseContent.getString("receipt");
     Assert
-        .assertEquals(HttpMethed.parseStringContent(receiptString).getString("result"), "SUCCESS");
+        .assertEquals(responseContent.getJSONObject("receipt").getString("result"), "SUCCESS");
+    blockNum = responseContent.getIntValue("blockNumber") + 1;
   }
 
   /**
@@ -120,9 +120,7 @@ public class HttpTestClearAbiContract001 {
     Assert.assertEquals(responseContent.getString("constant_result"),
         "[\"0000000000000000000000000000000000000000000000000000000000000001\"]");
 
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode,httpSoliditynode);
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode,httpSoliditynode);
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode,httpSoliditynode);
+    HttpMethed.waitUntilFixedBlockFromSolidity(blockNum, httpSoliditynode);
     httpResponse = HttpMethed.triggerConstantContractFromSolidity(httpSoliditynode,
         assetOwnerAddress, contractAddress, "testView()", "");
 
