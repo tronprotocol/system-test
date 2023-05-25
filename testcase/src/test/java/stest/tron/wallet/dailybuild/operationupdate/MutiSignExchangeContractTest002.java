@@ -109,7 +109,7 @@ public class MutiSignExchangeContractTest002 {
     Assert.assertTrue(PublicMethed.sendcoin(secondExchange001Address, 10240000000L, fromAddress,
         testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed
-        .freezeBalanceForReceiver(fromAddress, 100000000000L, 0, 0,
+        .freezeBalanceForReceiver(fromAddress, 100000000000L + PublicMethed.randomFreezeAmount.addAndGet(1), 0, 0,
             ByteString.copyFrom(exchange001Address),
             testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
