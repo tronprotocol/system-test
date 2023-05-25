@@ -46,7 +46,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "FreezeBalance for bandwidth by http")
-  public void test001FreezebalanceForBandwidth() {
+  public void test001FreezeBalanceForBandwidth() {
     PublicMethed.printAddress(freezeBalanceKey);
     //Send trx to test account
     response = HttpMethed.sendCoin(httpnode, fromAddress, freezeBalanceAddress, amount, testKey002);
@@ -67,7 +67,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "UnFreezeBalance for bandwidth by http")
-  public void test002UnFreezebalanceForBandwidth() {
+  public void test002UnFreezeBalanceForBandwidth() {
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
     //UnFreeze balance for bandwidth
@@ -92,7 +92,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "FreezeBalance for energy by http")
-  public void test003FreezebalanceForEnergy() {
+  public void test003FreezeBalanceForEnergy() {
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
 
     //Freeze balance for energy
@@ -108,7 +108,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "UnFreezeBalance for energy by http")
-  public void test004UnFreezebalanceForEnergy() {
+  public void test004UnFreezeBalanceForEnergy() {
 
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -133,7 +133,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "FreezeBalance with bandwidth for others by http")
-  public void test005FreezebalanceOfBandwidthForOthers() {
+  public void test005FreezeBalanceOfBandwidthForOthers() {
     response = HttpMethed
         .sendCoin(httpnode, fromAddress, receiverResourceAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -279,10 +279,10 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "UnFreezeBalance with bandwidth for others by http")
-  public void test012UnFreezebalanceOfBandwidthForOthers() {
-    HttpMethed.waitToProduceOneBlock(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
+  public void test012UnFreezeBalanceOfBandwidthForOthers() {
+//    HttpMethed.waitToProduceOneBlock(httpnode);
+//    HttpMethed.waitToProduceOneBlock(httpnode);
+//    HttpMethed.waitToProduceOneBlock(httpnode);
     berforeBalance = HttpMethed.getBalance(httpnode, freezeBalanceAddress);
     //UnFreeze balance with bandwidth for others
     response = HttpMethed
@@ -308,7 +308,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "FreezeBalance with energy for others by http")
-  public void test013FreezebalanceOfEnergyForOthers() {
+  public void test013FreezeBalanceOfEnergyForOthers() {
     response = HttpMethed
         .sendCoin(httpnode, fromAddress, receiverResourceAddress, amount, testKey002);
     Assert.assertTrue(HttpMethed.verificationResult(response));
@@ -332,7 +332,7 @@ public class HttpTestAccount002 {
    * constructor.
    */
   @Test(enabled = true, description = "UnFreezeBalance with energy for others by http")
-  public void test014UnFreezebalanceOfEnergyForOthers() {
+  public void test014UnFreezeBalanceOfEnergyForOthers() {
     if(HttpMethed.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV1 test case");
     }
