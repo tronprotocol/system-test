@@ -8013,6 +8013,17 @@ public class PublicMethed {
     return transactionExtention;
   }
 
+  public static Long getExchangeIdByCreatorAddress(byte[] address) {
+    List<Exchange> exchangeList =  PublicMethed.getExchangeList(blockingStubFull2).get().getExchangesList();
+    for (int i = 0; i < exchangeList.size(); i++){
+      Exchange exchange = exchangeList.get(i);
+      if (exchange.getCreatorAddress().equals(ByteString.copyFrom(address))) {
+        return exchange.getExchangeId();
+      }
+    }
+    return 0L;
+  }
+
 
 
 
