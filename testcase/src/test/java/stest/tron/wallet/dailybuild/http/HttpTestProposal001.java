@@ -37,7 +37,6 @@ public class HttpTestProposal001 {
   /** constructor. */
   @Test(enabled = true, description = "Create proposal by http")
   public void test1CreateProposal() {
-    HttpMethed.waitToProduceOneBlock(httpnode);
     response = HttpMethed.createProposal(httpnode, witness1Address, 20L, 1L, witnessKey001);
     Assert.assertTrue(HttpMethed.verificationResult(response));
     HttpMethed.waitToProduceOneBlock(httpnode);
@@ -112,7 +111,6 @@ public class HttpTestProposal001 {
   @Test(enabled = true, description = "Get chain parameters by http")
   public void test7GetChainParameters() {
     response = HttpMethed.getChainParameters(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertEquals(
@@ -141,7 +139,6 @@ public class HttpTestProposal001 {
   @Test(enabled = true, description = "Get energy price by http")
   public void test8GetEnergyPrice() {
     response = HttpMethed.getEnergyPric(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     String prices = responseContent.getString("prices");
@@ -155,7 +152,6 @@ public class HttpTestProposal001 {
   @Test(enabled = true, description = "Get band price by http")
   public void test8GetBandPrice() {
     response = HttpMethed.getBandPric(httpnode);
-    HttpMethed.waitToProduceOneBlock(httpnode);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     String prices = responseContent.getString("prices");
