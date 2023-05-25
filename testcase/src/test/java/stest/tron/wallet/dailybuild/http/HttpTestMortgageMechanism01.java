@@ -67,15 +67,13 @@ public class HttpTestMortgageMechanism01 {
 
   @Test(enabled = true, description = "GetBrokerage from solidity by http")
   public void test02GetBrokerageFromSolidity() {
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.getBrokerageFromSolidity(httpSoliditynode, witnessAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) > 0);
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) < 100);
-    ;
 
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
+
     response =
         HttpMethed.getBrokerageFromSolidityOnVisible(httpSoliditynode, witnessAddress2, "true");
     responseContent = HttpMethed.parseResponseContent(response);
@@ -83,7 +81,6 @@ public class HttpTestMortgageMechanism01 {
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) > 0);
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) < 100);
 
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.getBrokerageFromSolidityOnVisible(httpSoliditynode, fromAddress, "false");
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
@@ -94,7 +91,6 @@ public class HttpTestMortgageMechanism01 {
   /** constructor. */
   @Test(enabled = true, description = "GetBrokerage from PBFT by http")
   public void test03GetBrokerageFromPbft() {
-    HttpMethed.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethed.getBrokerageFromPbft(httpPbftNode, witnessAddress);
     responseContent = HttpMethed.parseResponseContent(response);
     HttpMethed.printJsonContent(responseContent);
