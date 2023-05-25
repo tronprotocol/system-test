@@ -54,7 +54,6 @@ public class MutiSignExchangeContractTest002 {
   Account firstAccount;
   ByteString assetAccountId1;
   ByteString assetAccountId2;
-  Optional<ExchangeList> listExchange;
   Optional<Exchange> exchangeIdInfo;
   Integer exchangeId = 0;
   Integer exchangeRate = 10;
@@ -110,7 +109,7 @@ public class MutiSignExchangeContractTest002 {
     Assert.assertTrue(PublicMethed.sendcoin(secondExchange001Address, 10240000000L, fromAddress,
         testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed
-        .freezeBalanceForReceiver(fromAddress, 100000000000L, 0, 0,
+        .freezeBalanceForReceiver(fromAddress, 100000000000L + PublicMethed.randomFreezeAmount.addAndGet(1), 0, 0,
             ByteString.copyFrom(exchange001Address),
             testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -164,9 +163,6 @@ public class MutiSignExchangeContractTest002 {
         accountPermissionJson, exchange001Address, exchange001Key,
         blockingStubFull, ownerKeyString);
 
-    listExchange = PublicMethed.getExchangeList(blockingStubFull);
-    final Integer beforeCreateExchangeNum = listExchange.get().getExchangesCount();
-    exchangeId = listExchange.get().getExchangesCount();
 
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethed.queryAccount(exchange001Address, blockingStubFull);
@@ -198,9 +194,7 @@ public class MutiSignExchangeContractTest002 {
             assetAccountId2.toByteArray(), secondTokenInitialBalance, exchange001Address,
             exchange001Key, blockingStubFull, 2, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    listExchange = PublicMethed.getExchangeList(blockingStubFull);
-    exchangeId = listExchange.get().getExchangesCount();
-
+    exchangeId = PublicMethed.getExchangeIdByCreatorAddress(exchange001Address, blockingStubFull).intValue();
     Long balanceAfter = PublicMethed.queryAccount(exchange001Address, blockingStubFull)
         .getBalance();
     logger.info("balanceAfter: " + balanceAfter);
