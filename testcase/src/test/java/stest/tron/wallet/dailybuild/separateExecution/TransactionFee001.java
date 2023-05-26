@@ -456,7 +456,7 @@ public class TransactionFee001 {
 
   @Test(
       enabled = true, priority=2,
-      description = "Test trigger result is \"OUT_OF_TIME\"" + " with energy fee to sr")
+      description = "Test trigger result is \"OUT_OF_TIME\"" + " with energy fee to black hole")
   public void test03OutOfTimeEnergyFeeToBlackHole() {
     Random rand = new Random();
     Integer randNum = rand.nextInt(4000);
@@ -566,7 +566,7 @@ public class TransactionFee001 {
     Assert.assertTrue(packingFee == infoById.get().getReceipt().getNetFee());
     Assert.assertTrue(infoById.get().getFee() < maxFeeLimit + infoById.get().getReceipt().getNetFee());
     afterBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getFee());
+    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getReceipt().getEnergyFee());
   }
 
   @Test(enabled = true, priority=2, description = "Test create account with netFee to sr")
