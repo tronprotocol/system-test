@@ -91,6 +91,7 @@ public class MarketSellAsset005 {
     long balanceAfter = PublicMethed.queryAccount(testKey001, blockingStubFull).getBalance();
     PublicMethed.transferAsset(testAddress002, assetAccountId001, 10000, testAddress001,
         testKey001, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     final Map<String, Long> beforeAsset001 = PublicMethed.queryAccount(testAddress001,
         blockingStubFull).getAssetV2Map();
 
