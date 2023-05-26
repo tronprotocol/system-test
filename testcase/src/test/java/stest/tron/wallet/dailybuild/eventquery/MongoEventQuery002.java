@@ -789,6 +789,7 @@ public class MongoEventQuery002 extends MongoBase {
               fromAddress, 1000000L + PublicMethed.randomFreezeAmount.addAndGet(1), event002Address, event002Key, blockingStubFull);
       //PublicMethed.waitProduceNextBlock(blockingStubFull);
     }
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     txId =
         PublicMethed.triggerContract(

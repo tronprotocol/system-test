@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import lombok.extern.slf4j.Slf4j;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
@@ -20,7 +22,7 @@ import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
-
+@Slf4j
 public class DailyBuildReport extends TestListenerAdapter {
 
   StringBuilder passedDescriptionList = new StringBuilder("");
@@ -54,7 +56,7 @@ public class DailyBuildReport extends TestListenerAdapter {
 
   @Override
   public void onTestStart(ITestResult result) {
-    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Start");
+    logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Start");
   }
 
 
@@ -63,7 +65,7 @@ public class DailyBuildReport extends TestListenerAdapter {
     passedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
     passedNum++;
-    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Success");
+    logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Success");
   }
 
   @Override
@@ -71,7 +73,7 @@ public class DailyBuildReport extends TestListenerAdapter {
     failedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
     failedNum++;
-    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Failed");
+    logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Failed");
 
   }
 
@@ -80,7 +82,7 @@ public class DailyBuildReport extends TestListenerAdapter {
     skippedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
     skippedNum++;
-    System.out.println(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Skip");
+    logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Skip");
 
   }
 
