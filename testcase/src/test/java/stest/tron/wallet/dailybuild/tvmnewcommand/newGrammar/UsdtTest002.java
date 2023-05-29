@@ -256,6 +256,39 @@ public class UsdtTest002 {
   /**
    * constructor.
    */
+  @Test(enabled = true, description = "change consumeUserResourcePercent from 70 to 80")
+  public void test05() {
+    consumeUserResourcePercent = 80;
+    Assert.assertTrue(PublicMethed.updateSetting(usdtAddress, consumeUserResourcePercent, dev001Key, dev001Address, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    long temPercent = PublicMethed.getContract(usdtAddress, blockingStubFull).getConsumeUserResourcePercent();
+    Assert.assertEquals(consumeUserResourcePercent, temPercent);
+
+    String methedStr = "transfer(address,uint256)";
+    String argsStr = "\"" + dev58 + "\",1";
+    String txid = PublicMethed.triggerContract(usdtAddress, methedStr, argsStr,
+        false, 0, maxFeeLimit, callerddress, callerKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
+    logger.info("test04 enough originEnergy: " + infoById.toString());
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.getReceipt().getResult());
+    long originEnergyUsage = infoById.getReceipt().getOriginEnergyUsage();
+    long energyUsageTotal = infoById.getReceipt().getEnergyUsageTotal();
+    long netUsage = infoById.getReceipt().getNetUsage();
+    long energyFeeCost = infoById.getReceipt().getEnergyFee();
+    Assert.assertEquals(Math.round(energyUsageTotal * (100 - consumeUserResourcePercent) / 100), originEnergyUsage);
+    Assert.assertEquals(389, netUsage);
+    Assert.assertEquals(energyFee * (energyUsageTotal - originEnergyUsage), energyFeeCost);
+    Assert.assertEquals(0, infoById.getReceipt().getNetFee());
+    Assert.assertEquals(0, infoById.getReceipt().getEnergyPenaltyTotal());
+    Protocol.Transaction transaction = PublicMethed.getTransactionById(txid, blockingStubFull).get();
+    Assert.assertEquals(maxFeeLimit, transaction.getRawData().getFeeLimit());
+    Assert.assertEquals("SUCCESS", transaction.getRet(0).getContractRet().toString());
+  }
+
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     PublicMethed.unFreezeBalanceV2(dev001Address,dev001Key,50000000L,1, blockingStubFull);
