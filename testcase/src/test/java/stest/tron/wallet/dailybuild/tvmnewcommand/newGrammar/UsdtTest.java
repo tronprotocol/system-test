@@ -130,7 +130,7 @@ public class UsdtTest {
    */
 
   @Test(enabled = true, description = "Test 4.7.1.1 hot fix of trigger "
-      + "has no energyLimit and feeLimit is 0 when transfer USDT")
+      + "has balance, no energyLimit and feeLimit is 0 when transfer USDT")
   public void test02() {
 
     Assert.assertTrue(PublicMethed
