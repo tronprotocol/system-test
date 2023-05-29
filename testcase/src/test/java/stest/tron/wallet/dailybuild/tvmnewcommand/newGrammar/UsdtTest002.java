@@ -62,18 +62,16 @@ public class UsdtTest002 {
     String contractName = "Usdt-test";
     String txid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", 1500000000L,
-            0, consumeUserResourcePercent, 10000, "0", 0, null, dev001Key, dev001Address,
-            blockingStubFull);
+            0, consumeUserResourcePercent, 10000, "0", 0,
+            null, dev001Key, dev001Address, blockingStubFull);
     logger.info("deploy usdt txid: " + txid);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
 
     if (txid == null || infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
           .toStringUtf8());
     }
-
     usdtAddress = infoById.get().getContractAddress().toByteArray();
     SmartContract smartContract = PublicMethed
         .getContract(usdtAddress, blockingStubFull);
