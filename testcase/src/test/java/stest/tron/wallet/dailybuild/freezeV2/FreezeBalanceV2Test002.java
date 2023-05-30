@@ -59,6 +59,11 @@ public class FreezeBalanceV2Test002 {
   byte[] receiveBandwidthAddress = ecKey4.getAddress();
   String receiveBandwidthKey = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
 
+
+  ECKey ecKey5 = new ECKey(Utils.getRandom());
+  byte[] delegateFromAddress = ecKey5.getAddress();
+  String delegateFromKey = ByteArray.toHexString(ecKey5.getPrivKeyBytes());
+
   Long freezeBandwidthBalance = 4000000L;
 
   Long delegateBandwidthAmount = freezeBandwidthBalance / 2;
@@ -70,10 +75,10 @@ public class FreezeBalanceV2Test002 {
 
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
-      .get(0);
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
   private ManagedChannel channelSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
   private String pbftnode =
@@ -92,6 +97,7 @@ public class FreezeBalanceV2Test002 {
     PublicMethed.printAddress(frozenEnergyKey);
     PublicMethed.printAddress(receiveBandwidthKey);
     PublicMethed.printAddress(receiveBandwidthKey);
+    PublicMethed.printAddress(delegateFromKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext(true)
         .build();
@@ -109,7 +115,7 @@ public class FreezeBalanceV2Test002 {
     channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
         .usePlaintext(true)
         .build();
-    blockingStubPbft= WalletSolidityGrpc.newBlockingStub(channelPbft);
+    blockingStubPbft = WalletSolidityGrpc.newBlockingStub(channelPbft);
     Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,
         foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(frozenEnergyAddress, sendAmount,
@@ -118,11 +124,16 @@ public class FreezeBalanceV2Test002 {
         foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(receiveEnergyAddress, 1L,
         foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(PublicMethed.sendcoin(delegateFromAddress, sendAmount,
+        foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-//    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress,freezeBandwidthBalance,0,frozenBandwidthKey,blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenEnergyAddress,freezeEnergyBalance,1,frozenEnergyKey,blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenBandwidthAddress, freezeBandwidthBalance,
+        0, frozenBandwidthKey, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(frozenEnergyAddress, freezeEnergyBalance,
+        1, frozenEnergyKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
 
 
   }
@@ -133,7 +144,7 @@ public class FreezeBalanceV2Test002 {
    */
   @Test(enabled = true, description = "Delegate resource of bandwidth")
   public void test01DelegateResourceOfBandwidth() throws Exception {
-    Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    Account account = PublicMethed.queryAccount(frozenBandwidthAddress, blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed
             .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long beforeLenderFrozenAmount = account.getFrozenV2(0).getAmount();
@@ -141,8 +152,8 @@ public class FreezeBalanceV2Test002 {
     logger.info("beforeLenderNetLimit: " + beforeLenderNetLimit);
     beforeDelegateBandwidthNetLimit = beforeLenderNetLimit;
 
-    String txId = PublicMethed.delegateResourceV2AndGetTxId(frozenBandwidthAddress, delegateBandwidthAmount,
-            0, receiveBandwidthAddress,frozenBandwidthKey, blockingStubFull);
+    String txId = PublicMethed.delegateResourceV2AndGetTxId(frozenBandwidthAddress,
+        delegateBandwidthAmount, 0, receiveBandwidthAddress, frozenBandwidthKey, blockingStubFull);
     Assert.assertNotNull(txId);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -152,28 +163,34 @@ public class FreezeBalanceV2Test002 {
     DelegateResourceContract delegateResourceContract
             = any.unpack(DelegateResourceContract.class);
     Assert.assertTrue(delegateResourceContract.getBalance() == delegateBandwidthAmount);
-    Assert.assertEquals(delegateResourceContract.getOwnerAddress().toByteArray(),frozenBandwidthAddress);
+    Assert.assertEquals(delegateResourceContract.getOwnerAddress().toByteArray(),
+        frozenBandwidthAddress);
     Assert.assertTrue(delegateResourceContract.getResourceValue() == 0);
-    Assert.assertEquals(delegateResourceContract.getReceiverAddress().toByteArray(),receiveBandwidthAddress);
+    Assert.assertEquals(delegateResourceContract.getReceiverAddress().toByteArray(),
+        receiveBandwidthAddress);
 
 
 
 
-    account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    account = PublicMethed.queryAccount(frozenBandwidthAddress,
+        blockingStubFull);
     accountResource = PublicMethed
             .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long afterLenderFrozenAmount = account.getFrozenV2(0).getAmount();
     final Long afterLenderNetLimit = accountResource.getNetLimit();
     logger.info("afterLenderNetLimit: " + afterLenderNetLimit);
-    final Long afterLenderAmount = account.getAcquiredDelegatedFrozenBalanceForBandwidth() + account.getAcquiredDelegatedFrozenV2BalanceForBandwidth() + afterLenderFrozenAmount;
+    final Long afterLenderAmount = account.getAcquiredDelegatedFrozenBalanceForBandwidth()
+        + account.getAcquiredDelegatedFrozenV2BalanceForBandwidth() + afterLenderFrozenAmount;
 
 
-    Assert.assertTrue(beforeLenderFrozenAmount - afterLenderFrozenAmount == delegateBandwidthAmount);
+    Assert.assertTrue(
+        beforeLenderFrozenAmount - afterLenderFrozenAmount == delegateBandwidthAmount);
     Assert.assertTrue(account.getDelegatedFrozenV2BalanceForBandwidth() == delegateBandwidthAmount);
 
     Long netTotalWeight = accountResource.getTotalNetWeight();
     Long netTotalLimit = accountResource.getTotalNetLimit();
-    final double afterLenderNetLimitDouble = ((double) afterLenderAmount / (double)(netTotalWeight * 1000000)) * netTotalLimit;
+    final double afterLenderNetLimitDouble =
+        ((double) afterLenderAmount / (double) (netTotalWeight * 1000000)) * netTotalLimit;
     logger.info("afterLenderNetLimitDouble: " + afterLenderNetLimitDouble);
     final Long afterLenderNetLimitShouldBe = Math.round(afterLenderNetLimitDouble);
     Assert.assertTrue(Math.abs(afterLenderNetLimitShouldBe - afterLenderNetLimit) <= 1);
@@ -184,7 +201,7 @@ public class FreezeBalanceV2Test002 {
     final Long afterReceiverNetLimit = accountResource.getNetLimit();
     logger.info("afterReceiverNetLimit: " + afterReceiverNetLimit);
 
-    account = PublicMethed.queryAccount(receiveBandwidthAddress,blockingStubFull);
+    account = PublicMethed.queryAccount(receiveBandwidthAddress, blockingStubFull);
     final Long receiverAcquiredDelegatedFrozenBalanceForBandwidth = account
             .getAcquiredDelegatedFrozenV2BalanceForBandwidth();
     final Long afterReceiverAmount = account.getAcquiredDelegatedFrozenBalanceForBandwidth()
@@ -193,12 +210,15 @@ public class FreezeBalanceV2Test002 {
 
     netTotalWeight = accountResource.getTotalNetWeight();
     netTotalLimit = accountResource.getTotalNetLimit();
-    final double afterReceiverNetLimitDouble = ((double) afterReceiverAmount / (double)(netTotalWeight * 1000000)) * netTotalLimit;
+    final double afterReceiverNetLimitDouble =
+        ((double) afterReceiverAmount / (double) (netTotalWeight * 1000000)) * netTotalLimit;
     logger.info("afterReceiverNetLimitDouble: " + afterReceiverNetLimitDouble);
     final Long afterReceiverNetLimitShouldBe = Math.round(afterReceiverNetLimitDouble);
     logger.info("afterReceiverNetLimitShouldBe: " + afterReceiverNetLimitShouldBe);
-    Assert.assertTrue(Math.abs(afterReceiverNetLimitShouldBe - afterReceiverNetLimit) <= 1 );
-    Assert.assertEquals(receiverAcquiredDelegatedFrozenBalanceForBandwidth, delegateBandwidthAmount);
+    Assert.assertTrue(
+        Math.abs(afterReceiverNetLimitShouldBe - afterReceiverNetLimit) <= 1);
+    Assert.assertEquals(
+        receiverAcquiredDelegatedFrozenBalanceForBandwidth, delegateBandwidthAmount);
   }
 
   /**
@@ -206,7 +226,7 @@ public class FreezeBalanceV2Test002 {
    */
   @Test(enabled = true, description = "Undelegate resource of bandwidth")
   public void test02UnDelegateResourceOfBandwidth() throws Exception {
-    Account account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    Account account = PublicMethed.queryAccount(frozenBandwidthAddress, blockingStubFull);
     AccountResourceMessage accountResource = PublicMethed
             .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long beforeLenderFrozenAmount = account.getFrozenV2(0).getAmount();
@@ -215,29 +235,31 @@ public class FreezeBalanceV2Test002 {
     accountResource = PublicMethed
             .getAccountResource(receiveBandwidthAddress, blockingStubFull);
     final Long beforeReceiverNetLimit = accountResource.getNetLimit();
-    account = PublicMethed.queryAccount(receiveBandwidthAddress,blockingStubFull);
+    account = PublicMethed.queryAccount(receiveBandwidthAddress, blockingStubFull);
     final Long beforeAcquiredDelegatedFrozenBalanceForBandwidth = account
             .getAcquiredDelegatedFrozenBalanceForBandwidth();
 
 
-    String txId = PublicMethed.unDelegateResourceV2AndGetTxId(frozenBandwidthAddress,delegateBandwidthAmount,
-            0, receiveBandwidthAddress,frozenBandwidthKey,blockingStubFull);
+    String txId = PublicMethed.unDelegateResourceV2AndGetTxId(frozenBandwidthAddress,
+        delegateBandwidthAmount, 0, receiveBandwidthAddress, frozenBandwidthKey, blockingStubFull);
     Assert.assertNotNull(txId);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
-    Transaction transaction = PublicMethed.getTransactionById(txId,blockingStubFull).get();
+    Transaction transaction = PublicMethed.getTransactionById(txId, blockingStubFull).get();
     Any any = transaction.getRawData().getContract(0).getParameter();
     UnDelegateResourceContract unDelegateResourceContract
             = any.unpack(UnDelegateResourceContract.class);
     Assert.assertTrue(unDelegateResourceContract.getBalance() == delegateBandwidthAmount);
-    Assert.assertEquals(unDelegateResourceContract.getOwnerAddress().toByteArray(),frozenBandwidthAddress);
+    Assert.assertEquals(unDelegateResourceContract.getOwnerAddress().toByteArray(),
+        frozenBandwidthAddress);
     Assert.assertTrue(unDelegateResourceContract.getResourceValue() == 0);
-    Assert.assertEquals(unDelegateResourceContract.getReceiverAddress().toByteArray(),receiveBandwidthAddress);
+    Assert.assertEquals(unDelegateResourceContract.getReceiverAddress().toByteArray(),
+        receiveBandwidthAddress);
 
 
 
-    account = PublicMethed.queryAccount(frozenBandwidthAddress,blockingStubFull);
+    account = PublicMethed.queryAccount(frozenBandwidthAddress, blockingStubFull);
     accountResource = PublicMethed
             .getAccountResource(frozenBandwidthAddress, blockingStubFull);
     final Long afterLenderFrozenAmount = account.getFrozenV2(0).getAmount();
@@ -247,10 +269,12 @@ public class FreezeBalanceV2Test002 {
             + account.getAcquiredDelegatedFrozenV2BalanceForBandwidth()
             + account.getFrozenV2(0).getAmount();
 
-    Assert.assertTrue(beforeLenderFrozenAmount - afterLenderFrozenAmount == -delegateBandwidthAmount);
+    Assert.assertTrue(
+        beforeLenderFrozenAmount - afterLenderFrozenAmount == -delegateBandwidthAmount);
     final Long netTotalWeight = accountResource.getTotalNetWeight();
     final Long netTotalLimit = accountResource.getTotalNetLimit();
-    final double netLimitDouble = ((double) afterLenderAmount / (double) (netTotalWeight * 1000000)) * (double) netTotalLimit;
+    final double netLimitDouble =
+        ((double) afterLenderAmount / (double) (netTotalWeight * 1000000)) * (double) netTotalLimit;
     logger.info("netLimitDouble: " + netLimitDouble);
     logger.info("afterLenderNetLimit: " + afterLenderNetLimit);
     Long netLimitShouldBe = Math.round(netLimitDouble);
@@ -259,12 +283,12 @@ public class FreezeBalanceV2Test002 {
     accountResource = PublicMethed
             .getAccountResource(receiveBandwidthAddress, blockingStubFull);
     final Long afterReceiverNetLimit = accountResource.getNetLimit();
-    account = PublicMethed.queryAccount(receiveBandwidthAddress,blockingStubFull);
+    account = PublicMethed.queryAccount(receiveBandwidthAddress, blockingStubFull);
     final Long receiverAcquiredDelegatedFrozenBalanceForBandwidth = account
             .getAcquiredDelegatedFrozenBalanceForBandwidth();
-    Assert.assertTrue(receiverAcquiredDelegatedFrozenBalanceForBandwidth == 0);
-    Assert.assertTrue(afterReceiverNetLimit == 0);
-    Assert.assertTrue(afterDelegateResourceAmount == 0);
+    Assert.assertEquals((long) receiverAcquiredDelegatedFrozenBalanceForBandwidth, 0);
+    Assert.assertEquals((long) afterReceiverNetLimit, 0);
+    Assert.assertEquals((long) afterDelegateResourceAmount, 0);
 
   }
 
@@ -303,7 +327,7 @@ public class FreezeBalanceV2Test002 {
         .getMaxSize() + 1100000 > canDelegatedMaxSizeWithNoNetUsed && retryTimes++ <= 5000) {
       logger.info(
           "Current" + PublicMethed
-              .getCanDelegatedMaxSize(frozenBandwidthAddress,0,blockingStubFull)
+              .getCanDelegatedMaxSize(frozenBandwidthAddress, 0, blockingStubFull)
               .get()
               .getMaxSize()
       );
@@ -313,8 +337,8 @@ public class FreezeBalanceV2Test002 {
     }
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long canDelegatedMaxSizeWithNetUsed =  PublicMethed.getCanDelegatedMaxSize
-        (frozenBandwidthAddress, 0, blockingStubFull)
+    Long canDelegatedMaxSizeWithNetUsed =  PublicMethed.getCanDelegatedMaxSize(
+        frozenBandwidthAddress, 0, blockingStubFull)
         .get()
         .getMaxSize();
     Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsed > canDelegatedMaxSizeWithNetUsed + 1000000);
@@ -335,14 +359,17 @@ public class FreezeBalanceV2Test002 {
         frozenBandwidthAddress, 0, blockingStubFullSolidity)
         .get()
         .getMaxSize();
-    Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsedSolidity > canDelegatedMaxSizeWithNetUsedSolidity + 1000000);
+    Assert.assertTrue(
+        canDelegatedMaxSizeWithNoNetUsedSolidity
+          > canDelegatedMaxSizeWithNetUsedSolidity + 1000000);
     //query pbft
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
     Long canDelegatedMaxSizeWithNetUsedPbft =  PublicMethed.getCanDelegatedMaxSizeSolidity(
         frozenBandwidthAddress, 0, blockingStubPbft)
         .get()
         .getMaxSize();
-    Assert.assertTrue(canDelegatedMaxSizeWithNoNetUsedPbft > canDelegatedMaxSizeWithNetUsedPbft + 1000000);
+    Assert.assertTrue(
+        canDelegatedMaxSizeWithNoNetUsedPbft > canDelegatedMaxSizeWithNetUsedPbft + 1000000);
     Assert.assertTrue(PublicMethed.delegateResourceV2(
         frozenBandwidthAddress,
         canDelegatedMaxSizeWithNetUsed,
@@ -352,16 +379,16 @@ public class FreezeBalanceV2Test002 {
         blockingStubFull)
     );
 
-    Assert.assertTrue(PublicMethed.freezeBalanceV2(foundationAddress,
-        freezeBandwidthBalance, 0, foundationKey, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(delegateFromAddress,
+        freezeBandwidthBalance, 0, delegateFromKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.delegateResourceV2(foundationAddress,
-        PublicMethed.getCanDelegatedMaxSize(foundationAddress, 0, blockingStubFull)
+    Assert.assertTrue(PublicMethed.delegateResourceV2(delegateFromAddress,
+        PublicMethed.getCanDelegatedMaxSize(delegateFromAddress, 0, blockingStubFull)
             .get()
             .getMaxSize(),
         0,
         frozenBandwidthAddress,
-        foundationKey,
+        delegateFromKey,
         blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -370,10 +397,9 @@ public class FreezeBalanceV2Test002 {
         .get()
         .getMaxSize();
 
-    Assert.assertTrue(
-        canDelegatedMaxSizeWithNetUsed + canDelegatedMaxSizeWithOtherDelegatedToMe
-            == freezeBandwidthBalance
-    );
+    Assert.assertEquals(
+        (long) freezeBandwidthBalance,
+        canDelegatedMaxSizeWithNetUsed + canDelegatedMaxSizeWithOtherDelegatedToMe);
 
     Assert.assertTrue(PublicMethed.delegateResourceV2(
         frozenBandwidthAddress,
