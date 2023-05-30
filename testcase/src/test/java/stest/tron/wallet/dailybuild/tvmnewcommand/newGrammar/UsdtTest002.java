@@ -270,7 +270,7 @@ public class UsdtTest002 {
         false, 0, maxFeeLimit, callerddress, callerKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
-    logger.info("test04 enough originEnergy: " + infoById.toString());
+    logger.info("test05 consumer Percent is 80 : " + infoById.toString());
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.getReceipt().getResult());
     long originEnergyUsage = infoById.getReceipt().getOriginEnergyUsage();
     long energyUsageTotal = infoById.getReceipt().getEnergyUsageTotal();
