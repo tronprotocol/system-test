@@ -90,8 +90,8 @@ public class UsdtTest001 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "FeeLimit = 0 ")
-  public void test01FeeLimit() {
+  @Test(enabled = true, description = "transfer when feeLimit = 0")
+  public void test01TransferFeeLimitEqualZero() {
     String methedStr = "transfer(address,uint256)";
     String argsStr = "\"" + callerAddress58 + "\",100";
     PublicMethed.triggerContract(usdtAddress, methedStr, argsStr,
@@ -99,7 +99,6 @@ public class UsdtTest001 {
     PublicMethed.createAccount(
         testNetAccountAddress, callerAddress, testNetAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
 
     //balance = 0 and energyLimit = 0
     ECKey tempKey = new ECKey(Utils.getRandom());
@@ -119,7 +118,6 @@ public class UsdtTest001 {
     Assert.assertEquals(transaction.getRet(0).getContractRet(),
         Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY);
     Assert.assertEquals(transaction.getRawData().getFeeLimit(), 0L);
-
 
     //energy enough but feeLimit = 0
     PublicMethed.sendcoin(callerAddress, 2000000000L,
@@ -146,7 +144,7 @@ public class UsdtTest001 {
   }
 
   @Test(enabled = true, description = "transfer at FeeLimit boundary")
-  public void test02FeeLimitBoundTest() {
+  public void test02TransferFeeLimitBoundaryTest() {
     Long exceptEnergy = 29631L - 8889; // total - origin
     String methedStr = "transfer(address,uint256)";
     ECKey tempKey = new ECKey(Utils.getRandom());
@@ -189,9 +187,8 @@ public class UsdtTest001 {
         exceptEnergyOldAccount * energyPrice);
   }
 
-  @Test(enabled = false, description = "test Black list when transfer "
-      + "and approve, disable case, it is a Test for Usdt contract")
-  public void test03BlackListTestTransferToBlackAddress() {
+  @Test(enabled = true, description = "test black list when transfer and approve")
+  public void test03TransferWithBlackList() {
     ECKey tempKey = new ECKey(Utils.getRandom());
     ECKey spenderKey = new ECKey(Utils.getRandom());
 
@@ -313,10 +310,9 @@ public class UsdtTest001 {
         Protocol.Transaction.Result.contractResult.SUCCESS);
   }
 
-  @Test(enabled = true, description = "add remove black list when feeLimit = 0")
-  public void test04BlackListFeeLimit0() {
+  @Test(enabled = true, description = "add and remove black list when feeLimit = 0")
+  public void test04BlackListFeeLimitEqualZero() {
     final Long addBlackListEnergyExcept = 21812L;
-
     ECKey tempKey = new ECKey(Utils.getRandom());
     String methodStr = "addBlackList(address)";
     String argsStr = "\"" + Base58.encode58Check(tempKey.getAddress()) + "\"";
@@ -379,7 +375,7 @@ public class UsdtTest001 {
   }
 
   @Test(enabled = true, description = "approve when feeLimit = 0 and boundary + 1")
-  public void test05ApproveFeeLimit0() {
+  public void test05ApproveFeeLimitEqualZero() {
     final ECKey spender =  new ECKey(Utils.getRandom());
     final ECKey caller = new ECKey(Utils.getRandom());
     final byte[] callerAddress = caller.getAddress();
@@ -431,7 +427,7 @@ public class UsdtTest001 {
 
 
   @Test(enabled = true, description = "approve when feeLimit = boundary - 1")
-  public void test06ApproveFeeLimitboundary() {
+  public void test06ApproveFeeLimitBoundary() {
     final ECKey spender =  new ECKey(Utils.getRandom());
     final ECKey caller = new ECKey(Utils.getRandom());
     final byte[] callerAddress = caller.getAddress();
