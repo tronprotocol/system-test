@@ -11,7 +11,9 @@ public enum ProposalEnum {
   GetAllowOptimizedReturnValueOfChainId("getAllowOptimizedReturnValueOfChainId"),
   GetMemoFee("getMemoFee"),
   GetEnergyFee("getEnergyFee"),
-  getMaxFeeLimit("getMaxFeeLimit");
+  getMaxFeeLimit("getMaxFeeLimit"),
+  getMaxCpuTimeOfOneTx("getMaxCpuTimeOfOneTx"),
+  getAllowCancelUnfreezeV2("getAllowCancelUnfreezeV2");
 
   private String proposalName;
 

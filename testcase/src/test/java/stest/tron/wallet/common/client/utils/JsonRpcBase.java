@@ -100,7 +100,8 @@ public class JsonRpcBase {
   public static String blockId;
   public static String txid;
   public static String trc20Txid;
-  public HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
+  public HashMap<Long, Long> proposalMap = new HashMap<>();
+  public HashMap<Long, Long> secondProposalMap = new HashMap<>();
 
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
@@ -120,8 +121,10 @@ public class JsonRpcBase {
             blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     getCommitData();
-    openProposal(proposalMap);
-    waitProposalApprove(13, blockingStubFull);
+    openProposal(0, proposalMap);
+    waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80,  blockingStubFull);
+    openProposal(1, secondProposalMap);
+    waitProposalApprove(ProposalEnum.getAllowCancelUnfreezeV2.getProposalName(), 1,blockingStubFull);
     Assert.assertTrue(
         PublicMethed.sendcoin(
             jsonRpcOwnerAddress,
@@ -177,13 +180,21 @@ public class JsonRpcBase {
     List<String> commitList = Configuration.getByPath("testng.conf").getStringList("commitData.commit.list");
     for (String ent : commitList) {
       String[] str = ent.split(":");
-      System.out.println(str[0] + " : " + str[1]);
+      logger.info(str[0] + " : " + str[1]);
       proposalMap.put(Long.valueOf(str[0]), Long.valueOf(str[1]));
     }
+
+    List<String> secondCommitList = Configuration.getByPath("testng.conf").getStringList("commitData.secondCommit.list");
+    for (String ent : secondCommitList) {
+      String[] str = ent.split(":");
+      logger.info(str[0] + " : " + str[1]);
+      secondProposalMap.put(Long.valueOf(str[0]), Long.valueOf(str[1]));
+    }
+
   }
 
   /** constructor. */
-  public void waitProposalApprove(Integer proposalIndex,
+  public void waitProposalApprove(String proposalName, long proposalValue,
                                          WalletGrpc.WalletBlockingStub blockingStubFull) {
     Long currentTime = System.currentTimeMillis();
     while (System.currentTimeMillis() <= currentTime + 610000) {
@@ -191,8 +202,8 @@ public class JsonRpcBase {
           .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
       Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
       for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
-        if ("getMaxCpuTimeOfOneTx".equalsIgnoreCase(op.getKey()) && (op.getValue() == 80)) {
-          logger.info("Proposal has been approval");
+        if (proposalName.equalsIgnoreCase(op.getKey()) && (op.getValue() == proposalValue)) {
+          logger.info(proposalName + ":  Proposal has been approval");
           return;
         }
       }
@@ -201,9 +212,10 @@ public class JsonRpcBase {
   }
 
   /** constructor. */
-  public void openProposal(HashMap<Long, Long> proposalMap)  {
+  public void openProposal(int openIndex, HashMap<Long, Long> proposalMap)  {
 
-    if (ProposalGetAllowMarketTransactionIsOpen() || proposalMap.size() == 0) {
+    if (openIndex == 0 && (ProposalGetAllowMarketTransactionIsOpen() || proposalMap.size() == 0)) {
+      System.out.println("no need to open proposal");
       return;
     }
     PublicMethed.sendcoin(witness001Address,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);
