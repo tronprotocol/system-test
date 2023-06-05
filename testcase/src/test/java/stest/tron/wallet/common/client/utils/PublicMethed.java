@@ -7688,7 +7688,7 @@ public class PublicMethed {
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return delegateResourceV2Lock(addressByte,delegateAmount,resourceCode,false,receiverAddress,priKey,
+    return delegateResourceV2Lock(addressByte,delegateAmount,resourceCode,false, null, receiverAddress,priKey,
         blockingStubFull);
   }
   /** constructor. */
@@ -7698,7 +7698,7 @@ public class PublicMethed {
                                            byte[] receiverAddress,
                                            String priKey,
                                            WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return delegateResourceV2LockAndGetTxId(addressByte,delegateAmount,resourceCode,false,receiverAddress,priKey,
+    return delegateResourceV2LockAndGetTxId(addressByte,delegateAmount,resourceCode,false, null, receiverAddress,priKey,
             blockingStubFull);
   }
 
@@ -7709,6 +7709,7 @@ public class PublicMethed {
       long delegateAmount,
       int resourceCode,
       boolean lock,
+      Long lockPeriod,
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -7730,6 +7731,9 @@ public class PublicMethed {
         .setReceiverAddress(byteReceiverAddress)
         .setResourceValue(resourceCode)
         .setLock(lock);
+    if (null != lockPeriod) {
+      builder.setLockPeriod(lockPeriod);
+    }
     DelegateResourceContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.delegateResource(contract);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
@@ -7750,6 +7754,7 @@ public class PublicMethed {
                                                long delegateAmount,
                                                int resourceCode,
                                                boolean lock,
+                                               Long lockPeriod,
                                                byte[] receiverAddress,
                                                String priKey,
                                                WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -7771,6 +7776,9 @@ public class PublicMethed {
             .setReceiverAddress(byteReceiverAddress)
             .setResourceValue(resourceCode)
             .setLock(lock);
+    if (null != lockPeriod) {
+      builder.setLockPeriod(lockPeriod);
+    }
     DelegateResourceContract contract = builder.build();
     TransactionExtention transactionExtention = blockingStubFull.delegateResource(contract);
     Protocol.Transaction transaction = transactionExtention.getTransaction();
