@@ -29,6 +29,10 @@ public class ChainidAndSelfBalance001 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] testAddress001 = ecKey1.getAddress();
   String testKey001 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] testAddress002 = ecKey2.getAddress();
+  String testKey002 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   private byte[] contractAddress;
 
 
@@ -45,6 +49,9 @@ public class ChainidAndSelfBalance001 {
     PublicMethed
         .sendcoin(testAddress001, 1000_000_000L, testFoundationAddress, testFoundationKey,
         blockingStubFull);
+    PublicMethed
+        .sendcoin(testAddress002, 1_000_000L, testFoundationAddress, testFoundationKey,
+            blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String filePath = "src/test/resources/soliditycode/chainid001.sol";
     String contractName = "IstanbulTest";
@@ -115,14 +122,14 @@ public class ChainidAndSelfBalance001 {
   @Test(enabled = true, description = "selfBalance of normal Address")
   public void getBalanceTest003() {
     String methodStr = "getBalance(address)";
-    String argsStr = "\"" + Base58.encode58Check(testFoundationAddress) + "\"";
+    String argsStr = "\"" + Base58.encode58Check(testAddress002) + "\"";
     TransactionExtention returns = PublicMethed
         .triggerConstantContractForExtention(contractAddress, methodStr, argsStr,
         false, 0, maxFeeLimit, "", 0, testAddress001, testKey001, blockingStubFull);
     Long getBalance = ByteArray.toLong(returns.getConstantResult(0).toByteArray());
 
     Long accountBalance = PublicMethed
-        .queryAccount(testFoundationAddress, blockingStubFull).getBalance();
+        .queryAccount(testAddress002, blockingStubFull).getBalance();
 
     Assert.assertEquals(accountBalance, getBalance);
 
