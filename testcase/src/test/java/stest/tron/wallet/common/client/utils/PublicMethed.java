@@ -101,6 +101,7 @@ import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
+import org.tron.protos.contract.BalanceContract.CancelUnfreezeV2Contract;
 import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
@@ -1011,6 +1012,37 @@ public class PublicMethed {
     return txId;
   }
 
+  /** constructor. */
+  public static Boolean cancelUnFreezeBalanceV2(
+      byte[] address,
+      String priKey,
+      List<Integer> indexList,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    CancelUnfreezeV2Contract.Builder builder = CancelUnfreezeV2Contract.newBuilder();
+    ByteString byteAddreess = ByteString.copyFrom(address);
+    builder.setOwnerAddress(byteAddreess);
+    for(int index: indexList){
+      builder.addIndex(index);
+    }
+    CancelUnfreezeV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.cancelUnfreezeV2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("cancel unfreeze transaction ==null");
+      return false;
+    }
+    transaction = signTransaction(ecKey, transaction);
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    return response.getResult();
+  }
 
 
   /** constructor. */
