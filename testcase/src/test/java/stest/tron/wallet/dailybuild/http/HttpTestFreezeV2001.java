@@ -230,6 +230,8 @@ public class HttpTestFreezeV2001 {
         freezeBandwidthAddress,
         delegateAmount,
         0,
+        null,
+        null,
         receiverResourceAddress,
         freezeBandwidthKey
     );
@@ -312,6 +314,8 @@ public class HttpTestFreezeV2001 {
         freezeEnergyAddress,
         delegateAmount,
         1,
+        null,
+        null,
         receiverResourceAddress,
         freezeEnergyKey
     );
@@ -669,6 +673,8 @@ public class HttpTestFreezeV2001 {
         freezeForQuery,
         delegateAmount,
         0,
+        null,
+        null,
         receiverResourceAddress,
         freezeForQueryKey
     );
@@ -678,6 +684,8 @@ public class HttpTestFreezeV2001 {
         freezeForQuery,
         delegateAmount,
         1,
+        null,
+        null,
         receiverResourceAddress,
         freezeForQueryKey
     );
@@ -793,6 +801,8 @@ public class HttpTestFreezeV2001 {
         freezeForQuery,
         delegateAmount,
         0,
+        null,
+        null,
         receiverResourceAddress,
         freezeForQueryKey
     );
@@ -802,6 +812,8 @@ public class HttpTestFreezeV2001 {
         freezeForQuery,
         delegateAmount,
         1,
+        null,
+        null,
         receiverResourceAddress,
         freezeForQueryKey
     );
@@ -935,6 +947,30 @@ public class HttpTestFreezeV2001 {
     );
     Assert.assertEquals(31L, responseContent.getLongValue("count"));
 
+  }
+
+  @Test(enabled = true, description = "Test lockPeriod = 1000L")
+  public void test012lockPeriodTest() {
+    ECKey ecKey = new ECKey(Utils.getRandom());
+    byte[] fromDelegateAddress = ecKey.getAddress();
+    String fromDelegateKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+    HttpMethed.sendCoin(httpnode, fromAddress, fromDelegateAddress, amount, testKey002);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    HttpMethed.freezeBalanceV2(httpnode, fromDelegateAddress, amount, 1, null, fromDelegateKey);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    response = HttpMethed.delegateresource(httpnode, fromDelegateAddress, delegateAmount,
+        1, true, 1000L, receiverResourceAddress, fromDelegateKey);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info("delegateResource:" + responseContent.toJSONString());
+    Assert.assertEquals(responseContent.getBoolean("result"), true);
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    response = HttpMethed.getDelegatedResourceV2(httpnode, fromDelegateAddress, receiverResourceAddress, true);
+    responseContent = HttpMethed.parseResponseContent(response);
+    logger.info(responseContent.toJSONString());
+    Assert.assertTrue(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getLong("expire_time_for_energy") > System.currentTimeMillis());
+    Assert.assertEquals(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getLong("frozen_balance_for_energy").longValue(), delegateAmount.longValue());
+    Assert.assertEquals(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getString("from"), Base58.encode58Check(fromDelegateAddress));
+    Assert.assertEquals(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getString("to"), Base58.encode58Check(receiverResourceAddress));
   }
 
   /**
