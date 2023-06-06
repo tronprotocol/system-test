@@ -55,6 +55,7 @@ import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIss
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
+import org.tron.protos.contract.BalanceContract.CancelUnfreezeV2Contract;
 import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
@@ -99,6 +100,7 @@ public class PublicMethedForMutiSign {
   private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   //Wallet wallet = new Wallet();
   public static volatile String freezeV2Txid;
+  public static volatile String cancelUnfreezeTxId;
 
   /**
    * constructor.
@@ -932,6 +934,44 @@ public class PublicMethedForMutiSign {
     transaction = TransactionUtils.setTimestamp(transaction);
     transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
     freezeV2Txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
+    return broadcastTransaction(transaction, blockingStubFull);
+
+  }
+
+  /**
+   * constructor.
+   */
+  public static Boolean cancelUnfreezeWithPermissionId(byte[] addRess, int permissionId, List<Integer> indexList,
+                                                                      WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
+    byte[] address = addRess;
+    CancelUnfreezeV2Contract.Builder builder = CancelUnfreezeV2Contract.newBuilder();
+    ByteString byteAddreess = ByteString.copyFrom(address);
+
+    builder.setOwnerAddress(byteAddreess);
+    for(int i: indexList){
+      builder.addIndex(i);
+    }
+    CancelUnfreezeV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.cancelUnfreezeV2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
+
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction = null");
+      return false;
+    }
+
+    try {
+      transaction = setPermissionId(transaction, permissionId);
+    } catch (CancelException e) {
+      e.printStackTrace();
+    }
+
+    transaction = TransactionUtils.setTimestamp(transaction);
+    transaction = signTransaction(transaction, blockingStubFull, permissionKeyString);
+    cancelUnfreezeTxId = ByteArray.toHexString(
         Sha256Hash.hash(
             CommonParameter.getInstance().isECKeyCryptoEngine(),
             transaction.getRawData().toByteArray()));

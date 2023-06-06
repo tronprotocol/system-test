@@ -3,6 +3,9 @@ package stest.tron.wallet.dailybuild.freezeV2;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -227,6 +230,30 @@ public class FreezeBalanceV2Test003 {
         ContractType.WithdrawExpireUnfreezeContract);
     Assert.assertTrue(PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.freezeV2Txid,
         blockingStubFull).get().getFee() >= multiSignFee);
+  }
+
+  @Test(enabled = true, description = "MutiSign for cancelUnfreeze")
+  public void test06MultiSignForCancelUnfreeze() {
+    logger.info(PublicMethed.queryAccount(ownerAddress,blockingStubFull).toString());
+    Assert.assertTrue(PublicMethedForMutiSign.unFreezeBalanceV2WithPermissionId(ownerAddress,
+        1,  0, 2, ownerKey, blockingStubFull, permissionKeyString));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Account account0 = PublicMethed.queryAccount(ownerAddress,blockingStubFull);
+    Assert.assertEquals(account0.getUnfrozenV2Count(), 1);
+    logger.info(account0.toString());
+
+    List<Integer> li = new ArrayList<>();
+    li.add(0);
+    Assert.assertTrue(PublicMethedForMutiSign
+        .cancelUnfreezeWithPermissionId(ownerAddress, 2, li, blockingStubFull, permissionKeyString));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo info = PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.cancelUnfreezeTxId,
+        blockingStubFull).get();
+    Assert.assertTrue(info.getFee() >= multiSignFee);
+    Account account1 = PublicMethed.queryAccount(ownerAddress,blockingStubFull);
+    logger.info(account1.toString());
+    Assert.assertEquals(account1.getUnfrozenV2Count(), 0);
+
   }
 
 
