@@ -1344,7 +1344,7 @@ public class HttpMethed {
 
       if(receiverAddress != null) {
         waitToProduceOneBlock(httpNode);
-        delegateresource(httpNode,ownerAddress,frozenBalance / 2,resourceCode,receiverAddress,fromKey);
+        delegateresource(httpNode,ownerAddress,frozenBalance / 2,resourceCode,null,null,receiverAddress,fromKey);
 
       }
     } catch (Exception e) {
@@ -1357,7 +1357,14 @@ public class HttpMethed {
 
   /** constructor. */
   public static HttpResponse delegateresource(
-      String httpNode, byte[] ownerAddress, Long delegateAmount, Integer resourceCode,byte[] receiverAddress,String fromKey) {
+      String httpNode,
+      byte[] ownerAddress,
+      Long delegateAmount,
+      Integer resourceCode,
+      Boolean lock,
+      Long lockPeriod,
+      byte[] receiverAddress,
+      String fromKey) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/delegateresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1376,6 +1383,12 @@ public class HttpMethed {
         } else {
           userBaseObj2.addProperty("resource", "ENERGY");
         }
+      }
+      if (lock != null) {
+        userBaseObj2.addProperty("lock", lock);
+      }
+      if (lockPeriod != null) {
+        userBaseObj2.addProperty("lock_period", lockPeriod);
       }
 
       response = createConnect(requestUrl, userBaseObj2);

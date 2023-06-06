@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.freezeV2;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.protobuf.Any;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -12,6 +13,7 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.WalletGrpc;
@@ -286,6 +288,56 @@ public class FreezeBalanceV2Test006 {
         &&
         unlockTimeStamp <= System.currentTimeMillis() + delegateLockTime);
   }
+  @Test(enabled = true, description = "Period boundary test")
+  public void test06LockPeriodBoundaryTest() {
+    Long maxPeriod = 10512000L;
+    ECKey from = new ECKey(Utils.getRandom());
+    byte[] fromAddress = from.getAddress();
+    String fromKey = ByteArray.toHexString(from.getPrivKeyBytes());
+    PublicMethed.sendcoin(fromAddress, sendAmount, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.freezeBalanceV2(fromAddress, freezeBandwidthBalance, 1, fromKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    GrpcAPI.TransactionExtention ext = PublicMethed.delegateResourceV2AndGetTransactionExtention(fromAddress, delegateBalance, 1, true, maxPeriod + 1, receiverAddress, fromKey, blockingStubFull);
+    logger.info("ext.toString(): " + ext);
+    Assert.assertTrue(ext.toString().contains("CONTRACT_VALIDATE_ERROR"));
+    //todo: maybe bigger after proposal control max value
+    Assert.assertTrue(ext.toString().contains("The lock period of delegate resource cannot be less than 0 and cannot exceed 1 year!"));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Long beforeLockTrueTime = System.currentTimeMillis();
+    String txId2 = PublicMethed.delegateResourceV2LockAndGetTxId(fromAddress, delegateBalance, 1, true, maxPeriod, receiverAddress, fromKey, blockingStubFull);
+    Assert.assertNotNull(txId2);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Optional<DelegatedResourceList> delegatedResourceList = PublicMethed.getDelegatedResourceV2(fromAddress, receiverAddress, blockingStubFull);
+    Long unlockTimeStamp = delegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
+    logger.info("beforeLockTrueTime: " + beforeLockTrueTime);
+    logger.info("unlockTimeStamp: " + unlockTimeStamp);
+    Assert.assertTrue(Math.abs((unlockTimeStamp - beforeLockTrueTime) - maxPeriod * 3 * 1000) < 1500L);
+    Assert.assertTrue(
+      unlockTimeStamp > beforeLockTrueTime
+        &&
+        unlockTimeStamp <= System.currentTimeMillis() + maxPeriod * 3 * 1000);
+  }
+
+  @Test(enabled = true, description = "Period boundary less than current expire time")
+  public void test07LockPeriodLessThanCurrentExpireTime() {
+    Long maxPeriod = 10512000L;
+    ECKey from = new ECKey(Utils.getRandom());
+    byte[] fromAddress = from.getAddress();
+    String fromKey = ByteArray.toHexString(from.getPrivKeyBytes());
+    PublicMethed.sendcoin(fromAddress, sendAmount, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.freezeBalanceV2(fromAddress, freezeBandwidthBalance, 1, fromKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.delegateResourceV2LockAndGetTxId(fromAddress, delegateBalance, 1, true, maxPeriod, receiverAddress, fromKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.TransactionExtention ext = PublicMethed.delegateResourceV2AndGetTransactionExtention(fromAddress, delegateBalance, 1, true, maxPeriod - 5, receiverAddress, fromKey, blockingStubFull);
+    logger.info("ext.toString(): " + ext);
+    Assert.assertTrue(ext.toString().contains("CONTRACT_VALIDATE_ERROR"));
+    Assert.assertTrue(ext.toString().contains("The lock period for ENERGY this time cannot be less than the remaining time"));
+  }
+
 
 
   /**

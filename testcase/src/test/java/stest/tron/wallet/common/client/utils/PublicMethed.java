@@ -7702,6 +7702,54 @@ public class PublicMethed {
             blockingStubFull);
   }
 
+  /** constructor. */
+  public static TransactionExtention delegateResourceV2AndGetTransactionExtention(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      boolean lock,
+      Long lockPeriod,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    DelegateResourceContract.Builder builder =  DelegateResourceContract.newBuilder();
+    ByteString byteAddress = ByteString.copyFrom(addressByte);
+    ByteString byteReceiverAddress = ByteString.copyFrom(receiverAddress);
+    builder
+        .setOwnerAddress(byteAddress)
+        .setBalance(delegateAmount)
+        .setReceiverAddress(byteReceiverAddress)
+        .setResourceValue(resourceCode)
+        .setLock(lock);
+    if (null != lockPeriod) {
+      builder.setLockPeriod(lockPeriod);
+    }
+    DelegateResourceContract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.delegateResource(contract);
+    Protocol.Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("transaction = null");
+      return transactionExtention;
+    }
+    transaction = TransactionUtils.sign(transaction, ecKey);
+    String freezeV2Txid = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
+    GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+    return transactionExtention;
+  }
+
 
 
   /** constructor. */
