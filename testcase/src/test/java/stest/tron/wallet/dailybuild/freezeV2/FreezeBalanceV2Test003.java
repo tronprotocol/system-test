@@ -245,7 +245,7 @@ public class FreezeBalanceV2Test003 {
     List<Integer> li = new ArrayList<>();
     li.add(0);
     Assert.assertTrue(PublicMethedForMutiSign
-        .cancelUnfreezeWithPermissionId(ownerAddress, 2, li, blockingStubFull, permissionKeyString));
+        .cancelAllUnfreezeWithPermissionId(ownerAddress, 2, blockingStubFull, permissionKeyString));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     TransactionInfo info = PublicMethed.getTransactionInfoById(PublicMethedForMutiSign.cancelUnfreezeTxId,
         blockingStubFull).get();

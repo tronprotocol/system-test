@@ -55,7 +55,7 @@ import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIss
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
-import org.tron.protos.contract.BalanceContract.CancelUnfreezeV2Contract;
+import org.tron.protos.contract.BalanceContract.CancelAllUnfreezeV2Contract;
 import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
@@ -944,18 +944,16 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-  public static Boolean cancelUnfreezeWithPermissionId(byte[] addRess, int permissionId, List<Integer> indexList,
-                                                                      WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
+  public static Boolean cancelAllUnfreezeWithPermissionId(byte[] addRess, int permissionId,
+                                                          WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     byte[] address = addRess;
-    CancelUnfreezeV2Contract.Builder builder = CancelUnfreezeV2Contract.newBuilder();
+    CancelAllUnfreezeV2Contract.Builder builder = CancelAllUnfreezeV2Contract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
-    for(int i: indexList){
-      builder.addIndex(i);
-    }
-    CancelUnfreezeV2Contract contract = builder.build();
-    TransactionExtention transactionExtention = blockingStubFull.cancelUnfreezeV2(contract);
+
+    CancelAllUnfreezeV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.cancelAllUnfreezeV2(contract);
     Transaction transaction = transactionExtention.getTransaction();
 
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {

@@ -9,7 +9,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
-import org.tron.api.GrpcAPI.DelegatedResourceList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
@@ -19,8 +18,6 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -86,128 +83,114 @@ public class FreezeBalanceV2Test007 {
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "cancel unfreeze with only one index")
-  public void test01CancelUnfreezeWithOneIndex() {
+  @Test(enabled = true, description = "cancel unexpired unfreeze net, unfreeze count=1")
+  public void test01CancelAllUnfreezeNet() {
     GrpcAPI.AccountResourceMessage resource1 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
-    Assert.assertEquals(40, resource1.getTronPowerLimit());
+    Assert.assertEquals(resource1.getTronPowerLimit(),40);
     logger.info(resource1.toString());
 
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001,testKey001,1000000L,0, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001,testKey001,1000000L,1, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
-    Assert.assertEquals(38, resource2.getTronPowerLimit());
+    Assert.assertEquals(resource2.getTronPowerLimit(), 39);
     logger.info(resource2.toString());
     Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long balance2 = account2.getBalance();
-    List<Integer> li = new ArrayList<>();
-    li.add(0);
-    Assert.assertTrue(PublicMethed.cancelUnFreezeBalanceV2(testAddress001, testKey001, li, blockingStubFull));
+
+    Assert.assertTrue(PublicMethed.cancelAllUnFreezeBalanceV2(testAddress001, testKey001, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.AccountResourceMessage resource3 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
-    Assert.assertEquals(39, resource3.getTronPowerLimit());
+    Assert.assertEquals(resource3.getTronPowerLimit(), 40);
     logger.info(resource3.toString());
     Protocol.Account account3 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     logger.info(account3.toString());
     long balance3 = account3.getBalance();
     Assert.assertEquals(balance2, balance3);
     Assert.assertEquals(account3.getFrozenV2(0).getAmount(), 20000000);
-    Assert.assertEquals(account3.getFrozenV2(1).getAmount(), 19000000);
+    Assert.assertEquals(account3.getFrozenV2(1).getAmount(), 20000000);
   }
 
   /**
    * constructor.
    */
-  @Test(enabled = true, description = "cancel all unfreeze ")
-  public void test02CancelUnfreezeWithAllIndex() {
+  @Test(enabled = true, description = "cancel all unexpired unfreeze energy")
+  public void test02CancelAllUnfreezeEnergy() {
     logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
-    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001,testKey001,1000000L,0, blockingStubFull));
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001,testKey001,1000000L,1, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Protocol.Account account1 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
-    long unfreezeSize = account1.getUnfrozenV2Count();
-    List<Integer> li = new ArrayList<>();
-    for (int i = 0; i < unfreezeSize; i++) {
-      li.add(i);
-    }
-    Assert.assertTrue(PublicMethed.cancelUnFreezeBalanceV2(testAddress001, testKey001,li, blockingStubFull));
+    Assert.assertTrue(PublicMethed.cancelAllUnFreezeBalanceV2(testAddress001, testKey001, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
-    Assert.assertEquals(40, resource2.getTronPowerLimit());
+    Assert.assertEquals(resource2.getTronPowerLimit(), 40);
     logger.info(resource2.toString());
     Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
-    Assert.assertEquals(0, account2.getUnfrozenV2Count());
-    Assert.assertEquals(20000000, account2.getFrozenV2(0).getAmount());
-    Assert.assertEquals(20000000, account2.getFrozenV2(1).getAmount());
+    Assert.assertEquals(account2.getUnfrozenV2Count(), 0);
+    Assert.assertEquals(account2.getFrozenV2(0).getAmount(), 20000000);
+    Assert.assertEquals(account2.getFrozenV2(1).getAmount(), 20000000);
     logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
   }
 
-  @Test(enabled = true, description = "unfreeze and cancel in the same block")
-  public void test03UnfreezeCancelUnfreezeInSameBlock() {
+  @Test(enabled = true, description = "cancel all unexpired net and energy")
+  public void test03CancelAllUnfreezeNetAndEnergy() {
     logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001,1000000L,0, blockingStubFull));
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001,1000000L,1, blockingStubFull));
-    List<Integer> li = new ArrayList<>();
-    li.add(0);
-    li.add(1);
-    Assert.assertTrue(PublicMethed.cancelUnFreezeBalanceV2(testAddress001, testKey001,li, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.AccountResourceMessage resource1 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
+    Assert.assertEquals(resource1.getTronPowerLimit(), 38);
+    Assert.assertTrue(PublicMethed.cancelAllUnFreezeBalanceV2(testAddress001, testKey001, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
-    Assert.assertEquals(40, resource2.getTronPowerLimit());
+    Assert.assertEquals(resource2.getTronPowerLimit(), 40);
     logger.info(resource2.toString());
     Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
-    Assert.assertEquals(0, account2.getUnfrozenV2Count());
-    Assert.assertEquals(20000000, account2.getFrozenV2(0).getAmount());
-    Assert.assertEquals(20000000, account2.getFrozenV2(1).getAmount());
+    Assert.assertEquals(account2.getUnfrozenV2Count(), 0);
+    Assert.assertEquals(account2.getFrozenV2(0).getAmount(), 20000000);
+    Assert.assertEquals(account2.getFrozenV2(1).getAmount(), 20000000);
     logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
   }
 
-
-  @Test(enabled = true, description = "there is only one unfreeze trans in the unfrozen list, but cancel the same index twice")
-  public void test04CancelUnfreezeWithTheSameIndexTwice() {
-    logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
-    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001,1000000L,0, blockingStubFull));
-    List<Integer> li = new ArrayList<>();
-    li.add(0);
-    Assert.assertTrue(PublicMethed.cancelUnFreezeBalanceV2(testAddress001, testKey001, li, blockingStubFull));
-    Assert.assertFalse(PublicMethed.cancelUnFreezeBalanceV2(testAddress001, testKey001, li, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
-    Assert.assertEquals(40, resource2.getTronPowerLimit());
-    logger.info(resource2.toString());
-    Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
-    Assert.assertEquals(0, account2.getUnfrozenV2Count());
-    Assert.assertEquals(20000000, account2.getFrozenV2(0).getAmount());
-    Assert.assertEquals(20000000, account2.getFrozenV2(1).getAmount());
-    logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
-  }
-
-  @Test(enabled = true, description = "repeat unfreeze and cancelUnfreeze")
-  public void test05UnfreezeAndCancelUnfreezeOver32() {
+  @Test(enabled = true, description = "cancel 32  unexpired unfreeze")
+  public void test04CancelAll32Unfreeze() {
     logger.info(PublicMethed.queryAccount(testAddress001, blockingStubFull).toString());
-    List<Integer> li = new ArrayList<>();
-    li.add(0);
-    int count = 1;
-    for(int i=0;i<8;i++){
-      PublicMethed.unFreezeBalanceV2(testAddress001, testKey001, count ++,0, blockingStubFull);
-      PublicMethed.unFreezeBalanceV2(testAddress001, testKey001,count ++,0, blockingStubFull);
-      PublicMethed.unFreezeBalanceV2(testAddress001, testKey001, count ++,0, blockingStubFull);
-      PublicMethed.unFreezeBalanceV2(testAddress001, testKey001,count ++,0, blockingStubFull);
-      PublicMethed.cancelUnFreezeBalanceV2(testAddress001, testKey001, li, blockingStubFull);
-      PublicMethed.unFreezeBalanceV2(testAddress001, testKey001,count ++,0, blockingStubFull);
+    for(int i=0;i<32;i++){
+      Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001, i + 1,0, blockingStubFull));
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.AccountResourceMessage resource1 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
+    Assert.assertEquals( resource1.getTronPowerLimit(), 39);
+    Assert.assertTrue(PublicMethed.cancelAllUnFreezeBalanceV2(testAddress001, testKey001, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
-    Assert.assertEquals(39, resource2.getTronPowerLimit());
+    Assert.assertEquals(resource2.getTronPowerLimit(), 40);
     logger.info(resource2.toString());
     Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     logger.info(account2.toString());
-    Assert.assertEquals(32, account2.getUnfrozenV2Count());
-    Assert.assertEquals(19999216, account2.getFrozenV2(0).getAmount());
-    Assert.assertEquals(20000000, account2.getFrozenV2(1).getAmount());
+    Assert.assertEquals(0, account2.getUnfrozenV2Count());
+    Assert.assertEquals(account2.getFrozenV2(1).getAmount(), 20000000);
+    Assert.assertEquals(account2.getFrozenV2(1).getAmount(), 20000000);
   }
+
+  @Test(enabled = false, description = "cancel all net and energy include expired and unexpired")
+  public void test05CancelAllUnfreeze() {
+    logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001,1000000L,0, blockingStubFull));
+    Assert.assertTrue(PublicMethed.cancelAllUnFreezeBalanceV2(testAddress001, testKey001, blockingStubFull));
+    Assert.assertFalse(PublicMethed.cancelAllUnFreezeBalanceV2(testAddress001, testKey001, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
+    Assert.assertEquals(40, resource2.getTronPowerLimit());
+    logger.info(resource2.toString());
+    Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
+    Assert.assertEquals(0, account2.getUnfrozenV2Count());
+    Assert.assertEquals(20000000, account2.getFrozenV2(0).getAmount());
+    Assert.assertEquals(20000000, account2.getFrozenV2(1).getAmount());
+    logger.info(PublicMethed.getAccountResource(testAddress001, blockingStubFull).toString());
+  }
+
+
 
   //todo: vote/unfreeze32+cancel/cancel expired/
 

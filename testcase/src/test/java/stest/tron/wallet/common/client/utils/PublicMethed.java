@@ -101,7 +101,7 @@ import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
 import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
-import org.tron.protos.contract.BalanceContract.CancelUnfreezeV2Contract;
+import org.tron.protos.contract.BalanceContract.CancelAllUnfreezeV2Contract;
 import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
 import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
@@ -1013,10 +1013,9 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public static Boolean cancelUnFreezeBalanceV2(
+  public static Boolean cancelAllUnFreezeBalanceV2(
       byte[] address,
       String priKey,
-      List<Integer> indexList,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
@@ -1026,14 +1025,11 @@ public class PublicMethed {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    CancelUnfreezeV2Contract.Builder builder = CancelUnfreezeV2Contract.newBuilder();
+    CancelAllUnfreezeV2Contract.Builder builder = CancelAllUnfreezeV2Contract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess);
-    for (int index : indexList) {
-      builder.addIndex(index);
-    }
-    CancelUnfreezeV2Contract contract = builder.build();
-    TransactionExtention transactionExtention = blockingStubFull.cancelUnfreezeV2(contract);
+    CancelAllUnfreezeV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.cancelAllUnfreezeV2(contract);
     Transaction transaction = transactionExtention.getTransaction();
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       logger.info("cancel unfreeze transaction ==null");
