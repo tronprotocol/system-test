@@ -7789,15 +7789,6 @@ public class PublicMethed {
       logger.info("transaction = null");
       return false;
     }
-    String memo = "this is a memo test.";
-    if(null != memo) {
-      Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
-      builder1.setData(ByteString.copyFromUtf8(memo));
-      Transaction.Builder builder2 = transaction.toBuilder();
-      builder2.setRawData(builder1);
-      transaction = builder2.build();
-    }
-
     transaction = TransactionUtils.sign(transaction, ecKey);
     freezeV2Txid = ByteArray.toHexString(
         Sha256Hash.hash(
