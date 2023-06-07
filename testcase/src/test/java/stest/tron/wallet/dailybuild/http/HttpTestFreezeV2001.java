@@ -951,6 +951,7 @@ public class HttpTestFreezeV2001 {
 
   @Test(enabled = true, description = "Test lockPeriod = 1000L")
   public void test012lockPeriodTest() {
+    final long lockPeriod = 1000L;
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] fromDelegateAddress = ecKey.getAddress();
     String fromDelegateKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -958,19 +959,39 @@ public class HttpTestFreezeV2001 {
     HttpMethed.waitToProduceOneBlock(httpnode);
     HttpMethed.freezeBalanceV2(httpnode, fromDelegateAddress, amount, 1, null, fromDelegateKey);
     HttpMethed.waitToProduceOneBlock(httpnode);
+    final long delegateTime = System.currentTimeMillis();
     response = HttpMethed.delegateresource(httpnode, fromDelegateAddress, delegateAmount,
-        1, true, 1000L, receiverResourceAddress, fromDelegateKey);
+        1, true, lockPeriod, receiverResourceAddress, fromDelegateKey);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info("delegateResource:" + responseContent.toJSONString());
     Assert.assertEquals(responseContent.getBoolean("result"), true);
     HttpMethed.waitToProduceOneBlock(httpnode);
-    response = HttpMethed.getDelegatedResourceV2(httpnode, fromDelegateAddress, receiverResourceAddress, true);
+    response = HttpMethed.getDelegatedResourceV2(
+        httpnode, fromDelegateAddress, receiverResourceAddress, true);
     responseContent = HttpMethed.parseResponseContent(response);
     logger.info(responseContent.toJSONString());
-    Assert.assertTrue(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getLong("expire_time_for_energy") > System.currentTimeMillis());
-    Assert.assertEquals(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getLong("frozen_balance_for_energy").longValue(), delegateAmount.longValue());
-    Assert.assertEquals(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getString("from"), Base58.encode58Check(fromDelegateAddress));
-    Assert.assertEquals(responseContent.getJSONArray("delegatedResource").getJSONObject(0).getString("to"), Base58.encode58Check(receiverResourceAddress));
+    Long expireTime =
+        responseContent
+            .getJSONArray("delegatedResource")
+            .getJSONObject(0)
+            .getLong("expire_time_for_energy");
+    Assert.assertTrue(Math.abs((expireTime - delegateTime) - (lockPeriod * 3 * 1000)) < 5000L);
+    Assert.assertEquals(
+        responseContent
+            .getJSONArray("delegatedResource")
+            .getJSONObject(0).getLong("frozen_balance_for_energy")
+            .longValue(),
+        delegateAmount.longValue());
+    Assert.assertEquals(
+        responseContent
+            .getJSONArray("delegatedResource")
+            .getJSONObject(0).getString("from"),
+        Base58.encode58Check(fromDelegateAddress));
+    Assert.assertEquals(
+        responseContent
+            .getJSONArray("delegatedResource")
+            .getJSONObject(0).getString("to"),
+        Base58.encode58Check(receiverResourceAddress));
   }
 
   /**
