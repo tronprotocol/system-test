@@ -13,7 +13,8 @@ public enum ProposalEnum {
   GetEnergyFee("getEnergyFee"),
   getMaxFeeLimit("getMaxFeeLimit"),
   getMaxCpuTimeOfOneTx("getMaxCpuTimeOfOneTx"),
-  getAllowCancelUnfreezeV2("getAllowCancelUnfreezeV2");
+  getAllowCancelUnfreezeV2("getAllowCancelUnfreezeV2"),
+  getMaxDelegateLockPeriod("getMaxDelegateLockPeriod");
 
   private String proposalName;
 
