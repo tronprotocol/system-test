@@ -23,6 +23,7 @@ import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.TransactionUtils;
 //import org.tron.common.zksnark.JLibrustzcash;
 import org.tron.core.Wallet;
+import org.tron.protos.Contract.CancelAllUnfreezeV2Contract;
 import org.tron.protos.Contract.DelegateResourceContract;
 import org.tron.protos.Contract.UnDelegateResourceContract;
 import org.tron.protos.Contract.FreezeBalanceContract;
@@ -562,6 +563,14 @@ public abstract class AbstractTransactionCreator extends Level2Strategy {
     ByteString byteAddress = ByteString.copyFrom(ownerAddress);
     builder.setOwnerAddress(byteAddress).setBalance(delegateBalance)
         .setResourceValue(resourceCode).setReceiverAddress(ByteString.copyFrom(receiverAddress));
+    return builder.build();
+  }
+
+  public CancelAllUnfreezeV2Contract cancelAllUnfreezeV2Contract(byte[] ownerAddress) {
+    org.tron.protos.Contract.CancelAllUnfreezeV2Contract.Builder builder = org.tron.protos.Contract.CancelAllUnfreezeV2Contract
+        .newBuilder();
+    ByteString byteAddress = ByteString.copyFrom(ownerAddress);
+    builder.setOwnerAddress(byteAddress);
     return builder.build();
   }
 

@@ -244,6 +244,18 @@ service Wallet {
       }
     };
   }
+
+  rpc WithdrawExpireUnfreeze (WithdrawExpireUnfreezeContract) returns (TransactionExtention) {
+  }
+  rpc DelegateResource (DelegateResourceContract) returns (TransactionExtention) {
+  }
+  rpc UnDelegateResource (UnDelegateResourceContract) returns (TransactionExtention) {
+  }
+
+  rpc CancelAllUnfreezeV2 (CancelAllUnfreezeV2Contract) returns (TransactionExtention) {
+  }
+
+
   //Use this function instead of UpdateAsset.
   rpc UpdateAsset2 (UpdateAssetContract) returns (TransactionExtention) {
   }
