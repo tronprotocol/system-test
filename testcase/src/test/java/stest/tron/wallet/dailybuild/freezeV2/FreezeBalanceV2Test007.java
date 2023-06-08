@@ -240,11 +240,6 @@ public class FreezeBalanceV2Test007 {
   }
 
 
-
-
-
-  //todo: vote/unfreeze32+cancel/cancel expired/
-
   /**
    * constructor.
    */
