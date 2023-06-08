@@ -211,11 +211,11 @@ public class StressPrecondition {
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(29L, 999L);
       }
-/*      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowPBFT") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowPBFT") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(40L, 1L);
-      }*/
+      }
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowMarketTransaction") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
@@ -232,6 +232,14 @@ public class StressPrecondition {
         //新的提案已经添加，tronPower暂时不开启
         //proposalMap.put(51L, 1L);
       }
+      //临时开启account 状态树
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowAccountStateRoot") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(25L, 1L);
+        approveProposalIndex = i;
+      }
+
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowTvmFreeze") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
@@ -283,7 +291,7 @@ public class StressPrecondition {
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getUnfreezeDelayDays") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
-        proposalMap.put(70L, 1L);
+        //proposalMap.put(70L, 1L);
       }
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowOptimizedReturnValueOfChainId") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
@@ -298,7 +306,7 @@ public class StressPrecondition {
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getDynamicEnergyThreshold") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
-        proposalMap.put(73L, 100000L);
+        proposalMap.put(73L, 10000000L);
       }
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getDynamicEnergyIncreaseFactor") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
@@ -308,11 +316,25 @@ public class StressPrecondition {
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getDynamicEnergyMaxFactor") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
-        proposalMap.put(75L, 30000L);
+        proposalMap.put(75L, 90000L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowTvmShangHai") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(76L, 1L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowCancelUnfreezeV2") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(77L, 1L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getMaxDelegateLockPeriod") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(78L, 864000L);
       }
 
     }
-        //proposalMap.put(40L, 1L);
     if (proposalMap.size() >= 1) {
 
       PublicMethed.createProposal(witness001Address, witnessKey001,
@@ -356,7 +378,7 @@ public class StressPrecondition {
         PublicMethed.waitProduceNextBlock(blockingStubFull);
       }
 
-          //System.exit(0);
+    //      System.exit(0);
 //      waitProposalApprove(approveProposalIndex, blockingStubFull);
     }
   }
@@ -757,7 +779,7 @@ public class StressPrecondition {
       if(getChainParameters.get().getChainParameter(i).getKey().equals("getMaintenanceTimeInterval") && getChainParameters.get().getChainParameter(i).getValue() == 300000) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
-        proposalMap.put(0L, 300000 * 6 * 1L);
+        proposalMap.put(0L, 300000 * 2 * 1L);
       }
 
     }
