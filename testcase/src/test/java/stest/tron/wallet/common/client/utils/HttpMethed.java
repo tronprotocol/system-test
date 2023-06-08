@@ -257,7 +257,6 @@ public class HttpMethed {
       response = createConnect(requestUrl, userBaseObj2);
       transactionString = EntityUtils.toString(response.getEntity());
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
-      System.out.println("222222222222: "+transactionSignString);
       response = broadcastTransaction(httpNode, transactionSignString);
     } catch (Exception e) {
       e.printStackTrace();
