@@ -59,7 +59,7 @@ public class DynamicEnergyTest001 {
   public void beforeClass() throws Exception {
     PublicMethed.printAddress(testAccountKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 

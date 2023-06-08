@@ -60,7 +60,7 @@ public class WalletTestAssetIssue012 {
     logger.info(transferAssetCreateKey);
 
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }

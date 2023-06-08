@@ -46,7 +46,7 @@ public class ContractRewardTest001 {
   public void beforeSuite() {
 
     PublicMethed.printAddress(testKey001);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     PublicMethed

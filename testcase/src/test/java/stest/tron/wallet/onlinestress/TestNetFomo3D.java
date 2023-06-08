@@ -48,7 +48,7 @@ public class TestNetFomo3D {
   public void beforeClass() {
     PublicMethed.printAddress(testNetAccountKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     logger.info(Long.toString(PublicMethed.queryAccount(testNetAccountKey, blockingStubFull)

@@ -58,7 +58,7 @@ public class DelegateResourceTimestampTest {
     PublicMethed.printAddress(receiver2Key);
     PublicMethed.printAddress(receiver3Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 

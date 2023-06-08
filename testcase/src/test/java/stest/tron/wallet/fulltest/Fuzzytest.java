@@ -141,12 +141,12 @@ public class Fuzzytest {
   @BeforeClass(enabled = false)
   public void beforeClass() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
@@ -184,7 +184,7 @@ public class Fuzzytest {
       ManagedChannel channelFull = null;
       WalletGrpc.WalletBlockingStub blockingStubFull = null;
       channelFull = ManagedChannelBuilder.forTarget(fullnode)
-          .usePlaintext(true)
+          .usePlaintext()
           .build();
       blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
       GrpcAPI.NodeList nodeList = blockingStubFull

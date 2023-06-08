@@ -77,7 +77,7 @@ public class DelegateResourceV2TimestampTest {
     PublicMethed.printAddress(receiver2Key);
     PublicMethed.printAddress(receiver3Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
@@ -89,12 +89,12 @@ public class DelegateResourceV2TimestampTest {
       throw new SkipException("Skipping freezeV2 test case");
     }
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
     channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubPbft= WalletSolidityGrpc.newBlockingStub(channelPbft);
 

@@ -86,7 +86,7 @@ public class ZenTrc20Base extends JsonRpcBase{
             Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
     logger.info("maxFeeLimit:" + maxFeeLimit);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     getDailyBuildStartNum();

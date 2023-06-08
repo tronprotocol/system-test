@@ -95,10 +95,10 @@ public class TestStorageAndCpuStress {
     PublicMethed.printAddress(testKey002);
     PublicMethed.printAddress(testKey003);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
@@ -644,7 +644,7 @@ public class TestStorageAndCpuStress {
     ManagedChannel channelFull = null;
     WalletGrpc.WalletBlockingStub blockingStubFull = null;
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     NumberMessage.Builder builder = NumberMessage.newBuilder();
