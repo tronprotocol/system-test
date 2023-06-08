@@ -1039,6 +1039,37 @@ public class PublicMethed {
     GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
     return response.getResult();
   }
+  /** constructor. */
+  public static String cancelAllUnFreezeBalanceV2AndGetTxid(
+      byte[] address,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+    CancelAllUnfreezeV2Contract.Builder builder = CancelAllUnfreezeV2Contract.newBuilder();
+    ByteString byteAddreess = ByteString.copyFrom(address);
+    builder.setOwnerAddress(byteAddreess);
+    CancelAllUnfreezeV2Contract contract = builder.build();
+    TransactionExtention transactionExtention = blockingStubFull.cancelAllUnfreezeV2(contract);
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      logger.info("cancel unfreeze transaction ==null");
+      return null;
+    }
+    transaction = signTransaction(ecKey, transaction);
+    String txId = ByteArray.toHexString(
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray()));
+    broadcastTransaction(transaction, blockingStubFull);
+    return txId;
+  }
 
 
   /** constructor. */
