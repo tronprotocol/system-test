@@ -77,7 +77,7 @@ public class FreezeBalanceV2Test003 {
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 

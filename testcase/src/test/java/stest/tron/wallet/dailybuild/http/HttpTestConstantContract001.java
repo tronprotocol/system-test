@@ -172,7 +172,7 @@ public class HttpTestConstantContract001 {
     logger.info("estimate result: " + responseContent.toJSONString());
     long energyRequiredEstimate = responseContent.getLong("energy_required");
     ManagedChannel channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     final Long energyFee = PublicMethed.getChainParametersValue("getEnergyFee", blockingStubFull);

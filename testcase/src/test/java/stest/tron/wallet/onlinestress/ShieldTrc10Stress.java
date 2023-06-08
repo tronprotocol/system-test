@@ -69,7 +69,7 @@ public class ShieldTrc10Stress {
     PublicMethed.printAddress(foundationZenTokenKey);
     PublicMethed.printAddress(zenTokenOwnerKey);
     ManagedChannel channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
@@ -97,7 +97,7 @@ public class ShieldTrc10Stress {
   @Test(enabled = true, threadPoolSize = 100, invocationCount = 100)
   public void test1Shield2TwoShieldTransaction() {
     ManagedChannel channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 

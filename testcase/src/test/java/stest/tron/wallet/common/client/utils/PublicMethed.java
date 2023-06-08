@@ -161,7 +161,7 @@ public class PublicMethed {
 
   private static final String fullnode2 = Configuration.getByPath("testng.conf")
           .getStringList("fullnode.ip.list").get(1);
-  private static ManagedChannel channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext(true).build();
+  private static ManagedChannel channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
   private static WalletGrpc.WalletBlockingStub blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
 
 

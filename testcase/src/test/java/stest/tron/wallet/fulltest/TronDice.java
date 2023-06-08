@@ -47,7 +47,7 @@ public class TronDice {
   public void beforeClass() {
     PublicMethed.printAddress(contract008Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     PublicMethed.printAddress(testKey002);

@@ -92,7 +92,12 @@ dependencies {
 
 //    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
     compile group: leveldbGroup, name: leveldbName, version: leveldbVersion
-
+    implementation 'io.grpc:grpc-netty-shaded:1.31.0'
+    implementation 'io.grpc:grpc-netty:1.31.0'
+    implementation 'io.grpc:grpc-protobuf:1.31.0'
+    implementation 'io.grpc:grpc-stub:1.31.0'
+    implementation 'com.google.guava:guava:28.0-jre'
+    implementation fileTree(dir: 'libs', include: '*.jar')
 }
 
 check.dependsOn 'lint'

@@ -60,7 +60,7 @@ public class FreezeWeightDeflationTest {
     PublicMethed.printAddress(receiver1Key);
     PublicMethed.printAddress(receiver2Key);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 

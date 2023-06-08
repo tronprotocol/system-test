@@ -82,22 +82,22 @@ public class EstimateEnergyTest001 {
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     channelFull2 = ManagedChannelBuilder.forTarget(fullnode2)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
 
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
     channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubPbft = WalletSolidityGrpc.newBlockingStub(channelPbft);
     String filePath = "src/test/resources/soliditycode/estimateenergy.sol";

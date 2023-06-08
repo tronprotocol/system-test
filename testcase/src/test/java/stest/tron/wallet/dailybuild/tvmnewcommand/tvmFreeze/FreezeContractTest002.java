@@ -55,7 +55,7 @@ public class FreezeContractTest002 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
 

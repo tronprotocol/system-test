@@ -97,7 +97,7 @@ public class MainnetReplayQueryTest {
   @Test(enabled = true, threadPoolSize = 20, invocationCount = 20)
   public void test01MainnetReplayQueryTest() throws InterruptedException {
     ManagedChannel channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Integer threadId = Integer.valueOf(Thread.currentThread().getName().split("-")[2]);

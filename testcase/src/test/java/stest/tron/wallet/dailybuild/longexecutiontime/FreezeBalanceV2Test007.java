@@ -73,7 +73,7 @@ public class FreezeBalanceV2Test007 {
   public void beforeClass() throws Exception{
     PublicMethed.printAddress(frozenBandwidthKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     if(!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {

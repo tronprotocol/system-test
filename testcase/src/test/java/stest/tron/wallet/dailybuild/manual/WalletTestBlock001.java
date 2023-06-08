@@ -74,14 +74,14 @@ public class WalletTestBlock001 {
 
 
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull)
         .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
     //blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     //blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity)

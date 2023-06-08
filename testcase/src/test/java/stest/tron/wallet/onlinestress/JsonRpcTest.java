@@ -75,7 +75,7 @@ public class JsonRpcTest extends JsonRpcBase {
     //fullnode = "47.94.243.150:50051";
     fullnode = "39.106.55.169:50051";
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     PublicMethed.printAddress(getBalanceTestKey);

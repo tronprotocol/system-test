@@ -94,7 +94,7 @@ public class MutisignOperationerGodicTest {
   @BeforeSuite
   public void beforeSuite() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
@@ -126,7 +126,7 @@ public class MutisignOperationerGodicTest {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Assert.assertTrue(PublicMethed.sendcoin(mutisignAccountAddress, 1000_000_000_000L, fromAddress,
