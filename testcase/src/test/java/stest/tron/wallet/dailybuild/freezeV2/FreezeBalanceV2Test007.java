@@ -260,6 +260,44 @@ public class FreezeBalanceV2Test007 {
     Assert.assertEquals(resource1.getTronPowerLimit(), resource1.getTronPowerUsed());
   }
 
+  @Test(enabled = true, description = "all freeze vote, then unfreeze some , then cancel unfreeze. expect vote desc")
+  public void test06UnfreezeWithVotedAndCancelAllUnfreeze() {
+    Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001, 19000000L, 0, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Protocol.Account account1 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
+    long balance1 = account1.getBalance();
+    Assert.assertEquals(account1.getVotesCount(), 1);
+    byte[] witness = account1.getVotes(0).getVoteAddress().toByteArray();
+    long voteCount = account1.getVotes(0).getVoteCount();
+    Assert.assertEquals(witness, testWitnessAddress);
+    Assert.assertEquals(voteCount, 19);
+    GrpcAPI.AccountResourceMessage resource1 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
+    Assert.assertEquals(resource1.getTronPowerLimit(), 19);
+    Assert.assertEquals(resource1.getTronPowerLimit(), resource1.getTronPowerUsed());
+    Assert.assertEquals(account1.getFrozenV2(1).getAmount(), 19000000);
+    Assert.assertEquals(account1.getFrozenV2(0).getAmount(), 0);
+
+    String txid  = PublicMethed.cancelAllUnFreezeBalanceV2AndGetTxid(testAddress001, testKey001, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
+    logger.info("test06UnfreezeWithVotedAndCancelAllUnfreeze info: " + info.toString());
+    Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 19000000);
+    Assert.assertEquals(info.getWithdrawExpireAmount(), 0);
+    Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
+    long balance2 = account2.getBalance();
+    Assert.assertEquals(balance1 - info.getReceipt().getNetFee(), balance2 );
+    Assert.assertEquals(account1.getVotesCount(), 1);
+    witness = account1.getVotes(0).getVoteAddress().toByteArray();
+    voteCount = account1.getVotes(0).getVoteCount();
+    Assert.assertEquals(witness, testWitnessAddress);
+    Assert.assertEquals(voteCount, 19);
+    Assert.assertEquals(resource1.getTronPowerLimit(), resource1.getTronPowerUsed());
+    Assert.assertEquals(account1.getFrozenV2(1).getAmount(), 19000000);
+    Assert.assertEquals(account1.getFrozenV2(0).getAmount(), 0);
+  }
+
+
+
 
   /**
    * constructor.

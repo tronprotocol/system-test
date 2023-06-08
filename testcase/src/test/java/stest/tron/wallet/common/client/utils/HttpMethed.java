@@ -257,6 +257,7 @@ public class HttpMethed {
       response = createConnect(requestUrl, userBaseObj2);
       transactionString = EntityUtils.toString(response.getEntity());
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      System.out.println("222222222222: "+transactionSignString);
       response = broadcastTransaction(httpNode, transactionSignString);
     } catch (Exception e) {
       e.printStackTrace();
@@ -1547,6 +1548,29 @@ public class HttpMethed {
         userBaseObj2.addProperty("resource", "TRON_POWER");
       }
 
+      response = createConnect(requestUrl, userBaseObj2);
+      transactionString = EntityUtils.toString(response.getEntity());
+      logger.info(transactionSignString);
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
+      logger.info(response.getEntity().toString());
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor. */
+  public static HttpResponse cancelAllUnfreezeBalanceV2(
+      String httpNode,
+      byte[] ownerAddress,
+      String fromKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/cancelallunfreezev2";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
       response = createConnect(requestUrl, userBaseObj2);
       transactionString = EntityUtils.toString(response.getEntity());
       logger.info(transactionSignString);
