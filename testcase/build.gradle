@@ -193,6 +193,15 @@ task dailyBuild(type: Test, dependsOn: replaceConfig ) {
 
 }
 
+task trident(type: Test) {
+    doFirst {
+        useTestNG {
+            suites(file('src/test/resources/trident.xml'))
+        }
+    }
+}
+
+
 task leveldbTest(type: Test) {
     doFirst{
         useTestNG {
