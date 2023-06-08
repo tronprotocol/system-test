@@ -323,12 +323,12 @@ public class StressPrecondition {
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(76L, 1L);
       }
-      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowCancelUnfreezeV2") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getAllowCancelAllUnfreezeV2") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(77L, 1L);
       }
-      if(getChainParameters.get().getChainParameter(i).getKey().equals("getMaxDelegateLockPeriod") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getMaxDelegateLockPeriodgit") && getChainParameters.get().getChainParameter(i).getValue() == 0) {
         logger.info(getChainParameters.get().getChainParameter(i).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(78L, 864000L);
