@@ -78,7 +78,7 @@ public class FreezeBalanceV2Test001 {
   public void beforeClass() throws Exception {
     PublicMethed.printAddress(frozenBandwidthKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     if (!PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {
@@ -88,12 +88,12 @@ public class FreezeBalanceV2Test001 {
       throw new SkipException("Skipping freezeV2 test case");
     }
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
     channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubPbft= WalletSolidityGrpc.newBlockingStub(channelPbft);
     Assert.assertTrue(PublicMethed.sendcoin(frozenBandwidthAddress, sendAmount,

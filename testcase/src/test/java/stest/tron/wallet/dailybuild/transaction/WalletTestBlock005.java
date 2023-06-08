@@ -52,9 +52,9 @@ public class WalletTestBlock005 {
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext(true).build();
+    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
   }
 

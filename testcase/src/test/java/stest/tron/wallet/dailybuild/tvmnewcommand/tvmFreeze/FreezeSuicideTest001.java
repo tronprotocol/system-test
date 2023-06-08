@@ -57,7 +57,7 @@ public class FreezeSuicideTest001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception{
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {

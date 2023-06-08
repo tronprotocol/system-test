@@ -110,7 +110,7 @@ public class JsonRpcBase {
             Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
     logger.info("maxFeeLimit: " + maxFeeLimit);
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Assert.assertTrue(
         PublicMethed.sendcoin(

@@ -57,7 +57,7 @@ public class GetAccountBalance001 {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     PublicMethed.sendcoin(sendAddress,100000000L,foundationAddress,foundationKey,

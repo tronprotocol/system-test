@@ -52,7 +52,7 @@ public class StateTree001 extends JsonRpcBase {
       throw new SkipException("Skipping this state root test case");
     }
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     PublicMethed.printAddress(getBalanceTestKey);

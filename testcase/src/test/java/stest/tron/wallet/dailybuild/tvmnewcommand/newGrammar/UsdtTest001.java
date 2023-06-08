@@ -50,7 +50,7 @@ public class UsdtTest001 {
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Assert.assertTrue(PublicMethed
       .sendcoin(dev001Address, 10000000000L, testNetAccountAddress, testNetAccountKey,

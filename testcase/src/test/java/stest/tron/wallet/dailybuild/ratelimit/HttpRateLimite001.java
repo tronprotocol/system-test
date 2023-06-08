@@ -64,13 +64,13 @@ public class HttpRateLimite001 extends JsonRpcBase {
   @BeforeClass
   public void beforeClass() {
     channelFull2 = ManagedChannelBuilder.forTarget(fullnode2)
-            .usePlaintext(true)
+            .usePlaintext()
             .build();
 
     blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
 
     channelFull3 = ManagedChannelBuilder.forTarget(fullnode3)
-            .usePlaintext(true)
+            .usePlaintext()
             .build();
     blockingStubFull3 = WalletGrpc.newBlockingStub(channelFull3);
   }

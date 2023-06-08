@@ -38,7 +38,7 @@ public class WalletTestTransactionMemo {
   public void beforeClass() {
     PublicMethed.printAddress(memoKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     Assert.assertTrue(PublicMethed.sendcoin(memoAddress, sendAmount,

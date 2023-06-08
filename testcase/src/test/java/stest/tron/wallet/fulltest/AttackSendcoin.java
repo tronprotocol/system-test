@@ -152,7 +152,7 @@ public class AttackSendcoin {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     final Account fromInfo = PublicMethed.queryAccount(testKey002, blockingStubFull);
@@ -185,7 +185,7 @@ public class AttackSendcoin {
       fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
           .get(randNum);
       channelFull = ManagedChannelBuilder.forTarget(fullnode)
-          .usePlaintext(true)
+          .usePlaintext()
           .build();
       blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 

@@ -52,17 +52,17 @@ public class WalletTestAccount014 {
   public void beforeClass() {
     PublicMethed.printAddress(testKey002);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
     channelSoliInFull = ManagedChannelBuilder.forTarget(soliInFullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubSoliInFull = WalletSolidityGrpc.newBlockingStub(channelSoliInFull);
     if(PublicMethed.freezeV2ProposalIsOpen(blockingStubFull)) {

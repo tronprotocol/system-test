@@ -64,7 +64,7 @@ public class WalletTestAssetIssue015 {
     logger.info(testKeyForNewAddress);
 
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext(true)
+        .usePlaintext()
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }

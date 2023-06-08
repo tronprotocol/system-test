@@ -71,7 +71,7 @@ public class NewFreezeContractTest {
   public void beforeClass() {
     PublicMethed.printAddress(testKey001);
     PublicMethed.printAddress(testKey002);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext(true).build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     Assert.assertTrue(PublicMethed.sendcoin(testAddress001, 100000_000000L,
