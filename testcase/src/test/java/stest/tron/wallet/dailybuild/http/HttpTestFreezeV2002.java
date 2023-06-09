@@ -290,6 +290,12 @@ public class HttpTestFreezeV2002 {
    * */
   @AfterClass
   public void shutdown() throws InterruptedException {
+    response = HttpMethed.getAccount(httpnode, testAddress001);
+    responseContent = HttpMethed.parseResponseContent(response);
+    for (int i = 0; i < responseContent.getJSONArray("frozenV2").size(); i++) {
+      long amount = responseContent.getJSONArray("frozenV2").getJSONObject(i).getLongValue("amount");
+      HttpMethed.unFreezeBalanceV2(httpnode, testAddress001, amount, i, testKey001);
+    }
     HttpMethed.freedResource(httpnode, testAddress001, fromAddress, testKey001);
     HttpMethed.disConnect();
   }
