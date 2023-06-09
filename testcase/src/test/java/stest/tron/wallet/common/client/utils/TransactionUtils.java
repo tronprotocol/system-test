@@ -306,6 +306,7 @@ public class TransactionUtils {
       transactionMap.put(ContractType.ProposalDeleteContract, ProposalDeleteContract.class);
       transactionMap.put(ContractType.ProposalCreateContract, ProposalCreateContract.class);
       transactionMap.put(ContractType.VoteAssetContract, VoteAssetContract.class);
+      transactionMap.put(ContractType.CancelAllUnfreezeV2Contract, BalanceContract.CancelAllUnfreezeV2Contract.class);
     }
   }
 
@@ -333,6 +334,9 @@ public class TransactionUtils {
             if (clazz != null) {
               contractJson = JSONObject
                   .parseObject(JsonFormat.printToString(contractParameter.unpack(clazz), selfType));
+            } else {
+              logger.error(
+                  "cannot find ContractType, do not forget add ContractType to transactionMap!!");
             }
             break;
         }
@@ -395,6 +399,9 @@ public class TransactionUtils {
           Message.Builder builder = generatedMessageV3.toBuilder();
           JsonFormat.merge(parameter.getJSONObject("value").toJSONString(), builder, selfType);
           any = Any.pack(builder.build());
+        } else {
+          logger.error(
+              "cannot find ContractType, do not forget add ContractType to transactionMap!!");
         }
         if (any != null) {
           String value = ByteArray.toHexString(any.getValue().toByteArray());
