@@ -222,12 +222,14 @@ public class FreezeBalanceV2Test007 {
     }
     long balanceBeforeCancel = account1.getBalance();
     String txid  = PublicMethed.cancelAllUnFreezeBalanceV2AndGetTxid(testAddress001, testKey001, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubFullSolidity);
 
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test05CancelAllUnfreeze info: " + info.toString());
     Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 4000000);
     Assert.assertEquals(info.getWithdrawExpireAmount(), 2000000);
+    Protocol.TransactionInfo info1 = PublicMethed.getTransactionInfoByIdFromSolidity(txid, blockingStubFullSolidity).get();
+    Protocol.TransactionInfo info2 = PublicMethed.getTransactionInfoByIdFromSolidity(txid, blockingStubPbft).get();
 
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
     logger.info(resource2.toString());
@@ -241,10 +243,12 @@ public class FreezeBalanceV2Test007 {
     long balanceAfterCancel = account2.getBalance();
     Assert.assertEquals(balanceBeforeCancel - info.getReceipt().getNetFee() + info.getWithdrawExpireAmount(),
         balanceAfterCancel );
+    Assert.assertEquals(info, info1);
+    Assert.assertEquals(info, info2);
   }
 
   @Test(enabled = true, description = "vote after cancel all unfreeze")
-  public void test05VoteAfterCancelAllUnfreeze() {
+  public void test06VoteAfterCancelAllUnfreeze() {
     HashMap<byte[], Long> voteMap = new HashMap<>();
     voteMap.put(testWitnessAddress, 38L);
     Assert.assertTrue(PublicMethed.voteWitness(testAddress001, testKey001, voteMap, blockingStubFull));
@@ -261,7 +265,7 @@ public class FreezeBalanceV2Test007 {
   }
 
   @Test(enabled = true, description = "all freeze vote, then unfreeze some , then cancel unfreeze. expect vote desc")
-  public void test06UnfreezeWithVotedAndCancelAllUnfreeze() {
+  public void test07UnfreezeWithVotedAndCancelAllUnfreeze() {
     Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001, 19000000L, 0, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Protocol.Account account1 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
