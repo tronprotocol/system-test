@@ -54,6 +54,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.tron.protos.contract.BalanceContract;
 import stest.tron.wallet.common.client.WalletClient;
@@ -69,6 +71,7 @@ import stest.tron.wallet.common.client.WalletClient;
  * @author wenboz@google.com Wenbo Zhu
  * @author kenton@google.com Kenton Varda
  */
+@Slf4j
 public class JsonFormat {
 
   private static final int BUFFER_SIZE = 4096;
@@ -1247,6 +1250,7 @@ public class JsonFormat {
       try {
         return ByteString.copyFrom(ByteArray.fromHexString(input.toString()));
       } catch (Exception e) {
+        logger.error("ERROR!! unescapeBytes ERROR, do not forget update [AddressFieldNameMap]!!!");
         throw new InvalidEscapeSequence("INVALID hex String");
       }
     }
@@ -1262,7 +1266,6 @@ public class JsonFormat {
       if (HttpSelfFormatFieldName.isNameStringFormat(fliedName)) {
         return ByteString.copyFromUtf8(input);
       }
-
       return unescapeBytes(input);
     }
 
