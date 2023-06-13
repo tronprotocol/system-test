@@ -76,7 +76,7 @@ public class MarketSellAsset005 {
     Assert.assertTrue(PublicMethed.createAssetIssue(testAddress001,name,10000_000000L,1,1,start,
         end,1,description,url,10000L,10000L,1L, 1L,testKey001,blockingStubFull));
 
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     assetAccountId001 = PublicMethed.queryAccount(testAddress001, blockingStubFull)
         .getAssetIssuedID().toByteArray();
 

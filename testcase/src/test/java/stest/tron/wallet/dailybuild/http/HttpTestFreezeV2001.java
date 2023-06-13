@@ -950,7 +950,7 @@ public class HttpTestFreezeV2001 {
   }
 
   @Test(enabled = true, description = "Test lockPeriod = 1000L")
-  public void test012lockPeriodTest() {
+  public void test015lockPeriodTest() {
     final long lockPeriod = 1000L;
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] fromDelegateAddress = ecKey.getAddress();
