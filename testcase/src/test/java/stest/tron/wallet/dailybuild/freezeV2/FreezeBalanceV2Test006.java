@@ -208,18 +208,25 @@ public class FreezeBalanceV2Test006 {
     PublicMethed.freezeBalanceV2(fromAddress, freezeBandwidthBalance, 0, fromKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     final Long lockPeriod = 3L;
-    PublicMethed.delegateResourceV2Lock(
+    Account beforeDelegateAccount =  PublicMethed.queryAccount(fromAddress, blockingStubFull);
+    String txId = PublicMethed.delegateResourceV2LockAndGetTxId(
         fromAddress, delegateBalance, 0, true,
         lockPeriod, receiverAddress, fromKey, blockingStubFull);
-    Long currentTime = System.currentTimeMillis();
-    logger.info("nowTime: " + System.currentTimeMillis());
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo info = PublicMethed.getTransactionInfoById(txId, blockingStubFull).get();
+    Long currentTime = info.getBlockTimeStamp() - 3000L;
+    logger.info("nowTime: " + currentTime);
+    Account afterDelegateAccount = PublicMethed.queryAccount(fromAddress, blockingStubFull);
+    Assert.assertEquals(
+        beforeDelegateAccount.getFrozenV2(0).getAmount()
+            - afterDelegateAccount.getFrozenV2(0).getAmount(),
+        delegateBalance.longValue());
     Optional<DelegatedResourceList> delegatedResourceList
         = PublicMethed.getDelegatedResourceV2(fromAddress, receiverAddress, blockingStubFull);
     Long expireTimeForBandwidth
         = delegatedResourceList.get().getDelegatedResource(0).getExpireTimeForBandwidth();
     logger.info("delegatedResourceList: " + delegatedResourceList.get());
-    Assert.assertTrue(
-        Math.abs((expireTimeForBandwidth - currentTime) - (lockPeriod * 3 * 1000L)) < 1500);
+    Assert.assertEquals(expireTimeForBandwidth - currentTime, lockPeriod * 3 * 1000L);
   }
 
   @Test(enabled = true, description = "unDelegateResource energy after lockPeriod")
@@ -233,17 +240,19 @@ public class FreezeBalanceV2Test006 {
     PublicMethed.freezeBalanceV2(fromAddress, freezeBandwidthBalance, 1, fromKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     final long lockPeriod = 3L;
-    PublicMethed.delegateResourceV2Lock(fromAddress, delegateBalance, 1, true, lockPeriod,
-        receiverAddress, fromKey, blockingStubFull);
-    Long currentTime = System.currentTimeMillis();
-    logger.info("nowTime: " + System.currentTimeMillis());
+    String txId = PublicMethed.delegateResourceV2LockAndGetTxId(fromAddress,
+        delegateBalance, 1, true, lockPeriod, receiverAddress, fromKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo info = PublicMethed.getTransactionInfoById(txId, blockingStubFull).get();
+    Long currentTime = info.getBlockTimeStamp() - 3000L;
+    logger.info("nowTime: " + currentTime);
     Optional<DelegatedResourceList> delegatedResourceList =
         PublicMethed.getDelegatedResourceV2(fromAddress, receiverAddress, blockingStubFull);
     Long expireTimeForEnergy
         = delegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
     logger.info("delegatedResourceList: " + delegatedResourceList.get());
-    Assert.assertTrue(
-        Math.abs((expireTimeForEnergy - currentTime) - (lockPeriod * 3 * 1000L)) < 1500);
+    Assert.assertEquals(
+        expireTimeForEnergy - currentTime, lockPeriod * 3 * 1000L);
 
     // It can not unDelegated before expire time
     GrpcAPI.TransactionExtention ext
@@ -306,21 +315,19 @@ public class FreezeBalanceV2Test006 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.freezeBalanceV2(fromAddress, freezeBandwidthBalance, 1, fromKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long beforeLockTrueTime = System.currentTimeMillis();
-    PublicMethed.delegateResourceV2Lock(fromAddress, delegateBalance, 1, true, 0L,
-        receiverAddress, fromKey, blockingStubFull);
+
+    String txId = PublicMethed.delegateResourceV2LockAndGetTxId(fromAddress,
+        delegateBalance, 1, true, 0L, receiverAddress, fromKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo info = PublicMethed.getTransactionInfoById(txId, blockingStubFull).get();
+    Long currentTime = info.getBlockTimeStamp() - 3000L;
     Optional<DelegatedResourceList> delegatedResourceList
         = PublicMethed.getDelegatedResourceV2(fromAddress, receiverAddress, blockingStubFull);
     Long unlockTimeStamp
         = delegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
-    logger.info("beforeLockTrueTime: " + beforeLockTrueTime);
+    logger.info("beforeLockTrueTime: " + currentTime);
     logger.info("unlockTimeStamp: " + unlockTimeStamp);
-    Assert.assertTrue(Math.abs((unlockTimeStamp - beforeLockTrueTime) - delegateLockTime) < 1500L);
-    Assert.assertTrue(
-        unlockTimeStamp > beforeLockTrueTime
-        &&
-        unlockTimeStamp <= System.currentTimeMillis() + delegateLockTime);
+    Assert.assertEquals(unlockTimeStamp - currentTime, delegateLockTime.longValue());
   }
 
   @Test(enabled = true, description = "Period boundary test")
@@ -340,27 +347,25 @@ public class FreezeBalanceV2Test006 {
     logger.info("ext.toString(): " + ext);
     Assert.assertTrue(ext.toString().contains("CONTRACT_VALIDATE_ERROR"));
     Assert.assertTrue(ext.toString().contains(
-            "The lock period of delegate resource cannot be less than 0 and cannot exceed " + maxPeriod + "!")
+            "The lock period of delegate resource cannot be less than 0 and cannot exceed "
+                + maxPeriod + "!")
     );
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long beforeLockTrueTime = System.currentTimeMillis();
     String txId2 = PublicMethed.delegateResourceV2LockAndGetTxId(
         fromAddress, delegateBalance, 1, true, maxPeriod,
         receiverAddress, fromKey, blockingStubFull);
     Assert.assertNotNull(txId2);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo info = PublicMethed.getTransactionInfoById(txId2, blockingStubFull).get();
+    Long beforeLockTrueTime = info.getBlockTimeStamp() - 3000L;
     Optional<DelegatedResourceList> delegatedResourceList
         = PublicMethed.getDelegatedResourceV2(fromAddress, receiverAddress, blockingStubFull);
     long unlockTimeStamp
         = delegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
     logger.info("beforeLockTrueTime: " + beforeLockTrueTime);
     logger.info("unlockTimeStamp: " + unlockTimeStamp);
-    Assert.assertTrue(
-        Math.abs((unlockTimeStamp - beforeLockTrueTime) - maxPeriod * 3 * 1000) < 1500L);
-    Assert.assertTrue(
-        unlockTimeStamp > beforeLockTrueTime
-        &&
-        unlockTimeStamp <= System.currentTimeMillis() + maxPeriod * 3 * 1000);
+    Assert.assertEquals(unlockTimeStamp - beforeLockTrueTime, maxPeriod * 3 * 1000L);
+
   }
 
   @Test(enabled = true, description
@@ -394,19 +399,50 @@ public class FreezeBalanceV2Test006 {
     Assert.assertTrue(ext.toString().contains(
         "The lock period for ENERGY this time cannot be less than the remaining time")
     );
-    Long afterDelegateTime = System.currentTimeMillis();
-    PublicMethed.delegateResourceV2LockAndGetTxId(
+    String txId = PublicMethed.delegateResourceV2LockAndGetTxId(
         fromAddress, delegateBalance, 1, true, lockPeriod + 1000,
         receiverAddress, fromKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    TransactionInfo info = PublicMethed.getTransactionInfoById(txId, blockingStubFull).get();
+    Long afterDelegateTime = info.getBlockTimeStamp() - 3000L;
+
     Optional<DelegatedResourceList> afterDelegatedResourceList
         = PublicMethed.getDelegatedResourceV2(fromAddress, receiverAddress, blockingStubFull);
     Long afterUnlockTimeStamp
         = afterDelegatedResourceList.get().getDelegatedResource(0).getExpireTimeForEnergy();
-    Assert.assertTrue(
-        Math.abs((afterUnlockTimeStamp - afterDelegateTime)
-            - ((lockPeriod + 1000) * 3 * 1000)) < 5000L
-    );
+    Assert.assertEquals(afterUnlockTimeStamp - afterDelegateTime, (lockPeriod + 1000) * 3 * 1000);
+  }
+
+  @Test(enabled = true, description = "Delegate twice in same block and lock = true,lockPeriod=0L")
+  public void test08DelegateLockTwiceInSameBlock() {
+    ECKey from = new ECKey(Utils.getRandom());
+    byte[] fromAddress = from.getAddress();
+    String fromKey = ByteArray.toHexString(from.getPrivKeyBytes());
+    PublicMethed.printAddress(fromKey);
+    PublicMethed.sendcoin(
+        fromAddress, 1000000000L, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.freezeBalanceV2(fromAddress, 200000000L, 0, fromKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    GrpcAPI.CanDelegatedMaxSizeResponseMessage message
+        = PublicMethed.getCanDelegatedMaxSize(fromAddress, 0, blockingStubFull).get();
+    logger.info("canDelegateResource:" + message);
+    Long canDelegateResource = message.getMaxSize();
+    String txId1 = PublicMethed.delegateResourceV2LockAndGetTxId(fromAddress,
+        canDelegateResource / 3, 0, true, null, receiverAddress, fromKey, blockingStubFull);
+    String txId2 = PublicMethed.delegateResourceV2LockAndGetTxId(fromAddress,
+        canDelegateResource / 4, 0, true, null, receiverAddress, fromKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Transaction transaction1
+        =  PublicMethed.getTransactionById(txId1, blockingStubFull).get();
+    Transaction transaction2
+        = PublicMethed.getTransactionById(txId2, blockingStubFull).get();
+    Assert.assertNotNull(transaction1);
+    Assert.assertNotNull(transaction2);
+    Assert.assertEquals(
+        transaction1.getRet(0).getContractRet().name(), "SUCCESS");
+    Assert.assertEquals(
+        transaction2.getRet(0).getContractRet().name(), "SUCCESS");
   }
 
 

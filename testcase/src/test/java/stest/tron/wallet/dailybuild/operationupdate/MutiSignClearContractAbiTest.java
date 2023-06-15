@@ -134,7 +134,7 @@ public class MutiSignClearContractAbiTest {
     logger.info(accountPermissionJson);
     PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
         blockingStubFull, ownerKeyString);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long maxFeeLimit = 1000000000L;
     String filePath = "./src/test/resources/soliditycode/TriggerConstant004.sol";
     String contractName = "testConstantContract";
@@ -148,7 +148,7 @@ public class MutiSignClearContractAbiTest {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 //    PublicMethed.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
-    Assert.assertTrue(smartContract.getAbi().toString() != null);
+    Assert.assertNotEquals(smartContract.getAbi().toString(), "");
     Assert.assertTrue(PublicMethedForMutiSign
         .clearContractAbi(contractAddress, ownerAddress, ownerKey,
             blockingStubFull, 2, permissionKeyString));
