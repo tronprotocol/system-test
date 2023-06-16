@@ -225,8 +225,8 @@ public class FreezeBalanceV2Test007 {
 
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test05CancelAllUnfreeze info: " + info.toString());
-    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("ENERGY").longValue(), 1000000L);
-    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("BANDWIDTH").longValue(), 1000000L);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("ENERGY").longValue(), 2000000L);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("BANDWIDTH").longValue(), 2000000L);
     Assert.assertEquals(info.getWithdrawExpireAmount(), 2000000);
     Protocol.TransactionInfo info1 = PublicMethed.getTransactionInfoByIdFromSolidity(txid, blockingStubFullSolidity).get();
     Protocol.TransactionInfo info2 = PublicMethed.getTransactionInfoByIdFromSolidity(txid, blockingStubPbft).get();

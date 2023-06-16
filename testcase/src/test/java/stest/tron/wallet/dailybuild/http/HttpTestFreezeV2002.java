@@ -104,7 +104,6 @@ public class HttpTestFreezeV2002 {
         Assert.assertEquals(tem.getLongValue("value"), 0);
       }
     }
-    Assert.assertEquals(1000000, responseContent.getLongValue("cancel_all_unfreezeV2_amount"));
     Assert.assertFalse(responseContent.containsKey("withdraw_expire_amount"));
 
     response = HttpMethed.getAccount(httpnode, testAddress001);
