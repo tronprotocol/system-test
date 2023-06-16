@@ -94,6 +94,16 @@ public class HttpTestFreezeV2002 {
     String txid = responseContent.getString("txid");
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getTransactionInfoById(httpnode, txid));
     logger.info("test001 cancelAllUnfreeze info: " + responseContent.toJSONString());
+    JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
+    Assert.assertEquals(cancelArray.size(), 3);
+    for(int i=0;i<3;i++){
+      JSONObject tem = cancelArray.getJSONObject(i);
+      if(tem.getString("key").equals("BANDWIDTH")){
+        Assert.assertEquals(tem.getLongValue("value"), 1000000);
+      }else {
+        Assert.assertEquals(tem.getLongValue("value"), 0);
+      }
+    }
     Assert.assertEquals(1000000, responseContent.getLongValue("cancel_all_unfreezeV2_amount"));
     Assert.assertFalse(responseContent.containsKey("withdraw_expire_amount"));
 
@@ -141,7 +151,16 @@ public class HttpTestFreezeV2002 {
     String txid = responseContent.getString("txid");
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getTransactionInfoById(httpnode, txid));
     logger.info("test002 cancelAllUnfreeze info: " + responseContent.toJSONString());
-    Assert.assertEquals(2000000, responseContent.getLongValue("cancel_all_unfreezeV2_amount"));
+    JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
+    Assert.assertEquals(cancelArray.size(), 3);
+    for(int i=0;i<3;i++){
+      JSONObject tem = cancelArray.getJSONObject(i);
+      if(tem.getString("key").equals("ENERGY")){
+        Assert.assertEquals(tem.getLongValue("value"), 2000000);
+      }else {
+        Assert.assertEquals(tem.getLongValue("value"), 0);
+      }
+    }
     Assert.assertFalse(responseContent.containsKey("withdraw_expire_amount"));
 
     response = HttpMethed.getAccount(httpnode, testAddress001);
@@ -191,7 +210,16 @@ public class HttpTestFreezeV2002 {
     String txid = responseContent.getString("txid");
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getTransactionInfoById(httpnode, txid));
     logger.info("test003 cancelAllUnfreeze info: " + responseContent.toJSONString());
-    Assert.assertEquals(4000000, responseContent.getLongValue("cancel_all_unfreezeV2_amount"));
+    JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
+    Assert.assertEquals(cancelArray.size(), 3);
+    for (int i = 0; i < 3; i++) {
+      JSONObject tem = cancelArray.getJSONObject(i);
+      if (tem.getString("key").equals("TRON_POWER")) {
+        Assert.assertEquals(tem.getLongValue("value"), 0);
+      } else {
+        Assert.assertEquals(tem.getLongValue("value"), 2000000);
+      }
+    }
     Assert.assertFalse(responseContent.containsKey("withdraw_expire_amount"));
 
     response = HttpMethed.getAccount(httpnode, testAddress001);
@@ -239,7 +267,18 @@ public class HttpTestFreezeV2002 {
     String txid = responseContent.getString("txid");
     responseContent = HttpMethed.parseResponseContent(HttpMethed.getTransactionInfoById(httpnode, txid));
     logger.info("test004 cancelAllUnfreeze info: " + responseContent.toJSONString());
-    Assert.assertEquals(528, responseContent.getLongValue("cancel_all_unfreezeV2_amount"));
+    JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
+    Assert.assertEquals(cancelArray.size(), 3);
+    for (int i = 0; i < 3; i++) {
+      JSONObject tem = cancelArray.getJSONObject(i);
+      if (tem.getString("key").equals("BANDWIDTH")) {
+        Assert.assertEquals(tem.getLongValue("value"), 256);
+      }else if (tem.getString("key").equals("ENERGY")) {
+        Assert.assertEquals(tem.getLongValue("value"), 272);
+      } else {
+        Assert.assertEquals(tem.getLongValue("value"), 0);
+      }
+    }
     Assert.assertFalse(responseContent.containsKey("withdraw_expire_amount"));
 
     response = HttpMethed.getAccount(httpnode, testAddress001);

@@ -13,10 +13,7 @@ import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.*;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +102,7 @@ public class FreezeBalanceV2Test007 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test01CancelAllUnfreezeNet info: " + info.toString());
-    Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 1000000L);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("BANDWIDTH").longValue(), 1000000L);
     Assert.assertEquals(info.getWithdrawExpireAmount(), 0);
     GrpcAPI.AccountResourceMessage resource3 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
     logger.info(resource3.toString());
@@ -132,7 +129,7 @@ public class FreezeBalanceV2Test007 {
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test02CancelAllUnfreezeEnergy info: " + info.toString());
     Assert.assertEquals(info.getWithdrawExpireAmount(), 0);
-    Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 1000000L);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("ENERGY").longValue(), 1000000L);
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
     logger.info(resource2.toString());
     Assert.assertEquals(resource2.getTronPowerLimit(), 40);
@@ -160,7 +157,8 @@ public class FreezeBalanceV2Test007 {
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test03CancelAllUnfreezeNetAndEnergy info: " + info.toString());
     Assert.assertEquals(info.getWithdrawExpireAmount(), 0);
-    Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 2000000);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("ENERGY").longValue(), 1000000L);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("BANDWIDTH").longValue(), 1000000L);
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
     logger.info(resource2.toString());
     Assert.assertEquals(resource2.getTronPowerLimit(), 40);
@@ -176,7 +174,7 @@ public class FreezeBalanceV2Test007 {
   public void test04CancelAll32Unfreeze() {
     logger.info(PublicMethed.queryAccount(testAddress001, blockingStubFull).toString());
     for(int i=0;i<32;i++){
-      Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001, i + 1,0, blockingStubFull));
+      Assert.assertTrue(PublicMethed.unFreezeBalanceV2(testAddress001, testKey001, i + 1,i%2, blockingStubFull));
     }
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.AccountResourceMessage resource1 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
@@ -187,7 +185,8 @@ public class FreezeBalanceV2Test007 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test04CancelAll32Unfreeze info: " + info.toString());
-    Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 528);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("ENERGY").longValue(), 272L);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("BANDWIDTH").longValue(), 256L);
     Assert.assertEquals(info.getWithdrawExpireAmount(), 0);
     GrpcAPI.AccountResourceMessage resource2 = PublicMethed.getAccountResource(testAddress001, blockingStubFull);
     logger.info(resource2.toString());
@@ -226,7 +225,8 @@ public class FreezeBalanceV2Test007 {
 
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test05CancelAllUnfreeze info: " + info.toString());
-    Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 4000000);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("ENERGY").longValue(), 1000000L);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("BANDWIDTH").longValue(), 1000000L);
     Assert.assertEquals(info.getWithdrawExpireAmount(), 2000000);
     Protocol.TransactionInfo info1 = PublicMethed.getTransactionInfoByIdFromSolidity(txid, blockingStubFullSolidity).get();
     Protocol.TransactionInfo info2 = PublicMethed.getTransactionInfoByIdFromSolidity(txid, blockingStubPbft).get();
@@ -285,7 +285,7 @@ public class FreezeBalanceV2Test007 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("test06UnfreezeWithVotedAndCancelAllUnfreeze info: " + info.toString());
-    Assert.assertEquals(info.getCancelAllUnfreezeV2Amount(), 19000000);
+    Assert.assertEquals(info.getCancelUnfreezeV2AmountMap().get("BANDWIDTH").longValue(), 19000000L);
     Assert.assertEquals(info.getWithdrawExpireAmount(), 0);
     Protocol.Account account2 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long balance2 = account2.getBalance();
