@@ -333,6 +333,21 @@ public class StressPrecondition {
         logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
         proposalMap.put(78L, 864000L);
       }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getFreeNetLimit") && getChainParameters.get().getChainParameter(i).getValue() == 1500) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(61L, 1000L);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getTotalNetLimit") && getChainParameters.get().getChainParameter(i).getValue() == 43200000000L) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(62L, 43200000000L / 3);
+      }
+      if(getChainParameters.get().getChainParameter(i).getKey().equals("getTransactionFee") && getChainParameters.get().getChainParameter(i).getValue() == 1000L) {
+        logger.info(getChainParameters.get().getChainParameter(i).getKey());
+        logger.info(Long.toString(getChainParameters.get().getChainParameter(i).getValue()));
+        proposalMap.put(3L, 2000L);
+      }
 
     }
     if (proposalMap.size() >= 1) {
