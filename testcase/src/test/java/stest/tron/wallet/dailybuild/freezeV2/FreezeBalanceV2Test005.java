@@ -75,6 +75,7 @@ public class FreezeBalanceV2Test005 {
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception{
     PublicMethed.printAddress(frozenBandwidthKey);
+    PublicMethed.printAddress(frozenEnergyKey);
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
         .usePlaintext()
         .build();
@@ -130,7 +131,7 @@ public class FreezeBalanceV2Test005 {
     Long beforeNetUsage = account.getNetUsage();
     Long beforeNetUsageFromAccountResource = accountResourceMessage.getNetUsed();
     Long beforeNetWindowSize = account.getNetWindowSize();
-    Assert.assertTrue(beforeNetWindowSize == 28800);
+    Assert.assertTrue(beforeNetWindowSize == 28800 * 1000);
     Assert.assertEquals(beforeNetUsage,beforeNetUsageFromAccountResource);
     Assert.assertTrue(beforeNetUsage == 0);
     String txid = PublicMethed.sendcoinGetTransactionId(foundationAddress,1L,
@@ -162,7 +163,7 @@ public class FreezeBalanceV2Test005 {
     Assert.assertEquals(beforeLatestConsumeTime,afterLatestConsumeTime);
     beforeNetWindowSize = account.getNetWindowSize();
     logger.info("beforeNetWindowSize:" + beforeNetWindowSize);
-    Assert.assertTrue(beforeNetWindowSize < 28800);
+    Assert.assertTrue(beforeNetWindowSize < 28800 * 1000);
     beforeNetUsage = account.getNetUsage();
 
     Assert.assertTrue(beforeNetUsage > 200);
@@ -174,7 +175,7 @@ public class FreezeBalanceV2Test005 {
     logger.info("afterNetWindowSize:" + afterNetWindowSize);
     Assert.assertTrue(
         afterNetWindowSize > beforeNetWindowSize
-        && afterNetWindowSize <= 28795);
+        && afterNetWindowSize <= 28795 * 1000);
     afterNetUsage = account.getNetUsage();
     transactionNetUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
         .get().getReceipt().getNetUsage();
@@ -198,7 +199,7 @@ public class FreezeBalanceV2Test005 {
     Long beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
     Long beforeEnergyUsageFromAccountResource = accountResourceMessage.getEnergyUsed();
     Long beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    Assert.assertTrue(beforeEnergyWindowSize == 28800);
+    Assert.assertTrue(beforeEnergyWindowSize == 28800 * 1000);
     Assert.assertEquals(beforeEnergyUsage,beforeEnergyUsageFromAccountResource);
     Assert.assertTrue(beforeEnergyUsage == 0);
 
@@ -232,7 +233,7 @@ public class FreezeBalanceV2Test005 {
     account = PublicMethed.queryAccount(frozenEnergyAddress,blockingStubFull);
     beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
     logger.info("beforeEnergyUsage:" + beforeEnergyUsage);
-    Assert.assertTrue(beforeEnergyUsage < 28800);
+    Assert.assertTrue(beforeEnergyWindowSize < 28800 * 1000);
     beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
 
     Assert.assertTrue(beforeEnergyUsage > 600);
@@ -246,7 +247,7 @@ public class FreezeBalanceV2Test005 {
     Long afterEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
     logger.info("beforeEnergyWindowSize:" + beforeEnergyWindowSize);
     logger.info("afterEnergyWindowSize:" + afterEnergyWindowSize);
-    Assert.assertTrue(afterEnergyWindowSize <= 28795
+    Assert.assertTrue(afterEnergyWindowSize <= 28795 * 1000
         && afterEnergyWindowSize > beforeEnergyWindowSize);
     afterEnergyUsage = account.getAccountResource().getEnergyUsage();
     transactionEnergyUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
@@ -270,7 +271,7 @@ public class FreezeBalanceV2Test005 {
     Long beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
     Long beforeEnergyUsageFromAccountResource = accountResourceMessage.getEnergyUsed();
     Long beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
-    Assert.assertTrue(beforeEnergyWindowSize == 28800);
+    Assert.assertTrue(beforeEnergyWindowSize == 28800 * 1000);
     Assert.assertEquals(beforeEnergyUsage,beforeEnergyUsageFromAccountResource);
     Assert.assertTrue(beforeEnergyUsage == 0);
 
@@ -305,7 +306,7 @@ public class FreezeBalanceV2Test005 {
     account = PublicMethed.queryAccount(frozenEnergyRevertAddress,blockingStubFull);
     beforeEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
     logger.info("beforeEnergyUsage:" + beforeEnergyUsage);
-    Assert.assertTrue(beforeEnergyUsage < 28800);
+    Assert.assertTrue(beforeEnergyWindowSize < 28800 * 1000);
     beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
 
     Assert.assertTrue(beforeEnergyUsage > 50);
@@ -319,7 +320,7 @@ public class FreezeBalanceV2Test005 {
     Long afterEnergyWindowSize = account.getAccountResource().getEnergyWindowSize();
     logger.info("beforeEnergyWindowSize:" + beforeEnergyWindowSize);
     logger.info("afterEnergyWindowSize:" + afterEnergyWindowSize);
-    Assert.assertTrue(afterEnergyWindowSize <= 28795
+    Assert.assertTrue(afterEnergyWindowSize <= 28795 * 1000
         && afterEnergyWindowSize > beforeEnergyWindowSize);
     afterEnergyUsage = account.getAccountResource().getEnergyUsage();
     transactionEnergyUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
@@ -328,7 +329,8 @@ public class FreezeBalanceV2Test005 {
         && afterEnergyUsage - beforeEnergyUsage + 8 >= transactionEnergyUsage
         && transactionEnergyUsage > 150 && afterEnergyUsage > 150 * 2);
 
-
+    Assert.assertTrue(account.getNetWindowOptimized());
+    Assert.assertTrue(account.getAccountResource().getEnergyWindowOptimized());
 
 
   }

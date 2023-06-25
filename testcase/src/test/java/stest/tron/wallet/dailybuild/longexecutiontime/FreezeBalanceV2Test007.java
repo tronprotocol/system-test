@@ -127,7 +127,8 @@ public class FreezeBalanceV2Test007 {
     Long beforeNetUsage = account.getNetUsage();
     Long beforeNetUsageFromAccountResource = accountResourceMessage.getNetUsed();
     Long beforeNetWindowSize = account.getNetWindowSize();
-    Assert.assertTrue(beforeNetWindowSize == 28800);
+    System.out.println("beforeNetWindowSize: " + beforeNetWindowSize);
+    Assert.assertTrue(beforeNetWindowSize == 28800 * 1000);
     Assert.assertEquals(beforeNetUsage,beforeNetUsageFromAccountResource);
     Assert.assertTrue(beforeNetUsage == 0);
     String txid = PublicMethed.sendcoinGetTransactionId(foundationAddress,1L,
@@ -159,7 +160,7 @@ public class FreezeBalanceV2Test007 {
     Assert.assertEquals(beforeLatestConsumeTime,afterLatestConsumeTime);
     beforeNetWindowSize = account.getNetWindowSize();
     logger.info("beforeNetWindowSize:" + beforeNetWindowSize);
-    Assert.assertTrue(beforeNetWindowSize < 28800);
+    Assert.assertTrue(beforeNetWindowSize < 28800 * 1000);
     beforeNetUsage = account.getNetUsage();
 
     Assert.assertTrue(beforeNetUsage > 200);
@@ -171,7 +172,7 @@ public class FreezeBalanceV2Test007 {
     logger.info("afterNetWindowSize:" + afterNetWindowSize);
     Assert.assertTrue(
         afterNetWindowSize > beforeNetWindowSize
-        && afterNetWindowSize <= 28795);
+        && afterNetWindowSize <= 28795 * 1000);
     afterNetUsage = account.getNetUsage();
     transactionNetUsage = PublicMethed.getTransactionInfoById(txid,blockingStubFull)
         .get().getReceipt().getNetUsage();
@@ -220,7 +221,7 @@ public class FreezeBalanceV2Test007 {
     Long afterNetUsed = account.getFreeNetUsage();
     logger.info("afterUseFreeNetWindowSize:" + afterUseFreeNetWindowSize);
     Assert.assertTrue(afterNetUsed - beforeNetUsed > 200);
-    Assert.assertTrue(beforeUseFreeNetWindowSize - afterUseFreeNetWindowSize <= 50);
+    Assert.assertTrue(beforeUseFreeNetWindowSize - afterUseFreeNetWindowSize <= 50 * 1000);
   }
 
 
