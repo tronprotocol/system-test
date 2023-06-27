@@ -72,16 +72,16 @@ public class ExtCodeHashTest007 {
 
   @Test(enabled = true, description = "Deploy testNoPayable contract using old solidity")
   public void test01DeployTestContractOld() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 2000_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 4000_000_000L, fromAddress,
         testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(dev001Address,
         PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+            blockingStubFull), 0, dev001Key, blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+
+    Assert.assertTrue(PublicMethed.freezeBalanceV2(dev001Address, 10_000_000L,
+        0, dev001Key, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
