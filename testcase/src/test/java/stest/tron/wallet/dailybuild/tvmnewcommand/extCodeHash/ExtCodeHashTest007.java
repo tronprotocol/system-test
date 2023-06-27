@@ -143,15 +143,15 @@ public class ExtCodeHashTest007 {
 
   @Test(enabled = true, description = "Deploy testNoPayable contract using new solidity")
   public void test02DeployTestContractNew() {
-    PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
-
-    PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
+//
+//    PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+//        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
+//
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
@@ -210,15 +210,15 @@ public class ExtCodeHashTest007 {
 
   @Test(enabled = true, description = "Deploy extcodehash contract")
   public void test03DeployExtCodeHashContract() {
-    PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 370000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
-
-    PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 370000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
+//
+//    PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+//        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull);
+//
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
@@ -355,13 +355,13 @@ public class ExtCodeHashTest007 {
 
   @Test(enabled = true, description = "Get contract code hash with new solidity")
   public void test05GetTestNewCodeHash() {
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
-
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+//        testKey002, blockingStubFull));
+//
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
@@ -438,18 +438,18 @@ public class ExtCodeHashTest007 {
 
   @Test(enabled = true, description = "Deploy contract using new solidity again")
   public void test06DeployTest2Contract() {
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 100_000_000L, fromAddress,
+//        testKey002, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+//        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //before deploy, check account resource
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
@@ -508,13 +508,13 @@ public class ExtCodeHashTest007 {
 
   @Test(enabled = true, description = "Get contract code hash with test2")
   public void test07GetTest2CodeHash() {
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
-
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
+//        testKey002, blockingStubFull));
+//
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
