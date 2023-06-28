@@ -214,7 +214,9 @@ public class FreezeBalanceV2Test007 {
     Protocol.Account account1 = PublicMethed.queryAccount(testAddress001, blockingStubFull);
     long expireTime = account1.getUnfrozenV2(0).getUnfreezeExpireTime();
     while (true) {
-      if (System.currentTimeMillis() > expireTime) {
+      Protocol.Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+      long nowTime=currentBlock.getBlockHeader().getRawData().getTimestamp();
+      if (nowTime > expireTime) {
         break;
       }
       PublicMethed.waitProduceNextBlock(blockingStubFull);
