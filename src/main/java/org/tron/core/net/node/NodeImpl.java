@@ -431,6 +431,11 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
       while (isAdvertiseActive) {
         consumerAdvObjToSpread();
       }
+        try {
+          Thread.sleep(50);
+        } catch (Exception e) {
+
+        }
     });
 
     broadPool.submit(() -> {
@@ -575,6 +580,7 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
         advObjToSpread.remove(entry.getKey());
       }
     }
+    long cost1 = System.currentTimeMillis() - starTime;
     int n = 0;
     while (advObjToSpread.size() > 0 && getActivePeer().size() > 0) {
     //while (spread.size() > 0 && getActivePeer().size() > 0) {
@@ -605,7 +611,8 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
       sendPackage.sendInv();
     }
     long cost = System.currentTimeMillis() - starTime;
-    logger.info("SPREAD finish one spread cost: {}ms", cost);
+    //logger.info("SPREAD finish one spread cost: {}ms", cost);
+    logger.info("SPREAD finish one spread cost: {}ms,  add spread {}ms", cost, cost1);
     if (cost < 1000){
       try { Thread.sleep(1000 - cost); } catch (Exception e) {}
     }

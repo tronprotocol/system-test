@@ -19,6 +19,7 @@ import org.tron.protos.Contract;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import java.io.File;
+import java.util.Random;
 
 @Setter
 public class NiceTransferTransactionCreator extends AbstractTransferTransactionCreator implements GoodCaseTransactonCreator {
@@ -27,7 +28,6 @@ public class NiceTransferTransactionCreator extends AbstractTransferTransactionC
   private String toAddress = commonToAddress;
   private long amount = 1L;
   private String privateKey = commonOwnerPrivateKey;
-
 
   @Override
   protected Protocol.Transaction create() {
@@ -49,11 +49,12 @@ public class NiceTransferTransactionCreator extends AbstractTransferTransactionC
 
 
     Protocol.Transaction transaction = createTransaction(contract, ContractType.TransferContract);
-    Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
-    builder1.setData(ByteString.copyFromUtf8(FullNode.accountQueue.peek()));
-    Transaction.Builder builder2 = transaction.toBuilder();
-    builder2.setRawData(builder1);
-    transaction = builder2.build();
+    //Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
+    //builder1.setData(ByteString.copyFromUtf8(FullNode.accountQueue.peek()));
+    //builder1.setData(ByteString.copyFromUtf8(new Random().nextInt(1000000) + FullNode.accountQueue.peek()));
+    //Transaction.Builder builder2 = transaction.toBuilder();
+    //builder2.setRawData(builder1);
+    //transaction = builder2.build();
 
     FullNode.accountQueue.add(addressString);
 

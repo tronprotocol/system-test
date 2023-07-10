@@ -113,12 +113,16 @@ public class FullNode {
         if(accountQueue.size() < singleTaskTransactionCount) {
           getAccountList();
         }
+        if(2 == 1) {
+        new TransactionGenerator(context, 800000 , 2).start();
+        System.exit(0);
+        }
         new TransactionGenerator(context, i == dispatchCount ? cfgArgs.getStressCount()%singleTaskTransactionCount : singleTaskTransactionCount,i).start();
       }
       //new TransactionGenerator(context, cfgArgs.getStressCount()).start();
 
     }
-
+        //System.exit(0);
 
     if (cfgArgs.isReplayGenerate()) {
       logger.info("Collect mainnet flow is true");
