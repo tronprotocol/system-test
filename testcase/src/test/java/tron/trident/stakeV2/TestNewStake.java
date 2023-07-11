@@ -22,7 +22,7 @@ public class TestNewStake extends TestBase {
   }
 
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void test02UnFreezeBalanceV2() throws Exception {
     Response.TransactionExtention transactionExtention = wrapper.unfreezeBalanceV2(owner,1000000L,resourceCode);
 
@@ -33,10 +33,26 @@ public class TestNewStake extends TestBase {
   }
 
 
+  @Test(enabled = false)
+  public void test03CancelAllUnfreezeV2() throws Exception {
+    Response.TransactionExtention transactionExtention = wrapper.cancelAllUnfreezeV2(owner);
+
+    Transaction transaction = wrapper.signTransaction(transactionExtention);
+    ;
+    String broadcast = wrapper.broadcastTransaction(transaction);
+    System.out.println("cancel all unfreeze :" + broadcast);
+  }
+
+
+
+
+
   @Test(enabled = true)
-  public void test03DelegateResource() throws Exception {
+  public void test04DelegateResource() throws Exception {
     long canDelegatedMaxSize = wrapper.getCanDelegatedMaxSize(owner, resourceCode);
-    Response.TransactionExtention transactionExtention = wrapper.delegateResource(owner,2000000L,resourceCode,receiverAddress,false);
+    //Response.TransactionExtention transactionExtention = wrapper.delegateResource(owner,2000000L,resourceCode,receiverAddress,false);
+    Response.TransactionExtention transactionExtention
+        = wrapper.delegateResourceV2(owner,2000000L,resourceCode,receiverAddress,true,1);
 
     Transaction transaction = wrapper.signTransaction(transactionExtention);
     ;
@@ -45,8 +61,8 @@ public class TestNewStake extends TestBase {
   }
 
 
-  @Test(enabled = true)
-  public void test04unDelegateResource() throws Exception {
+  @Test(enabled = false)
+  public void test05unDelegateResource() throws Exception {
     Response.TransactionExtention transactionExtention = wrapper.undelegateResource(owner,1000000L,resourceCode,receiverAddress);
 
     Transaction transaction = wrapper.signTransaction(transactionExtention);
@@ -56,8 +72,8 @@ public class TestNewStake extends TestBase {
   }
 
 
-  @Test(enabled = true)
-  public void test05WithdrawUnfreezeExpireAmount() throws Exception {
+  @Test(enabled = false)
+  public void test06WithdrawUnfreezeExpireAmount() throws Exception {
 
     Long canWithdrawUnfreezeAmount =  wrapper.getCanWithdrawUnfreezeAmount(owner);
     Long canUnfreezeCount = wrapper.getAvailableUnfreezeCount(owner);
@@ -75,7 +91,7 @@ public class TestNewStake extends TestBase {
 
 
   @Test(enabled = false)
-  public void test06GetDelegateResourceV2() throws Exception {
+  public void test07GetDelegateResourceV2() throws Exception {
     //Thread.sleep(60000);
     Response.DelegatedResourceAccountIndex delegatedResourceAccountIndex = wrapper.getDelegatedResourceAccountIndexV2(owner);
     Response.DelegatedResourceList delegatedResourceList = wrapper.getDelegatedResourceV2(owner,receiverAddress);

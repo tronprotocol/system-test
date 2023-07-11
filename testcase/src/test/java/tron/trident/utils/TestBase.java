@@ -25,6 +25,7 @@ public class TestBase {
 
     wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
         "grpc.nile.trongrid.io:50061", ownerKey);
+
     //wrapper = ApiWrapper.ofNile(ownerKey);
   }
 }
