@@ -787,7 +787,7 @@ public class EstimateEnergyTest001 {
         PublicMethed.estimateEnergy(
             blockingStubFull2, foundationAddress, contractAddress, 10, method, args, isHex, 0, null);
     Assert.assertEquals(true, estimateEnergyMessage.get().getResult().getResult());
-    Assert.assertEquals(10566, estimateEnergyMessage.get().getEnergyRequired());
+    Assert.assertEquals(10563, estimateEnergyMessage.get().getEnergyRequired());
 
     String txid = PublicMethed.triggerContract(contractAddress, method, args,
         false, 10, maxFeeLimit, foundationAddress, foundationKey, blockingStubFull);
@@ -826,7 +826,7 @@ public class EstimateEnergyTest001 {
         PublicMethed.estimateEnergy(
             blockingStubFull2, foundationAddress, contractAddress, 10, method, args, isHex, 0, null);
     Assert.assertEquals(true, estimateEnergyMessage.get().getResult().getResult());
-    Assert.assertEquals(28702, estimateEnergyMessage.get().getEnergyRequired());
+    Assert.assertEquals(28700, estimateEnergyMessage.get().getEnergyRequired());
   }
 
   /**
