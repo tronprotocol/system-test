@@ -53,15 +53,15 @@ public class ShanghaiUpdate {
             testNetAccountAddress, testNetAccountKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-//    String filePath = "src/test/resources/soliditycode/shanghaiUpdate.sol";
-    String contractName = "C";
-//    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
-//    String code = retMap.get("byteCode").toString();
-//    String abi = retMap.get("abI").toString();
-    String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_shanghai_update");
-    String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_shanghai_update");
+    String filePath = "src/test/resources/soliditycode/shanghaiUpdate.sol";
+    String contractName = "Test";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+//    String code = Configuration.getByPath("testng.conf")
+//        .getString("code.code_shanghai_update");   //shanghaiUpdate.sol contract C
+//    String abi = Configuration.getByPath("testng.conf")
+//        .getString("abi.abi_shanghai_update");
     CContract = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, contractExcKey,
         contractExcAddress, blockingStubFull);
@@ -84,6 +84,21 @@ public class ShanghaiUpdate {
     Assert.assertEquals("SUCESS",
         transactionExtention.getTransaction().getRet(0).getRet().toString());
     Assert.assertEquals(0, result);
+
+  }
+
+  @Test(enabled = true, description = "test push0 is support")
+  public void test002Push0() {
+    GrpcAPI.TransactionExtention transactionExtention = PublicMethed
+        .triggerConstantContractForExtention(CContract,
+            "isPush0Supported()", "#", true,
+            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+
+    int result = ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray());
+    Assert.assertEquals(true, transactionExtention.getResult().getResult());
+    Assert.assertEquals("SUCESS",
+        transactionExtention.getTransaction().getRet(0).getRet().toString());
+    Assert.assertEquals(1, result);
 
   }
 
