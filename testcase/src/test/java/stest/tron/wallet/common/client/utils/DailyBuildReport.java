@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.extern.slf4j.Slf4j;
 import org.testng.ITestContext;
@@ -25,17 +27,17 @@ import stest.tron.wallet.common.client.Configuration;
 @Slf4j
 public class DailyBuildReport extends TestListenerAdapter {
 
-  StringBuilder passedDescriptionList = new StringBuilder("");
-  StringBuilder failedDescriptionList = new StringBuilder("");
-  StringBuilder skippedDescriptionList = new StringBuilder("");
-  private Integer passedNum = 0;
-  private Integer failedNum = 0;
-  private Integer skippedNum = 0;
+  StringBuffer passedDescriptionList = new StringBuffer("");
+  StringBuffer failedDescriptionList = new StringBuffer("");
+  StringBuffer skippedDescriptionList = new StringBuffer("");
+  private AtomicInteger passedNum = new AtomicInteger(0);
+  private AtomicInteger failedNum = new AtomicInteger(0);
+  private AtomicInteger skippedNum = new AtomicInteger(0);
   private String reportPath;
   public Map<String, Integer> transactionType = new HashMap<>();
   public  Long endBlockNum = 0L;
   public static Long startBlockNum = 0L;
-  public  Long totalTransactionNum = 0L;
+  public AtomicLong totalTransactionNum = new AtomicLong(0L);
   public ManagedChannel channelFull = null;
   public WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
@@ -64,7 +66,7 @@ public class DailyBuildReport extends TestListenerAdapter {
   public void onTestSuccess(ITestResult result) {
     passedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
-    passedNum++;
+    passedNum.getAndAdd(1);
     logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Success");
   }
 
@@ -72,7 +74,7 @@ public class DailyBuildReport extends TestListenerAdapter {
   public void onTestFailure(ITestResult result) {
     failedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
-    failedNum++;
+    failedNum.getAndAdd(1);
     logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Failed");
 
   }
@@ -81,7 +83,7 @@ public class DailyBuildReport extends TestListenerAdapter {
   public void onTestSkipped(ITestResult result) {
     skippedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
-    skippedNum++;
+    skippedNum.getAndAdd(1);
     logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Skip");
 
   }
@@ -90,11 +92,11 @@ public class DailyBuildReport extends TestListenerAdapter {
   @Override
   public void onFinish(ITestContext testContext) {
     StringBuilder sb = new StringBuilder();
-    sb.append("Total: " + (passedNum + failedNum + skippedNum) + ",  " + "Passed: " + passedNum
+    sb.append("Total: " + (passedNum.get() + failedNum.get() + skippedNum.get()) + ",  " + "Passed: " + passedNum
         + ",  " + "Failed: " + failedNum + ",  " + "Skipped: " + skippedNum + "\n");
     sb.append("------------------------------------------------------------------------------\n");
     List<Map.Entry<String, Integer>> list = calculateAfterDailyBuild();
-    sb.append("Total transaction number:" + totalTransactionNum + "\n");
+    sb.append("Total transaction number:" + totalTransactionNum.get() + "\n");
     sb.append("Transaction type list:" + "\n");
     for (Map.Entry<String, Integer> entry : list) {
       sb.append(entry.getKey());
@@ -152,7 +154,7 @@ public class DailyBuildReport extends TestListenerAdapter {
       block = PublicMethed.getBlock(i, blockingStubFull);
       listTrans = block.getTransactionsList();
       transNum = block.getTransactionsCount();
-      totalTransactionNum += transNum;
+      totalTransactionNum.getAndAdd(transNum);
       for (int j = 0; j < transNum; j++) {
         listContract = listTrans.get(j).getRawData().getContractList();
         contractNum = listContract.size();
