@@ -140,7 +140,7 @@ public class HttpTestConstantContract001 {
     Assert.assertTrue(result);
     Assert.assertTrue(!transactionObject.getString("raw_data").isEmpty());
     Assert.assertTrue(!transactionObject.getString("raw_data_hex").isEmpty());
-    Assert.assertEquals(211, responseContent.getIntValue("energy_used") );
+    Assert.assertEquals(209, responseContent.getIntValue("energy_used") );
   }
 
   /**

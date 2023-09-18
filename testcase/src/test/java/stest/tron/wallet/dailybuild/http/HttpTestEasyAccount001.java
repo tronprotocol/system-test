@@ -103,7 +103,7 @@ public class HttpTestEasyAccount001 {
   /**
    * constructor.
    */
-  @Test(enabled = false, description = "Validate address by http")
+  @Test(enabled = true, description = "Validate address by http")
   public void test03ValideteAddress() {
     // Base58check format
     response = HttpMethed.validateAddress(httpnode, generateAddress);

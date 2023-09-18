@@ -208,7 +208,7 @@ public class MutiSignClearContractAbiTest {
     logger.info(accountPermissionJson);
     PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
         blockingStubFull, ownerKeyString);
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long maxFeeLimit = 1000000000L;
     String filePath = "./src/test/resources/soliditycode/TriggerConstant004.sol";
     String contractName = "testConstantContract";

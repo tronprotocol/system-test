@@ -106,7 +106,7 @@ public class UsdtTest002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.get().getReceipt().getResult());
-    logger.info("test01 estimate feeLimit infoById: " + infoById);
+    logger.info("test01 estimate feeLimit infoById: " + infoById.toString());
 
     long energyTotal = infoById.get().getReceipt().getEnergyUsageTotal();
     energyFee = PublicMethed
@@ -120,7 +120,7 @@ public class UsdtTest002 {
         false, 0, feeLimit, dev001Address, dev001Key, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
-    logger.info("need feeLimit - 2  infoById: " + infoById);
+    logger.info("need feeLimit - 1  infoById: " + infoById);
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY, infoById.get().getReceipt().getResult());
     Assert.assertEquals(0, infoById.get().getReceipt().getOriginEnergyUsage());
     Assert.assertEquals(0, infoById.get().getReceipt().getEnergyUsage());
@@ -144,6 +144,7 @@ public class UsdtTest002 {
   @Test(enabled = true, description = "transfer usdt, no energy, and trx balance = feeLimit")
   public void test02() {
     Assert.assertTrue(PublicMethed.freezeBalanceV2(dev001Address, 100000000L, 0, dev001Key, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     long balance = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
     long needSend = balance - rightFeeLimit;
     Assert.assertTrue(PublicMethed.sendcoin(callerddress, needSend, dev001Address, dev001Key, blockingStubFull));
