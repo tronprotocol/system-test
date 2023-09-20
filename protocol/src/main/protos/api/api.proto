@@ -838,6 +838,15 @@ service Wallet {
   rpc GetPendingSize (EmptyMessage) returns (NumberMessage) {
   }
 
+  rpc GetBandwidthPrices (EmptyMessage) returns (PricesResponseMessage) {
+  }
+
+  rpc GetEnergyPrices (EmptyMessage) returns (PricesResponseMessage) {
+  }
+
+  rpc GetMemoFee (EmptyMessage) returns (PricesResponseMessage) {
+  }
+
 
 };
 
@@ -1040,6 +1049,12 @@ service WalletSolidity {
   rpc EstimateEnergy(TriggerSmartContract) returns(EstimateEnergyMessage){
   }
 
+  rpc GetBandwidthPrices (EmptyMessage) returns (PricesResponseMessage) {
+  }
+
+  rpc GetEnergyPrices (EmptyMessage) returns (PricesResponseMessage) {
+  }
+
 
 };
 
@@ -1183,6 +1198,10 @@ message CanWithdrawUnfreezeAmountRequestMessage {
 }
 message CanWithdrawUnfreezeAmountResponseMessage {
   int64 amount = 1;
+}
+
+message PricesResponseMessage {
+  string prices = 1;
 }
 
 // Gossip node list

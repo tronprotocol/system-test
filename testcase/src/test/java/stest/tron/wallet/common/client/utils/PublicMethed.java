@@ -1154,6 +1154,28 @@ public class PublicMethed {
     return PublicMethed.getChainParametersValue(ProposalEnum.GetMemoFee.getProposalName(),blockingStubFull);
   }
 
+  public static String getMemoFee(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return blockingStubFull.getMemoFee(EmptyMessage.newBuilder().build()).getPrices();
+  }
+
+  public static String getEnergyPrice(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return blockingStubFull.getEnergyPrices(EmptyMessage.newBuilder().build()).getPrices();
+  }
+
+  public static String getEnergyPriceSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    return blockingStubFull.getEnergyPrices(EmptyMessage.newBuilder().build()).getPrices();
+  }
+
+
+  public static String getBandwidthPrices(WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return blockingStubFull.getBandwidthPrices(EmptyMessage.newBuilder().build()).getPrices();
+  }
+
+  public static String getBandwidthPricesSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    return blockingStubFull.getBandwidthPrices(EmptyMessage.newBuilder().build()).getPrices();
+  }
+
+
 
   /** constructor. */
   public static Boolean sendcoin(

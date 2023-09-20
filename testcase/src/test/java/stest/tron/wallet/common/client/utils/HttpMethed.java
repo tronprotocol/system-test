@@ -488,11 +488,67 @@ public class HttpMethed {
     }
     return response;
   }
+  public static HttpResponse getEnergyPricSolidity(String httpNode) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/walletsolidity/getenergyprices";
+      response = createConnect(requestUrl);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  public static HttpResponse getEnergyPricPbft(String httpNode) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/walletpbft/getenergyprices";
+      response = createConnect(requestUrl);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
 
   /** constructor. */
   public static HttpResponse getBandPric(String httpNode) {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getbandwidthprices";
+      response = createConnect(requestUrl);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+  public static HttpResponse getBandPricSolidity(String httpNode) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/walletsolidity/getbandwidthprices";
+      response = createConnect(requestUrl);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+  public static HttpResponse getBandPricPbft(String httpNode) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/walletpbft/getbandwidthprices";
+      response = createConnect(requestUrl);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+  public static HttpResponse getMemoFee(String httpNode) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/getmemofee";
       response = createConnect(requestUrl);
     } catch (Exception e) {
       e.printStackTrace();
@@ -6032,5 +6088,7 @@ public class HttpMethed {
     }
     return  response;
   }
+
+
 
 }
