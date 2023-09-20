@@ -10,11 +10,13 @@ public enum ProposalEnum {
   GetDynamicEnergyMaxFactor("getDynamicEnergyMaxFactor"),
   GetAllowOptimizedReturnValueOfChainId("getAllowOptimizedReturnValueOfChainId"),
   GetMemoFee("getMemoFee"),
+
   GetEnergyFee("getEnergyFee"),
   getMaxFeeLimit("getMaxFeeLimit"),
   getMaxCpuTimeOfOneTx("getMaxCpuTimeOfOneTx"),
   getAllowCancelUnfreezeV2("getAllowCancelUnfreezeV2"),
-  getMaxDelegateLockPeriod("getMaxDelegateLockPeriod");
+  getMaxDelegateLockPeriod("getMaxDelegateLockPeriod"),
+  getTransactionFee("getTransactionFee");
 
   private String proposalName;
 
