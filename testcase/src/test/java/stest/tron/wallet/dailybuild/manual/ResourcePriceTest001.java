@@ -76,7 +76,7 @@ public class ResourcePriceTest001 {
     String memoFee = PublicMethed.getMemoFee(blockingStubFull);
     Assert.assertNotNull(memoFee);
     logger.info("memoFee is " + memoFee);
-    long memoNow = Long.parseLong(memoFee.split(":")[1]);
+    long memoNow = Long.parseLong(memoFee.split(":")[2]);
     Assert.assertEquals(memoNow, memoFeeChainParameters.longValue());
   }
 
@@ -92,7 +92,7 @@ public class ResourcePriceTest001 {
     Assert.assertNotNull(energyPrice);
     logger.info(energyPrice);
     logger.info("energyPrice is " + energyPrice);
-    long energyPricesNow = Long.parseLong(energyPrice.split(":")[1]);
+    long energyPricesNow = Long.parseLong(energyPrice.split(":")[2]);
     Assert.assertEquals(energyPricesNow, energyPriceChainParameters.longValue());
 
     //request solidity and pbft interface
@@ -114,7 +114,7 @@ public class ResourcePriceTest001 {
     Assert.assertNotNull(bandwidthPrices);
     logger.info(bandwidthPrices);
     logger.info("bandwidthPrices is " + bandwidthPrices);
-    long bandwidthPricesNow = Long.parseLong(bandwidthPrices.split(":")[1]);
+    long bandwidthPricesNow = Long.parseLong(bandwidthPrices.split(":")[2]);
     Assert.assertEquals(bandwidthPricesNow, bandwidthPriceChainParameters.longValue());
 
     //request solidity and pbft

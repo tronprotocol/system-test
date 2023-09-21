@@ -27,7 +27,7 @@ public class HttpTestResourcePrices {
     //get MemoFee from http
     HttpResponse res =  HttpMethed.getMemoFee(httpnode);
     String prices =  HttpMethed.parseResponseContent(res).getString("prices");
-    Long memoNow = Long.parseLong(prices.split(":")[1]);
+    Long memoNow = Long.parseLong(prices.split(":")[2]);
 
     Assert.assertEquals(memoFeeChainParameter.longValue(), memoNow.longValue());
   }
@@ -40,20 +40,20 @@ public class HttpTestResourcePrices {
     //get EnergyPrice from http
     HttpResponse res = HttpMethed.getEnergyPric(httpnode);
     String prices = HttpMethed.parseResponseContent(res).getString("prices");
-    Long energyPriceNow = Long.parseLong(prices.split(":")[1]);
+    Long energyPriceNow = Long.parseLong(prices.split(":")[2]);
 
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceNow.longValue());
 
     //get EnergyPrice from http solidity
     HttpResponse resSolidity = HttpMethed.getEnergyPricSolidity(httpSoliditynode);
     String pricesSolidity = HttpMethed.parseResponseContent(resSolidity).getString("prices");
-    Long energyPriceSolidity = Long.parseLong(pricesSolidity.split(":")[1]);
+    Long energyPriceSolidity = Long.parseLong(pricesSolidity.split(":")[2]);
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceSolidity.longValue());
 
     //get EnergyPrice from http pbft
     HttpResponse resPbft = HttpMethed.getEnergyPricPbft(httpPbftNode);
     String pricesPbft = HttpMethed.parseResponseContent(resPbft).getString("prices");
-    Long energyPricePbft = Long.parseLong(pricesPbft.split(":")[1]);
+    Long energyPricePbft = Long.parseLong(pricesPbft.split(":")[2]);
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPricePbft.longValue());
   }
 
@@ -65,20 +65,20 @@ public class HttpTestResourcePrices {
     //get BandwidthPrice from http
     HttpResponse res = HttpMethed.getBandPric(httpnode);
     String prices = HttpMethed.parseResponseContent(res).getString("prices");
-    Long BandwidthPriceNow = Long.parseLong(prices.split(":")[1]);
+    Long BandwidthPriceNow = Long.parseLong(prices.split(":")[2]);
 
     Assert.assertEquals(BandwidthPriceChainParameter.longValue(), BandwidthPriceNow.longValue());
 
     //get BandwidthPrice from http solidity
     HttpResponse resSolidity = HttpMethed.getBandPricSolidity(httpSoliditynode);
     String pricesSolidity = HttpMethed.parseResponseContent(resSolidity).getString("prices");
-    Long bandwidthPriceSolidity = Long.parseLong(pricesSolidity.split(":")[1]);
+    Long bandwidthPriceSolidity = Long.parseLong(pricesSolidity.split(":")[2]);
     Assert.assertEquals(BandwidthPriceChainParameter.longValue(), bandwidthPriceSolidity.longValue());
 
     //get BandwidthPrice from http pbft
     HttpResponse resPbft = HttpMethed.getBandPricPbft(httpPbftNode);
     String pricesPbft = HttpMethed.parseResponseContent(resPbft).getString("prices");
-    Long bandwidthPricePbft = Long.parseLong(pricesPbft.split(":")[1]);
+    Long bandwidthPricePbft = Long.parseLong(pricesPbft.split(":")[2]);
     Assert.assertEquals(BandwidthPriceChainParameter.longValue(), bandwidthPricePbft.longValue());
   }
 }
