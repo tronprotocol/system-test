@@ -17,6 +17,8 @@ public class HttpTestResourcePrices {
       .getStringList("httpnode.ip.list").get(2);
   private String httpPbftNode = Configuration.getByPath("testng.conf")
       .getStringList("httpnode.ip.list").get(4);
+  private String httpnodeSolidityPort = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+      .get(3);
 
 
   @Test(enabled = true, description = "get MemoFee from http interface")
@@ -44,11 +46,17 @@ public class HttpTestResourcePrices {
 
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceNow.longValue());
 
-    //get EnergyPrice from http solidity
+    //get EnergyPrice from http solidityNode
     HttpResponse resSolidity = HttpMethed.getEnergyPricSolidity(httpSoliditynode);
     String pricesSolidity = HttpMethed.parseResponseContent(resSolidity).getString("prices");
     Long energyPriceSolidity = Long.parseLong(pricesSolidity.split(":")[2]);
     Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceSolidity.longValue());
+
+    //get EnergyPrice from FullNode Solidity port
+    HttpResponse resSolidityport = HttpMethed.getEnergyPricSolidity(httpnodeSolidityPort);
+    String pricesSolidityPort = HttpMethed.parseResponseContent(resSolidityport).getString("prices");
+    Long energyPriceSolidityPort = Long.parseLong(pricesSolidityPort.split(":")[2]);
+    Assert.assertEquals(energyPriceChainParameter.longValue(), energyPriceSolidityPort.longValue());
 
     //get EnergyPrice from http pbft
     HttpResponse resPbft = HttpMethed.getEnergyPricPbft(httpPbftNode);
@@ -74,6 +82,12 @@ public class HttpTestResourcePrices {
     String pricesSolidity = HttpMethed.parseResponseContent(resSolidity).getString("prices");
     Long bandwidthPriceSolidity = Long.parseLong(pricesSolidity.split(":")[2]);
     Assert.assertEquals(BandwidthPriceChainParameter.longValue(), bandwidthPriceSolidity.longValue());
+
+    //get BandwidthPrice from FullNode solidity port
+    HttpResponse resSolidityPort = HttpMethed.getBandPricSolidity(httpnodeSolidityPort);
+    String pricesSolidityPort = HttpMethed.parseResponseContent(resSolidityPort).getString("prices");
+    Long bandwidthPriceSolidityPort = Long.parseLong(pricesSolidityPort.split(":")[2]);
+    Assert.assertEquals(BandwidthPriceChainParameter.longValue(), bandwidthPriceSolidityPort.longValue());
 
     //get BandwidthPrice from http pbft
     HttpResponse resPbft = HttpMethed.getBandPricPbft(httpPbftNode);
