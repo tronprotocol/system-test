@@ -109,7 +109,7 @@ public class ResourcePriceTest001 {
 
     //request solidity and pbft interface and fullNode solidity port
     String energyPricesSolidity = PublicMethed.getEnergyPriceSolidity(blockingStubFullSolidity);
-    String energyPricesSolidityPort = PublicMethed.getBandwidthPricesSolidity(blockingStubFullSolidityPort);
+    String energyPricesSolidityPort = PublicMethed.getEnergyPriceSolidity(blockingStubFullSolidityPort);
     String energyPricesPbft = PublicMethed.getEnergyPriceSolidity(blockingStubPbft);
     Assert.assertEquals(energyPrice, energyPricesSolidity);
     Assert.assertEquals(energyPrice, energyPricesPbft);
