@@ -39,6 +39,13 @@ public class ResourcePriceTest001 {
           .get(0);
   private ManagedChannel channelSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidity = null;
+
+  private String fullNodeSolidityPort =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
+          .get(1);
+  private ManagedChannel channelSolidityPort = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFullSolidityPort = null;
+
   private String pbftnode =
       Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
           .get(2);
@@ -60,6 +67,11 @@ public class ResourcePriceTest001 {
         .usePlaintext()
         .build();
     blockingStubFullSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+
+    channelSolidityPort = ManagedChannelBuilder.forTarget(fullNodeSolidityPort)
+        .usePlaintext()
+        .build();
+    blockingStubFullSolidityPort = WalletSolidityGrpc.newBlockingStub(channelSolidityPort);
 
     channelPbft = ManagedChannelBuilder.forTarget(pbftnode)
         .usePlaintext()
@@ -95,11 +107,13 @@ public class ResourcePriceTest001 {
     long energyPricesNow = Long.parseLong(energyPrice.split(":")[2]);
     Assert.assertEquals(energyPricesNow, energyPriceChainParameters.longValue());
 
-    //request solidity and pbft interface
+    //request solidity and pbft interface and fullNode solidity port
     String energyPricesSolidity = PublicMethed.getEnergyPriceSolidity(blockingStubFullSolidity);
+    String energyPricesSolidityPort = PublicMethed.getBandwidthPricesSolidity(blockingStubFullSolidityPort);
     String energyPricesPbft = PublicMethed.getEnergyPriceSolidity(blockingStubPbft);
     Assert.assertEquals(energyPrice, energyPricesSolidity);
     Assert.assertEquals(energyPrice, energyPricesPbft);
+    Assert.assertEquals(energyPrice, energyPricesSolidityPort);
   }
 
   @Test(enabled = true, description = "get bandwidthPrices grpc")
@@ -117,11 +131,13 @@ public class ResourcePriceTest001 {
     long bandwidthPricesNow = Long.parseLong(bandwidthPrices.split(":")[2]);
     Assert.assertEquals(bandwidthPricesNow, bandwidthPriceChainParameters.longValue());
 
-    //request solidity and pbft
+    //request solidity and pbft and fullNode solidity port
     String bandwidthPricesSolidity = PublicMethed.getBandwidthPricesSolidity(blockingStubFullSolidity);
+    String bandwidthPricesSolidityPort = PublicMethed.getBandwidthPricesSolidity(blockingStubFullSolidityPort);
     String bandwidthPricesPbft = PublicMethed.getBandwidthPricesSolidity(blockingStubPbft);
     Assert.assertEquals(bandwidthPrices, bandwidthPricesSolidity);
     Assert.assertEquals(bandwidthPrices, bandwidthPricesPbft);
+    Assert.assertEquals(bandwidthPrices, bandwidthPricesSolidityPort);
   }
 
 }
