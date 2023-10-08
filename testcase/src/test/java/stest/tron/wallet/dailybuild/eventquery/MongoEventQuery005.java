@@ -77,6 +77,7 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     logger.info(jsonObject.toJSONString());
+    Assert.assertEquals("FreezeBalanceV2Contract", jsonObject.getString("contractType"));
     Assert.assertEquals(Base58.encode58Check(freezeAccount), jsonObject.getString("fromAddress"));
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
     Assert.assertEquals(maxFeeLimit.longValue(), jsonObject.getLongValue("assetAmount"));
@@ -120,6 +121,8 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     logger.info(jsonObject.toJSONString());
+    Assert.assertEquals("UnfreezeBalanceV2Contract", jsonObject.getString("contractType"));
+
     Assert.assertEquals(Base58.encode58Check(freezeAccount), jsonObject.getString("fromAddress"));
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
     Assert.assertEquals(maxFeeLimit.longValue(), jsonObject.getLongValue("assetAmount"));
@@ -168,6 +171,7 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     logger.info(jsonObject.toJSONString());
+    Assert.assertEquals("CancelAllUnfreezeV2Contract", jsonObject.getString("contractType"));
     Assert.assertEquals(Base58.encode58Check(freezeAccount), jsonObject.getString("fromAddress"));
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
     Assert.assertEquals(maxFeeLimit.longValue(),
@@ -226,6 +230,7 @@ public class MongoEventQuery005 extends MongoBase {
 
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     logger.info(jsonObject.toJSONString());
+    Assert.assertEquals("DelegateResourceContract", jsonObject.getString("contractType"));
     Assert.assertEquals(Base58.encode58Check(freezeAccount), jsonObject.getString("fromAddress"));
     Assert.assertEquals(Base58.encode58Check(receiverAddress), jsonObject.getString("toAddress"));
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
@@ -286,6 +291,7 @@ public class MongoEventQuery005 extends MongoBase {
 
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     logger.info(jsonObject.toJSONString());
+    Assert.assertEquals("UnDelegateResourceContract", jsonObject.getString("contractType"));
     Assert.assertEquals(Base58.encode58Check(freezeAccount), jsonObject.getString("fromAddress"));
     Assert.assertEquals(Base58.encode58Check(receiverAddress), jsonObject.getString("toAddress"));
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
@@ -337,6 +343,7 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     logger.info(jsonObject.toJSONString());
+    Assert.assertEquals("WithdrawExpireUnfreezeContract", jsonObject.getString("contractType"));
     Assert.assertEquals(Base58.encode58Check(freezeAccount), jsonObject.getString("fromAddress"));
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
     Assert.assertEquals(maxFeeLimit.longValue(), jsonObject.getLongValue("assetAmount"));
