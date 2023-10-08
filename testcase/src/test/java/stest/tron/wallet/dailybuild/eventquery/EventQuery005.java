@@ -54,7 +54,7 @@ public class EventQuery005 {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey1.getAddress();
     String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    Long freezeAmount = maxFeeLimit * 20;
+    Long freezeAmount = maxFeeLimit * 40;
     Assert.assertTrue(
         PublicMethed.sendcoin(
             freezeAccount, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
@@ -82,7 +82,7 @@ public class EventQuery005 {
     req.setReceiveTimeOut(10000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 20;
+    Integer retryTimes = 40;
     transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
       if (sendTransaction) {
