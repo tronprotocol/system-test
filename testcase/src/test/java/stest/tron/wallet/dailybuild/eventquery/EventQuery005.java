@@ -331,13 +331,13 @@ public class EventQuery005 {
             receiverAddress, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+        maxFeeLimit, 1, freezeAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Long delegateAmount = 10000000L;
+    Long delegateAmount = 20000000L;
     Long unDelegateAmount = 1000000L;
 
     PublicMethed.delegateResourceV2AndGetTxId(freezeAccount,
-        delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
+        delegateAmount, 1, receiverAddress, freezeAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     List<String> transactionIdList = new ArrayList<>();
@@ -367,7 +367,7 @@ public class EventQuery005 {
     while (retryTimes-- > 0) {
       if (sendTransaction) {
         String txid = PublicMethed.unDelegateResourceV2AndGetTxId(freezeAccount,
-            unDelegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
+            unDelegateAmount, 1, receiverAddress, freezeAccountKey, blockingStubFull);
 
         transactionIdList.add(txid);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
