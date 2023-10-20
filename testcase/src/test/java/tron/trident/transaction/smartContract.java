@@ -2,6 +2,7 @@ package tron.trident.transaction;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.tron.trident.abi.TypeDecoder;
 import org.tron.trident.abi.TypeReference;
 import org.tron.trident.abi.datatypes.Address;
 import org.tron.trident.abi.datatypes.Function;
@@ -104,6 +105,21 @@ public class smartContract extends TestBase {
     System.out.println("getEnergyRequiredV2 : " + estimateEnergyMessage.getEnergyRequired());;
     System.out.println("ResultV2 : " + estimateEnergyMessage.getResult().getResult());
 
+  }
+
+  @Test(enabled = true)
+  public void test06TypeDecoderTest() throws Exception {
+
+    //decode Address
+    String data =
+        "a9059cbb000000008cad2cef099fcfa65b6907386224d796acd2ddb9af120c5196e0b1c40000000000000000000000000000000000000000000000000000000000e7ef00";
+    Address address = TypeDecoder.decodeAddress(data.substring(8, 72));
+    System.out.println(address.toString());
+
+    //decode uint256
+    String dataInt = "97837e4900000000000000000000000000000000000000000000000000000000000003e7";
+    Uint256 paramInt = TypeDecoder.decodeNumeric(dataInt.substring(8, 72), Uint256.class);
+    System.out.println(paramInt.getValue());
   }
 
 

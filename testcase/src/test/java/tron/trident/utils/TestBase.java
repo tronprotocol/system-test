@@ -4,6 +4,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.tron.trident.core.ApiWrapper;
 
+import static org.tron.trident.core.Constant.FULLNODE_NILE;
+import static org.tron.trident.core.Constant.FULLNODE_NILE_SOLIDITY;
+
 public class TestBase {
   public static ApiWrapper wrapper;
   public static Integer resourceCode = 1;
@@ -23,8 +26,8 @@ public class TestBase {
 
     //solidity:"grpc.nile.trongrid.io:50061"
 
-    wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
-        "grpc.nile.trongrid.io:50061", ownerKey);
+    wrapper = new ApiWrapper(FULLNODE_NILE,
+        FULLNODE_NILE_SOLIDITY, ownerKey);
 
     //wrapper = ApiWrapper.ofNile(ownerKey);
   }
