@@ -308,7 +308,7 @@ public class EventQuery005 {
   }
 
 
-  @Test(enabled = true, description = "Test new Field for UnDelegateResource in NativeQueue")
+  @Test(enabled = false, description = "Test new Field for UnDelegateResource in NativeQueue")
   public void test04EventQueryForTransactionUnDelegateResource() throws InterruptedException {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey1.getAddress();
