@@ -492,6 +492,7 @@ public class TransferFailed004 {
         .assertTrue(PublicMethed.createAssetIssue(contractExcAddress3, tokenName, TotalSupply, 1,
             10000, start, end, 1, description, url, 100000L,
             100000L, 1L, 1L, contractExcKey3, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     assetAccountId2 = PublicMethed.queryAccount(contractExcAddress3, blockingStubFull)
         .getAssetIssuedID();
 
