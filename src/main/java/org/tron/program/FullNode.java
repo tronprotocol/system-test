@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -82,6 +83,7 @@ public class FullNode {
     getContractList();
     get200RandomWith200Trc10TokenAaccountList();
     getJustLendContractList();
+    readRewardAccount();
 
     ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
         .getLogger(Logger.ROOT_LOGGER_NAME);
@@ -349,6 +351,34 @@ public class FullNode {
       //int i=0;
       while((line=bufferedReader.readLine())!=null){
         JustLendcontractList.add(line);
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static LinkedBlockingQueue<String> withdrawAllawanceAccountList = new LinkedBlockingQueue<String>();
+  public static void readRewardAccount() {
+    String line = null;
+    try {
+      BufferedReader bufferedReader =
+          new BufferedReader(new InputStreamReader(new FileInputStream("/data/workspace/compression_workspace/56269069-197499-new.log"),"utf-8"));
+
+      int i=0;
+      //above 3000: 20220 account
+      //above 4000: 2010 account
+      //above 2000: 67460
+      //above 1000: 136948
+      //above 0: 197499
+      while ((line = bufferedReader.readLine()) != null) {
+        String[] array = line.split(" ");
+        if(Integer.valueOf(array[3].substring(0,array[3].length()-1)) >= 1000) {
+          withdrawAllawanceAccountList.add(line);
+        }
+
+
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();

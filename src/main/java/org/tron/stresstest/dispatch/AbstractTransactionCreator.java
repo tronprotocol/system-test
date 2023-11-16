@@ -588,6 +588,14 @@ public abstract class AbstractTransactionCreator extends Level2Strategy {
     return builder.build();
   }
 
+  public org.tron.protos.Contract.WithdrawBalanceContract withdrawBalanceContract(byte[] owner) {
+    org.tron.protos.Contract.WithdrawBalanceContract.Builder builder = org.tron.protos.Contract.WithdrawBalanceContract
+        .newBuilder();
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+
+    return builder.build();
+  }
+
   public org.tron.protos.Contract.VoteWitnessContract createVoteWitnessContract(byte[] owner,
       HashMap<String, String> witness) {
     org.tron.protos.Contract.VoteWitnessContract.Builder builder = org.tron.protos.Contract.VoteWitnessContract

@@ -55,7 +55,8 @@ public class CreateStressTransactionXml {
       "WithdrawExpireUnfreeze",
       "DelegateResource",
       "UnDelegateResource",
-      "CancelAllUnfreezeV2"
+      "CancelAllUnfreezeV2",
+      "withdrawAllowanceTransaction"
   };
 
   @BeforeClass
