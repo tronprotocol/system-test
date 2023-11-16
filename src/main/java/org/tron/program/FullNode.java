@@ -107,7 +107,7 @@ public class FullNode {
     context.register(DefaultConfig.class);
 
     context.refresh();
-
+    dispatchCount = cfgArgs.getStressCount()/singleTaskTransactionCount;
     if (cfgArgs.isGenerate()) {
       logger.info("is generate is true");
       dispatchCount = cfgArgs.getStressCount()/singleTaskTransactionCount;
@@ -115,12 +115,16 @@ public class FullNode {
         if(accountQueue.size() < singleTaskTransactionCount) {
           getAccountList();
         }
+        if(2 == 1) {
+        new TransactionGenerator(context, 800000 , 2).start();
+        System.exit(0);
+        }
         new TransactionGenerator(context, i == dispatchCount ? cfgArgs.getStressCount()%singleTaskTransactionCount : singleTaskTransactionCount,i).start();
       }
       //new TransactionGenerator(context, cfgArgs.getStressCount()).start();
 
     }
-
+        //System.exit(0);
 
     if (cfgArgs.isReplayGenerate()) {
       logger.info("Collect mainnet flow is true");
@@ -158,7 +162,7 @@ public class FullNode {
 
     NodeImpl nodeImpl = context.getBean(NodeImpl.class);
 
-
+    
     for(int i = 0; i <= dispatchCount;i++) {
       //File f = new File("transaction" + i + ".csv");
       //FileInputStream fis = null;

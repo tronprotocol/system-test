@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+  <context:component-scan base-package="org.tron"/>
+
+  <bean id="creatorCounter" class="org.tron.stresstest.dispatch.creator.CreatorCounter"></bean>
+  <bean id="dispatcher" class="org.tron.stresstest.dispatch.strategy.Dispatcher">
+    <property name="source">
+      <list>
+        <ref bean="mutil"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="level1Strategy" class="org.tron.stresstest.dispatch.strategy.Level1Strategy"/>
+  <bean id="mutil" parent="level1Strategy">
+    <property name="name" value="mutil"/>
+    <property name="begin" value="0"/>
+    <property name="end" value="99"/>
+    <property name="source">
+  <list>
+<ref bean="UnDelegateResource"/>
+<ref bean="UnFreezeBalanceV2"/>
+<ref bean="niceExchangeTransaction"/>
+<ref bean="niceTransferTransaction"/>
+<ref bean="accountCreateTransaction"/>
+<ref bean="ExtCodeHash"/>
+<ref bean="transferTRC20"/>
+<ref bean="DelegateResource"/>
+<ref bean="voteWitnessTransaction"/>
+<ref bean="MultiSignSendCoin"/>
+<ref bean="participateAssetIssue"/>
+<ref bean="marketSell"/>
+<ref bean="FreezeBalanceV2"/>
+<ref bean="WithdrawExpireUnfreeze"/>
+<ref bean="niceTransferAssetTransaction"/>
+      </list>
+    </property>
+  </bean>
+
+<bean id="UnDelegateResource" class="org.tron.stresstest.dispatch.creator.freeze.UnDelegateResourceCreator">
+<property name="name" value="UnDelegateResource"/>
+<property name="begin" value="0"/>
+<property name="end" value="1"/>
+</bean>
+<bean id="UnFreezeBalanceV2" class="org.tron.stresstest.dispatch.creator.freeze.UnFreezeBalanceV2Creator">
+<property name="name" value="UnFreezeBalanceV2"/>
+<property name="begin" value="2"/>
+<property name="end" value="3"/>
+</bean>
+<bean id="niceExchangeTransaction" class="org.tron.stresstest.dispatch.creator.exchange.NiceExchangeTransactionCreator">
+<property name="name" value="niceExchangeTransaction"/>
+<property name="begin" value="4"/>
+<property name="end" value="5"/>
+</bean>
+<bean id="niceTransferTransaction" class="org.tron.stresstest.dispatch.creator.transfer.NiceTransferTransactionCreator">
+<property name="name" value="niceTransferTransaction"/>
+<property name="begin" value="6"/>
+<property name="end" value="29"/>
+</bean>
+<bean id="accountCreateTransaction" class="org.tron.stresstest.dispatch.creator.account.AccountCreateTransactionCreator">
+<property name="name" value="accountCreateTransaction"/>
+<property name="begin" value="30"/>
+<property name="end" value="31"/>
+</bean>
+<bean id="ExtCodeHash" class="org.tron.stresstest.dispatch.creator.contract.ExtCodeHashCreator">
+<property name="name" value="ExtCodeHash"/>
+<property name="begin" value="32"/>
+<property name="end" value="33"/>
+</bean>
+<bean id="transferTRC20" class="org.tron.stresstest.dispatch.creator.contract.TransferTrc20Creator">
+<property name="name" value="transferTRC20"/>
+<property name="begin" value="34"/>
+<property name="end" value="73"/>
+</bean>
+<bean id="DelegateResource" class="org.tron.stresstest.dispatch.creator.freeze.DelegateResourceCreator">
+<property name="name" value="DelegateResource"/>
+<property name="begin" value="74"/>
+<property name="end" value="75"/>
+</bean>
+<bean id="voteWitnessTransaction" class="org.tron.stresstest.dispatch.creator.vote.VoteWitnessTransactionCreator">
+<property name="name" value="voteWitnessTransaction"/>
+<property name="begin" value="76"/>
+<property name="end" value="77"/>
+</bean>
+<bean id="MultiSignSendCoin" class="org.tron.stresstest.dispatch.creator.MultiSign.MultiSignSendCoin">
+<property name="name" value="MultiSignSendCoin"/>
+<property name="begin" value="78"/>
+<property name="end" value="79"/>
+</bean>
+<bean id="participateAssetIssue" class="org.tron.stresstest.dispatch.creator.asset.ParticipateAssetIssueCreator">
+<property name="name" value="participateAssetIssue"/>
+<property name="begin" value="80"/>
+<property name="end" value="81"/>
+</bean>
+<bean id="marketSell" class="org.tron.stresstest.dispatch.creator.dex.marketSellTransactionCreator">
+<property name="name" value="marketSell"/>
+<property name="begin" value="82"/>
+<property name="end" value="83"/>
+</bean>
+<bean id="FreezeBalanceV2" class="org.tron.stresstest.dispatch.creator.freeze.FreezeBalanceV2Creator">
+<property name="name" value="FreezeBalanceV2"/>
+<property name="begin" value="84"/>
+<property name="end" value="89"/>
+</bean>
+<bean id="WithdrawExpireUnfreeze" class="org.tron.stresstest.dispatch.creator.freeze.WithdrawExpireUnfreezeCreator">
+<property name="name" value="WithdrawExpireUnfreeze"/>
+<property name="begin" value="90"/>
+<property name="end" value="91"/>
+</bean>
+<bean id="niceTransferAssetTransaction" class="org.tron.stresstest.dispatch.creator.asset.NiceTransferAssetTransactionCreator">
+<property name="name" value="niceTransferAssetTransaction"/>
+<property name="begin" value="92"/>
+<property name="end" value="99"/>
+</bean>
+
+</beans>
