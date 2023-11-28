@@ -1,5 +1,6 @@
 package org.tron.stresstest.dispatch.creator.account;
 
+import com.google.protobuf.ByteString;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,6 +29,7 @@ public class WithdrawAllowanceTransactionCreator extends AbstractTransferTransac
 
 
 
+/*
   @Override
   protected Protocol.Transaction create() {
     String[] array = FullNode.withdrawAllawanceAccountList.poll().split(" ");
@@ -40,6 +42,33 @@ public class WithdrawAllowanceTransactionCreator extends AbstractTransferTransac
     Contract.WithdrawBalanceContract contract = withdrawBalanceContract(ownerAddressBytes);
 
     Protocol.Transaction transaction = createTransaction(contract, ContractType.WithdrawBalanceContract);
+
+    transaction = sign(transaction, ECKey.fromPrivate(ByteArray.fromHexString(privateKey)));
+    return transaction;
+  }
+*/
+
+  @Override
+  protected Protocol.Transaction create() {
+     String ownerAddress = commonOwnerAddress;
+     long amount = 1L;
+     String privateKey = commonOwnerPrivateKey;
+
+    String[] array = FullNode.withdrawAllawanceAccountList.poll().split(" ");
+    byte[] ownerAddressBytes = ByteArray.fromHexString(array[1].substring(0,array[1].length()-1));
+
+
+
+    TransactionFactory.context.getBean(CreatorCounter.class).put(this.getClass().getName());
+
+    Contract.TransferContract contract = Contract.TransferContract.newBuilder()
+        .setOwnerAddress(ByteString.copyFrom(Wallet.decodeFromBase58Check(ownerAddress)))
+        .setToAddress(ByteString.copyFrom(ownerAddressBytes))
+        .setAmount(amount)
+        .build();
+
+
+    Protocol.Transaction transaction = createTransaction(contract, ContractType.TransferContract);
 
     transaction = sign(transaction, ECKey.fromPrivate(ByteArray.fromHexString(privateKey)));
     return transaction;
