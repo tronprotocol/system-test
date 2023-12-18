@@ -1,4 +1,4 @@
-package stest.tron.wallet.dailybuild.tvmnewcommand.tvmFreeze;
+package stest.tron.wallet.dailybuild.separateExecution;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
