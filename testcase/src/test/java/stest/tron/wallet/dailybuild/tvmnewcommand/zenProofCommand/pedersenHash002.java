@@ -120,7 +120,8 @@ public class pedersenHash002 {
     contractAddress = Base58.encode58Check(contractAddressByte);
     logger.info(contractAddress);
     String filePath = "src/test/resources/soliditycode/pedersenHash002.sol";
-    contractName = "TokenTRC20";
+
+    contractName = "ShieldedTRC20";
     HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
     code = retMap.get("byteCode").toString();
     abi = retMap.get("abI").toString();
@@ -154,11 +155,11 @@ public class pedersenHash002 {
   @Test(enabled = true, description = "left and right value is 0")
   public void test01LeftAndRightValueIsZero() throws Exception {
     //Query account before mint balance
-    final Long beforeMintAccountBalance = getBalanceOfShieldTrc20(zenTrc20TokenOwnerAddressString,
-        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
+//    final Long beforeMintAccountBalance = getBalanceOfShieldTrc20(zenTrc20TokenOwnerAddressString,
+//        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
     //Query contract before mint balance
-    final Long beforeMintShieldAccountBalance = getBalanceOfShieldTrc20(shieldAddress,
-        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
+//    final Long beforeMintShieldAccountBalance = getBalanceOfShieldTrc20(shieldAddress,
+//        zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
     //Generate new shiled account and set note memo
     receiverShieldAddressInfo = getNewShieldedAddress(blockingStubFull);
     String memo = "Shield trc20 from T account to shield account in" + System.currentTimeMillis();
@@ -171,6 +172,27 @@ public class pedersenHash002 {
     //Create shiled trc20 parameters
     GrpcAPI.ShieldedTRC20Parameters shieldedTrc20Parameters
         = createShieldedTrc20Parameters("ByValueIsZero", publicFromAmount,
+        null, null, shieldOutList, "", 0L,
+        blockingStubFull, blockingStubSolidity);
+    Assert.assertEquals(shieldedTrc20Parameters.getParameterType(), "mint");
+    Assert.assertTrue(shieldedTrc20Parameters.getReceiveDescription(0).getZkproof().toByteArray().length > 190);
+  }
+
+
+  @Test(enabled = true, description = "Should not cause exception: CreateShieldedContractParameters in fullnode ")
+  public void test02TriggerUnexistMethod() throws Exception {
+    //Generate new shiled account and set note memo
+    receiverShieldAddressInfo = getNewShieldedAddress(blockingStubFull);
+    String memo = "Shield trc20 from T account to shield account in" + System.currentTimeMillis();
+    String receiverShieldAddress = receiverShieldAddressInfo.get().getAddress();
+
+    shieldOutList.clear();
+    shieldOutList = addShieldTrc20OutputList(shieldOutList, receiverShieldAddress,
+        "" + publicFromAmount, memo, blockingStubFull);
+    shieldAddressByte = contractAddressByte;
+    // verify error(for log level changed from info to error)
+    //ERROR [rpc-full-executor-1] [API](RpcApiService.java:2484) createShieldedContractParameters:
+    createShieldedTrc20Parameters("ByValueIsZero", publicFromAmount,
         null, null, shieldOutList, "", 0L,
         blockingStubFull, blockingStubSolidity);
   }
