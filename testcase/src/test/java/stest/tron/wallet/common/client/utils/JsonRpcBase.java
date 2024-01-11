@@ -102,6 +102,7 @@ public class JsonRpcBase {
   public static String trc20Txid;
   public HashMap<Long, Long> proposalMap = new HashMap<>();
   public HashMap<Long, Long> secondProposalMap = new HashMap<>();
+  public static long waitMaxTime = 610000L;
 
   /** constructor. */
   @BeforeSuite(enabled = true, description = "Deploy json rpc test case resource")
@@ -122,9 +123,10 @@ public class JsonRpcBase {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     getCommitData();
     openProposal(0, proposalMap);
+    waitMaxTime = secondProposalMap.get(0L) * 2 + 10000L; //reload max wait time from proposal list
     waitProposalApprove(ProposalEnum.getMaxCpuTimeOfOneTx.getProposalName(), 80,  blockingStubFull);
     openProposal(1, secondProposalMap);
-    waitProposalApprove(ProposalEnum.getAllowCancelUnfreezeV2.getProposalName(), 1,blockingStubFull);
+    waitProposalApprove(ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1,blockingStubFull);
     Assert.assertTrue(
         PublicMethed.sendcoin(
             jsonRpcOwnerAddress,
@@ -197,7 +199,8 @@ public class JsonRpcBase {
   public void waitProposalApprove(String proposalName, long proposalValue,
                                          WalletGrpc.WalletBlockingStub blockingStubFull) {
     Long currentTime = System.currentTimeMillis();
-    while (System.currentTimeMillis() <= currentTime + 610000) {
+    while (System.currentTimeMillis() <= currentTime + waitMaxTime) {
+      //max wait time is 300s + 310s
       ChainParameters chainParameters = blockingStubFull
           .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
       Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
