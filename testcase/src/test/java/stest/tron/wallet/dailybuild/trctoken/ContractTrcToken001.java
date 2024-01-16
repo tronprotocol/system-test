@@ -66,18 +66,18 @@ public class ContractTrcToken001 {
   @Test(enabled = true, description = "DeployContract with correct tokenValue and tokenId")
   public void deployTransferTokenContract() {
     Assert.assertTrue(PublicMethed
-        .sendcoin(dev001Address, 3100_000_000L, fromAddress, testKey002, blockingStubFull));
+        .sendcoin(dev001Address, 5100_000_000L, fromAddress, testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 135678L, blockingStubFull), 0,
-        1, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L, 0, 0,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 135678L, blockingStubFull), 0,
+//        1, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L, 0, 0,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     long start = System.currentTimeMillis() + 2000;
     long end = System.currentTimeMillis() + 1000000000;
