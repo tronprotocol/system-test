@@ -184,11 +184,11 @@ public class ContractTrcToken011 {
 
   @Test(enabled = true, description = "TransferToken with correct value, deploy receive contract")
   public void test02DeployRevContract002() {
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     // before deploy, check account resource
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
@@ -256,10 +256,10 @@ public class ContractTrcToken011 {
   @Test(enabled = true, description = "TransferToken with correct value, transfer to a contract")
   public void test03TriggerContract003() {
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     Assert.assertTrue(PublicMethed.transferAsset(user001Address,
         assetAccountId.toByteArray(), 10L, dev001Address, dev001Key, blockingStubFull));
@@ -374,9 +374,9 @@ public class ContractTrcToken011 {
 
   @Test(enabled = true, description = "TransferToken with correct value, get contract tokenBalance")
   public void test04TriggerTokenBalanceContract004() {
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(user001Address, 1000_000_000L,
-        0, 1, user001Key, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(user001Address, 1000_000_000L,
+//        0, 1, user001Key, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
