@@ -5460,7 +5460,6 @@ public class PublicMethed {
     }
     try {
       pro = runTime.exec(command);
-      pro.waitFor();
       BufferedReader input = new BufferedReader(new InputStreamReader(pro.getInputStream()));
       PrintWriter output = new PrintWriter(new OutputStreamWriter(pro.getOutputStream()));
       String line;
@@ -5471,7 +5470,6 @@ public class PublicMethed {
       output.close();
       pro.destroy();
     } catch (IOException ex) {
-      ex.printStackTrace();
       logger.error(null, ex);
     }
     return returnString;
@@ -7094,14 +7092,14 @@ public class PublicMethed {
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     // Wallet.setAddressPreFixByte()();
     // String priKey = testKey002;
-//    ECKey temKey = null;
-//    try {
-//      BigInteger priK = new BigInteger(priKey, 16);
-//      temKey = ECKey.fromPrivate(priK);
-//    } catch (Exception ex) {
-//      ex.printStackTrace();
-//    }
-//    final ECKey ecKey = temKey;
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
 
     TransferContract.Builder builder = TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
