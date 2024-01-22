@@ -163,6 +163,8 @@ public class PublicMethed {
           .getStringList("fullnode.ip.list").get(1);
   private static ManagedChannel channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
   private static WalletGrpc.WalletBlockingStub blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
+  private static final String gRPCurl =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.gRPCurl");
 
 
 
@@ -5473,6 +5475,40 @@ public class PublicMethed {
     return returnString;
   }
 
+  public static String execWithErrStreamCheck(String command) throws InterruptedException {
+    String returnString = "";
+    String errReturnString = "";
+    Process pro = null;
+    Runtime runTime = Runtime.getRuntime();
+    if (runTime == null) {
+      logger.error("Create runtime false!");
+    }
+    try {
+      pro = runTime.exec(command);
+      pro.waitFor();
+      BufferedReader input = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+      PrintWriter output = new PrintWriter(new OutputStreamWriter(pro.getOutputStream()));
+      String line;
+      while ((line = input.readLine()) != null) {
+        returnString = returnString + line + "\n";
+      }
+      InputStream stderr = pro.getErrorStream();
+      InputStreamReader errReader = new InputStreamReader(stderr);
+      BufferedReader br = new BufferedReader(errReader);
+      String errLine = null;
+      while ((errLine = br.readLine())!=null) {
+        errReturnString = errReturnString + errLine + "\n";
+      }
+      input.close();
+      output.close();
+      pro.destroy();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      logger.error(null, ex);
+    }
+    return returnString.length() >= errReturnString.length() ? returnString : errReturnString;
+  }
+
   /** constructor. */
   public static HashMap<String, String> getBycodeAbiNoOptimize(
       String solFile, String contractName) {
@@ -8198,6 +8234,26 @@ public class PublicMethed {
     }
     return 0L;
   }
+
+  public static String gRPCurlRequest(String data, String requestUrl, String node) {
+    String cmd = gRPCurl + " " + "-plaintext";
+    if (data!=null) {
+      cmd = cmd + " -d " + data;
+    }
+    cmd = cmd + " " + node + " " + requestUrl;
+    logger.info("cmd is : " + cmd);
+    try {
+      return PublicMethed.execWithErrStreamCheck(cmd);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (RuntimeException e) {
+      throw new RuntimeException(e);
+    } catch (Exception e) {
+      logger.error(e.toString());
+    }
+    return null;
+  }
+
 
 
 
