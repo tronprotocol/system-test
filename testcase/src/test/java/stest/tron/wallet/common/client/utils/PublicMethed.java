@@ -7556,7 +7556,7 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public static boolean updateBrokerage(
+  public boolean updateBrokerage(
       byte[] owner, int brokerage, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     ECKey temKey = null;
