@@ -37,6 +37,7 @@ public class GetTransactionsFromThis2Test {
       .getString("foundationAccount.key1");
   private final String testKey003 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
+  //the key is only for test
   private final String notexist01 =
       "DCB620820121A866E4E25905DC37F5025BFA5420B781C69E1BC6E1D83038C88A";
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);

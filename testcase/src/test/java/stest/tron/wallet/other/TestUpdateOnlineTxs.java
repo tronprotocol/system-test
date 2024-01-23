@@ -31,7 +31,7 @@ public class TestUpdateOnlineTxs {
       .getLong("defaultParameter.maxFeeLimit");
   private byte[] transferTokenContractAddress = null;
 
-
+  //just test key
   private String dev001Key = "8132dd4fe6c1140d60fadd69eab3975831fe681e4b28705f78c89b94d44af2f4";
   private byte[] dev001Address = PublicMethed.getFinalAddress(dev001Key);
 

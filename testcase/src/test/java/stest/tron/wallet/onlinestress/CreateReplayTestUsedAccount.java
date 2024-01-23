@@ -30,6 +30,7 @@ import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class CreateReplayTestUsedAccount {
+  //just test key
   private final String foundationKey =
       "a79a37a3d868e66456d76b233cb894d664b75fd91861340f3843db05ab3a8c66";
   private final byte[] foundationAddress = PublicMethed.getFinalAddress(foundationKey);
@@ -124,7 +125,7 @@ public class CreateReplayTestUsedAccount {
 
   @Test(enabled = true)
   public void sendTrc20To200Account() {
-
+    //just for test
     String trc20OwnerKey = "44FE180410D7BF05E41388A881C3C5566C6667840116EC25C6FC924CE678FC4A";
     String trc20OwnerAddress = "TRRJbGw8BC8S5ueuium2aTBuRrLnkytnUi";
 

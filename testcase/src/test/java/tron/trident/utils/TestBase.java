@@ -12,6 +12,7 @@ public class TestBase {
   public static Integer resourceCode = 1;
   public static String owner = "TP4ZaSZJ3Zu8eHYPo6iJUWKf1xzHrZQpzL";
   //public static String receiverAddress = "TKpJUP4CCymphdug1XmGzDGDmGXZjLyf29";
+  //keys just for test
   public static String receiverAddress = "TH48niZfbwHMyqZwEB8wmHfzcvR8ZzJKC6";
   public static String ownerKey = "95385e000a2ea68fdc339bfa7d2157a3df1feb8306a6e84b80e5c6830a4db396";
   public static String xiaofeiKey = "8132dd4fe6c1140d60fadd69eab3975831fe681e4b28705f78c89b94d44af2f4";

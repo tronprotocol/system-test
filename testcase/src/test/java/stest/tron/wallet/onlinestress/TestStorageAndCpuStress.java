@@ -157,7 +157,7 @@ public class TestStorageAndCpuStress {
       map.put(witnessAddress.toLowerCase(), map.getOrDefault(witnessAddress,0) + 1);
       logger.info("end");
     }
-
+// all keys below are for test
     int ms_5 = map.containsKey("41F08012B4881C320EB40B80F1228731898824E09D".toLowerCase())
         ? map.get("41F08012B4881C320EB40B80F1228731898824E09D".toLowerCase()) : 0 ;
     int ms_10 = map.containsKey("41DF309FEF25B311E7895562BD9E11AAB2A58816D2".toLowerCase())

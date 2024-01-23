@@ -26,6 +26,7 @@ public class witnessTransaction extends TestBase {
 
   @Test
   public void test02CreateWitness() throws Exception {
+    //key for test
     wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
         "grpc.nile.trongrid.io:50061", "1523fe602624680e4457691929d24d56336d6ad065c8bb0d2ea617f720b72dc7");
     Response.TransactionExtention transactionExtention = wrapper.createWitness("TVg4bhV72tfHy5mmnuRQGwsJXxL7RgNPkD","trident create witness");
@@ -39,6 +40,7 @@ public class witnessTransaction extends TestBase {
 
   @Test
   public void test03UpdateWitness() throws Exception {
+    //key for test
     wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
         "grpc.nile.trongrid.io:50061", "1523fe602624680e4457691929d24d56336d6ad065c8bb0d2ea617f720b72dc7");
     Response.TransactionExtention transactionExtention = wrapper.updateWitness("TVg4bhV72tfHy5mmnuRQGwsJXxL7RgNPkD","update trident create witness");
@@ -55,6 +57,7 @@ public class witnessTransaction extends TestBase {
 
   @Test
   public void test04WithdrawBalance() throws Exception {
+    //key for test
     wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
         "grpc.nile.trongrid.io:50061", "7400E3D0727F8A61041A8E8BF86599FE5597CE19DE451E59AED07D60967A5E25");
     Response.TransactionExtention transactionExtention = wrapper.withdrawBalance("TKpJUP4CCymphdug1XmGzDGDmGXZjLyf29");

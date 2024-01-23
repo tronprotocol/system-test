@@ -62,6 +62,7 @@ public class TestExchangeTransaction {
 
   @Test(enabled = true)
   public void testCreateShieldToken() {
+    //just test key
     String tokenOwnerKey = "2925e186bb1e88988855f11ebf20ea3a6e19ed92328b0ffb576122e769d45b68";
     byte[] tokenOwnerAddress = PublicMethed.getFinalAddress(tokenOwnerKey);
     PublicMethed.printAddress(tokenOwnerKey);

@@ -23,6 +23,7 @@ import stest.tron.wallet.common.client.utils.Utils;
 @Slf4j
 public class SupportTronlinkAutoTest {
 
+  //just test key
   private final String testKey002
       = "7400E3D0727F8A61041A8E8BF86599FE5597CE19DE451E59AED07D60967A5E25";
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
@@ -151,6 +152,7 @@ public class SupportTronlinkAutoTest {
 
   @Test(enabled = true, threadPoolSize = 1, invocationCount = 1)
   public void test03MutiSignForAccount() {
+    //test keys
     HashMap<String, String> muti = new HashMap();
     muti.put("9a2ba173645be8d37a82084f984ba873fbcf817b589c62a59b3ba1494c3406e0",
         "cefba96470224724bde255f3402fca3d67b6c7c5d34deb7a8524c9482c58fe8b");
@@ -248,7 +250,7 @@ public class SupportTronlinkAutoTest {
 
   @Test(enabled = true, threadPoolSize = 1, invocationCount = 1)
   public void test004CreateWitness() {
-
+//test keys
     String[] witnessKey = {
 
         "c74fb4d8101572041c6fab30e1602ba1ec8247e1ead19641fb985b3ed3a8261e",

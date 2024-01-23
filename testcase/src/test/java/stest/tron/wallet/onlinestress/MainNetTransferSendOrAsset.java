@@ -17,7 +17,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 public class MainNetTransferSendOrAsset {
 
   //testng001、testng002、testng003、testng004
-  //fromAssetIssue
+  //all keys are for test
   private final String testKey001 =
       "BC70ADC5A0971BA3F7871FBB7249E345D84CE7E5458828BE1E28BF8F98F2795B";
   //toAssetIssue

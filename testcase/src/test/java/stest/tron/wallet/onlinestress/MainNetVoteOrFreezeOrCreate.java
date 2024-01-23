@@ -40,17 +40,17 @@ public class MainNetVoteOrFreezeOrCreate {
   private static final long now = System.currentTimeMillis();
   private static String name = "mainNetAsset_" + Long.toString(now);
   //testng001、testng002、testng003、testng004
-  //Devaccount
+  //Devaccount just for test
   private final String testKey001 =
       "2514B1DD2942FF07F68C2DDC0EE791BC7FBE96FDD95E89B7B9BB3B4C4770FFAC";
-  //Zion
+  //Zion just for test
   private final String testKey002 =
       "56244EE6B33C14C46704DFB67ED5D2BBCBED952EE46F1FD88A50C32C8C5C64CE";
   //Default
   private final String defaultKey =
-      //Mainet
+      //Mainet just for test
       //"8DFBB4513AECF779A0803C7CEBF2CDCC51585121FAB1E086465C4E0B40724AF1";
-      //Beta Env
+      //Beta Env just for test
       "6815B367FDDE637E53E9ADC8E69424E07724333C9A2B973CFA469975E20753FC";
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey001);
   private final byte[] toAddress = PublicMethed.getFinalAddress(testKey002);

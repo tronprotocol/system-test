@@ -207,6 +207,7 @@ public class MultiValiSignPerformanceTest {
     }*/
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
+    //test key
     byte[] hash = ByteArray
         .fromHexString("7d889f42b4a56ebe78264631a3b4daf21019e1170cce71929fb396761cdf532e");
     logger.info("hash:" + Hex.toHexString(hash));
@@ -265,7 +266,7 @@ public class MultiValiSignPerformanceTest {
     }*/
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-
+    //just test key
     byte[] hash = ByteArray
         .fromHexString("7d889f42b4a56ebe78264631a3b4daf21019e1170cce71929fb396761cdf532e");
     logger.info("hash:" + Hex.toHexString(hash));

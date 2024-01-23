@@ -32,7 +32,7 @@ public class Creatasset {
   private static final long sendAmount = 1025000000L;
   private static final long netCostMeasure = 200L;
   private static String name = "c_" + Long.toString(now);
-  //testng001、testng002、testng003、testng004
+  //testng001、testng002、testng003、testng004 only for test, do not worry
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final String testKey003 =

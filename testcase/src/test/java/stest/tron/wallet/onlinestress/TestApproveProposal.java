@@ -99,7 +99,7 @@ public class TestApproveProposal {
     proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
     listProposals = Optional.ofNullable(proposalList);
     //logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
-
+    //just test keys
     String[] witnessKey = {
 
         "369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77",
