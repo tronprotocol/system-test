@@ -5501,6 +5501,8 @@ public class PublicMethed {
       }
       input.close();
       output.close();
+      errReader.close();
+      br.close();
       pro.destroy();
     } catch (IOException ex) {
       ex.printStackTrace();
@@ -7554,7 +7556,7 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public boolean updateBrokerage(
+  public static boolean updateBrokerage(
       byte[] owner, int brokerage, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     ECKey temKey = null;
