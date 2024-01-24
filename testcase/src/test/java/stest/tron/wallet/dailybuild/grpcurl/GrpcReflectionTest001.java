@@ -188,6 +188,7 @@ public class GrpcReflectionTest001 {
             .getString("contractRet"),
         "SUCCESS");
     // query solidity
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String requestUrlSolidity = "protocol.WalletSolidity/GetTransactionById";
     String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     JSONObject txDataSolidity = JSONObject.parseObject(returnStringSolidity);
@@ -269,7 +270,7 @@ public class GrpcReflectionTest001 {
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject txData = JSONObject.parseObject(returnString);
     logger.info(txData.toJSONString());
-    Assert.assertEquals(txData.getLongValue("fee"), 100000L);
+    Assert.assertEquals(txData.getString("id"), transferTxIdBase64);
   }
 
   @Test(enabled = true, description = "test CreateTransaction2")
