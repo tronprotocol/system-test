@@ -5501,6 +5501,8 @@ public class PublicMethed {
       }
       input.close();
       output.close();
+      errReader.close();
+      br.close();
       pro.destroy();
     } catch (IOException ex) {
       ex.printStackTrace();

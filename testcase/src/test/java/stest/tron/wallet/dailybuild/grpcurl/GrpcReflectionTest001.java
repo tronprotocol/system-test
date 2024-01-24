@@ -1,5 +1,6 @@
 package stest.tron.wallet.dailybuild.grpcurl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -53,7 +54,8 @@ public class GrpcReflectionTest001 {
   private String pbftnode =
       Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list")
           .get(3);
-
+  private String contractBase64Address = null; //use for some cases query
+  private String transferTxIdBase64 = null; //use for some cases query
 
 
 
@@ -153,6 +155,7 @@ public class GrpcReflectionTest001 {
     );
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String contractAddressBase64 = Base64.getEncoder().encodeToString(contractAddress);
+    contractBase64Address = contractAddressBase64; // for other cases easily test
     String ownerAddressBase64 = Base64.getEncoder().encodeToString(deployer.getAddress());
     String data = String
         .format(
@@ -173,20 +176,116 @@ public class GrpcReflectionTest001 {
             10000000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     String requestUrl = "protocol.Wallet/GetTransactionById";
-    String txIdBase64 = Base64.getEncoder().encodeToString(ByteString.copyFrom(ByteArray.fromHexString(txId)).toByteArray());
+    String txIdBase64 = Base64.getEncoder().encodeToString(ByteArray.fromHexString(txId));
+    transferTxIdBase64 = txIdBase64;
     String data = String.format("{\"value\":\"%s\"}", txIdBase64);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject txData = JSONObject.parseObject(returnString);
     logger.info(txData.toJSONString());
-
+    Assert.assertEquals(
+        txData.getJSONArray("ret")
+            .getJSONObject(0)
+            .getString("contractRet"),
+        "SUCCESS");
+    // query solidity
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    String requestUrlSolidity = "protocol.WalletSolidity/GetTransactionById";
+    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    JSONObject txDataSolidity = JSONObject.parseObject(returnStringSolidity);
+    logger.info(txDataSolidity.toJSONString());
+    Assert.assertEquals(
+        txDataSolidity.getJSONArray("ret")
+            .getJSONObject(0)
+            .getString("contractRet"),
+        "SUCCESS");
   }
 
+  @Test(enabled = true, description = "test getContract ")
+  public void test006GetContract() {
+    String data = String.format("{\"value\":\"%s\"}", contractBase64Address);
+    String requestUrl = "protocol.Wallet/GetContract";
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    JSONObject contractData = JSONObject.parseObject(returnString);
+    logger.info(contractData.toJSONString());
+    Assert.assertTrue(contractData.getString("contract_address").equals(contractBase64Address));
+  }
 
+  @Test(enabled = true, description = "test getBlock2")
+  public void test007GetNowBlock2() {
+    String requestUrl = "protocol.Wallet/GetNowBlock2";
+    String returnString = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
+    JSONObject blockData = JSONObject.parseObject(returnString);
+    logger.info(blockData.toJSONString());
+    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Assert.assertTrue(blockId > 0);
+  }
 
+  @Test(enabled = true, description = "test GetBlockByNum")
+  public void test008GetBlockByNum() {
+    String data = "{\"num\":1}";
+    String requestUrl = "protocol.Wallet/GetBlockByNum";
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    JSONObject blockData = JSONObject.parseObject(returnString);
+    logger.info(blockData.toJSONString());
+    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Assert.assertEquals(blockId.longValue(), 1L);
+  }
 
+  @Test(enabled = true, description = "test GetBlockByNum2")
+  public void test008GetBlockByNum2() {
+    String data = "{\"num\":1}";
+    String requestUrl = "protocol.Wallet/GetBlockByNum2";
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    JSONObject blockData = JSONObject.parseObject(returnString);
+    logger.info(blockData.toJSONString());
+    Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Assert.assertEquals(blockId.longValue(), 1L);
+  }
 
+  @Test(enabled = true, description = "test getNodeInfo")
+  public void test009GetNodeInfo() {
+    String requestUrl = "protocol.Wallet/GetNodeInfo";
+    String returnString = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
+    JSONObject nodeData = JSONObject.parseObject(returnString);
+    logger.info(nodeData.toJSONString());
+    Assert.assertNotNull(nodeData);
+    Assert.assertTrue(nodeData.getLongValue("currentConnectCount") > 0L);
+  }
 
+  @Test(enabled = true, description = "test GetBlockByLimitNext2")
+  public void test010GetBlockByLimitNext2() {
+    String requestUrl = "protocol.Wallet/GetBlockByLimitNext2";
+    String data = "{\"startNum\":0,\"endNum\":1}";
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    JSONObject blockData = JSONObject.parseObject(returnString);
+    logger.info(blockData.toJSONString());
+    JSONArray blocks = blockData.getJSONArray("block");
+    Assert.assertTrue(blocks.size() > 0L);
+  }
 
+  @Test(enabled = true, description = "test GetTransactionInfoById")
+  public void test011GetTransactionInfoById() {
+    String requestUrl = "protocol.Wallet/GetTransactionInfoById";
+    String data = String.format("{\"value\":\"%s\"}", transferTxIdBase64);
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    JSONObject txData = JSONObject.parseObject(returnString);
+    logger.info(txData.toJSONString());
+    Assert.assertEquals(txData.getString("id"), transferTxIdBase64);
+  }
 
-
+  @Test(enabled = true, description = "test CreateTransaction2")
+  public void test012CreateTransaction2() {
+    ECKey newAccount = new ECKey(Utils.getRandom());
+    String requestUrl = "protocol.Wallet/CreateTransaction2";
+    String from = Base64.getEncoder().encodeToString(foundationAddress);
+    String to = Base64.getEncoder().encodeToString(newAccount.getAddress());
+    String data = String
+        .format("{\"owner_address\":\"%s\",\"to_address\":\"%s\",\"amount\":100000000}",
+        from,
+        to);
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    JSONObject txData = JSONObject.parseObject(returnString);
+    logger.info(txData.toJSONString());
+    Assert.assertTrue(txData.getJSONObject("result").getBoolean("result"));
+  }
 }
