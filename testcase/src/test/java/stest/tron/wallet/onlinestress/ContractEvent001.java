@@ -712,7 +712,7 @@ public class ContractEvent001 extends JsonRpcBase {
 
 
 
-
+// the keys below are for test, do not worry
   /*
   @Test(enabled = true)
   public void testSingForHex() {

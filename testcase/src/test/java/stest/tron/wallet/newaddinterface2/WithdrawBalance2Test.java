@@ -34,7 +34,7 @@ public class WithdrawBalance2Test {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-
+  //key is only for test
   private final String notWitnessTestKey =
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
 

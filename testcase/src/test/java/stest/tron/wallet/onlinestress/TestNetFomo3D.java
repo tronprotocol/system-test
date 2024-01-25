@@ -27,7 +27,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 @Slf4j
 public class TestNetFomo3D {
 
-  //testng001、testng002、testng003、testng004
+  //testng001、testng002、testng003、testng004 are only for test
   private final String testNetAccountKey =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   //"BC70ADC5A0971BA3F7871FBB7249E345D84CE7E5458828BE1E28BF8F98F2795B";

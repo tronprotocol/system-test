@@ -428,6 +428,7 @@ public class HttpTestBlock001 {
   @Test(enabled = false, description = "Get block by num by http")
   public void get26TestResponse() {
     Integer times = 1000;
+    //just test key
     String testKey002 = "7400E3D0727F8A61041A8E8BF86599FE5597CE19DE451E59AED07D60967A5E25";
     byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
     Long duration = HttpMethed.getBlockByNumForResponse(httpnode, 4942435, times);

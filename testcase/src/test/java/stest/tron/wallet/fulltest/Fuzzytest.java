@@ -33,7 +33,7 @@ public class Fuzzytest {
   private static long now = System.currentTimeMillis();
   private static String name = "AssetIssue016_" + Long.toString(now);
   private static long totalSupply = now;
-  //testng001、testng002、testng003、testng004
+  //testng001、testng002、testng003、testng004  all keys are for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final String testKey003 =

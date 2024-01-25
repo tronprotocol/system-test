@@ -45,6 +45,7 @@ public class AttackSendcoin {
   private static long afterNormal4Balance;
   private static long afterAttackBalance;
   //testng001、testng002、testng003、testng004
+  // all keys below are just for test!!!!!
   //Devaccount
   private final String testKey001 =
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";

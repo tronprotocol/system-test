@@ -57,6 +57,7 @@ public class PedersenHashCapsule implements ProtoCapsule<PedersenHash> {
 
   public static void main(String[] args) {
     try {
+      //all keys are for test
       byte[] a =
           ByteArray
               .fromHexString("05655316a07e6ec8c9769af54ef98b30667bfb6302b32987d552227dae86a087");

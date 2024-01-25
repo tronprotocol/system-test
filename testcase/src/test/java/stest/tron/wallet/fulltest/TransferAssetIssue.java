@@ -42,7 +42,7 @@ public class TransferAssetIssue {
   private static long afterParticipateAssetIssueBalance;
   private static long start1;
   private static long end1;
-  //testng001、testng002、testng003、testng004
+  //testng001、testng002、testng003、testng004  only for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final String testKey003 =

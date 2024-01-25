@@ -45,7 +45,7 @@ public class SuperWitnessAllowance {
   private static final byte[] INVAILD_ADDRESS = Base58
       .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
   private static final Long costForCreateWitness = 10009000000L;
-  //testng001、testng002、testng003、testng004
+  //testng001、testng002、testng003、testng004  only for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);

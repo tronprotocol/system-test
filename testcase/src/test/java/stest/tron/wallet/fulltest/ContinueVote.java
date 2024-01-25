@@ -37,7 +37,7 @@ import stest.tron.wallet.common.client.utils.TransactionUtils;
 @Slf4j
 public class ContinueVote {
 
-  //testng001、testng002、testng003、testng004
+  //testng001、testng002、testng003、testng004 only for test, do not worry
 
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";

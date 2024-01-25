@@ -27,7 +27,7 @@ import stest.tron.wallet.common.client.utils.Utils;
 public class TestMapBigLongAndNumbers {
 
   //testng001、testng002、testng003、testng004
-  //testng001、testng002、testng003、testng004
+  //the key is for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);

@@ -31,6 +31,7 @@ import stest.tron.wallet.common.client.utils.TransactionUtils;
 @Slf4j
 public class FreezeBalance2Test {
 
+  //only for test, do not worry
   private final String noFrozenBalanceTestKey =
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
 
