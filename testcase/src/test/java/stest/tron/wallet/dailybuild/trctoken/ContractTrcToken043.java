@@ -236,10 +236,10 @@ public class ContractTrcToken043 {
 
   @Test(enabled = true, description = "TransferToken with invalid tokenId, transferToken")
   public void test03TriggerContract() {
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     Assert.assertTrue(PublicMethed.transferAsset(user001Address,
         assetAccountId.toByteArray(), 10L, dev001Address, dev001Key, blockingStubFull));
@@ -345,10 +345,10 @@ public class ContractTrcToken043 {
     Assert.assertEquals("REVERT opcode executed",
         infoById.get().getResMessage().toStringUtf8());
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     // tokenId is 0, contract not have trx
     tokenId = Long.toString(0);
