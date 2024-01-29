@@ -174,7 +174,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     params.add("0x" + ByteArray.toHexString(foundationAccountAddress).substring(2));
     params.add("latest");
     JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
-    while (repeatTimes++ < 200) {
+    while (repeatTimes++ < 750) {
       response = getJsonRpc(jsonRpcNode2, requestBody);
       responseContent = HttpMethed.parseResponseContent(response);
       String balance = responseContent.getString("result");
@@ -182,7 +182,7 @@ public class HttpRateLimite001 extends JsonRpcBase {
     }
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStamp:" + (endTimesStamp - startTimeStamp));
-    Assert.assertTrue(endTimesStamp - startTimeStamp > 7500);
+    Assert.assertTrue(endTimesStamp - startTimeStamp > 28500);
   }
 
 
