@@ -91,40 +91,44 @@ public class DailyBuildReport extends TestListenerAdapter {
 
   @Override
   public void onFinish(ITestContext testContext) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Total: " + (passedNum.get() + failedNum.get() + skippedNum.get()) + ",  " + "Passed: " + passedNum
-        + ",  " + "Failed: " + failedNum + ",  " + "Skipped: " + skippedNum + "\n");
-    sb.append("------------------------------------------------------------------------------\n");
-    List<Map.Entry<String, Integer>> list = calculateAfterDailyBuild();
-    sb.append("Total transaction number:" + totalTransactionNum.get() + "\n");
-    sb.append("Transaction type list:" + "\n");
-    for (Map.Entry<String, Integer> entry : list) {
-      sb.append(entry.getKey());
-      for (int i = entry.getKey().length(); i < 40; i++) {
-        sb.append(" ");
+    if(testContext.getName().equals("http")){
+      logger.info(testContext.getName() + "test finished, start to generate report...");
+      StringBuilder sb = new StringBuilder();
+      sb.append("Total: " + (passedNum.get() + failedNum.get() + skippedNum.get()) + ",  " + "Passed: " + passedNum
+          + ",  " + "Failed: " + failedNum + ",  " + "Skipped: " + skippedNum + "\n");
+      sb.append("------------------------------------------------------------------------------\n");
+      List<Map.Entry<String, Integer>> list = calculateAfterDailyBuild();
+      sb.append("Total transaction number:" + totalTransactionNum.get() + "\n");
+      sb.append("Transaction type list:" + "\n");
+      for (Map.Entry<String, Integer> entry : list) {
+        sb.append(entry.getKey());
+        for (int i = entry.getKey().length(); i < 40; i++) {
+          sb.append(" ");
+        }
+        sb.append(" : " + entry.getValue() + "\n");
+
       }
-      sb.append(" : " + entry.getValue() + "\n");
+      sb.append("------------------------------------------------------------------------------\n");
+      sb.append("Passed list " + "\n");
+      //sb.append("Passed case List: " + "\n");
+      sb.append(passedDescriptionList.toString());
+      sb.append("------------------------------------------------------------------------------\n");
+      sb.append("Failed list: " + "\n");
+      //sb.append("Failed case List: " + "\n");
+      sb.append(failedDescriptionList.toString());
+      sb.append("------------------------------------------------------------------------------\n");
+      sb.append("Skipped list: " + "\n");
+      //sb.append("Skipped case List: " + "\n");
+      sb.append(skippedDescriptionList.toString());
+      sb.append("----------------------------------------------------------------\n");
 
-    }
-    sb.append("------------------------------------------------------------------------------\n");
-    sb.append("Passed list " + "\n");
-    //sb.append("Passed case List: " + "\n");
-    sb.append(passedDescriptionList.toString());
-    sb.append("------------------------------------------------------------------------------\n");
-    sb.append("Failed list: " + "\n");
-    //sb.append("Failed case List: " + "\n");
-    sb.append(failedDescriptionList.toString());
-    sb.append("------------------------------------------------------------------------------\n");
-    sb.append("Skipped list: " + "\n");
-    //sb.append("Skipped case List: " + "\n");
-    sb.append(skippedDescriptionList.toString());
-    sb.append("----------------------------------------------------------------\n");
+      String res = sb.toString();
+      try {
+        Files.write((Paths.get(reportPath)), res.getBytes("utf-8"), StandardOpenOption.APPEND);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
 
-    String res = sb.toString();
-    try {
-      Files.write((Paths.get(reportPath)), res.getBytes("utf-8"), StandardOpenOption.APPEND);
-    } catch (IOException e) {
-      e.printStackTrace();
     }
 
   }
