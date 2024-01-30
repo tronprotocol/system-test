@@ -4,7 +4,7 @@
   <listeners>
     <listener class-name="stest.tron.wallet.common.client.utils.DailyBuildReport"></listener>
   </listeners>
-  <test name="Parallel Case"  parallel = "classes" thread-count = "8" verbose="">
+  <test name="Parallel Case"  parallel = "classes" thread-count = "8">
     <packages>
       <package name="stest.tron.wallet.dailybuild.*">
         <exclude name="stest.tron.wallet.dailybuild.multisign"></exclude>
