@@ -43,6 +43,12 @@ public class DailyBuildReport extends TestListenerAdapter {
   private String fullnode = Configuration.getByPath("testng.conf")
           .getStringList("fullnode.ip.list").get(0);
 
+  private String reportFlag = Configuration.getByPath("testng.conf")
+          .getString("defaultParameter.ReportFlag");
+
+  private String slack = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.slack");
+
 
   @Override
   public void onStart(ITestContext context) {
@@ -75,7 +81,14 @@ public class DailyBuildReport extends TestListenerAdapter {
     failedDescriptionList.append(result.getMethod().getRealClass() + ": "
         + result.getMethod().getDescription() + "\n");
     failedNum.getAndAdd(1);
-    logger.info(result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Failed");
+    String caseFailedNotification = result.getMethod().getRealClass().getName() + "." + result.getMethod().getMethodName() + " Failed";
+    logger.info(caseFailedNotification);
+    String cmd = slack + " " + caseFailedNotification;
+    try {
+      PublicMethed.execWithErrStreamCheck(cmd);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
 
   }
 
@@ -91,7 +104,7 @@ public class DailyBuildReport extends TestListenerAdapter {
 
   @Override
   public void onFinish(ITestContext testContext) {
-    if(testContext.getName().equals("http")){
+    if(testContext.getName().equals(reportFlag)){
       logger.info(testContext.getName() + "test finished, start to generate report...");
       StringBuilder sb = new StringBuilder();
       sb.append("Total: " + (passedNum.get() + failedNum.get() + skippedNum.get()) + ",  " + "Passed: " + passedNum

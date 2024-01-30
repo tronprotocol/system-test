@@ -4,7 +4,7 @@
   <listeners>
     <listener class-name="stest.tron.wallet.common.client.utils.DailyBuildReport"></listener>
   </listeners>
-  <test name="daily build"  parallel = "classes" thread-count = "8">
+  <test name="Parallel Case"  parallel = "classes" thread-count = "8" verbose="">
     <packages>
       <package name="stest.tron.wallet.dailybuild.*">
         <exclude name="stest.tron.wallet.dailybuild.multisign"></exclude>
@@ -17,7 +17,7 @@
       </package>
     </packages>
   </test>
-  <test name="http" parallel = "classes" thread-count = "1" preserve-order="true">
+  <test name="Serial Case" parallel = "classes" thread-count = "1" preserve-order="true">
     <packages>
       <package name="stest.tron.wallet.dailybuild.ratelimit.*"></package>
       <package name="stest.tron.wallet.dailybuild.http.*"></package>
@@ -25,7 +25,6 @@
       <package name="stest.tron.wallet.dailybuild.zentrc20token"></package>
       <package name="stest.tron.wallet.dailybuild.eventquery"></package>
       <package name="stest.tron.wallet.dailybuild.separateExecution.*"></package>
-
     </packages>
   </test>
 </suite>
