@@ -5451,31 +5451,7 @@ public class PublicMethed {
   }
 
   /** constructor. */
-  public static String exec(String command) throws InterruptedException {
-    String returnString = "";
-    Process pro = null;
-    Runtime runTime = Runtime.getRuntime();
-    if (runTime == null) {
-      logger.error("Create runtime false!");
-    }
-    try {
-      pro = runTime.exec(command);
-      BufferedReader input = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-      PrintWriter output = new PrintWriter(new OutputStreamWriter(pro.getOutputStream()));
-      String line;
-      while ((line = input.readLine()) != null) {
-        returnString = returnString + line + "\n";
-      }
-      input.close();
-      output.close();
-      pro.destroy();
-    } catch (IOException ex) {
-      logger.error(null, ex);
-    }
-    return returnString;
-  }
-
-  public static String execWithErrStreamCheck(String command) throws InterruptedException {
+  public synchronized static String exec(String command) throws InterruptedException {
     String returnString = "";
     String errReturnString = "";
     Process pro = null;
@@ -5485,7 +5461,6 @@ public class PublicMethed {
     }
     try {
       pro = runTime.exec(command);
-      pro.waitFor();
       BufferedReader input = new BufferedReader(new InputStreamReader(pro.getInputStream()));
       PrintWriter output = new PrintWriter(new OutputStreamWriter(pro.getOutputStream()));
       String line;
@@ -5505,11 +5480,11 @@ public class PublicMethed {
       br.close();
       pro.destroy();
     } catch (IOException ex) {
-      ex.printStackTrace();
       logger.error(null, ex);
     }
     return returnString.length() >= errReturnString.length() ? returnString : errReturnString;
   }
+
 
   /** constructor. */
   public static HashMap<String, String> getBycodeAbiNoOptimize(
@@ -8245,7 +8220,7 @@ public class PublicMethed {
     cmd = cmd + " " + node + " " + requestUrl;
     logger.info("cmd is : " + cmd);
     try {
-      return PublicMethed.execWithErrStreamCheck(cmd);
+      return PublicMethed.exec(cmd);
     } catch (InterruptedException e) {
       e.printStackTrace();
     } catch (RuntimeException e) {

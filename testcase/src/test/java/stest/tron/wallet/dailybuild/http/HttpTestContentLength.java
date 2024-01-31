@@ -32,13 +32,13 @@ public class HttpTestContentLength {
   public void test001RequestWithNegativeContentLength() {
     try {
       String cmd = String.format("curl -s --location http://%s/wallet/getnowblock --header Content-Length:-1", httpnode);
-      String returnString = PublicMethed.execWithErrStreamCheck(cmd);
+      String returnString = PublicMethed.exec(cmd);
       logger.info(returnString);
       Assert.assertTrue(returnString
           .contains("<h1>Bad Message 400</h1><pre>reason: Invalid Content-Length Value</pre>"));
 
       String cmd2 = String.format("curl -s --location http://%s/wallet/getnowblock --header Content-Length:+100", httpnode);
-      String returnString2 = PublicMethed.execWithErrStreamCheck(cmd2);
+      String returnString2 = PublicMethed.exec(cmd2);
       logger.info(returnString2);
       Assert.assertTrue(returnString2
           .contains("<h1>Bad Message 400</h1><pre>reason: Invalid Content-Length Value</pre>"));
