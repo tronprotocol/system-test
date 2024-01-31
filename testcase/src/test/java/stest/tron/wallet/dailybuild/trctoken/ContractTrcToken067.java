@@ -78,13 +78,13 @@ public class ContractTrcToken067 {
     Assert.assertTrue(PublicMethed.sendcoin(user001Address, 4048_000_000L, fromAddress,
         testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1),
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1),
+//        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -150,10 +150,10 @@ public class ContractTrcToken067 {
   @Test(enabled = true, description = "TransferToken with 0 tokenValue, "
       + "and not existed tokenId, deploy receive contract")
   public void test02DeployRevContract() {
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     Long devAssetCountBefore = PublicMethed
         .getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
@@ -204,10 +204,10 @@ public class ContractTrcToken067 {
   @Test(enabled = true, description = "TransferToken with 0 tokenValue, "
       + "and not existed tokenId, trigger transfer contract")
   public void test03TriggerContract() {
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     Assert.assertTrue(PublicMethed.transferAsset(user001Address,
         assetAccountId.toByteArray(), 10L, dev001Address, dev001Key, blockingStubFull));

@@ -66,13 +66,13 @@ public class ContractTrcToken073 {
   public void testTokenBalanceContract() {
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 11000_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 300000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1),
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 300000L,
+//            blockingStubFull), 0, 1,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1),
+//        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 

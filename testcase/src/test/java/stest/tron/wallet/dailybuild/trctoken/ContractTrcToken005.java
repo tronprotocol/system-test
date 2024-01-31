@@ -76,14 +76,14 @@ public class ContractTrcToken005 {
     Assert.assertTrue(PublicMethed
         .sendcoin(dev001Address, 1100_000_000L, fromAddress, testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed
-        .sendcoin(user001Address, 1_000_000L, fromAddress, testKey002, blockingStubFull));
+        .sendcoin(user001Address, 2000_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 70000L, blockingStubFull), 0,
-        1, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1), 0, 0,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 70000L, blockingStubFull), 0,
+//        1, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1), 0, 0,
+//        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     long start = System.currentTimeMillis() + 2000;
     long end = System.currentTimeMillis() + 1000000000;
@@ -162,10 +162,10 @@ public class ContractTrcToken005 {
     Assert.assertEquals(Long.valueOf(200), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
     Assert.assertEquals(Long.valueOf(200), contractAssetCount);
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L, blockingStubFull), 0,
-        1, ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+//        PublicMethed.getFreezeBalanceCount(user001Address, user001Key, 50000L, blockingStubFull), 0,
+//        1, ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
