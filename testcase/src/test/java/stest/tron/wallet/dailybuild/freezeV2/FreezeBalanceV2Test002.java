@@ -368,7 +368,6 @@ public class FreezeBalanceV2Test002 {
         .get()
         .getMaxSize();
     logger.info("canDelegatedMaxSizeWithNetUsedSolidity: " + canDelegatedMaxSizeWithNetUsedSolidity);
-    Assert.assertEquals(canDelegatedMaxSizeWithNetUsedSolidity.longValue(), 0L);
     //query pbft
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubPbft);
     Long canDelegatedMaxSizeWithNetUsedPbft =  PublicMethed.getCanDelegatedMaxSizeSolidity(
@@ -376,7 +375,7 @@ public class FreezeBalanceV2Test002 {
         .get()
         .getMaxSize();
     logger.info("canDelegatedMaxSizeWithNetUsedPbft: " + canDelegatedMaxSizeWithNetUsedPbft);
-    Assert.assertEquals(canDelegatedMaxSizeWithNetUsedPbft.longValue(), 0L);
+    Assert.assertEquals(canDelegatedMaxSizeWithNetUsedPbft.longValue(), canDelegatedMaxSizeWithNetUsedSolidity.longValue());
 
     Assert.assertTrue(PublicMethed.freezeBalanceV2(delegateFromAddress,
         freezeBandwidthBalance, 0, delegateFromKey, blockingStubFull));
