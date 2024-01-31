@@ -216,8 +216,16 @@ public class JsonRpcBase {
 
   /** constructor. */
   public void openProposal(int openIndex, HashMap<Long, Long> proposalMap)  {
-
-    if (openIndex == 0 && (ProposalGetAllowMarketTransactionIsOpen() || proposalMap.size() == 0)) {
+    if(proposalMap.size() == 0) {
+      logger.info("proposalMap.size() == 0 , no need to open proposal");
+      return;
+    }
+    if (openIndex == 0 && ProposalGetAllowMarketTransactionIsOpen()) {
+      System.out.println("no need to open proposal");
+      return;
+    }
+    if (openIndex == 1 && (ProposalGetAllowOldRewardOptIsOpen()
+        || ProposalGetMaxDelegateLockPeriodIsOpen())) {
       System.out.println("no need to open proposal");
       return;
     }
@@ -259,6 +267,33 @@ public class JsonRpcBase {
     }
     return false;
   }
+
+  public boolean ProposalGetAllowOldRewardOptIsOpen() {
+    Protocol.ChainParameters chainParameters = blockingStubFull
+        .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+    Optional<Protocol.ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
+      if("getAllowOldRewardOpt".equalsIgnoreCase(op.getKey()) && (op.getValue() == secondProposalMap.get(79L))){
+        logger.info("getAllowOldRewardOpt: " + op);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean ProposalGetMaxDelegateLockPeriodIsOpen() {
+    Protocol.ChainParameters chainParameters = blockingStubFull
+        .getChainParameters(GrpcAPI.EmptyMessage.newBuilder().build());
+    Optional<Protocol.ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
+    for (Protocol.ChainParameters.ChainParameter op : getChainParameters.get().getChainParameterList()) {
+      if("getMaxDelegateLockPeriod".equalsIgnoreCase(op.getKey()) && (op.getValue() == secondProposalMap.get(78L))){
+        logger.info("getMaxDelegateLockPeriod: " + op);
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   /** constructor. */
   public void deployContract() throws Exception {
