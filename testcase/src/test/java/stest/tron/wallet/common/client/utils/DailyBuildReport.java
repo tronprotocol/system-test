@@ -85,7 +85,9 @@ public class DailyBuildReport extends TestListenerAdapter {
     logger.info(caseFailedNotification);
     String cmd = slack + " " + caseFailedNotification;
     try {
+      logger.info("send slack begin caseName: "+ result.getMethod().getMethodName());
       PublicMethed.execWithErrStreamCheck(cmd);
+      logger.info("send slack end caseName: "+ result.getMethod().getMethodName());
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
