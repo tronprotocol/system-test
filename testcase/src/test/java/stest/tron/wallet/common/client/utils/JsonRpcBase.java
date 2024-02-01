@@ -113,6 +113,7 @@ public class JsonRpcBase {
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    freezeBeforeAllTest();
     Assert.assertTrue(
         PublicMethed.sendcoin(
             witness001Address,
@@ -176,6 +177,21 @@ public class JsonRpcBase {
     deployTrc20Contract();
     deploySelfDestructContract();
     deployCreate2Contract();
+  }
+
+  //Protection excessive fluctuations when freeze to get resource
+  void freezeBeforeAllTest(){
+    ECKey ecKeyBefore = new ECKey(Utils.getRandom());
+    byte[] address = ecKeyBefore.getAddress();
+    String key = ByteArray.toHexString(ecKeyBefore.getPrivKeyBytes());
+    PublicMethed.printAddress(key);
+    Assert.assertTrue(PublicMethed.sendcoin(address, 201000000000L, foundationAccountAddress,
+        foundationAccountKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(address, 100000000000L,
+        0, 0, key, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(address, 100000000000L,
+        0, 1, key, blockingStubFull));
   }
 
   void getCommitData() {
