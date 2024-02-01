@@ -68,6 +68,7 @@ public class ContractTrcToken061 {
   public void deployTransferTokenContract() {
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 2100_000_000L, fromAddress,
         testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 //    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
 //        PublicMethed.getFreezeBalanceCount(dev001Address, dev001Key, 130000L,
 //            blockingStubFull), 0, 1,
