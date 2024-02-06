@@ -26,10 +26,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.testng.collections.Lists;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
+import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 
@@ -809,6 +811,42 @@ public class HttpMethed {
       transactionString = EntityUtils.toString(response.getEntity());
       transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
       response = broadcastTransaction(httpNode, transactionSignString);
+    } catch (Exception e) {
+      e.printStackTrace();
+      httppost.releaseConnection();
+      return null;
+    }
+    return response;
+  }
+
+  /** constructor.
+   * visible: true and broadcast hex */
+  public static HttpResponse transferAsset(
+      String httpNode,
+      String ownerAddress,
+      String toAddress,
+      String assetIssueById,
+      Long amount,
+      String fromKey) {
+    try {
+      final String requestUrl = "http://" + httpNode + "/wallet/transferasset";
+      JsonObject userBaseObj2 = new JsonObject();
+      userBaseObj2.addProperty("owner_address", ownerAddress);
+      userBaseObj2.addProperty("to_address", toAddress);
+      userBaseObj2.addProperty("asset_name", assetIssueById);
+      userBaseObj2.addProperty("amount", amount);
+      userBaseObj2.addProperty("visible", true);
+      response = createConnect(requestUrl, userBaseObj2);
+      transactionString = EntityUtils.toString(response.getEntity());
+      System.out.println(transactionString);
+      transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
+      System.out.println(transactionSignString);
+      JSONObject ob = JSONObject.parseObject(transactionSignString);
+      Protocol.Transaction.Builder transaction = Protocol.Transaction.newBuilder();
+      Protocol.Transaction.raw raw = Protocol.Transaction.raw.parseFrom(Hex.decode(ob.getString("raw_data_hex")));
+      transaction.setRawData(raw);
+      transaction.addSignature(ByteString.copyFrom(Hex.decode(ob.getJSONArray("signature").get(0).toString())));
+      response = broadcasthex(httpNode, Hex.toHexString(transaction.build().toByteArray()));
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();

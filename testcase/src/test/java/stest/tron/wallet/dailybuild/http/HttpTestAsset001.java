@@ -13,6 +13,7 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethed;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.Base58;
 
 @Slf4j
 public class HttpTestAsset001 {
@@ -298,6 +299,27 @@ public class HttpTestAsset001 {
     Assert.assertTrue(jsonArray.size() == 1);
   }
 
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "TransferAsset visible true,then broadcast hex")
+  public void test17TransferAssetVisible() {
+    logger.info("Transfer asset visible true,then broadcast hex");
+    response = HttpMethed.getAccount(httpnode, participateAddress);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    int amountBefore = responseContent.getJSONArray("assetV2").getJSONObject(0).getIntValue("value");
+    response = HttpMethed.transferAsset(httpnode, Base58.encode58Check(assetAddress),
+        Base58.encode58Check(participateAddress), assetIssueId, 1L, assetKey);
+    Assert.assertTrue(HttpMethed.verificationResult(response));
+    HttpMethed.waitToProduceOneBlock(httpnode);
+    response = HttpMethed.getAccount(httpnode, participateAddress);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
+    int amountAfter = responseContent.getJSONArray("assetV2").getJSONObject(0).getIntValue("value");
+    Assert.assertEquals(1, amountAfter - amountBefore);
+
+  }
 
   /**
    * constructor.
