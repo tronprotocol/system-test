@@ -3,6 +3,7 @@ package stest.tron.wallet.dailybuild.grpcurl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -290,6 +291,9 @@ public class GrpcReflectionTest002 {
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("balance"));
     Assert.assertTrue(returnString.contains(addressBase64));
+
+    String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrl, pbftnode);
+    Assert.assertEquals(returnStringPBFT, returnString);
   }
 
   @Test(enabled = true, description = "test GetBlockByLimitNext")
@@ -302,5 +306,50 @@ public class GrpcReflectionTest002 {
     JSONArray blocks = blockData.getJSONArray("block");
     Assert.assertTrue(blocks.size() > 0L);
   }
+
+  @Test(enabled = true, description = "test GetTransactionListFromPending")
+  public void test011GetTransactionListFromPending() {
+    String requestUrl = "protocol.Wallet/GetTransactionListFromPending";
+    String returnString = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
+    Assert.assertNotNull(returnString);
+    Assert.assertTrue(returnString.contains("{}"));
+  }
+
+  @Test(enabled = true, description = "test ListNodes")
+  public void test012ListNodes() {
+    String requestUrl = "protocol.Wallet/ListNodes";
+    String returnString = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
+    Assert.assertNotNull(returnString);
+    Assert.assertTrue(returnString.contains("nodes"));
+  }
+
+  @Test(enabled = true, description = "test CreateAccount2")
+  public void test013CreateAccount2() {
+    ECKey newAccount = new ECKey(Utils.getRandom());
+    String newAccountBase64 = Base64.getEncoder().encodeToString(newAccount.getAddress());
+    String ownerAddressBase64 = Base64.getEncoder().encodeToString(foundationAddress);
+    String requestUrl = "protocol.Wallet/CreateAccount2";
+    String data = String
+        .format(
+       "{\"owner_address\":\"%s\",\"account_address\":\"%s\",\"type\":0}",
+            ownerAddressBase64,
+            newAccountBase64
+    );
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    Assert.assertNotNull(returnString);
+    logger.info("tx is: " + returnString);
+    Assert.assertTrue(returnString.contains("transaction"));
+  }
+
+  @Test(enabled = true, description = "test AccountPermissionUpdate")
+  public void test014AccountPermissionUpdate() {
+    ECKey newAccount = new ECKey(Utils.getRandom());
+    String newAccountBase64 = Base64.getEncoder().encodeToString(newAccount.getAddress());
+    PublicMethed.sendcoin(newAccount.getAddress(), 10000000, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+  }
+
+
+
 
 }
