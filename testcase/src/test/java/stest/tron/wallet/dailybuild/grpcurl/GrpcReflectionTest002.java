@@ -315,6 +315,7 @@ public class GrpcReflectionTest002 {
     String returnString = PublicMethed.gRPCurlRequest(null, requestUrl, fullnode);
     Assert.assertNotNull(returnString);
     logger.info("TransactionList: " + returnString);
+    Assert.assertTrue(returnString.contains("txId"));
   }
 
   @Test(enabled = true, description = "test ListNodes")
