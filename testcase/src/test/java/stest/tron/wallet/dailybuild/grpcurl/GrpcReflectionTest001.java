@@ -198,6 +198,8 @@ public class GrpcReflectionTest001 {
             .getJSONObject(0)
             .getString("contractRet"),
         "SUCCESS");
+    String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
+    Assert.assertEquals(returnStringPBFT, returnStringSolidity);
   }
 
   @Test(enabled = true, description = "test getContract ")
@@ -240,6 +242,12 @@ public class GrpcReflectionTest001 {
     logger.info(blockData.toJSONString());
     Long blockId = blockData.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
     Assert.assertEquals(blockId.longValue(), 1L);
+
+    String requestUrlSolidity = "protocol.WalletSolidity/GetBlockByNum2";
+    String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
+    JSONObject blockDataSolidity = JSONObject.parseObject(returnStringSolidity);
+    Long blockIdSolidity = blockDataSolidity.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
+    Assert.assertEquals(blockIdSolidity.longValue(), 1L);
   }
 
   @Test(enabled = true, description = "test getNodeInfo")
@@ -281,11 +289,27 @@ public class GrpcReflectionTest001 {
     String to = Base64.getEncoder().encodeToString(newAccount.getAddress());
     String data = String
         .format("{\"owner_address\":\"%s\",\"to_address\":\"%s\",\"amount\":100000000}",
-        from,
-        to);
+            from,
+            to);
     String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
     JSONObject txData = JSONObject.parseObject(returnString);
     logger.info(txData.toJSONString());
     Assert.assertTrue(txData.getJSONObject("result").getBoolean("result"));
   }
+
+  @Test(enabled = true, description = "test TriggerContract")
+  public void test013TriggerContract() {
+    ECKey owner = new ECKey(Utils.getRandom());
+    String ownerAddressBase64 = Base64.getEncoder().encodeToString(owner.getAddress());
+    String data = String
+        .format(
+            "{\"owner_address\":\"%s\",\"contract_address\":\"%s\",\"data\":\"aH2qOgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB\"}",
+            ownerAddressBase64, contractBase64Address);
+    String requestUrl = "protocol.Wallet/TriggerContract";
+    String returnString = PublicMethed.gRPCurlRequest(data, requestUrl, fullnode);
+    Assert.assertNotNull(returnString);
+    logger.info("tx is :" + returnString);
+    Assert.assertTrue(returnString.contains("transaction"));
+  }
+
 }
