@@ -169,14 +169,14 @@ public class ContractTrcToken082 {
         "kill(address)",
         param1, false, 0, 100000000L, "0",
         0, fromAddress, testKey002, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Thread.sleep(30);
 
     String methedStr = "deploy(uint256)";
     String argsStr = "7";
     String txid2 = PublicMethed.triggerContract(contractD, methedStr, argsStr,
         false, 0, maxFeeLimit, fromAddress, testKey002, blockingStubFull);
     logger.info("test02KillCreate2Kill create2Address: " + PublicMethed.getContract(create2Address,blockingStubFull).toString());
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Thread.sleep(30);
 
     String txid3 = PublicMethed.triggerContract(create2Address,
         "kill(address)",
