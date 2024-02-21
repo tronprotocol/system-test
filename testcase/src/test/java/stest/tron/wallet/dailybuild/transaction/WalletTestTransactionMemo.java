@@ -30,6 +30,8 @@ public class WalletTestTransactionMemo {
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
+  //if send coin with value 10000000000L, then the script's max byte size is 511790
+  private int maxScriptByteSize = 511790;
 
   /**
    * constructor.
@@ -91,6 +93,16 @@ public class WalletTestTransactionMemo {
 
 
 
+  }
+
+  @Test(enabled = true, description = "transaction's max size is 500*1024")
+  public void test02TransactionMaxSize() {
+    Assert.assertTrue(PublicMethed.sendcoinWithScript(memoAddress, 10000000000L,
+        foundationAddress, foundationKey, maxScriptByteSize, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //Code = TOO_BIG_TRANSACTION_ERROR; Message = Transaction size is too big
+    Assert.assertFalse(PublicMethed.sendcoinWithScript(memoAddress, 10000000000L,
+        foundationAddress, foundationKey, maxScriptByteSize + 1, blockingStubFull));
   }
   
 
