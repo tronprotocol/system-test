@@ -1220,6 +1220,53 @@ public class PublicMethed {
   }
 
   /** constructor. */
+  public static Boolean sendcoinWithScript(
+      byte[] to,
+      long amount,
+      byte[] owner,
+      String priKey,
+      int scriptLength,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    // String priKey = testKey002;
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    final ECKey ecKey = temKey;
+
+    Integer times = 0;
+    while (times++ <= 2) {
+
+      TransferContract.Builder builder = TransferContract.newBuilder();
+      ByteString bsTo = ByteString.copyFrom(to);
+      ByteString bsOwner = ByteString.copyFrom(owner);
+      builder.setToAddress(bsTo);
+      builder.setOwnerAddress(bsOwner);
+      builder.setAmount(amount);
+
+      TransferContract contract = builder.build();
+      Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
+      Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
+      builder1.setScripts(ByteString.copyFrom(new byte[scriptLength]));
+      Transaction.Builder builder2 = transaction.toBuilder();
+      builder2.setRawData(builder1);
+      transaction = builder2.build();
+      System.out.println(transaction.getSerializedSize());
+      if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+        logger.info("transaction ==null");
+        continue;
+      }
+      transaction = signTransaction(ecKey, transaction);
+      GrpcAPI.Return response = broadcastTransaction(transaction, blockingStubFull);
+      return response.getResult();
+    }
+    return false;
+  }
+
+  /** constructor. */
   public static String sendcoinGetTransactionHex(
       byte[] to,
       long amount,
