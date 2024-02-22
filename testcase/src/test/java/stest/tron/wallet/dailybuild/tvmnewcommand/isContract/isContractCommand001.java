@@ -312,6 +312,26 @@ public class isContractCommand001 {
   }
 
 
+  @Test(enabled = true, description = "active contract address before deploy contract,then deploy will fail")
+  public void test05ActiveContractBeforeDeploy() {
+    String filePath = "src/test/resources/soliditycode/TvmIsContract001.sol";
+    String contractName = "testIsContract";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    Protocol.Transaction transaction = PublicMethed
+        .deployContractWithoutBroadcast(contractName, abi, code, "", maxFeeLimit, 0L,
+            100, 1000L, "0", 0L,
+            null, contractExcKey, contractExcAddress, blockingStubFull);
+    byte[] contractAdd = PublicMethed.generateContractAddress(transaction, contractExcAddress);
+    Assert.assertTrue(PublicMethed.sendcoin(contractAdd, 1L, testNetAccountAddress,
+        testNetAccountKey, blockingStubFull ));
+    //Code = CONTRACT_VALIDATE_ERROR
+    //Message = Contract validate error : Trying to create a contract with existing contract address
+    GrpcAPI.Return response = PublicMethed.broadcastTransaction(transaction, blockingStubFull);
+    Assert.assertEquals("CONTRACT_VALIDATE_ERROR", response.getCode().name());
+    Assert.assertFalse(response.getResult());
+  }
   /**
    * constructor.
    */
