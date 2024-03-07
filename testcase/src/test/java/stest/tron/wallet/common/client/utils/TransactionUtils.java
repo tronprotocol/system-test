@@ -311,7 +311,7 @@ public class TransactionUtils {
   }
 
   public static JSONObject printTransactionToJSON(Transaction transaction, boolean selfType) {
-
+    initTransactionMap();
     JSONObject jsonTransaction = JSONObject
         .parseObject(JsonFormat.printToString(transaction, selfType));
     JSONArray contracts = new JSONArray();
