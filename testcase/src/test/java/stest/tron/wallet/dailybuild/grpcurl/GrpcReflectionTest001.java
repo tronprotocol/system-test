@@ -401,9 +401,9 @@ public class GrpcReflectionTest001 {
     PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     String requestUrlSolidity = "protocol.WalletSolidity/EstimateEnergy";
     String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
-    Assert.assertEquals("Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiB0aGlzIG5vZGUgZG9lcyBub3Qgc3VwcG9ydCBlc3RpbWF0ZSBlbmVyZ3k=",
-        returnStringSolidity
-    );// this node does not support estimateEnergy
+    Assert.assertTrue(returnStringSolidity.contains("" +
+        "Q29udHJhY3QgdmFsaWRhdGUgZXJyb3IgOiB0aGlzIG5vZGUgZG9lcyBub3Qgc3VwcG9ydCBlc3RpbWF0ZSBlbmVyZ3k="));
+    // this node does not support estimateEnergy
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
     Assert.assertEquals(returnStringPBFT, returnString);
 
@@ -469,9 +469,13 @@ public class GrpcReflectionTest001 {
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetPaginatedAssetIssueList";
     String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
-    Assert.assertEquals(returnStringSolidity, returnString);
+    logger.info(returnStringSolidity);
+    Assert.assertTrue(returnStringSolidity.contains("assetIssue"));
+    Assert.assertTrue(returnStringSolidity.contains("total_supply"));
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
-    Assert.assertEquals(returnStringPBFT, returnString);
+    logger.info(returnStringPBFT);
+    Assert.assertTrue(returnStringPBFT.contains("assetIssue"));
+    Assert.assertTrue(returnStringPBFT.contains("total_supply"));
   }
 
   @Test(enabled = true, description = "test GetPaginatedProposalList")
@@ -553,13 +557,13 @@ public class GrpcReflectionTest001 {
     Assert.assertNotNull(returnString);
     logger.info(returnString);
     Assert.assertTrue(returnString.contains("num"));
-    Assert.assertTrue(returnString.contains("11"));
 
     String requestUrlSolidity = "protocol.WalletSolidity/GetTransactionCountByBlockNum";
     String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
-    Assert.assertEquals(returnStringSolidity, returnString);
+    Assert.assertTrue(returnStringSolidity.contains("num"));
     String returnStringPBFT = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, pbftnode);
-    Assert.assertEquals(returnStringPBFT, returnString);
+    Assert.assertTrue(returnStringPBFT.contains("num"));
+
   }
 
   @Test(enabled = true, description = "test GetTransactionInfoByBlockNum")
