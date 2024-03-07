@@ -615,7 +615,7 @@ public class GrpcReflectionTest002 {
     JSONObject accountInfo = JSONObject.parseObject(returnString);
     Assert.assertEquals(accountInfo.getLongValue("balance"), 100000000L);
     Assert.assertTrue(returnString.contains("account_id"));
-
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     String requestUrlSolidity = "protocol.WalletSolidity/GetAccountById";
     String returnStringSolidity = PublicMethed.gRPCurlRequest(data, requestUrlSolidity, soliditynode);
     Assert.assertTrue(returnStringSolidity.contains("account_id"));
