@@ -66,8 +66,8 @@ dependencies {
     compile 'org.aspectj:aspectjrt:1.8.13'
     compile 'org.aspectj:aspectjweaver:1.8.13'
     compile 'org.aspectj:aspectjtools:1.8.13'
-    compile 'com.googlecode.cqengine:cqengine:3.6.0'
-    compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
+//    compile 'com.googlecode.cqengine:cqengine:3.6.0'
+//    compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
 
     // http
     compile 'org.eclipse.jetty:jetty-server:9.4.53.v20231009'
