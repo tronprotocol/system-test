@@ -94,7 +94,7 @@ dependencies {
     compile group: leveldbGroup, name: leveldbName, version: leveldbVersion
     implementation 'io.grpc:grpc-netty-shaded:1.60.0'
     implementation 'io.grpc:grpc-netty:1.60.0'
-    implementation 'io.grpc:grpc-protobuf:1.60.0'
+    implementation 'io.grpc:grpc-protobuf:1.62.2'
     implementation 'io.grpc:grpc-stub:1.60.0'
     implementation 'com.google.guava:guava:28.0-jre'
     implementation fileTree(dir: 'libs', include: '*.jar')
