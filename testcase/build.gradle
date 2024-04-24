@@ -47,9 +47,9 @@ dependencies {
 
     compile "com.cedarsoftware:java-util:1.11.0"
 
-    compile group: 'com.beust', name: 'jcommander', version: '1.72'
+    compile group: 'com.beust', name: 'jcommander', version: '1.82'
 
-    compile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'junit', name: 'junit', version: '4.13.2'
 
     compile group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
 
@@ -92,10 +92,10 @@ dependencies {
 
 //    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
     compile group: leveldbGroup, name: leveldbName, version: leveldbVersion
-    implementation 'io.grpc:grpc-netty-shaded:1.60.0'
-    implementation 'io.grpc:grpc-netty:1.60.0'
+    implementation 'io.grpc:grpc-netty-shaded:1.63.0'
+    implementation 'io.grpc:grpc-netty:1.63.0'
     implementation 'io.grpc:grpc-protobuf:1.63.0'
-    implementation 'io.grpc:grpc-stub:1.60.0'
+    implementation 'io.grpc:grpc-stub:1.63.0'
     implementation 'com.google.guava:guava:28.0-jre'
     implementation fileTree(dir: 'libs', include: '*.jar')
 }

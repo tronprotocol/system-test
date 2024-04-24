@@ -7,9 +7,9 @@ dependencies {
 
 //    checkstyleConfig "com.puppycrawl.tools:checkstyle:${versions.checkstyle}"
     // google grpc
-    compile group: 'io.grpc', name: 'grpc-netty', version: '1.60.0'
-    compile group: 'io.grpc', name: 'grpc-protobuf', version: '1.60.0'
-    compile group: 'io.grpc', name: 'grpc-stub', version: '1.60.0'
+    compile group: 'io.grpc', name: 'grpc-netty', version: '1.63.0'
+    compile group: 'io.grpc', name: 'grpc-protobuf', version: '1.63.0'
+    compile group: 'io.grpc', name: 'grpc-stub', version: '1.63.0'
     // end google grpc
 
     compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
