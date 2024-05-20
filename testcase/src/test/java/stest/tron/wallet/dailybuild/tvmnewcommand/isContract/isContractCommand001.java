@@ -28,6 +28,8 @@ public class isContractCommand001 {
       .getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethed.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
+  byte[] contractA = null;
+  byte[] contractC = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractExcAddress = ecKey1.getAddress();
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -71,6 +73,17 @@ public class isContractCommand001 {
     contractAddress = PublicMethed
         .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
             contractExcAddress, blockingStubFull);
+
+
+    contractName = "C";
+    retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    code = retMap.get("byteCode").toString();
+    abi = retMap.get("abI").toString();
+    contractC = PublicMethed
+        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
+            contractExcAddress, blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
   }
 
 
@@ -332,6 +345,99 @@ public class isContractCommand001 {
     Assert.assertEquals("CONTRACT_VALIDATE_ERROR", response.getCode().name());
     Assert.assertFalse(response.getResult());
   }
+
+  @Test(enabled = true, description = "deploy A in create2, A trigger B's iscontract in it's constructor")
+  public void test06TriggerInCreate2Constructor() {
+    String contractName = "A";
+    String filePath = "src/test/resources/soliditycode/TvmIsContract001.sol";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String hexB = ByteArray.toHexString(contractAddress);
+    String testContractCode = code;
+    testContractCode += "000000000000000000000000" + hexB;
+    Long salt = 7L;
+
+    String param = "\"" + testContractCode + "\"," + salt;
+
+    String triggerTxid = PublicMethed.triggerContract(contractC,
+        "create2(bytes,uint256)", param, false, 0L,
+        1000000000L, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Optional<Protocol.TransactionInfo> info = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(info.get().getResultValue() == 0);
+
+    String hexA = "41" + ByteArray.toHexString(info.get().getContractResult(0).toByteArray()).substring(24);
+    logger.info("hexA: " + hexA);
+    contractA = ByteArray.fromHexString(hexA);
+    TransactionExtention transactionExtention = PublicMethed
+        .triggerConstantContractForExtention(contractA, "testConstructorView()", "", false, 0,
+            0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    logger.info("trigger A testConstructorView : " + transactionExtention.toString());
+    Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
+    Assert
+        .assertEquals(1, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
+  }
+
+  @Test(enabled = true, description = "deploy A in create, A trigger B's iscontract in it's constructor")
+  public void test07TriggerInCreateConstructor() {
+    String contractName = "A";
+    String filePath = "src/test/resources/soliditycode/TvmIsContract001.sol";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String hexB = ByteArray.toHexString(contractAddress);
+    String testContractCode = code;
+    testContractCode += "000000000000000000000000" + hexB;
+
+    String param = "\"" + testContractCode + "\"";
+
+    String triggerTxid = PublicMethed.triggerContract(contractC,
+        "create(bytes)", param, false, 0L,
+        1000000000L, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Optional<Protocol.TransactionInfo> info = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(info.get().getResultValue() == 0);
+
+    String hexA = "41" + ByteArray.toHexString(info.get().getContractResult(0).toByteArray()).substring(24);
+    logger.info("hexA: " + hexA);
+    contractA = ByteArray.fromHexString(hexA);
+    TransactionExtention transactionExtention = PublicMethed
+        .triggerConstantContractForExtention(contractA, "testConstructorView()", "", false, 0,
+            0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    logger.info("trigger A testConstructorView : " + transactionExtention.toString());
+    Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
+    Assert
+        .assertEquals(1, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
+  }
+
+
+  @Test(enabled = true, description = "A call B's iscontract in it's constructor")
+  public void test08ConstructorCall() {
+    String filePath = "src/test/resources/soliditycode/TvmIsContract001.sol";
+    String contractName = "A";
+    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    String param = "\"" + Base58.encode58Check(contractAddress) + "\"";
+    String txid = PublicMethed
+        .deployContractWithConstantParame(contractName, abi, code, "constructor(address)",param,null,
+            maxFeeLimit, 0L, 100,
+            null, contractExcKey, contractExcAddress, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Optional<Protocol.TransactionInfo> info = PublicMethed.getTransactionInfoById(txid, blockingStubFull);
+    Assert.assertTrue(info.get().getResultValue() == 0);
+    byte[] aContract = info.get().getContractAddress().toByteArray();
+
+    TransactionExtention transactionExtention = PublicMethed
+        .triggerConstantContractForExtention(aContract, "testConstructorView()", "", false, 0,
+            0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    logger.info("test08 A call B in constructor :" + transactionExtention.toString());
+    Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
+    Assert
+        .assertEquals(1, ByteArray.toInt(transactionExtention.getConstantResult(0).toByteArray()));
+  }
+
   /**
    * constructor.
    */
