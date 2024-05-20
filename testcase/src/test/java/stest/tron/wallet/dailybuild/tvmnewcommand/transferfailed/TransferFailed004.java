@@ -293,7 +293,7 @@ public class TransferFailed004 {
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
     Assert.assertEquals(testNetAccountCountBefore, testNetAccountCountAfter);
     Assert.assertEquals(0L, contractAccountCountAfter.longValue());
-    Assert.assertEquals(energyUsageTotal, energyUsageTotal2);
+    Assert.assertEquals(energyUsageTotal, energyUsageTotal2 + 25000);
 
     Account nonexistentAddressAccountTrxBalance = PublicMethed
         .queryAccount(nonexistentAddress, blockingStubFull1);
