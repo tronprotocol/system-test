@@ -214,18 +214,19 @@ public class EnergyAdjustmentTest {
   void sucideToActiveAcount04() {
     deployContractC();
     String hex41 = ByteArray.toHexString(contractAddressC);
-    String sub = hex41.substring(0,hex41.length()-1)+"3";
-    System.out.println("hex41" + hex41);
-    System.out.println("sub" + sub);
+    int len = hex41.length();
+    String sub = hex41.substring(0,len - 2) + hex41.charAt(len - 1) + hex41.charAt(len - 2);
+    System.out.println("hex41: " + hex41);
+    System.out.println("sub: " + sub);
 
     String methedStr = "killme(address)";
     String argsStr = "\"" + Base58.encode58Check(ByteArray.fromHexString(sub)) + "\"";
     String txid = PublicMethed.triggerContract(contractAddressC, methedStr, argsStr,
         false, 0, maxFeeLimit, testFoundationAddress, testFoundationKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    logger.info("sucideToActiveAcount03 txid: " + txid);
+    logger.info("sucideToActiveAcount04 txid: " + txid);
     TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
-    logger.info("sucideToActiveAcount03 info: " + info.toString());
+    logger.info("sucideToActiveAcount04 info: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
     Assert.assertEquals(25319, info.getReceipt().getEnergyUsageTotal());
