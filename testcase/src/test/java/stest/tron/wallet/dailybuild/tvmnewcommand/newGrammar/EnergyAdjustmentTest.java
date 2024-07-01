@@ -215,7 +215,8 @@ public class EnergyAdjustmentTest {
     deployContractC();
     String hex41 = ByteArray.toHexString(contractAddressC);
     int len = hex41.length();
-    String sub = hex41.substring(0,len - 2) + hex41.charAt(len - 1) + hex41.charAt(len - 2);
+    char last = (char) (hex41.charAt(len - 1) + 1);
+    String sub = hex41.substring(0,len - 1) + last;
     System.out.println("hex41: " + hex41);
     System.out.println("sub: " + sub);
 
