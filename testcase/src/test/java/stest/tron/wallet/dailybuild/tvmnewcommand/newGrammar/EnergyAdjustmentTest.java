@@ -8,7 +8,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
-import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
@@ -215,10 +214,11 @@ public class EnergyAdjustmentTest {
     deployContractC();
     String hex41 = ByteArray.toHexString(contractAddressC);
     int len = hex41.length();
-    char last = (char) (hex41.charAt(len - 1) % 126 + 1);
+    int c = hex41.charAt(len - 1) - '0';
+    int last = c % 9 + 1;
     String sub = hex41.substring(0,len - 1) + last;
-    System.out.println("hex41: " + hex41);
-    System.out.println("sub: " + sub);
+    logger.info("hex41: " + hex41);
+    logger.info("sub: " + sub);
 
     String methedStr = "killme(address)";
     String argsStr = "\"" + Base58.encode58Check(ByteArray.fromHexString(sub)) + "\"";
