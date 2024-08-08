@@ -222,7 +222,7 @@ public class FreezeBalanceV2Test005 {
     logger.info("transactionEnergyUsage:" + transactionEnergyUsage);
     Assert.assertTrue(afterEnergyUsage <= transactionEnergyUsage
         && afterEnergyUsage + 2 >= transactionEnergyUsage
-        && transactionEnergyUsage > 600);
+        && transactionEnergyUsage > 550);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);

@@ -1,4 +1,4 @@
-pragma experimental solidity;  //this can only be set at the beginning
+//pragma experimental solidity;  //this can only be set at the beginning
 contract A
 {
     uint256 public immutable variable;
