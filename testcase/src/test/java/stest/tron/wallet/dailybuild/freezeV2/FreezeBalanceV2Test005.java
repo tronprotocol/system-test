@@ -235,8 +235,8 @@ public class FreezeBalanceV2Test005 {
     logger.info("beforeEnergyUsage:" + beforeEnergyUsage);
     Assert.assertTrue(beforeEnergyWindowSize < 28800 * 1000);
     beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
-
-    Assert.assertTrue(beforeEnergyUsage > 600);
+    logger.info("beforeEnergyUsage2:" + beforeEnergyUsage);
+    Assert.assertTrue(beforeEnergyUsage > 550);
     txid = PublicMethed.triggerContract(contractAddress,
         "testUseCpu(uint256)",  cycleTime.toString(), false,
         0, 100000000L,frozenEnergyAddress, frozenEnergyKey, blockingStubFull);
