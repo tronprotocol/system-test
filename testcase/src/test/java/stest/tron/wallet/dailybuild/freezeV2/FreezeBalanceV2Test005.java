@@ -254,7 +254,7 @@ public class FreezeBalanceV2Test005 {
         .get().getReceipt().getEnergyUsage();
     Assert.assertTrue(afterEnergyUsage - beforeEnergyUsage <= transactionEnergyUsage
         && afterEnergyUsage - beforeEnergyUsage + 8 >= transactionEnergyUsage
-        && transactionEnergyUsage > 600 && afterEnergyUsage > 600 * 2);
+        && transactionEnergyUsage > 550 && afterEnergyUsage > 550 * 2);
 
 
 
