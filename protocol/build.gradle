@@ -1,22 +1,37 @@
 apply plugin: 'com.google.protobuf'
 
+
 dependencies {
-    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.16.3'
-    compile group: 'com.google.protobuf', name: 'protobuf-java-util', version: '3.25.2'
-    compile group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
+    implementation group: 'com.google.protobuf', name: 'protobuf-java', version: '3.25.5'
+    implementation group: 'com.google.protobuf', name: 'protobuf-java-util', version: '3.25.5'
+    implementation group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
 
 //    checkstyleConfig "com.puppycrawl.tools:checkstyle:${versions.checkstyle}"
     // google grpc
-    compile group: 'io.grpc', name: 'grpc-netty', version: '1.63.0'
-    compile group: 'io.grpc', name: 'grpc-protobuf', version: '1.63.0'
-    compile group: 'io.grpc', name: 'grpc-stub', version: '1.63.0'
+    implementation group: 'io.grpc', name: 'grpc-netty', version: '1.60.0'
+    implementation group: 'io.grpc', name: 'grpc-protobuf', version: '1.60.0'
+    implementation group: 'io.grpc', name: 'grpc-stub', version: '1.60.0'
     // end google grpc
 
-    compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
+    implementation group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
 }
 
 tasks.matching { it instanceof Test }.all {
     testLogging.events = ["failed", "passed", "skipped"]
+}
+sourceSets.configureEach {
+    configurations.each {
+        if (it.name == "runtimeClasspath"){
+            it.attributes {
+                attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+            }
+        }
+        if (it.name == "compileClasspath"){
+            it.attributes {
+                attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+            }
+        }
+    }
 }
 
 sourceSets {
@@ -31,6 +46,7 @@ sourceSets {
     }
 
 }
+
 
 protobuf {
     generatedFilesBaseDir = "$projectDir/src/"
