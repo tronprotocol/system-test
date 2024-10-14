@@ -49,6 +49,24 @@ public class DailyBuildReport extends TestListenerAdapter {
   private String slack = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.slack");
 
+  @Override
+  public void onConfigurationFailure(ITestResult itr) {
+    super.onConfigurationFailure(itr);
+    failedDescriptionList.append(itr.getTestClass().getName() + ": "
+        + "beforeClass" + "\n");
+    failedNum.getAndAdd(1);
+    String caseFailedNotification = itr.getTestClass().getName() + " beforeClass Failed";
+    logger.info(caseFailedNotification);
+    String cmd = slack + " " + caseFailedNotification;
+    try {
+      logger.info("send slack begin className: " + itr.getTestClass().getName());
+      PublicMethed.exec(cmd);
+      logger.info("send slack end className: " + itr.getTestClass().getName());
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 
   @Override
   public void onStart(ITestContext context) {
@@ -106,9 +124,10 @@ public class DailyBuildReport extends TestListenerAdapter {
 
   @Override
   public void onFinish(ITestContext testContext) {
-    if(testContext.getName().equals(reportFlag)){
+    if(testContext.getName().equals(reportFlag)) {
       logger.info(testContext.getName() + "test finished, start to generate report...");
       StringBuilder sb = new StringBuilder();
+      // on beforeClass Failed occur, Total num will be bigger than ALL-pass case.
       sb.append("Total: " + (passedNum.get() + failedNum.get() + skippedNum.get()) + ",  " + "Passed: " + passedNum
           + ",  " + "Failed: " + failedNum + ",  " + "Skipped: " + skippedNum + "\n");
       sb.append("------------------------------------------------------------------------------\n");
