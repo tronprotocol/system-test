@@ -4,7 +4,8 @@ plugins {
 
 apply plugin: 'application'
 apply plugin: 'checkstyle'
-
+def protobufVersion = '3.25.5'
+def grpcVersion = '1.60.0'
 mainClassName = 'org.tron.program.FullNode'
 
 def versions = [
@@ -13,20 +14,6 @@ def versions = [
 
 jacoco {
     toolVersion = "0.8.1"
-}
-sourceSets.configureEach {
-    configurations.each {
-        if (it.name == "runtimeClasspath"){
-            it.attributes {
-                attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
-            }
-        }
-        if (it.name == "compileClasspath"){
-            it.attributes {
-                attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
-            }
-        }
-    }
 }
 
 configurations {
@@ -105,10 +92,10 @@ dependencies {
 
 //    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.12'
     implementation group: leveldbGroup, name: leveldbName, version: leveldbVersion
-    implementation 'io.grpc:grpc-netty-shaded:1.60.0'
-    implementation 'io.grpc:grpc-netty:1.60.0'
-    implementation 'io.grpc:grpc-protobuf:1.60.0'
-    implementation 'io.grpc:grpc-stub:1.60.0'
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "io.grpc:grpc-netty:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
 //    implementation 'com.google.guava:guava:32.0-jre'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation fileTree(dir: 'libs', include: '*.jar')
