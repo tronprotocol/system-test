@@ -1012,7 +1012,7 @@ public class NewFreezeContractTest {
     logger.info("storeTime: " + storeTime/3 + "  windowSize: " + windowSize);
     logger.info("clean amount net: " + cleanAmount + "  dirty amount net: " + dirtyAmount + ": sum: "
             + returnAmount + " compute cleanSun: " + cleanSun + "  compute dirtySun: " + dirtySun);
-//    Assert.assertEquals(amount, returnAmount);
+    Assert.assertEquals(amount, returnAmount);
 //    Assert.assertEquals(cleanAmount, cleanSun);
 //    Assert.assertEquals(dirtyAmount, dirtySun);
 
