@@ -35,6 +35,9 @@ dependencies {
     //local libraries
     implementation fileTree(dir: 'libs', include: '*.jar')
     // end local libraries
+
+    implementation group: 'com.google.protobuf', name: 'protobuf-java', version: protobufVersion
+    implementation group: 'com.google.protobuf', name: 'protobuf-java-util', version: protobufVersion
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.13.0'
     testImplementation group: 'org.hamcrest', name: 'hamcrest-junit', version: '1.0.0.1'
