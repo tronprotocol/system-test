@@ -8,9 +8,17 @@ import org.tron.trident.proto.Chain.Transaction;
 import org.tron.trident.proto.Common.Permission;
 import org.tron.trident.proto.Contract.AccountPermissionUpdateContract;
 import org.tron.trident.proto.Response;
+import stest.tron.wallet.common.client.utils.Base58;
+import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.Utils;
 import tron.trident.utils.TestBase;
 
 import java.util.HashMap;
+import java.util.Random;
+
+import static org.tron.trident.core.Constant.FULLNODE_NILE;
+import static org.tron.trident.core.Constant.FULLNODE_NILE_SOLIDITY;
 
 
 public class trxTransaction extends TestBase {
@@ -34,9 +42,7 @@ public class trxTransaction extends TestBase {
     votes.put("TZBZ3LN7GqbCKzdghSWE5jKjZPJdbniMYk","1");
     votes.put("TYbgswVSQLXDyk3sYsHmxREEBbcZv4XBdA","2");
     Response.TransactionExtention transactionExtention = wrapper.voteWitness(owner,votes);
-
     Transaction transaction = wrapper.signTransaction(transactionExtention);
-    ;
     String broadcast = wrapper.broadcastTransaction(transaction);
     System.out.println("Vote witness :" + broadcast);
   }
@@ -46,10 +52,10 @@ public class trxTransaction extends TestBase {
 
   @Test(enabled = true)
   public void test03CreateAccount() throws Exception {
-    Response.TransactionExtention transactionExtention = wrapper.createAccount(owner,"TKMU9B5CLCT4za3hk15VfCwJGJwDJzorLK");
-
+    ECKey newAccount = new ECKey(Utils.getRandom());
+    String newAddress = Base58.encode58Check(newAccount.getAddress());
+    Response.TransactionExtention transactionExtention = wrapper.createAccount(owner, newAddress);
     Transaction transaction = wrapper.signTransaction(transactionExtention);
-    ;
     String broadcast = wrapper.broadcastTransaction(transaction);
     System.out.println("Create account :" + broadcast);
   }
@@ -57,30 +63,33 @@ public class trxTransaction extends TestBase {
 
 
   @Test(enabled = true)
-  public void test04UpdateAccount() throws Exception {
-    Response.TransactionExtention transactionExtention = wrapper.updateAccount(owner,"updateAccount");
-
+  public void test04UpdateAccountAndSetAccountId() throws Exception {
+    ECKey newAccount = new ECKey(Utils.getRandom());
+    String newAddress = Base58.encode58Check(newAccount.getAddress());
+    Response.TransactionExtention transactionExtention0 =  wrapper.transfer(owner, newAddress, 10000000L);
+    Transaction transaction0 = wrapper.signTransaction(transactionExtention0);
+    wrapper.broadcastTransaction(transaction0);
+    Thread.sleep(30000);
+    ApiWrapper wrapper = new ApiWrapper(FULLNODE_NILE, FULLNODE_NILE_SOLIDITY, ByteArray.toHexString(newAccount.getPrivateKey()));
+    String accountName = "updateAccount" + System.currentTimeMillis();
+    Response.TransactionExtention transactionExtention = wrapper.updateAccount(newAddress,accountName);
     Transaction transaction = wrapper.signTransaction(transactionExtention);
-    ;
     String broadcast = wrapper.broadcastTransaction(transaction);
     System.out.println("Update account :" + broadcast);
+
+    String accountId = "setAccountId" + System.currentTimeMillis();
+    Response.TransactionExtention transactionExtention2 = wrapper.setAccountId2(accountId, newAddress);
+    Transaction transaction2 = wrapper.signTransaction(transactionExtention2);
+    String broadcast2 = wrapper.broadcastTransaction(transaction2);
+    System.out.println("Set account id:" + broadcast2);
   }
-
-
-  @Test(enabled = true)
-  public void test05SetAccountId() throws Exception {
-    Response.TransactionExtention transactionExtention = wrapper.setAccountId2("setAccountId",owner);
-    Transaction transaction = wrapper.signTransaction(transactionExtention);
-    ;
-    String broadcast = wrapper.broadcastTransaction(transaction);
-    System.out.println("Set account id:" + broadcast);
-  }
-
 
 
   @Test(enabled = true)
   public void test06UpdateAccountPermission() throws Exception {
     Permission ownerPermission = wrapper.getAccount(owner).getOwnerPermission();
+    Permission witnessPermission = wrapper.getAccount(owner).getWitnessPermission();
+
     Permission activePermission = wrapper.getAccount(owner).getActivePermission(0);
 
     Permission newActivePermission = activePermission.toBuilder().setPermissionName("trident").build();
@@ -89,6 +98,7 @@ public class trxTransaction extends TestBase {
     AccountPermissionUpdateContract.Builder builder = AccountPermissionUpdateContract.newBuilder();
 
     builder.setOwner(ownerPermission);
+    builder.setWitness(witnessPermission);
     builder.addActives(0, newActivePermission);
     ByteString bsAddress = wrapper.parseAddress(owner);
     builder.setOwnerAddress(bsAddress);
@@ -112,12 +122,7 @@ public class trxTransaction extends TestBase {
 
   @Test(enabled = true)
   public void test08GetTransactionListFromPending() throws Exception {
-
-    wrapper = new ApiWrapper("47.94.243.150:50051",
-        "47.94.243.150:50061", ownerKey);
-
     System.out.println("Get pending size:" + wrapper.getPendingSize());
-
     TransactionIdList transactionList = wrapper.getTransactionListFromPending();
     if(transactionList.getTxIdCount() > 0) {
       System.out.println("transactionIdList : \n" + transactionList.getTxIdList());
@@ -146,7 +151,7 @@ public class trxTransaction extends TestBase {
   }
 
 
-  @Test
+  @Test(enabled = false)
   public void test12GetBlockBalance() throws Exception {
     System.out.println("Get block balance:\n" + wrapper.getBlockBalance("000000000231b4bbe82686f7851b5e582dd31231a905486ae3e0740dba5804f8",36811963));
   }
