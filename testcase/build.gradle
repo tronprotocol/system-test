@@ -33,7 +33,7 @@ ext {
 
 dependencies {
     //local libraries
-    implementation fileTree(dir: 'libs', include: '*.jar')
+//    implementation fileTree(dir: 'libs', include: '*.jar')
     // end local libraries
 
     implementation group: 'com.google.protobuf', name: 'protobuf-java', version: protobufVersion
@@ -101,7 +101,8 @@ dependencies {
     implementation "io.grpc:grpc-stub:${grpcVersion}"
 //    implementation 'com.google.guava:guava:32.0-jre'
     implementation 'com.google.code.gson:gson:2.9.0'
-    implementation fileTree(dir: 'libs', include: '*.jar')
+//    implementation fileTree(dir: 'libs', include: '*.jar')
+    implementation("io.github.317787106:trident:0.9.2")
 }
 
 check.dependsOn 'lint'
