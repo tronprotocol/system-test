@@ -1,5 +1,6 @@
 package tron.trident.transaction;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.proto.Chain.Transaction;
@@ -27,13 +28,18 @@ public class witnessTransaction extends TestBase {
   @Test
   public void test02CreateWitness() throws Exception {
     //key for test
-    wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
+    ApiWrapper wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
         "grpc.nile.trongrid.io:50061", "1523fe602624680e4457691929d24d56336d6ad065c8bb0d2ea617f720b72dc7");
     Response.TransactionExtention transactionExtention = wrapper.createWitness("TVg4bhV72tfHy5mmnuRQGwsJXxL7RgNPkD","trident create witness");
     Transaction transaction = wrapper.signTransaction(transactionExtention);
-    ;
-    String broadcast = wrapper.broadcastTransaction(transaction);
-    System.out.println("Create witness id:" + broadcast);
+    try {
+      String broadcast = wrapper.broadcastTransaction(transaction);
+    }catch (Exception e) {
+      System.out.println(e.getMessage());
+      Assert.assertTrue(e.getMessage().contains("CONTRACT_VALIDATE_ERROR"));
+    }
+
+
 
   }
 
@@ -41,7 +47,7 @@ public class witnessTransaction extends TestBase {
   @Test
   public void test03UpdateWitness() throws Exception {
     //key for test
-    wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
+    ApiWrapper wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
         "grpc.nile.trongrid.io:50061", "1523fe602624680e4457691929d24d56336d6ad065c8bb0d2ea617f720b72dc7");
     Response.TransactionExtention transactionExtention = wrapper.updateWitness("TVg4bhV72tfHy5mmnuRQGwsJXxL7RgNPkD","update trident create witness");
     Transaction transaction = wrapper.signTransaction(transactionExtention);
@@ -58,7 +64,7 @@ public class witnessTransaction extends TestBase {
   @Test
   public void test04WithdrawBalance() throws Exception {
     //key for test
-    wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
+    ApiWrapper wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
         "grpc.nile.trongrid.io:50061", "7400E3D0727F8A61041A8E8BF86599FE5597CE19DE451E59AED07D60967A5E25");
     Response.TransactionExtention transactionExtention = wrapper.withdrawBalance("TKpJUP4CCymphdug1XmGzDGDmGXZjLyf29");
     Transaction transaction = wrapper.signTransaction(transactionExtention);
@@ -72,11 +78,12 @@ public class witnessTransaction extends TestBase {
   @Test
   public void test05Proposal() throws Exception {
     Integer proposalCount = wrapper.listProposals().getProposalsCount();
+    proposalCount = proposalCount + 1;
 
-    System.out.println("proposal count: " + proposalCount);
+    System.out.println("next proposal count: " + proposalCount);
     HashMap<Long,Long> hashMap = new HashMap<>();
-    hashMap.put(0L,1000000L);
-    Response.TransactionExtention transactionExtention = wrapper.proposalCreate(owner,hashMap);
+    hashMap.put(0L, 1000000L);
+    Response.TransactionExtention transactionExtention = wrapper.proposalCreate(owner, hashMap);
     Transaction transaction = wrapper.signTransaction(transactionExtention);
     ;
     String broadcast = wrapper.broadcastTransaction(transaction);

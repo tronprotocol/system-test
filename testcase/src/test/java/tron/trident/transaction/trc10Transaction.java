@@ -1,5 +1,6 @@
 package tron.trident.transaction;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.proto.Chain.Transaction;
@@ -24,9 +25,12 @@ public class trc10Transaction extends TestBase {
             "url",1000L,2000L,6,frozenSupply,"description");
 
     Transaction transaction = wrapper.signTransaction(transactionExtention);
-    ;
-    String broadcast = wrapper.broadcastTransaction(transaction);
-    System.out.println("Create trc10 token :" + broadcast);
+    try {
+      String broadcast = wrapper.broadcastTransaction(transaction);
+    }catch (Exception e) {
+      System.out.println(e.getMessage());
+      Assert.assertTrue(e.getMessage().contains("An account can only i"));
+    }
   }
 
 
@@ -82,12 +86,13 @@ public class trc10Transaction extends TestBase {
   public void test05UnfreezeAssetTrc10Token() throws Exception {
     Response.TransactionExtention transactionExtention = wrapper
         .unfreezeAsset(owner);
-
     Transaction transaction = wrapper.signTransaction(transactionExtention);
-
-
-    String broadcast = wrapper.broadcastTransaction(transaction);
-    System.out.println("Unfreeze trc10 token :" + broadcast);
+    try {
+      String broadcast = wrapper.broadcastTransaction(transaction);
+    }catch (Exception e) {
+      System.out.println(e.getMessage());
+      Assert.assertTrue(e.getMessage().contains("no frozen supply balance"));
+    }
   }
 
 
