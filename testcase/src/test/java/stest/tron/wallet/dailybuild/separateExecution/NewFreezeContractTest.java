@@ -705,6 +705,7 @@ public class NewFreezeContractTest {
     logger.info("cancel all unfreeze info0: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertTrue(info.getInternalTransactions(0).toString().contains("extra"));
     Assert.assertEquals("cancelAllUnfreezeV2", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     size = getAvailableUnfreezeV2Size(contractAddress, contractAddress58);
