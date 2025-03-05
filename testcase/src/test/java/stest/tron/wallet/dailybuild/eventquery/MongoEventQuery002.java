@@ -467,9 +467,9 @@ public class MongoEventQuery002 extends MongoBase {
     txId =
         HttpMethed.sendCoinGetTxid(httpFullNode, fromAddress, event002Address, amount, testKey002);
     logger.info("transfer trx Id：" + txId);
-    HttpMethed.waitToProduceOneBlock(httpFullNode);
+    //HttpMethed.waitToProduceOneBlock(httpFullNode);
     BasicDBObject query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txId);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
@@ -501,7 +501,7 @@ public class MongoEventQuery002 extends MongoBase {
         jsonObject.getLong("latestSolidifiedBlockNumber") <= latestSolidifiedBlockNumber);
 
     Assert.assertTrue(
-        (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 8);
+        (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 5);
   }
 
   @Test(enabled = true, description = "MongoDB Event query for transaction of  contractCallValue.")
