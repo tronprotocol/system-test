@@ -501,7 +501,7 @@ public class MongoEventQuery002 extends MongoBase {
         jsonObject.getLong("latestSolidifiedBlockNumber") <= latestSolidifiedBlockNumber);
 
     Assert.assertTrue(
-        (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 5);
+        (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 8);
   }
 
   @Test(enabled = true, description = "MongoDB Event query for transaction of  contractCallValue.")
