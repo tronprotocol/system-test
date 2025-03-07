@@ -160,8 +160,8 @@ public class CanCunTest {
 
     Protocol.TransactionInfo info = PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info(info.toString());
-    Assert.assertEquals(Protocol.TransactionInfo.code.FAILED, info.getResult());
-    Assert.assertEquals(Protocol.Transaction.Result.contractResult.REVERT, info.getReceipt().getResult());
+    Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, info.getResult());
+    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, info.getReceipt().getResult());
   }
 
 
