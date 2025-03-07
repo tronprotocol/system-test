@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Trident">
-  <listeners>
-    <listener class-name="stest.tron.wallet.common.client.utils.DailyBuildReport">
-    </listener>
-  </listeners>
+
   <test name="trident"  parallel = "classes" thread-count = "1">
-    <classes>
-      <class name="tron.trident.transaction.queryApi">
-      </class>
-    </classes>
+    <packages>
+      <package name="tron.trident.*"></package>
+    </packages>
   </test>
 </suite>

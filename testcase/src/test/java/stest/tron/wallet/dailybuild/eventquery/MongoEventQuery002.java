@@ -467,9 +467,9 @@ public class MongoEventQuery002 extends MongoBase {
     txId =
         HttpMethed.sendCoinGetTxid(httpFullNode, fromAddress, event002Address, amount, testKey002);
     logger.info("transfer trx Id：" + txId);
-    HttpMethed.waitToProduceOneBlock(httpFullNode);
+    //HttpMethed.waitToProduceOneBlock(httpFullNode);
     BasicDBObject query = new BasicDBObject();
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //PublicMethed.waitProduceNextBlock(blockingStubFull);
     query.put("transactionId", txId);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
