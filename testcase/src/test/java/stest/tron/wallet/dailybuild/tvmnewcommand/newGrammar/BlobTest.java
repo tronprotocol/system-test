@@ -65,7 +65,7 @@ public class BlobTest {
     base58contractC = Base58.encode58Check(contractC);
 
     contractName = "D";
-    retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    retMap = PublicMethed.getBycodeAbiWithParam(filePath, contractName, compileParam);
     code = retMap.get("byteCode").toString();
     abi = retMap.get("abI").toString();
     contractD = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
