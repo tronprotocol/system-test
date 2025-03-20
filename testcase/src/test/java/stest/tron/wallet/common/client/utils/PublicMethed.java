@@ -5775,6 +5775,64 @@ public class PublicMethed {
   }
 
   /** constructor. */
+  public synchronized static HashMap<String, String> getBycodeAbiWithParam(String solFile, String contractName, String param) {
+    final String compile =
+            Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
+
+    String dirPath = solFile.substring(solFile.lastIndexOf("/"), solFile.lastIndexOf("."));
+    String outputPath = "src/test/resources/soliditycode/output" + dirPath;
+
+    File binFile = new File(outputPath + "/" + contractName + ".bin");
+    File abiFile = new File(outputPath + "/" + contractName + ".abi");
+    if (binFile.exists()) {
+      binFile.delete();
+    }
+    if (abiFile.exists()) {
+      abiFile.delete();
+    }
+
+    HashMap<String, String> retMap = new HashMap<>();
+    String absolutePath = System.getProperty("user.dir");
+    logger.debug("absolutePath: " + absolutePath);
+    logger.debug("solFile: " + solFile);
+    logger.debug("outputPath: " + outputPath);
+    String cmd =
+            compile
+                    + " --optimize " + param +" --evm-version cancun --bin --abi --overwrite "
+                    + absolutePath
+                    + "/"
+                    + solFile
+                    + " -o "
+                    + absolutePath
+                    + "/"
+                    + outputPath;
+    logger.info("cmd: " + cmd);
+
+    String byteCode = null;
+    String abI = null;
+
+
+    // compile solidity file
+    try {
+      exec(cmd);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    // get byteCode and ABI
+    try {
+      byteCode = fileRead(outputPath + "/" + contractName + ".bin", false);
+      retMap.put("byteCode", byteCode);
+      logger.debug("byteCode: " + byteCode);
+      abI = fileRead(outputPath + "/" + contractName + ".abi", false);
+      retMap.put("abI", abI);
+      logger.debug("abI: " + abI);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return retMap;
+  }
+
+  /** constructor. */
   public static String fileRead(String filePath, boolean isLibrary) throws Exception {
     File file = new File(filePath);
     FileReader reader = new FileReader(file);
