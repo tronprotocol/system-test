@@ -72,6 +72,7 @@ public class ContractTrcToken031 {
 
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 4048000000L, fromAddress,
             testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     // freeze balance
     Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address, 204800000,
         0, 1, dev001Key, blockingStubFull));

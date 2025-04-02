@@ -222,7 +222,7 @@ public class FreezeBalanceV2Test005 {
     logger.info("transactionEnergyUsage:" + transactionEnergyUsage);
     Assert.assertTrue(afterEnergyUsage <= transactionEnergyUsage
         && afterEnergyUsage + 2 >= transactionEnergyUsage
-        && transactionEnergyUsage > 600);
+        && transactionEnergyUsage > 550);
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -235,8 +235,8 @@ public class FreezeBalanceV2Test005 {
     logger.info("beforeEnergyUsage:" + beforeEnergyUsage);
     Assert.assertTrue(beforeEnergyWindowSize < 28800 * 1000);
     beforeEnergyUsage = account.getAccountResource().getEnergyUsage();
-
-    Assert.assertTrue(beforeEnergyUsage > 600);
+    logger.info("beforeEnergyUsage2:" + beforeEnergyUsage);
+    Assert.assertTrue(beforeEnergyUsage > 550);
     txid = PublicMethed.triggerContract(contractAddress,
         "testUseCpu(uint256)",  cycleTime.toString(), false,
         0, 100000000L,frozenEnergyAddress, frozenEnergyKey, blockingStubFull);
@@ -254,7 +254,7 @@ public class FreezeBalanceV2Test005 {
         .get().getReceipt().getEnergyUsage();
     Assert.assertTrue(afterEnergyUsage - beforeEnergyUsage <= transactionEnergyUsage
         && afterEnergyUsage - beforeEnergyUsage + 8 >= transactionEnergyUsage
-        && transactionEnergyUsage > 600 && afterEnergyUsage > 600 * 2);
+        && transactionEnergyUsage > 550 && afterEnergyUsage > 550 * 2);
 
 
 

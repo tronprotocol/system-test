@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import javassist.bytecode.BadBytecode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;

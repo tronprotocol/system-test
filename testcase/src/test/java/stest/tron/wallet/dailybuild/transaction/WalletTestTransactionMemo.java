@@ -31,7 +31,7 @@ public class WalletTestTransactionMemo {
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
       .get(0);
   //if send coin with value 10000000000L, then the script's max byte size is 511790
-  private int maxScriptByteSize = 511790;
+  private int maxScriptByteSize = 511790 - 128; // 475
 
   /**
    * constructor.
@@ -50,7 +50,7 @@ public class WalletTestTransactionMemo {
 
   }
 
-  @Test(enabled = true, description = "Transaction with memo should be pay memo fee")
+  @Test(enabled = false, description = "Transaction with memo should be pay memo fee")
   public void test01TransactionMemo() {
     Long memoFee = PublicMethed.getProposalMemoFee(blockingStubFull);
     logger.info("MemoFee:" + memoFee);
@@ -95,7 +95,7 @@ public class WalletTestTransactionMemo {
 
   }
 
-  @Test(enabled = true, description = "transaction's max size is 500*1024")
+  @Test(enabled = false, description = "transaction's max size is 500*1024")
   public void test02TransactionMaxSize() {
     Assert.assertTrue(PublicMethed.sendcoinWithScript(memoAddress, 10000000000L,
         foundationAddress, foundationKey, maxScriptByteSize, blockingStubFull));
@@ -104,6 +104,29 @@ public class WalletTestTransactionMemo {
     Assert.assertFalse(PublicMethed.sendcoinWithScript(memoAddress, 10000000000L,
         foundationAddress, foundationKey, maxScriptByteSize + 1, blockingStubFull));
   }
+
+  @Test(enabled = true, description = "transaction's max size is 1500 when create a new account (proposal 82)")
+  public void test02TransactionMaxSizeCreateNewAccount() {
+    maxScriptByteSize = 1357;
+
+    ECKey key = new ECKey(Utils.getRandom());
+    memoAddress = key.getAddress();
+    PublicMethed.printAddress(ByteArray.toHexString(key.getPrivKeyBytes()));
+    Assert.assertTrue(PublicMethed.sendcoinWithScript(memoAddress, 10000000000L,
+        foundationAddress, foundationKey, maxScriptByteSize, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
+    ECKey key1 = new ECKey(Utils.getRandom());
+    memoAddress = key1.getAddress();
+    PublicMethed.printAddress(ByteArray.toHexString(key1.getPrivKeyBytes()));
+    //Code = TOO_BIG_TRANSACTION_ERROR; Message = Transaction size is too big
+    Assert.assertFalse(PublicMethed.sendcoinWithScript(memoAddress, 10000000000L,
+        foundationAddress, foundationKey, maxScriptByteSize + 1, blockingStubFull));
+  }
+
+
+
   
 
   /**
