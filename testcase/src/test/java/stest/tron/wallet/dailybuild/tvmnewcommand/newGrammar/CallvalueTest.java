@@ -61,7 +61,7 @@ public class CallvalueTest {
   public void test01DeployContract() {
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 3147483647L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 100_000_000L,
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 100_000_000L + PublicMethed.randomFreezeAmount.getAndAdd(1),
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
