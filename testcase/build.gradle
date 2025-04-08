@@ -73,8 +73,8 @@ dependencies {
 //    compile group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
 
     // http
-    implementation 'org.eclipse.jetty:jetty-server:9.4.53.v20231009'
-    implementation 'org.eclipse.jetty:jetty-servlet:9.4.11.v20180605'
+    implementation("org.eclipse.jetty:jetty-server:9.4.56.v20240826")
+    implementation("org.eclipse.jetty:jetty-servlet:9.4.56.v20240826")
     implementation 'com.alibaba:fastjson:1.2.83'
     implementation group: 'org.apache.httpcomponents', name: 'httpasyncclient', version: '4.1.5'
     // end http
