@@ -51,11 +51,11 @@ public class trc10Transaction extends TestBase {
   @Test(enabled = true)
   public void test03participateTrc10Token() throws Exception {
     wrapper = new ApiWrapper("grpc.nile.trongrid.io:50051",
-        "grpc.nile.trongrid.io:50061", xiaofeiKey);
+        "grpc.nile.trongrid.io:50061", testPriKey);
 
     String tokenOwner = owner;
     Response.TransactionExtention transactionExtention = wrapper
-        .participateAssetIssue(tokenOwner,xiaofeiAddress,String.valueOf(trc10TokenId),1L);
+        .participateAssetIssue(tokenOwner, testAddress,String.valueOf(trc10TokenId),1L);
 
     Transaction transaction = wrapper.signTransaction(transactionExtention);
 

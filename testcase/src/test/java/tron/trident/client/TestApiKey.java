@@ -25,7 +25,7 @@ public class TestApiKey extends TestBase {
     wrapper = new ApiWrapper(
         Constant.FULLNODE_NILE,
         Constant.FULLNODE_NILE_SOLIDITY,
-        ownerKey, "dba1984e-b96d-4a6c-ac8f-919409625ba9"
+        ownerKey, ""
     );
     Chain.Block block = wrapper.getNowBlock();
     logger.info(block.toString());

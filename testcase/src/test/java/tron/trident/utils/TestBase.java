@@ -1,6 +1,5 @@
 package tron.trident.utils;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.tron.trident.core.ApiWrapper;
 
@@ -15,8 +14,8 @@ public class TestBase {
   //keys just for test
   public static String receiverAddress = "TH48niZfbwHMyqZwEB8wmHfzcvR8ZzJKC6";
   public static String ownerKey = "95385e000a2ea68fdc339bfa7d2157a3df1feb8306a6e84b80e5c6830a4db396";
-  public static String xiaofeiKey = "8132dd4fe6c1140d60fadd69eab3975831fe681e4b28705f78c89b94d44af2f4";
-  public static String xiaofeiAddress = "TH48niZfbwHMyqZwEB8wmHfzcvR8ZzJKC6";
+  public static String testPriKey = "8132dd4fe6c1140d60fadd69eab3975831fe681e4b28705f78c89b94d44af2f4";
+  public static String testAddress = "TH48niZfbwHMyqZwEB8wmHfzcvR8ZzJKC6";
 
   public static String usdtContract = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
   public static Integer trc10TokenId = 1005057;
