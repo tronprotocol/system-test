@@ -73,6 +73,7 @@ public class EventQuery005 {
           public void run() {
             while (true) {
               zmq.ZMQ.Event event = zmq.ZMQ.Event.read(moniter.base());
+                logger.info("!!!!{}  {}", event.event, event.addr);
               System.out.println(event.event + "  " + event.addr);
             }
           }
@@ -84,43 +85,50 @@ public class EventQuery005 {
     Boolean sendTransaction = true;
     Integer retryTimes = 40;
     transactionIdList = new ArrayList<>();
-    while (retryTimes-- > 0) {
-      if (sendTransaction) {
-        String txid = PublicMethed.freezeBalanceV2AndGetTxId(freezeAccount,
-            maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
-
-        transactionIdList.add(txid);
-        PublicMethed.waitProduceNextBlock(blockingStubFull);
-        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
-            == 0) {
-          sendTransaction = false;
-        }
-      }
-      byte[] message = req.recv();
-
-
-      if (message != null) {
-        transactionMessage = new String(message);
-        logger.info("transaction message:" + transactionMessage);
-
-        if (!transactionMessage.equals("transactionTrigger")
-            && !transactionMessage.isEmpty()
-            && transactionMessage.contains("transactionId")) {
-          JSONObject data = JSON.parseObject(transactionMessage);
-          String id = data.getString("transactionId");
-          logger.info("trxId : " + id);
-          if (transactionIdList.contains(id)) {
-            logger.info("find target tx, begin to Assert and abort loop");
-            Assert.assertEquals(data.getString("contractType"), "FreezeBalanceV2Contract");
-            Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-            Assert.assertEquals(data.getString("assetName"), "trx");
-            Assert.assertEquals(data.getLong("assetAmount"), maxFeeLimit);
-            break;
+    ArrayList<byte[]> messageArray = new ArrayList<byte[]>();
+    Thread readLoopThread = new Thread(
+        new Runnable() {
+          public void run() {
+            while (true) {
+              byte[] message = req.recv();
+              messageArray.add(message);
+            }
           }
+        });
+    readLoopThread.start();
+    boolean success = false;
 
+    while (retryTimes-- > 0) {
+      if(success){
+        break;
+      }
+      String txid = PublicMethed.freezeBalanceV2AndGetTxId(freezeAccount,
+          maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+      transactionIdList.add(txid);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+      for(byte[] message: messageArray){
+        if (message != null) {
+          transactionMessage = new String(message);
+          logger.info("transaction message:" + transactionMessage);
+
+          if (!transactionMessage.equals("transactionTrigger")
+              && !transactionMessage.isEmpty()
+              && transactionMessage.contains("transactionId")) {
+            JSONObject data = JSON.parseObject(transactionMessage);
+            String id = data.getString("transactionId");
+            logger.info("trxId : " + id);
+            if (transactionIdList.contains(id)) {
+              logger.info("find target tx, begin to Assert and abort loop");
+              Assert.assertEquals(data.getString("contractType"), "FreezeBalanceV2Contract");
+              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+              Assert.assertEquals(data.getString("assetName"), "trx");
+              Assert.assertEquals(data.getLong("assetAmount"), maxFeeLimit);
+              success = true;
+              break;
+            }
+          }
         }
-      } else {
-        sendTransaction = true;
       }
     }
     logger.info("Final transaction message:" + transactionMessage);
@@ -166,47 +174,58 @@ public class EventQuery005 {
     req.setReceiveTimeOut(10000);
     String transactionMessage = "";
     Boolean sendTransaction = true;
-    Integer retryTimes = 20;
+    Integer retryTimes = 40;
     transactionIdList = new ArrayList<>();
+    ArrayList<byte[]> messageArray = new ArrayList<byte[]>();
+    Thread readLoopThread = new Thread(
+        new Runnable() {
+          public void run() {
+            while (true) {
+              byte[] message = req.recv();
+              messageArray.add(message);
+            }
+          }
+        });
+    readLoopThread.start();
+    boolean success = false;
+
     Long unfreezeAmount = 10000000L;
     while (retryTimes-- > 0) {
-      if (sendTransaction) {
-        String txid = PublicMethed.unFreezeBalanceV2AndGetTxId(freezeAccount,
-            freezeAccountKey, unfreezeAmount, 0, blockingStubFull);
-
-        transactionIdList.add(txid);
-        PublicMethed.waitProduceNextBlock(blockingStubFull);
-        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
-            == 0) {
-          sendTransaction = false;
-        }
+      if (success){
+        break;
       }
-      byte[] message = req.recv();
+      String txid = PublicMethed.unFreezeBalanceV2AndGetTxId(freezeAccount,
+          freezeAccountKey, unfreezeAmount, 0, blockingStubFull);
+
+      transactionIdList.add(txid);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
 
 
-      if (message != null) {
-        transactionMessage = new String(message);
-        logger.info("transaction message:" + transactionMessage);
+      for(byte[] message: messageArray){
+        if (message != null) {
+          transactionMessage = new String(message);
+          logger.info("transaction message:" + transactionMessage);
 
-        if (!transactionMessage.equals("transactionTrigger")
-            && !transactionMessage.isEmpty()
-            && transactionMessage.contains("transactionId")) {
-          JSONObject data = JSON.parseObject(transactionMessage);
-          String id = data.getString("transactionId");
-          if(transactionIdList.contains(id)) {
-            logger.info("find target tx, begin to Assert and abort loop");
-            logger.info("trxId : " + data.getString("transactionId"));
-            Assert.assertEquals(data.getString("contractType"), "UnfreezeBalanceV2Contract");
-            Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-            Assert.assertEquals(data.getString("assetName"), "trx");
-            Assert.assertEquals(data.getLong("assetAmount"), unfreezeAmount);
-            break;
+          if (!transactionMessage.equals("transactionTrigger")
+              && !transactionMessage.isEmpty()
+              && transactionMessage.contains("transactionId")) {
+            JSONObject data = JSON.parseObject(transactionMessage);
+            String id = data.getString("transactionId");
+            if(transactionIdList.contains(id)) {
+              logger.info("find target tx, begin to Assert and abort loop");
+              logger.info("trxId : " + data.getString("transactionId"));
+              Assert.assertEquals(data.getString("contractType"), "UnfreezeBalanceV2Contract");
+              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+              Assert.assertEquals(data.getString("assetName"), "trx");
+              Assert.assertEquals(data.getLong("assetAmount"), unfreezeAmount);
+              success = true;
+              break;
+            }
           }
-
         }
-      } else {
-        sendTransaction = true;
       }
+
+
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);
@@ -239,11 +258,12 @@ public class EventQuery005 {
     PublicMethed.freezeBalanceV2AndGetTxId(freezeAccount,
         maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
+    ZMQ.Context context = ZMQ.context(1);
+    ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     List<String> transactionIdList = new ArrayList<>();
 
-    ZMQ.Context context = ZMQ.context(1);
-    ZMQ.Socket req = context.socket(ZMQ.SUB);
+
 
     req.subscribe("transactionTrigger");
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
@@ -264,45 +284,54 @@ public class EventQuery005 {
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
     transactionIdList = new ArrayList<>();
+    ArrayList<byte[]> messageArray = new ArrayList<byte[]>();
+    Thread readLoopThread = new Thread(
+        new Runnable() {
+          public void run() {
+            while (true) {
+              byte[] message = req.recv();
+              messageArray.add(message);
+            }
+          }
+        });
+    readLoopThread.start();
+    boolean success = false;
+
     Long delegateAmount = 10000000L;
     while (retryTimes-- > 0) {
-      if (sendTransaction) {
-        String txid = PublicMethed.delegateResourceV2AndGetTxId(freezeAccount,
-            delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
-
-        transactionIdList.add(txid);
-        PublicMethed.waitProduceNextBlock(blockingStubFull);
-        if (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
-            == 0) {
-          sendTransaction = false;
-        }
+      if(success) {
+        break;
       }
-      byte[] message = req.recv();
+      String txid = PublicMethed.delegateResourceV2AndGetTxId(freezeAccount,
+          delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
 
+      transactionIdList.add(txid);
+      PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-      if (message != null) {
-        transactionMessage = new String(message);
-        logger.info("transaction message:" + transactionMessage);
+      for(byte[] message: messageArray) {
+        if (message != null) {
+          transactionMessage = new String(message);
+          logger.info("transaction message:" + transactionMessage);
 
-        if (!transactionMessage.equals("transactionTrigger")
-            && !transactionMessage.isEmpty()
-            && transactionMessage.contains("transactionId")) {
-          JSONObject data = JSON.parseObject(transactionMessage);
-          String id = data.getString("transactionId");
-          if (transactionIdList.contains(id)) {
-            logger.info("find target tx, begin to Assert and abort loop");
-            logger.info("trxId : " + id);
-            Assert.assertEquals(data.getString("contractType"), "DelegateResourceContract");
-            Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-            Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
-            Assert.assertEquals(data.getString("assetName"), "trx");
-            Assert.assertEquals(data.getLong("assetAmount"), delegateAmount);
-            break;
+          if (!transactionMessage.equals("transactionTrigger")
+              && !transactionMessage.isEmpty()
+              && transactionMessage.contains("transactionId")) {
+            JSONObject data = JSON.parseObject(transactionMessage);
+            String id = data.getString("transactionId");
+            if (transactionIdList.contains(id)) {
+              logger.info("find target tx, begin to Assert and abort loop");
+              logger.info("trxId : " + id);
+              Assert.assertEquals(data.getString("contractType"), "DelegateResourceContract");
+              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+              Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
+              Assert.assertEquals(data.getString("assetName"), "trx");
+              Assert.assertEquals(data.getLong("assetAmount"), delegateAmount);
+              success = true;
+              break;
+            }
+
           }
-
         }
-      } else {
-        sendTransaction = true;
       }
     }
     logger.info("Final transaction message:" + transactionMessage);

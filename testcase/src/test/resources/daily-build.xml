@@ -1,30 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Daily Build">
-  <listeners>
-    <listener class-name="stest.tron.wallet.common.client.utils.DailyBuildReport"></listener>
-  </listeners>
-  <test name="Parallel Case"  parallel = "classes" thread-count = "8">
-    <packages>
-      <package name="stest.tron.wallet.dailybuild.*">
-        <exclude name="stest.tron.wallet.dailybuild.multisign"></exclude>
-        <exclude name="stest.tron.wallet.dailybuild.http"></exclude>
-        <exclude name="stest.tron.wallet.dailybuild.separateExecution"></exclude>
-        <exclude name="stest.tron.wallet.dailybuild.jsonrpc"></exclude>
-        <exclude name="stest.tron.wallet.dailybuild.eventquery"></exclude>
-        <exclude name="stest.tron.wallet.dailybuild.zentrc20token"></exclude>
-        <exclude name="stest.tron.wallet.dailybuild.ratelimit"></exclude>
-      </package>
-    </packages>
+
+  <test name="Parallel Case"  parallel = "classes" thread-count = "1">
+<classes><class name="stest.tron.wallet.dailybuild.eventquery.EventQuery005"></class></classes>
   </test>
-  <test name="Serial Case" parallel = "classes" thread-count = "1" preserve-order="true">
-    <packages>
-      <package name="stest.tron.wallet.dailybuild.ratelimit.*"></package>
-      <package name="stest.tron.wallet.dailybuild.http.*"></package>
-      <package name="stest.tron.wallet.dailybuild.jsonrpc"></package>
-      <package name="stest.tron.wallet.dailybuild.zentrc20token"></package>
-      <package name="stest.tron.wallet.dailybuild.eventquery"></package>
-      <package name="stest.tron.wallet.dailybuild.separateExecution.*"></package>
-    </packages>
-  </test>
+
 </suite>

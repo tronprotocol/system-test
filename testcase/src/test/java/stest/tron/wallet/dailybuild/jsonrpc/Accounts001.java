@@ -1514,8 +1514,7 @@ public class Accounts001 extends JsonRpcBase {
 
   @Test(enabled = false, description = "Json rpc api of eth_getBlockTransactionCountByNumber params are finalized ")
   public void test55JsonRpcApiTestForEthGetBlockTransactionCountByNum() {
-//    response = HttpMethed.getNowBlockFromSolidity(httpsolidityNode);
-    response = HttpMethed.getNowBlockFromSolidity(":50094");
+    response = HttpMethed.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethed.parseResponseContent(response);
     if (!responseContent.containsKey("transactions")){
       return;
@@ -1525,7 +1524,7 @@ public class Accounts001 extends JsonRpcBase {
     JsonArray params = new JsonArray();
     params.add("finalized");
     JsonObject requestBody = getJsonRpcBody("eth_getBlockTransactionCountByNumber", params);
-    response = getJsonRpc(":50645", requestBody);
+    response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     String transactionNum = responseContent.getString("result").substring(2);
     int transactionNum2 = Integer.parseInt(transactionNum, 16);
@@ -1537,7 +1536,7 @@ public class Accounts001 extends JsonRpcBase {
 
   @Test(enabled = false, description = "Json rpc api of eth_getTransactionByBlockNumberAndIndex params are finalized")
   public void test56JsonRpcApiTestForEthGetTransactionByBlockNumberAndIndex() throws Exception {
-    response = HttpMethed.getNowBlockFromSolidity(":50094");
+    response = HttpMethed.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethed.parseResponseContent(response);
     if (!responseContent.containsKey("transactions")) {
       return;
@@ -1548,7 +1547,7 @@ public class Accounts001 extends JsonRpcBase {
     params.add("finalized");
     params.add("0x0");
     JsonObject requestBody = getJsonRpcBody("eth_getTransactionByBlockNumberAndIndex", params);
-    response = getJsonRpc(":50645", requestBody);
+    response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethed.parseResponseContent(response);
     String trans2 = responseContent.getJSONObject("result").toJSONString();
     System.out.println(responseContent.toJSONString());
