@@ -705,6 +705,7 @@ public class NewFreezeContractTest {
     logger.info("cancel all unfreeze info0: " + info.toString());
     Assert.assertEquals(code.SUCESS, info.getResult());
     Assert.assertEquals(contractResult.SUCCESS, info.getReceipt().getResult());
+    Assert.assertTrue(info.getInternalTransactions(0).toString().contains("extra"));
     Assert.assertEquals("cancelAllUnfreezeV2", info.getInternalTransactions(0).getNote().toStringUtf8());
 
     size = getAvailableUnfreezeV2Size(contractAddress, contractAddress58);
@@ -964,16 +965,19 @@ public class NewFreezeContractTest {
     String argsStr = "\"" + receiveAdd + "\"," + amount + "," + type;
 
     TransactionExtention exten = PublicMethed.triggerConstantContractForExtention(
-        con, methedStr, argsStr, false, 0, maxFeeLimit,
-        "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
-    byte[] res = exten.getConstantResult(0).toByteArray();
-    long cleanAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 0, 32));
-    long dirtyAmount =
-        ByteArray.toLong(ByteArray.subArray(res, 32, 64));
-    long returnAmount = cleanAmount + dirtyAmount;
+            con, methedStr, argsStr, false, 0, maxFeeLimit,
+            "#", 0, testFoundationAddress, testFoundationKey, blockingStubFull);
 
     HashMap<String, Long> map = getResource(receiveAdd, blockingStubFull);
+    byte[] res = exten.getConstantResult(0).toByteArray();
+    long cleanAmount =
+            ByteArray.toLong(ByteArray.subArray(res, 0, 32));
+    long dirtyAmount =
+            ByteArray.toLong(ByteArray.subArray(res, 32, 64));
+    long storeTime =
+            ByteArray.toLong(ByteArray.subArray(res, 64, 96));
+
+    long returnAmount = cleanAmount + dirtyAmount;
     long frozenBalanceV1 = 0;
     long frozenBalanceV2 = 0;
     long acquiredBalanceV1 = 0;
@@ -981,6 +985,7 @@ public class NewFreezeContractTest {
     long used = 0;
     long totalWeight = 0;
     long totalLimit = 0;
+    long windowSize = 0;
     if (type.equalsIgnoreCase("0")) {
       frozenBalanceV1 = map.get("netFrozenBalanceV1");
       frozenBalanceV2 = map.get("netFrozenBalanceV2");
@@ -989,6 +994,7 @@ public class NewFreezeContractTest {
       used = map.get("netUsed");
       totalWeight = map.get("netTotalWeight");
       totalLimit = map.get("netTotalLimit");
+      windowSize = map.get("netWindowSize");
     } else {
       frozenBalanceV1 = map.get("energyFrozenBalanceV1");
       frozenBalanceV2 = map.get("energyFrozenBalanceV2");
@@ -997,16 +1003,19 @@ public class NewFreezeContractTest {
       used = map.get("energyUsed");
       totalWeight = map.get("energyTotalWeight");
       totalLimit = map.get("energyTotalLimit");
+      windowSize = map.get("energyWindowSize");
     }
 
     long sumNetFrozen = frozenBalanceV1 + frozenBalanceV2 + acquiredBalanceV1 + acquiredBalanceV2;
-    long recycleNet = Long.valueOf(amount) * used / sumNetFrozen ;
-    long dirtySun = recycleNet * totalWeight * 1000000 / totalLimit ;
-    long cleanSun = Long.valueOf(amount) - dirtySun;
-
-    logger.info("clean amount net: " + cleanAmount + "dirty amount net: " + dirtyAmount + ": sum: "
-        + returnAmount + " compute cleanSun: " + cleanSun + "  compute dirtySun: " + dirtySun);
+    long recycleNet = (long)((double)used * totalWeight * 1000000 / totalLimit );
+    long cleanSun = (long) ( amount* ((double)(sumNetFrozen-recycleNet) / sumNetFrozen ));
+    long dirtySun = amount - cleanSun;
+    logger.info("storeTime: " + storeTime/3 + "  windowSize: " + windowSize);
+    logger.info("clean amount net: " + cleanAmount + "  dirty amount net: " + dirtyAmount + ": sum: "
+            + returnAmount + " compute cleanSun: " + cleanSun + "  compute dirtySun: " + dirtySun);
     Assert.assertEquals(amount, returnAmount);
+//    Assert.assertEquals(cleanAmount, cleanSun);
+//    Assert.assertEquals(dirtyAmount, dirtySun);
 
 
   }
@@ -1196,6 +1205,8 @@ public class NewFreezeContractTest {
     long energyTotalWeight = accountResource.getTotalEnergyWeight();
     long energyTotalLimit = accountResource.getTotalEnergyLimit();
     long energyUsed = accountResource.getEnergyUsed();
+    long energyWindowSize = account.getAccountResource().getEnergyWindowSize();
+    long netWindowSize = account.getNetWindowSize();
     HashMap<String, Long> map = new HashMap<>();
     map.put("netFrozenBalanceV1", netFrozenBalanceV1);
     map.put("netFrozenBalanceV2", netFrozenBalanceV2);
@@ -1211,6 +1222,8 @@ public class NewFreezeContractTest {
     map.put("energyTotalWeight", energyTotalWeight);
     map.put("energyTotalLimit", energyTotalLimit);
     map.put("energyUsed", energyUsed);
+    map.put("energyWindowSize", energyWindowSize);
+    map.put("netWindowSize", netWindowSize);
     return map;
   }
 

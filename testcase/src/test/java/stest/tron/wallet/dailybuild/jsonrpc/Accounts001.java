@@ -1491,6 +1491,69 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(1, beforePos2);
   }
 
+  @Test(enabled = true, description = "Json rpc api of eth_getBlockByNumber params are finalized and true")
+  public void test54JsonRpcApiTestForEthGetBlockByNumber() throws Exception {
+
+    JsonArray params = new JsonArray();
+    params.add("finalized");
+    params.add(true);
+    JsonObject requestBody = getJsonRpcBody("eth_getBlockByNumber", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    JSONObject getBlockByNumberResult = responseContent.getJSONObject("result");
+    String number = getBlockByNumberResult.getString("number");
+    JsonArray params1 = new JsonArray();
+    params1.add(number);
+    params1.add(true);
+    requestBody = getJsonRpcBody("eth_getBlockByNumber", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    JSONObject getBlockByNumberResult1 = responseContent.getJSONObject("result");
+    Assert.assertEquals(getBlockByNumberResult.toJSONString(),getBlockByNumberResult1.toJSONString());
+  }
+
+  @Test(enabled = false, description = "Json rpc api of eth_getBlockTransactionCountByNumber params are finalized ")
+  public void test55JsonRpcApiTestForEthGetBlockTransactionCountByNum() {
+    response = HttpMethed.getNowBlockFromSolidity(httpsolidityNode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    if (!responseContent.containsKey("transactions")){
+      return;
+    }
+    int transactionNum1 = responseContent.getJSONArray("transactions").size();
+    System.out.println(responseContent.toJSONString());
+    JsonArray params = new JsonArray();
+    params.add("finalized");
+    JsonObject requestBody = getJsonRpcBody("eth_getBlockTransactionCountByNumber", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String transactionNum = responseContent.getString("result").substring(2);
+    int transactionNum2 = Integer.parseInt(transactionNum, 16);
+    logger.info(String.valueOf(transactionNum1));
+    System.out.println("transactionNum1: " +transactionNum1);
+    System.out.println("transactionNum2: " +transactionNum2);
+    Assert.assertEquals(transactionNum1, transactionNum2);
+  }
+
+  @Test(enabled = false, description = "Json rpc api of eth_getTransactionByBlockNumberAndIndex params are finalized")
+  public void test56JsonRpcApiTestForEthGetTransactionByBlockNumberAndIndex() throws Exception {
+    response = HttpMethed.getNowBlockFromSolidity(httpsolidityNode);
+    responseContent = HttpMethed.parseResponseContent(response);
+    if (!responseContent.containsKey("transactions")) {
+      return;
+    }
+    String trans1 = responseContent.getJSONArray("transactions").getJSONObject(0).toJSONString();
+    System.out.println(trans1);
+    JsonArray params = new JsonArray();
+    params.add("finalized");
+    params.add("0x0");
+    JsonObject requestBody = getJsonRpcBody("eth_getTransactionByBlockNumberAndIndex", params);
+    response = getJsonRpc(jsonRpcNode, requestBody);
+    responseContent = HttpMethed.parseResponseContent(response);
+    String trans2 = responseContent.getJSONObject("result").toJSONString();
+    System.out.println(responseContent.toJSONString());
+//    Assert.assertEquals(trans1, trans2);
+  }
+
 
   /** constructor. */
   @AfterClass

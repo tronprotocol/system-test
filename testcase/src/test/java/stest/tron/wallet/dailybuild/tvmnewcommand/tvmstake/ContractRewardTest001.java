@@ -42,31 +42,31 @@ public class ContractRewardTest001 {
   private byte[] contractAddress;
   //= Base58.decode58Check("TQYK8QPAFtxjmse1dShHWYXEMsF836jxxe");
 
-  @BeforeSuite(enabled = false, description = "stake beforeSuite delete")
-  public void beforeSuite() {
-
-    PublicMethed.printAddress(testKey001);
-    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
-    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-
-    PublicMethed
-        .sendcoin(testAddress001, 1000_000_000L, testFoundationAddress, testFoundationKey,
-            blockingStubFull);
-
-    String filePath = "src/test/resources/soliditycode/stackContract001.sol";
-    String contractName = "B";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
-    String code = retMap.get("byteCode").toString();
-    String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethed
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 100_000_000L, 100, null,
-            testFoundationKey, testFoundationAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    PublicMethed.triggerContract(contractAddress,"Stake(address,uint256)",
-        "\"" + witnessAddress + "\",10000000",false,0,maxFeeLimit,
-        testFoundationAddress, testFoundationKey,blockingStubFull);
-  }
+//  @BeforeSuite(enabled = false, description = "stake beforeSuite delete")
+//  public void beforeSuite() {
+//
+//    PublicMethed.printAddress(testKey001);
+//    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
+//    blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+//
+//    PublicMethed
+//        .sendcoin(testAddress001, 1000_000_000L, testFoundationAddress, testFoundationKey,
+//            blockingStubFull);
+//
+//    String filePath = "src/test/resources/soliditycode/stackContract001.sol";
+//    String contractName = "B";
+//    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+//    String code = retMap.get("byteCode").toString();
+//    String abi = retMap.get("abI").toString();
+//    contractAddress = PublicMethed
+//        .deployContract(contractName, abi, code, "", maxFeeLimit, 100_000_000L, 100, null,
+//            testFoundationKey, testFoundationAddress, blockingStubFull);
+//    PublicMethed.waitProduceNextBlock(blockingStubFull);
+//
+//    PublicMethed.triggerContract(contractAddress,"Stake(address,uint256)",
+//        "\"" + witnessAddress + "\",10000000",false,0,maxFeeLimit,
+//        testFoundationAddress, testFoundationKey,blockingStubFull);
+//  }
 
   @Test(enabled = false,description = "querry SR account, reward should equal to gerRewardInfo")
   void rewardbalanceTest001() {
