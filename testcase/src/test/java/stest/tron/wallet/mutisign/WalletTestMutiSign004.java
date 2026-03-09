@@ -134,6 +134,8 @@ public class WalletTestMutiSign004 {
     PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
         blockingStubFull, ownerKeyString);
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     Random rand = new Random();
     Integer randNum = rand.nextInt(30) + 1;
     randNum = rand.nextInt(4000);
