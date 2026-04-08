@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Daily Build">
+  <suite-files>
+    <suite-file path="daily-build-main.xml"/>
+  </suite-files>
+  <test name="Separate Execution Case" parallel = "classes" thread-count = "1" preserve-order="true">
+    <packages>
+      <package name="stest.tron.wallet.dailybuild.separateExecution.*"></package>
+    </packages>
+  </test>
+</suite>
