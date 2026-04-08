@@ -25,7 +25,6 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.security.SignatureException;
@@ -37,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
@@ -447,7 +445,7 @@ public class TransactionUtils {
    */
 
   public static Transaction setTimestamp(Transaction transaction) {
-    long currentTime = System.currentTimeMillis();//*1000000 + System.nanoTime()%1000000;
+    long currentTime = System.currentTimeMillis() + PublicMethod.randomTimeOffset.getAndAdd(1);//*1000000 + System.nanoTime()%1000000;
     Transaction.Builder builder = transaction.toBuilder();
     org.tron.protos.Protocol.Transaction.raw.Builder rowBuilder = transaction.getRawData()
         .toBuilder();

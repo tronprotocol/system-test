@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.extern.slf4j.Slf4j;
+import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
@@ -46,8 +47,11 @@ public class DailyBuildReport extends TestListenerAdapter {
   private String reportFlag = Configuration.getByPath("testng.conf")
           .getString("defaultParameter.ReportFlag");
 
-  private String slack = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.slack");
+  private String slack = "slack";
+
+  private final String witnessKey03 =
+      Configuration.getByPath("testng.conf").getString("witness.key3");
+  private final byte[] witnessAddress03 = PublicMethod.getFinalAddress(witnessKey03);
 
   @Override
   public void onConfigurationFailure(ITestResult itr) {
@@ -59,11 +63,12 @@ public class DailyBuildReport extends TestListenerAdapter {
     logger.info(caseFailedNotification);
     String cmd = slack + " " + caseFailedNotification;
     try {
-      logger.info("send slack begin className: " + itr.getTestClass().getName());
-      PublicMethed.exec(cmd);
-      logger.info("send slack end className: " + itr.getTestClass().getName());
+      logger.info("Send slack begin className: " + itr.getTestClass().getName());
+      PublicMethod.exec(cmd);
+      logger.info("Send slack end className: " + itr.getTestClass().getName());
     } catch (InterruptedException e) {
-      throw new RuntimeException(e);
+      logger.info("Slack notification delivery failed. Please verify Slack integration "
+          + "configuration. If slack notifications are not needed, this can be safely ignored.");
     }
   }
 
@@ -103,11 +108,12 @@ public class DailyBuildReport extends TestListenerAdapter {
     logger.info(caseFailedNotification);
     String cmd = slack + " " + caseFailedNotification;
     try {
-      logger.info("send slack begin caseName: "+ result.getMethod().getMethodName());
-      PublicMethed.exec(cmd);
-      logger.info("send slack end caseName: "+ result.getMethod().getMethodName());
+      logger.info("Send slack begin caseName: "+ result.getMethod().getMethodName());
+      PublicMethod.exec(cmd);
+      logger.info("Send slack end caseName: "+ result.getMethod().getMethodName());
     } catch (InterruptedException e) {
-      throw new RuntimeException(e);
+      logger.info("Slack notification delivery failed. Please verify slack integration "
+          + "configuration. If slack notifications are not needed, this can be safely ignored.");
     }
 
   }
@@ -131,8 +137,13 @@ public class DailyBuildReport extends TestListenerAdapter {
       sb.append("Total: " + (passedNum.get() + failedNum.get() + skippedNum.get()) + ",  " + "Passed: " + passedNum
           + ",  " + "Failed: " + failedNum + ",  " + "Skipped: " + skippedNum + "\n");
       sb.append("------------------------------------------------------------------------------\n");
-      List<Map.Entry<String, Integer>> list = calculateAfterDailyBuild();
-      sb.append("Total transaction number:" + totalTransactionNum.get() + "\n");
+        List<Map.Entry<String, Integer>> list = null;
+        try {
+            list = calculateAfterDailyBuild();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        sb.append("Total transaction number:" + totalTransactionNum.get() + "\n");
       sb.append("Transaction type list:" + "\n");
       for (Map.Entry<String, Integer> entry : list) {
         sb.append(entry.getKey());
@@ -170,7 +181,7 @@ public class DailyBuildReport extends TestListenerAdapter {
   /**
    * calculate transaction num and transaction type After DailyBuild.
    */
-  public List<Map.Entry<String, Integer>> calculateAfterDailyBuild() {
+  public List<Map.Entry<String, Integer>> calculateAfterDailyBuild() throws InterruptedException {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
             .usePlaintext()
             .build();
@@ -189,7 +200,7 @@ public class DailyBuildReport extends TestListenerAdapter {
     int contractNum;
     String contractType;
     for (long i = startBlockNum; i < endBlockNum; i++) {
-      block = PublicMethed.getBlock(i, blockingStubFull);
+      block = PublicMethod.getBlock(i, blockingStubFull);
       listTrans = block.getTransactionsList();
       transNum = block.getTransactionsCount();
       totalTransactionNum.getAndAdd(transNum);
@@ -202,6 +213,31 @@ public class DailyBuildReport extends TestListenerAdapter {
         }
       }
     }
+
+
+    try {
+      logger.info("Send slack begin caseName: "+ result.getMethod().getMethodName());
+      PublicMethod.exec(cmd);
+      logger.info("Send slack end caseName: "+ result.getMethod().getMethodName());
+    } catch (InterruptedException e) {
+      logger.info("Slack notification delivery failed. Please verify slack integration "
+          + "configuration. If slack notifications are not needed, this can be safely ignored.");
+    }
+
+
+
+    boolean sr3Status = checkSRStatus();
+    try {
+      if(!sr3Status){
+        String cmd = slack + " " + "3rd witness not produce block";
+        PublicMethod.exec(cmd);
+      }
+    } catch (InterruptedException e) {
+      logger.info("Slack notification delivery failed. Please verify slack integration "
+          + "configuration. If slack notifications are not needed, this can be safely ignored.");
+    }
+    Assert.assertTrue(sr3Status,"3rd witness not produce block");
+
     try {
       if (channelFull != null) {
         channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
@@ -218,6 +254,27 @@ public class DailyBuildReport extends TestListenerAdapter {
       }
     });
     return list;
+  }
+
+  public boolean checkSRStatus(){
+    String add41 = ByteArray.toHexString(witnessAddress03);
+    Long beginNum = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
+        .getBlockHeader().getRawData().getNumber();
+    Long nowNum = beginNum;
+    while (nowNum - beginNum < 210) {
+      List<Protocol.Witness> list =
+          PublicMethod.listWitnesses(blockingStubFull).get().getWitnessesList();
+      for (Protocol.Witness tem: list) {
+        if ((add41.equalsIgnoreCase(ByteArray.toHexString(tem.getAddress().toByteArray())))
+            && (tem.getTotalProduced() > 3)) {
+          return true;
+        }
+      }
+      PublicMethod.waitProduceNextBlock(blockingStubFull);
+      nowNum = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build())
+          .getBlockHeader().getRawData().getNumber();
+    }
+    return false;
   }
 
 }

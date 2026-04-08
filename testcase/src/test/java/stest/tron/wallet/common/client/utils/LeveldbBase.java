@@ -90,7 +90,7 @@ public class LeveldbBase {
    */
   public Account getAccountFromDb(String address) {
     try {
-      Account account = Account.parseFrom(accountDb.get(PublicMethed.decode58Check(address)));
+      Account account = Account.parseFrom(accountDb.get(PublicMethod.decode58Check(address)));
       return account;
     } catch (IOException e) {
       e.printStackTrace();
@@ -103,7 +103,7 @@ public class LeveldbBase {
    */
   public long getAddressBalance(String address) {
     try {
-      long balance = Account.parseFrom(accountDb.get(PublicMethed.decode58Check(address)))
+      long balance = Account.parseFrom(accountDb.get(PublicMethod.decode58Check(address)))
           .getBalance();
       return balance;
     } catch (IOException e) {
@@ -120,7 +120,7 @@ public class LeveldbBase {
     try {
       //String address = "TAsimLx1ZWc6epr5FjitmktrDqhJY2AZ5R";
       //String assetId = "1000005";
-      String addressHex = ByteArray.toHexString(PublicMethed.decode58Check(address));
+      String addressHex = ByteArray.toHexString(PublicMethod.decode58Check(address));
       String assetIdHex = ByteArray.toHexString(assetId.getBytes());
       String key = addressHex + assetIdHex;
       int amount = ByteArray.toInt(accountAssetDb.get(ByteArray.fromHexString(key)));
