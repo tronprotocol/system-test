@@ -1,0 +1,146 @@
+# TRON System Test Docker Environment
+#
+# ============================================================
+#  Single-Node (default):
+#    docker compose up -d tron-node          # Start 1 SR node
+#    docker compose run system-test          # Run smokeTest
+#    docker compose run system-test singleNodeBuild --no-daemon
+#    docker compose down
+#
+#  Multi-Node (full dailyBuild):
+#    docker compose --profile multi up -d    # Start 2 SR nodes
+#    docker compose run system-test dailyBuild --no-daemon
+#    docker compose --profile multi down
+#
+#  With MongoDB (event query tests):
+#    docker compose --profile mongo up -d tron-node mongo
+#    docker compose run system-test singleNodeBuild --no-daemon
+#    docker compose --profile mongo down
+#
+#  Full environment (multi-node + MongoDB):
+#    docker compose --profile multi --profile mongo up -d
+#    docker compose run system-test dailyBuild --no-daemon
+#    docker compose --profile multi --profile mongo down
+#
+# Prerequisites:
+#   Place FullNode.jar in docker/node/ directory.
+#   Build from java-tron: ./gradlew build -x test
+#   Then: cp build/libs/FullNode.jar <system-test>/docker/node/
+#
+# ============================================================
+
+services:
+
+  # ─── Single-Node: runs both SRs in one process ───────────
+  tron-node:
+    image: eclipse-temurin:8-jre
+    container_name: tron-witness
+    working_dir: /tron
+    network_mode: "host"
+    volumes:
+      - ./node/FullNode.jar:/tron/FullNode.jar:ro
+      - ./node/config.conf:/tron/config.conf:ro
+      - tron-data:/tron/output-directory
+    command: >
+      java -Xmx2g -Xms1g
+      -jar /tron/FullNode.jar
+      --witness
+      --es
+      -c /tron/config.conf
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8090/wallet/getnowblock || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  # ─── Multi-Node: SR1 (Mercury) ───────────────────────────
+  tron-node1:
+    image: eclipse-temurin:8-jre
+    container_name: tron-sr1
+    working_dir: /tron
+    network_mode: "host"
+    profiles: ["multi"]
+    volumes:
+      - ./node/FullNode.jar:/tron/FullNode.jar:ro
+      - ./node1/config.conf:/tron/config.conf:ro
+      - tron-data-sr1:/tron/output-directory
+    command: >
+      java -Xmx2g -Xms1g
+      -jar /tron/FullNode.jar
+      --witness
+      --es
+      -c /tron/config.conf
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8090/wallet/getnowblock || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  # ─── Multi-Node: SR2 (Venus) ─────────────────────────────
+  tron-node2:
+    image: eclipse-temurin:8-jre
+    container_name: tron-sr2
+    working_dir: /tron
+    network_mode: "host"
+    profiles: ["multi"]
+    volumes:
+      - ./node/FullNode.jar:/tron/FullNode.jar:ro
+      - ./node2/config.conf:/tron/config.conf:ro
+      - tron-data-sr2:/tron/output-directory
+    command: >
+      java -Xmx2g -Xms1g
+      -jar /tron/FullNode.jar
+      --witness
+      --es
+      -c /tron/config.conf
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8092/wallet/getnowblock || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    depends_on:
+      tron-node1:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ─── MongoDB (optional, for event query tests) ───────────
+  mongo:
+    image: mongo:6
+    container_name: tron-mongo
+    profiles: ["mongo"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ─── Test Runner ──────────────────────────────────────────
+  system-test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tron-system-test
+    network_mode: "host"
+    environment:
+      - TRON_TEST_RETRY_MAX=2
+      - TRON_TEST_RETRY_INTERVAL=3000
+    # Override CMD to run different suites:
+    #   docker compose run system-test smokeTest --no-daemon
+    #   docker compose run system-test singleNodeBuild --no-daemon
+    #   docker compose run system-test dailyBuild --no-daemon
+
+volumes:
+  tron-data:
+  tron-data-sr1:
+  tron-data-sr2:
+  mongo-data:
