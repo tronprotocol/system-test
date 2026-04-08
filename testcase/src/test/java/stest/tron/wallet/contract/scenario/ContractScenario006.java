@@ -1,0 +1,96 @@
+package stest.tron.wallet.contract.scenario;
+
+import java.util.HashMap;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.AccountResourceMessage;
+import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
+import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.Utils;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.MultiNode;
+
+@Slf4j
+@MultiNode
+public class ContractScenario006 extends TronBaseTest {  private final String testKey003 = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key2");
+  private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] contract006Address = ecKey1.getAddress();
+  String contract006Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  private String fullnodeLocal = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(1);
+
+  /**
+   * constructor.
+   */
+
+  @BeforeClass(enabled = true)
+  public void beforeClass() {  }
+
+  @Test(enabled = true, groups = {"contract", "smoke"})
+  public void deployFomo3D() {
+    ecKey1 = new ECKey(Utils.getRandom());
+    contract006Address = ecKey1.getAddress();
+    contract006Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    PublicMethod.printAddress(contract006Key);
+
+    PublicMethod.sendcoin(contract006Address, 2000000000L, toAddress,
+        testKey003, blockingStubFull);
+    logger.info(Long.toString(PublicMethod.queryAccount(contract006Key, blockingStubFull)
+        .getBalance()));
+    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(contract006Address, 100000000L,
+        3, 1, contract006Key, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract006Address,
+        blockingStubFull);
+  Long energyLimit = accountResource.getEnergyLimit();
+  Long energyUsage = accountResource.getEnergyUsed();
+
+    logger.info("before energy limit is " + Long.toString(energyLimit));
+    logger.info("before energy usage is " + Long.toString(energyUsage));
+  String filePath = "./src/test/resources/soliditycode/contractScenario006.sol";
+  String contractName = "FoMo3Dlong";
+    HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
+  String code = retMap.get("byteCode").toString();
+  String abi = retMap.get("abI").toString();
+  byte[] contractAddress;
+  String txid = PublicMethod
+        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
+            0L, 100, null, contract006Key, contract006Address, blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Optional<TransactionInfo> infoById = PublicMethod
+        .getTransactionInfoById(txid, blockingStubFull);
+    contractAddress = infoById.get().getContractAddress().toByteArray();
+    Assert.assertTrue(infoById.get().getResultValue() == 0);
+
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
+    Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
+    Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
+    Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
+    accountResource = PublicMethod.getAccountResource(contract006Address, blockingStubFull);
+    energyLimit = accountResource.getEnergyLimit();
+    energyUsage = accountResource.getEnergyUsed();
+    Assert.assertTrue(energyLimit > 0);
+    Assert.assertTrue(energyUsage > 0);
+    logger.info("after energy limit is " + Long.toString(energyLimit));
+    logger.info("after energy usage is " + Long.toString(energyUsage));
+  }
+
+  /**
+   * constructor.
+   */
+
+  @AfterClass
+  public void shutdown() throws InterruptedException {  }
+}
+
+
