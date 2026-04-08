@@ -35,14 +35,14 @@ import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
 @Slf4j
 public class ZenTrc20Base extends JsonRpcBase{
 
-  public final String foundationKey = Configuration.getByPath("testng.conf")
+  public final String foundationAccountKey = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
-  public final byte[] foundationAddress = PublicMethod.getFinalAddress(foundationKey);
+  public final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
   public static final String zenTrc20TokenOwnerKey = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.zenTrc20TokenOwnerKey");
-  public static final byte[] zenTrc20TokenOwnerAddress = PublicMethod
+  public static final byte[] zenTrc20TokenOwnerAddress = PublicMethed
       .getFinalAddress(zenTrc20TokenOwnerKey);
-  public static final String zenTrc20TokenOwnerAddressString = PublicMethod
+  public static final String zenTrc20TokenOwnerAddressString = PublicMethed
       .getAddressString(zenTrc20TokenOwnerKey);
   public ManagedChannel channelFull = null;
   public WalletGrpc.WalletBlockingStub blockingStubFull = null;
@@ -51,6 +51,9 @@ public class ZenTrc20Base extends JsonRpcBase{
 
   public WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   public WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
+  private String fullnode = Configuration.getByPath("testng.conf")
+      .getStringList("fullnode.ip.list").get(0);
+
   public static long maxFeeLimit = 0L;
   public com.google.protobuf.ByteString contractAddressByteString;
   public static byte[] contractAddressByte;
@@ -72,6 +75,8 @@ public class ZenTrc20Base extends JsonRpcBase{
   public static Integer scalingFactorLogarithm = 0;
   public static Long totalSupply = 1000000000000L;
 
+
+
   /**
    * constructor.
    */
@@ -85,9 +90,9 @@ public class ZenTrc20Base extends JsonRpcBase{
         .build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     getDailyBuildStartNum();
-    Assert.assertTrue(PublicMethod.sendcoin(zenTrc20TokenOwnerAddress, 10000000000000L,
-        foundationAddress, foundationKey, blockingStubFull));
-    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed.sendcoin(zenTrc20TokenOwnerAddress, 10000000000000L,
+        foundationAccountAddress, foundationAccountKey, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     String contractName = "shieldTrc20Token";
 
     String abi = Configuration.getByPath("testng.conf")
@@ -97,14 +102,14 @@ public class ZenTrc20Base extends JsonRpcBase{
     String constructorStr = "constructor(uint256,string,string)";
     String data = totalSupply.toString() + "," + "\"TokenTRC20\"" + "," + "\"zen20\"";
     logger.info("data:" + data);
-    deployShieldTrc20Txid = PublicMethod
+    deployShieldTrc20Txid = PublicMethed
         .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
             maxFeeLimit, 0L, 100, null,
             zenTrc20TokenOwnerKey, zenTrc20TokenOwnerAddress, blockingStubFull);
 
-    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info(deployShieldTrc20Txid);
-    Optional<TransactionInfo> infoById = PublicMethod
+    Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(deployShieldTrc20Txid, blockingStubFull);
     contractAddressByteString = infoById.get().getContractAddress();
     contractAddressByte = infoById.get().getContractAddress().toByteArray();
@@ -118,13 +123,13 @@ public class ZenTrc20Base extends JsonRpcBase{
         .getString("code.code_shield");
     data = "\"" + contractAddress + "\"" + "," + scalingFactorLogarithm;
     constructorStr = "constructor(address,uint256)";
-    deployShieldTxid = PublicMethod
+    deployShieldTxid = PublicMethed
         .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
             maxFeeLimit, 0L, 100, null,
             zenTrc20TokenOwnerKey, zenTrc20TokenOwnerAddress, blockingStubFull);
-    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     logger.info(deployShieldTxid);
-    infoById = PublicMethod
+    infoById = PublicMethed
         .getTransactionInfoById(deployShieldTxid, blockingStubFull);
     shieldAddressByteString = infoById.get().getContractAddress();
     shieldAddressByte = infoById.get().getContractAddress().toByteArray();
@@ -132,16 +137,19 @@ public class ZenTrc20Base extends JsonRpcBase{
     logger.info(shieldAddress);
 
     data = "\"" + shieldAddress + "\"" + "," + totalSupply.toString();
-    String txid = PublicMethod.triggerContract(contractAddressByte,
+    String txid = PublicMethed.triggerContract(contractAddressByte,
         "approve(address,uint256)", data, false,
         0, maxFeeLimit, zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
-    PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    infoById = PublicMethed
         .getTransactionInfoById(txid, blockingStubFull);
     logger.info("approve:" + txid);
     Assert.assertTrue(infoById.get().getReceipt().getResultValue() == 1);
 
+
   }
+
+
 
   /**
    * constructor.
@@ -151,6 +159,7 @@ public class ZenTrc20Base extends JsonRpcBase{
             .build()).getBlockHeader().getRawData().getNumber();
     System.out.println("!!!!!!! 222222222startnum:" + DailyBuildReport.startBlockNum);
   }
+
 
   /**
    * constructor.
@@ -270,6 +279,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
     return null;
   }
+
 
   /**
    * constructor.
@@ -435,9 +445,11 @@ public class ZenTrc20Base extends JsonRpcBase{
       newBuilder.setTriggerContractInput(ByteArray.toHexString(triggerInputData.getValue()
           .toByteArray()));
 
+
     }
     return newBuilder.build();
   }
+
 
   /**
    * constructor.
@@ -448,13 +460,14 @@ public class ZenTrc20Base extends JsonRpcBase{
     byte[] indexBytes = ByteArray.fromLong(position);
     String argsStr = ByteArray.toHexString(indexBytes);
     argsStr = "000000000000000000000000000000000000000000000000" + argsStr;
-    TransactionExtention transactionExtention = PublicMethod
+    TransactionExtention transactionExtention = PublicMethed
         .triggerConstantContractForExtentionOnSolidity(shieldAddressByte, methodStr, argsStr,
             true, 0, 1000000000L, "0", 0, zenTrc20TokenOwnerAddress,
             zenTrc20TokenOwnerKey, blockingStubSolidity);
     byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     return ByteArray.toHexString(result);
   }
+
 
   /**
    * constructor.
@@ -483,7 +496,7 @@ public class ZenTrc20Base extends JsonRpcBase{
   public static HttpResponse getNewShieldedAddress(String httpNode) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnewshieldedaddress";
-      response = HttpMethod.createConnect(requestUrl);
+      response = HttpMethed.createConnect(requestUrl);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -491,6 +504,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
     return response;
   }
+
 
   /**
    * constructor.
@@ -549,6 +563,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     return Optional.empty();
   }
 
+
   /**
    * constructor.
    */
@@ -576,13 +591,14 @@ public class ZenTrc20Base extends JsonRpcBase{
     return shieldOutList;
   }
 
+
   /**
    * constructor.
    */
   public Long getBalanceOfShieldTrc20(String queryAddress, byte[] ownerAddress,
       String ownerKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     String paramStr = "\"" + queryAddress + "\"";
-    TransactionExtention transactionExtention = PublicMethod
+    TransactionExtention transactionExtention = PublicMethed
         .triggerConstantContractForExtention(contractAddressByte, "balanceOf(address)",
             paramStr, false, 0, 0, "0", 0,
             ownerAddress, ownerKey, blockingStubFull);
@@ -599,13 +615,14 @@ public class ZenTrc20Base extends JsonRpcBase{
     return Long.parseLong(hexBalance, 16);
   }
 
+
   /**
    * constructor.
    */
   public String getBalanceOfShieldTrc20String(String queryAddress, byte[] ownerAddress,
       String ownerKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     String paramStr = "\"" + queryAddress + "\"";
-    TransactionExtention transactionExtention = PublicMethod
+    TransactionExtention transactionExtention = PublicMethed
         .triggerConstantContractForExtention(contractAddressByte, "balanceOf(address)",
             paramStr, false, 0, 0, "0", 0,
             ownerAddress, ownerKey, blockingStubFull);
@@ -621,6 +638,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     logger.info(hexBalance);
     return hexBalance;
   }
+
 
   /**
    * constructor.
@@ -688,6 +706,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     return null;
   }
 
+
   /**
    * constructor.
    */
@@ -749,6 +768,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
     return null;
   }
+
 
   /**
    * constructor.
@@ -815,6 +835,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     return null;
   }
 
+
   /**
    * constructor.
    */
@@ -846,6 +867,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
     return null;
   }
+
 
   /**
    * constructor.
@@ -920,6 +942,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     return result.get().getIsSpent();
   }
 
+
   /**
    * constructor.
    */
@@ -960,6 +983,7 @@ public class ZenTrc20Base extends JsonRpcBase{
         .isShieldedTRC20ContractNoteSpent(builder.build()));
     return result.get().getIsSpent();
   }
+
 
   /**
    * constructor.
@@ -1084,6 +1108,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     return ByteArray.toHexString(mergedBytes);
   }
 
+
   /**
    * constructor.
    */
@@ -1109,6 +1134,7 @@ public class ZenTrc20Base extends JsonRpcBase{
 
   }
 
+
   /**
    * constructor.
    */
@@ -1124,7 +1150,7 @@ public class ZenTrc20Base extends JsonRpcBase{
       rawBody.put("shielded_TRC20_contract_address", shieldAddress);
       rawBody.put("visible", true);
 
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, rawBody);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, rawBody);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -1165,7 +1191,7 @@ public class ZenTrc20Base extends JsonRpcBase{
       rawBody.put("to_amount", toAmount.toString());
       rawBody.put("visible", true);
 
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, rawBody);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, rawBody);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -1207,7 +1233,7 @@ public class ZenTrc20Base extends JsonRpcBase{
         rawBody.put("shielded_receives", shieldedReceiver);
       }
 
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, rawBody);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, rawBody);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -1216,6 +1242,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
     return response;
   }
+
 
   /**
    * constructor.
@@ -1233,7 +1260,7 @@ public class ZenTrc20Base extends JsonRpcBase{
       rawBody.put("shielded_receives", shieldedReceives);
       rawBody.put("visible", true);
       logger.info(rawBody.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, rawBody);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, rawBody);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -1241,6 +1268,7 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
     return response;
   }
+
 
   /**
    * constructor.
@@ -1259,7 +1287,7 @@ public class ZenTrc20Base extends JsonRpcBase{
       rawBody.put("shielded_receives", shieldedReceives);
       rawBody.put("visible", true);
       logger.info(rawBody.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, rawBody);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, rawBody);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -1280,14 +1308,15 @@ public class ZenTrc20Base extends JsonRpcBase{
       rawBody.put("tx_hash", messageHash);
       rawBody.put("alpha", alpha);
       logger.info("createSpendAuthSig:" + rawBody.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, rawBody);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, rawBody);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    return HttpMethod.parseResponseContent(response);
+    return HttpMethed.parseResponseContent(response);
   }
+
 
   /**
    * constructor.
@@ -1295,7 +1324,7 @@ public class ZenTrc20Base extends JsonRpcBase{
   public static JSONArray scanShieldTrc20NoteByIvk(String httpNode,
       JSONObject shieldAddressInfo) {
     try {
-      Long endScanNumber = HttpMethod.getNowBlockNum(httpNode);
+      Long endScanNumber = HttpMethed.getNowBlockNum(httpNode);
       Long startScanNumer = endScanNumber > 99 ? endScanNumber - 90 : 1;
 
       final String requestUrl = "http://" + httpNode + "/wallet/scanshieldedtrc20notesbyivk";
@@ -1308,10 +1337,10 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.addProperty("nk", shieldAddressInfo.getString("nk"));
       userBaseObj2.addProperty("visible", true);
       logger.info("scanShieldTrc20NoteByIvk:" + userBaseObj2.toString());
-      response = HttpMethod.createConnect(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnect(requestUrl, userBaseObj2);
 
-      responseContent = HttpMethod.parseResponseContent(response);
-      HttpMethod.printJsonContent(responseContent);
+      responseContent = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(responseContent);
       JSONArray jsonArray = responseContent.getJSONArray("noteTxs");
 
       return jsonArray;
@@ -1322,13 +1351,14 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
   }
 
+
   /**
    * constructor.
    */
   public static JSONArray scanShieldTrc20NoteByIvkOnSolidity(String httpNode,
       JSONObject shieldAddressInfo) {
     try {
-      Long endScanNumber = HttpMethod.getNowBlockNumOnSolidity(httpNode);
+      Long endScanNumber = HttpMethed.getNowBlockNumOnSolidity(httpNode);
       Long startScanNumer = endScanNumber > 99 ? endScanNumber - 90 : 1;
 
       final String requestUrl =
@@ -1342,10 +1372,10 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.addProperty("nk", shieldAddressInfo.getString("nk"));
       userBaseObj2.addProperty("visible", true);
       logger.info("scanShieldTrc20NoteByIvk:" + userBaseObj2.toString());
-      response = HttpMethod.createConnect(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnect(requestUrl, userBaseObj2);
 
-      responseContent = HttpMethod.parseResponseContent(response);
-      HttpMethod.printJsonContent(responseContent);
+      responseContent = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(responseContent);
       JSONArray jsonArray = responseContent.getJSONArray("noteTxs");
 
       return jsonArray;
@@ -1363,8 +1393,8 @@ public class ZenTrc20Base extends JsonRpcBase{
                                                              JSONObject shieldAddressInfo) {
     try {
 
-      response = HttpMethod.getNowBlockFromPbft(httpPbftNode);
-      Long endScanNumber = HttpMethod.parseResponseContent(response).getJSONObject("block_header")
+      response = HttpMethed.getNowBlockFromPbft(httpPbftNode);
+      Long endScanNumber = HttpMethed.parseResponseContent(response).getJSONObject("block_header")
           .getJSONObject("raw_data").getLong("number");
       Long startScanNumer = endScanNumber > 99 ? endScanNumber - 90 : 1;
 
@@ -1379,10 +1409,10 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.addProperty("nk", shieldAddressInfo.getString("nk"));
       userBaseObj2.addProperty("visible", true);
       logger.info("scanShieldTrc20NoteByIvk:" + userBaseObj2.toString());
-      response = HttpMethod.createConnect(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnect(requestUrl, userBaseObj2);
 
-      responseContent = HttpMethod.parseResponseContent(response);
-      HttpMethod.printJsonContent(responseContent);
+      responseContent = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(responseContent);
       JSONArray jsonArray = responseContent.getJSONArray("noteTxs");
 
       return jsonArray;
@@ -1393,13 +1423,14 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
   }
 
+
   /**
    * constructor.
    */
   public static JSONArray scanShieldTrc20NoteByOvk(String httpNode,
       JSONObject shieldAddressInfo) {
     try {
-      Long endScanNumber = HttpMethod.getNowBlockNum(httpNode);
+      Long endScanNumber = HttpMethed.getNowBlockNum(httpNode);
       Long startScanNumer = endScanNumber > 99 ? endScanNumber - 90 : 1;
 
       final String requestUrl = "http://" + httpNode + "/wallet/scanshieldedtrc20notesbyovk";
@@ -1410,10 +1441,10 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.addProperty("ovk", shieldAddressInfo.getString("ovk"));
       userBaseObj2.addProperty("visible", true);
       logger.info("userBaseObj2:" + userBaseObj2.toString());
-      response = HttpMethod.createConnect(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnect(requestUrl, userBaseObj2);
 
-      responseContent = HttpMethod.parseResponseContent(response);
-      HttpMethod.printJsonContent(responseContent);
+      responseContent = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(responseContent);
       JSONArray jsonArray = responseContent.getJSONArray("noteTxs");
 
       return jsonArray;
@@ -1424,13 +1455,14 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
   }
 
+
   /**
    * constructor.
    */
   public static JSONArray scanShieldTrc20NoteByOvkOnSolidity(String httpNode,
       JSONObject shieldAddressInfo) {
     try {
-      Long endScanNumber = HttpMethod.getNowBlockNumOnSolidity(httpNode);
+      Long endScanNumber = HttpMethed.getNowBlockNumOnSolidity(httpNode);
       Long startScanNumer = endScanNumber > 99 ? endScanNumber - 90 : 1;
 
       final String requestUrl =
@@ -1442,10 +1474,10 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.addProperty("ovk", shieldAddressInfo.getString("ovk"));
       userBaseObj2.addProperty("visible", true);
       logger.info("userBaseObj2:" + userBaseObj2.toString());
-      response = HttpMethod.createConnect(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnect(requestUrl, userBaseObj2);
 
-      responseContent = HttpMethod.parseResponseContent(response);
-      HttpMethod.printJsonContent(responseContent);
+      responseContent = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(responseContent);
       JSONArray jsonArray = responseContent.getJSONArray("noteTxs");
 
       return jsonArray;
@@ -1462,8 +1494,8 @@ public class ZenTrc20Base extends JsonRpcBase{
   public static JSONArray scanShieldTrc20NoteByOvkOnPbft(String httpPbftNode,
                                                              JSONObject shieldAddressInfo) {
     try {
-      response = HttpMethod.getNowBlockFromPbft(httpPbftNode);
-      Long endScanNumber = HttpMethod.parseResponseContent(response).getJSONObject("block_header")
+      response = HttpMethed.getNowBlockFromPbft(httpPbftNode);
+      Long endScanNumber = HttpMethed.parseResponseContent(response).getJSONObject("block_header")
           .getJSONObject("raw_data").getLong("number");
       Long startScanNumer = endScanNumber > 99 ? endScanNumber - 90 : 1;
 
@@ -1476,10 +1508,10 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.addProperty("ovk", shieldAddressInfo.getString("ovk"));
       userBaseObj2.addProperty("visible", true);
       logger.info("userBaseObj2:" + userBaseObj2.toString());
-      response = HttpMethod.createConnect(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnect(requestUrl, userBaseObj2);
 
-      responseContent = HttpMethod.parseResponseContent(response);
-      HttpMethod.printJsonContent(responseContent);
+      responseContent = HttpMethed.parseResponseContent(response);
+      HttpMethed.printJsonContent(responseContent);
       JSONArray jsonArray = responseContent.getJSONArray("noteTxs");
 
       return jsonArray;
@@ -1508,13 +1540,13 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.addProperty("fee_limit", maxFeeLimit);
       userBaseObj2.addProperty("visible", true);
 
-      response = HttpMethod.createConnect(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnect(requestUrl, userBaseObj2);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    return HttpMethod.parseResponseContent(response).getJSONArray("constant_result").getString(0);
+    return HttpMethed.parseResponseContent(response).getJSONArray("constant_result").getString(0);
   }
 
   /**
@@ -1536,20 +1568,22 @@ public class ZenTrc20Base extends JsonRpcBase{
     return shieldedSpends;
   }
 
+
   /**
    * constructor.
    */
   public static String getRcm(String httpNode) {
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getrcm";
-      response = HttpMethod.createConnect(requestUrl);
+      response = HttpMethed.createConnect(requestUrl);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    return HttpMethod.parseResponseContent(response).getString("value");
+    return HttpMethed.parseResponseContent(response).getString("value");
   }
+
 
   /**
    * constructor.
@@ -1567,14 +1601,14 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.put("visible", true);
       userBaseObj2.put("shielded_TRC20_contract_address", shieldAddress);
       logger.info(userBaseObj2.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, userBaseObj2);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    responseContent = HttpMethod.parseResponseContent(response);
-    HttpMethod.printJsonContent(responseContent);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
     return responseContent.containsKey("is_spent")
         ? responseContent.getBoolean("is_spent") : false;
   }
@@ -1596,14 +1630,14 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.put("visible", true);
       userBaseObj2.put("shielded_TRC20_contract_address", shieldAddress);
       logger.info(userBaseObj2.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, userBaseObj2);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    responseContent = HttpMethod.parseResponseContent(response);
-    HttpMethod.printJsonContent(responseContent);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
     return responseContent.containsKey("is_spent") ? responseContent.getBoolean("is_spent") : false;
   }
 
@@ -1624,14 +1658,14 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.put("visible", true);
       userBaseObj2.put("shielded_TRC20_contract_address", shieldAddress);
       logger.info(userBaseObj2.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, userBaseObj2);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
       return null;
     }
-    responseContent = HttpMethod.parseResponseContent(response);
-    HttpMethod.printJsonContent(responseContent);
+    responseContent = HttpMethed.parseResponseContent(response);
+    HttpMethed.printJsonContent(responseContent);
     return responseContent.containsKey("is_spent") ? responseContent.getBoolean("is_spent") : false;
   }
 
@@ -1648,7 +1682,7 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.put("spend_authority_signature", spendAuthoritySignature);
 
       logger.info("gettriggerinputforshieldedtrc20contract:" + userBaseObj2.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, userBaseObj2);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -1674,7 +1708,7 @@ public class ZenTrc20Base extends JsonRpcBase{
       userBaseObj2.put("visible", true);
 
       logger.info("gettriggerinputforshieldedtrc20contract:" + userBaseObj2.toString());
-      response = HttpMethod.createConnectForShieldTrc20(requestUrl, userBaseObj2);
+      response = HttpMethed.createConnectForShieldTrc20(requestUrl, userBaseObj2);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -1682,5 +1716,6 @@ public class ZenTrc20Base extends JsonRpcBase{
     }
     return response;
   }
+
 
 }
