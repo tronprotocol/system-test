@@ -1,0 +1,183 @@
+package stest.tron.wallet.dailybuild.http;
+
+import static org.hamcrest.core.StringContains.containsString;
+
+import com.alibaba.fastjson.JSONObject;
+import java.util.HashMap;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
+import org.junit.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.HttpMethod;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.Utils;
+
+@Slf4j
+public class HttpTestClearAbiContract001 {
+
+  private static final long now = System.currentTimeMillis();
+  private static final long totalSupply = now;
+  private static String name = "testAssetIssue002_" + now;
+  private static String assetIssueId;
+  private static String contractName;
+  private final String testKey002 = Configuration.getByPath("testng.conf")
+      .getString("foundationAccount.key1");
+  private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey002);
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] assetOwnerAddress = ecKey2.getAddress();
+  String assetOwnerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+  String contractAddress;
+  String abi;
+  int blockNum;
+  Long amount = 2048000000L;
+  String description = Configuration.getByPath("testng.conf")
+      .getString("defaultParameter.assetDescription");
+  String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
+  private JSONObject responseContent;
+  private HttpResponse response;
+  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
+      .get(0);
+  private String httpSoliditynode = Configuration.getByPath("testng.conf")
+      .getStringList("httpnode.ip.list").get(2);
+  private String httpPbftnode = Configuration.getByPath("testng.conf")
+      .getStringList("httpnode.ip.list").get(4);
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Deploy smart contract by http", groups = {"daily", "serial"})
+  public void test1DeployContract() {
+    PublicMethod.printAddress(assetOwnerKey);
+    response = HttpMethod.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, testKey002);
+    Assert.assertTrue(HttpMethod.verificationResult(response));
+    HttpMethod.waitToProduceOneBlock(httpnode);
+
+    response = HttpMethod.getAccount(httpnode, assetOwnerAddress);
+    responseContent = HttpMethod.parseResponseContent(response);
+    HttpMethod.printJsonContent(responseContent);
+
+    String filePath = "src/test/resources/soliditycode/TriggerConstant003.sol";
+    contractName = "testConstantContract";
+    HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
+    String code = retMap.get("byteCode").toString();
+    abi = retMap.get("abI").toString();
+    logger.info("abi:" + abi);
+    logger.info("code:" + code);
+
+    String txid = HttpMethod
+        .deployContractGetTxid(httpnode, contractName, abi, code, 1000000L, 1000000000L, 100,
+            11111111111111L, 0L, 0, 0L, assetOwnerAddress, assetOwnerKey);
+
+    HttpMethod.waitToProduceOneBlock(httpnode);
+    logger.info(txid);
+    response = HttpMethod.getTransactionById(httpnode, txid);
+    responseContent = HttpMethod.parseResponseContent(response);
+    HttpMethod.printJsonContent(responseContent);
+    Assert.assertTrue(!responseContent.getString("contract_address").isEmpty());
+    contractAddress = responseContent.getString("contract_address");
+
+    response = HttpMethod.getTransactionInfoById(httpnode, txid);
+    responseContent = HttpMethod.parseResponseContent(response);
+    Assert
+        .assertEquals(responseContent.getJSONObject("receipt").getString("result"), "SUCCESS");
+    blockNum = responseContent.getIntValue("blockNumber") + 1;
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Get contract by http", groups = {"daily", "serial"})
+  public void test2GetContract() {
+    response = HttpMethod.getContract(httpnode, contractAddress);
+    responseContent = HttpMethod.parseResponseContent(response);
+    HttpMethod.printJsonContent(responseContent);
+    Assert.assertEquals(responseContent.getString("consume_user_resource_percent"), "100");
+    Assert.assertEquals(responseContent.getString("contract_address"), contractAddress);
+    Assert.assertEquals(responseContent.getString("origin_address"),
+        ByteArray.toHexString(assetOwnerAddress));
+    Assert.assertThat(responseContent.getString("abi"), containsString("testView"));
+
+    Assert.assertEquals(responseContent.getString("origin_energy_limit"), "11111111111111");
+    Assert.assertEquals(responseContent.getString("name"), contractName);
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Trigger contract by http", groups = {"daily", "serial"})
+  public void test3TriggerConstantContract() {
+
+    HttpResponse httpResponse = HttpMethod
+        .triggerConstantContract(httpnode, assetOwnerAddress, contractAddress, "testView()", "");
+
+    responseContent = HttpMethod.parseResponseContent(httpResponse);
+    HttpMethod.printJsonContent(responseContent);
+    Assert.assertEquals(responseContent.getString("result"), "{\"result\":true}");
+    Assert.assertEquals(responseContent.getString("constant_result"),
+        "[\"0000000000000000000000000000000000000000000000000000000000000001\"]");
+
+    HttpMethod.waitUntilFixedBlockFromSolidity(blockNum, httpSoliditynode);
+    httpResponse = HttpMethod.triggerConstantContractFromSolidity(httpSoliditynode,
+        assetOwnerAddress, contractAddress, "testView()", "");
+
+    responseContent = HttpMethod.parseResponseContent(httpResponse);
+    HttpMethod.printJsonContent(responseContent);
+    Assert.assertEquals(responseContent.getString("result"), "{\"result\":true}");
+    Assert.assertEquals(responseContent.getString("constant_result"),
+            "[\"0000000000000000000000000000000000000000000000000000000000000001\"]");
+
+    httpResponse = HttpMethod.triggerConstantContractFromPbft(httpPbftnode, assetOwnerAddress,
+        contractAddress, "testView()", "");
+
+    responseContent = HttpMethod.parseResponseContent(httpResponse);
+    HttpMethod.printJsonContent(responseContent);
+    Assert.assertEquals(responseContent.getString("result"), "{\"result\":true}");
+    Assert.assertEquals(responseContent.getString("constant_result"),
+            "[\"0000000000000000000000000000000000000000000000000000000000000001\"]");
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Trigger contract by http", groups = {"daily", "serial"})
+  public void test4ClearAbiContract() {
+
+    HttpResponse httpResponse = HttpMethod
+        .clearABiGetTxid(httpnode, assetOwnerAddress, contractAddress, assetOwnerKey);
+
+    responseContent = HttpMethod.parseResponseContent(httpResponse);
+    HttpMethod.printJsonContent(responseContent);
+    Assert.assertEquals(responseContent.getString("result"), "true");
+    HttpMethod.waitToProduceOneBlock(httpnode);
+  }
+
+  /**
+   * constructor.
+   */
+  @Test(enabled = true, description = "Get contract by http", groups = {"daily", "serial"})
+  public void test5GetContract() {
+    response = HttpMethod.getContract(httpnode, contractAddress);
+    responseContent = HttpMethod.parseResponseContent(response);
+    HttpMethod.printJsonContent(responseContent);
+    Assert.assertEquals(responseContent.getString("consume_user_resource_percent"), "100");
+    Assert.assertEquals(responseContent.getString("contract_address"), contractAddress);
+    Assert.assertEquals(responseContent.getString("origin_address"),
+        ByteArray.toHexString(assetOwnerAddress));
+    Assert.assertEquals(responseContent.getString("abi"), "{}");
+    Assert.assertEquals(responseContent.getString("origin_energy_limit"), "11111111111111");
+    Assert.assertEquals(responseContent.getString("name"), contractName);
+  }
+
+  /**
+   * constructor.
+   */
+  @AfterClass
+  public void shutdown() throws InterruptedException {
+    HttpMethod.freeResource(httpnode, assetOwnerAddress, fromAddress, assetOwnerKey);
+    HttpMethod.disConnect();
+  }
+}
