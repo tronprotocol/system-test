@@ -14,11 +14,11 @@
     </packages>
   </test>
 
-  <test name="exchangeandtoken,multisign">
+  <test name="exchangeandtoken,mutisign">
     <packages>
       <package name="stest.tron.wallet.exchangeandtoken">
       </package>
-      <package name="stest.tron.wallet.multisign">
+      <package name="stest.tron.wallet.mutisign">
       </package>
     </packages>
   </test>

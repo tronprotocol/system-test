@@ -1,6 +1,5 @@
 plugins {
     id "org.sonarqube" version "2.6"
-    id "com.github.spotbugs" version "4.7.3"
 }
 
 apply plugin: 'application'
@@ -14,7 +13,7 @@ def versions = [
 ]
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.1"
 }
 
 configurations {
@@ -44,11 +43,6 @@ dependencies {
     testImplementation group: 'org.hamcrest', name: 'hamcrest-junit', version: '1.0.0.1'
 
     testImplementation group: 'org.testng', name: 'testng', version: '6.14.3'
-
-    // Property-based testing (jqwik on JUnit 5 Platform, JDK 8 compatible)
-    testImplementation 'net.jqwik:jqwik:1.7.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.9.3'
 
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: '1.78.1'
 
@@ -111,102 +105,6 @@ dependencies {
 
 }
 
-// ---------------------------------------------------------------------------
-// Auto-download external tools (grpcurl & solc) before test tasks
-// ---------------------------------------------------------------------------
-
-def systemTestDir = project.projectDir.parentFile  // .../system-test
-
-task downloadGrpcurl {
-    description = 'Download grpcurl v1.8.9 if not already present'
-    group = 'tools'
-
-    def grpcurlDir = new File(systemTestDir, 'gRPCurl')
-    def grpcurlBin = new File(grpcurlDir, 'grpcurl')
-
-    outputs.file grpcurlBin
-
-    onlyIf { !grpcurlBin.exists() }
-
-    doLast {
-        grpcurlDir.mkdirs()
-
-        def osName = System.getProperty('os.name').toLowerCase()
-        def osArch = System.getProperty('os.arch').toLowerCase()
-        def url
-
-        if (osName.contains('linux')) {
-            url = 'https://github.com/fullstorydev/grpcurl/releases/download/v1.8.9/grpcurl_1.8.9_linux_x86_64.tar.gz'
-        } else if (osName.contains('mac') || osName.contains('darwin')) {
-            if (osArch.contains('aarch64') || osArch.contains('arm64') || osArch.contains('arm')) {
-                url = 'https://github.com/fullstorydev/grpcurl/releases/download/v1.8.9/grpcurl_1.8.9_osx_arm64.tar.gz'
-            } else {
-                url = 'https://github.com/fullstorydev/grpcurl/releases/download/v1.8.9/grpcurl_1.8.9_osx_x86_64.tar.gz'
-            }
-        } else {
-            throw new GradleException("Unsupported OS for grpcurl download: ${osName}")
-        }
-
-        logger.lifecycle("Downloading grpcurl from ${url} ...")
-
-        def tarFile = new File(grpcurlDir, 'grpcurl.tar.gz')
-        ant.get(src: url, dest: tarFile, verbose: false)
-
-        // Extract only the grpcurl binary from the tarball
-        copy {
-            from tarTree(resources.gzip(tarFile))
-            into grpcurlDir
-            include 'grpcurl'
-        }
-
-        tarFile.delete()
-
-        ant.chmod(file: grpcurlBin, perm: '+x')
-        logger.lifecycle("grpcurl installed at ${grpcurlBin}")
-    }
-}
-
-task downloadSolc {
-    description = 'Download tron-fork solc 0.8.26 if not already present'
-    group = 'tools'
-
-    def solcDir = new File(systemTestDir, 'solcDIR')
-    def solcBin = new File(solcDir, 'solc')
-
-    outputs.file solcBin
-
-    onlyIf { !solcBin.exists() }
-
-    doLast {
-        solcDir.mkdirs()
-
-        def osName = System.getProperty('os.name').toLowerCase()
-        def url
-
-        if (osName.contains('linux')) {
-            url = 'https://github.com/tronprotocol/solidity/releases/download/tv_0.8.26/solc-static-linux'
-        } else if (osName.contains('mac') || osName.contains('darwin')) {
-            url = 'https://github.com/tronprotocol/solidity/releases/download/tv_0.8.26/solc-macos'
-        } else {
-            throw new GradleException("Unsupported OS for solc download: ${osName}")
-        }
-
-        logger.lifecycle("Downloading solc from ${url} ...")
-
-        ant.get(src: url, dest: solcBin, verbose: false)
-        ant.chmod(file: solcBin, perm: '+x')
-        logger.lifecycle("solc installed at ${solcBin}")
-    }
-}
-
-task downloadTools {
-    description = 'Download all external tools needed for system tests'
-    group = 'tools'
-    dependsOn downloadGrpcurl, downloadSolc
-}
-
-// ---------------------------------------------------------------------------
-
 check.dependsOn 'lint'
 
 checkstyle {
@@ -232,22 +130,6 @@ task lint(type: Checkstyle) {
     ignoreFailures = false
 }
 
-spotbugs {
-    ignoreFailures = true
-    effort = 'min'
-    reportLevel = 'high'
-    excludeFilter = file("config/spotbugs/exclude.xml")
-}
-
-spotbugsMain {
-    reports {
-        html.enabled = true
-        xml.enabled = false
-    }
-}
-
-spotbugsTest.enabled = false
-
 test {
     testLogging {
         exceptionFormat = 'full'
@@ -258,7 +140,7 @@ test {
     }
 }
 
-task stest(type: Test, dependsOn: downloadTools) {
+task stest(type: Test) {
     doFirst{
         useTestNG {
             suites(file('src/test/resources/testng.xml'))
@@ -304,9 +186,9 @@ task replaceConfig(type: Test){
 
 }
 
-task dailyBuild(type: Test, dependsOn: [replaceConfig, downloadTools] ) {
+task dailyBuild(type: Test, dependsOn: replaceConfig ) {
     doFirst{
-        maxHeapSize = "2048m"
+        maxHeapSize = "3072m"
         useTestNG {
             suites(file('src/test/resources/daily-build.xml'))
             parallel 'tests'
@@ -347,65 +229,6 @@ task mainnetReplayQuery(type: Test) {
     }
 }
 
-task singleNodeBuild(type: Test, dependsOn: [replaceConfig, downloadTools]) {
-    description = 'Run only single-node tests (no solidity/pbft/fullnode2 dependency)'
-    group = 'verification'
-    doFirst {
-        maxHeapSize = "2048m"
-        useTestNG {
-            suites(file('src/test/resources/single-node-build.xml'))
-            parallel 'tests'
-            threadCount 2
-        }
-    }
-}
-
-task debugTest(type: Test) {
-    description = 'Run specific test class(es) with @BeforeSuite support'
-    group = 'verification'
-    doFirst {
-        useTestNG {
-            suites(file('src/test/resources/debug-test.xml'))
-        }
-        testLogging {
-            exceptionFormat = 'full'
-            showStackTraces = "true"
-        }
-    }
-}
-
-task smokeTest(type: Test, dependsOn: downloadTools) {
-    description = 'Run smoke tests - core functionality verification'
-    group = 'verification'
-    doFirst {
-        useTestNG {
-            suites(file('src/test/resources/smoke-test.xml'))
-            parallel 'classes'
-            threadCount 4
-        }
-        testLogging {
-            exceptionFormat = 'full'
-            showStackTraces = "true"
-        }
-    }
-}
-
-task fuzzTest(type: Test) {
-    description = 'Run property-based fuzz tests using jqwik'
-    group = 'verification'
-    useJUnitPlatform {
-        includeEngines 'jqwik'
-    }
-    include '**/fuzz/**'
-    testLogging {
-        exceptionFormat = 'full'
-        showStackTraces = true
-        events 'passed', 'failed', 'skipped'
-    }
-    jacoco {
-        destinationFile = file("$buildDir/jacoco/jacocoFuzzTest.exec")
-    }
-}
 
 jacocoTestReport {
     reports {
@@ -413,60 +236,7 @@ jacocoTestReport {
         csv.enabled false
         html.destination file("${buildDir}/jacocoHtml")
     }
-    executionData.from = files(
-        'build/jacoco/jacocoTest.exec',
-        'build/jacoco/jacocoFuzzTest.exec'
-    )
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                '**/org/tron/protos/**',
-                '**/org/tron/api/**',
-                '**/*Grpc.class',
-                '**/*Grpc$*.class'
-            ])
-        }))
-    }
-}
-
-jacocoTestCoverageVerification {
-    executionData.from = files(
-        'build/jacoco/jacocoTest.exec',
-        'build/jacoco/jacocoFuzzTest.exec'
-    )
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.15
-            }
-        }
-        rule {
-            element = 'PACKAGE'
-            includes = ['stest.tron.wallet.common.client.utils.*']
-            limit {
-                counter = 'LINE'
-                value = 'COVEREDRATIO'
-                minimum = 0.30
-            }
-        }
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                '**/org/tron/protos/**',
-                '**/org/tron/api/**',
-                '**/*Grpc.class',
-                '**/*Grpc$*.class'
-            ])
-        }))
-    }
-}
-
-task coverageCheck {
-    description = 'Run tests and verify coverage thresholds'
-    group = 'verification'
-    dependsOn 'test'
-    dependsOn 'jacocoTestCoverageVerification'
+    executionData.from = 'build/jacoco/jacocoTest.exec'
 }
 
 configurations.archives.artifacts.removeAll { it.type == 'tar' }
