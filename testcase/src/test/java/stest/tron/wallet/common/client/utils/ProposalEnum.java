@@ -2,6 +2,7 @@ package stest.tron.wallet.common.client.utils;
 
 public enum ProposalEnum {
 
+  GetAllowTvmSelfdestructRestriction("getAllowTvmSelfdestructRestriction"),
   GetAllowNewResourceModel("getAllowNewResourceModel"),
   GetUnfreezeDelayDays("getUnfreezeDelayDays"),
   GetAllowDynamicEnergy("getAllowDynamicEnergy"),

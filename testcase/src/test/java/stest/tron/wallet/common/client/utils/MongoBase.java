@@ -10,14 +10,28 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import java.util.Arrays;
 
+import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import stest.tron.wallet.common.client.Configuration;
 
-public class MongoBase {
+/**
+ * Base class for MongoDB event query tests.
+ *
+ * <p>Extends {@link TronBaseTest} so all Mongo tests inherit the standard gRPC
+ * channel management and foundation account configuration.  The MongoDB connection
+ * is established in {@code @BeforeSuite} and cleaned up in {@code @AfterSuite}.
+ * If MongoDB is unavailable the suite will log a warning and skip gracefully
+ * rather than failing with a stack trace.
+ */
+@Slf4j
+public class MongoBase extends TronBaseTest {
 
   public static MongoDatabase mongoDatabase;
+
+  /** Flag indicating whether MongoDB connection was successfully established. */
+  protected static boolean mongoAvailable = false;
 
   private String mongoNode =
       Configuration.getByPath("testng.conf").getStringList("mongonode.ip.list").get(0);
@@ -31,7 +45,7 @@ public class MongoBase {
           MongoCredential.createCredential("root", "dailybuild", "123456".toCharArray());
       mongoClient = new MongoClient(new ServerAddress(mongoNode), Arrays.asList(credential));
       mongoDatabase = mongoClient.getDatabase("dailybuild");
-      System.out.println("Connect to database successfully");
+      logger.info("Connect to database successfully");
       mongoDatabase.getCollection("block").drop();
       mongoDatabase.getCollection("contractevent").drop();
       mongoDatabase.getCollection("solidity").drop();
@@ -39,8 +53,10 @@ public class MongoBase {
       mongoDatabase.getCollection("transaction").drop();
       mongoDatabase.getCollection("soliditylog").drop();
       mongoDatabase.getCollection("contractlog").drop();
+      mongoAvailable = true;
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.warn("MongoDB is unavailable at {}, mongo tests will be skipped: {}",
+          mongoNode, e.getMessage());
     }
   }
 
@@ -80,6 +96,10 @@ public class MongoBase {
 
   @AfterSuite(enabled = true, description = "Backup  mongo collection")
   public void clearMongoDBConnection() throws Exception {
+    if (!mongoAvailable) {
+      logger.warn("MongoDB was not available, skipping collection backup");
+      return;
+    }
     Thread.sleep(120000);
     try {
       int times = 7;
@@ -90,9 +110,9 @@ public class MongoBase {
       Assert.assertTrue(backupCollection("transaction", times));
       Assert.assertTrue(backupCollection("contractlog", times));
       Assert.assertTrue(backupCollection("soliditylog", times));
-      System.out.println("Backup collection  successfully");
+      logger.info("Backup collection successfully");
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.warn("Failed to backup MongoDB collections: {}", e.getMessage());
     }
   }
 }

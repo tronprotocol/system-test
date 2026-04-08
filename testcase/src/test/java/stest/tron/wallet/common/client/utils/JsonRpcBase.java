@@ -27,22 +27,15 @@ import stest.tron.wallet.common.client.utils.services.Util;
 // import java.util.*;
 
 @Slf4j
-public class JsonRpcBase {
+public class JsonRpcBase extends TronBaseTest {
 
-  public final String foundationAccountKey =
-      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
-  public final byte[] foundationAccountAddress = PublicMethed.getFinalAddress(foundationAccountKey);
-  private final String witnessKey001 =
-      Configuration.getByPath("testng.conf").getString("witness.key1");
-  private final String witnessKey002 =
-      Configuration.getByPath("testng.conf").getString("witness.key2");
-  private final byte[] witness001Address = PublicMethed.getFinalAddress(witnessKey001);
-  private final byte[] witness002Address = PublicMethed.getFinalAddress(witnessKey002);
+  public final String foundationAccountKey = foundationKey;
+  public final byte[] foundationAccountAddress = foundationAddress;
   public static final String jsonRpcOwnerKey =
       Configuration.getByPath("testng.conf").getString("defaultParameter.jsonRpcOwnerKey");
-  public static final byte[] jsonRpcOwnerAddress = PublicMethed.getFinalAddress(jsonRpcOwnerKey);
+  public static final byte[] jsonRpcOwnerAddress = PublicMethod.getFinalAddress(jsonRpcOwnerKey);
   public static final String jsonRpcOwnerAddressString =
-      PublicMethed.getAddressString(jsonRpcOwnerKey);
+      PublicMethod.getAddressString(jsonRpcOwnerKey);
   public static String jsonRpcNode =
       Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(0);
   public static String jsonRpcNodeForSolidity =
@@ -56,18 +49,13 @@ public class JsonRpcBase {
   public static String ethHttpsNode =
       Configuration.getByPath("testng.conf").getStringList("ethHttpsNode.host.list").get(0);
 
-  public ManagedChannel channelFull = null;
-  public WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  public ManagedChannel channelSolidity = null;
-  public ManagedChannel channelPbft = null;
-  public static String data = null;
-  public String paramString = null;
-  public WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
-  public WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubPbft = null;
-  public String fullnode =
-      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  public String solidityNode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
 
   public static long maxFeeLimit = 0L;
+  public static String data = null;
+  public String paramString = null;
+
   public static String trc20AddressByteString;
   public static String trc20AddressHex;
   public static String contractAddressFrom58;
@@ -113,15 +101,19 @@ public class JsonRpcBase {
     // Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+
+    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
+    blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
+
     freezeBeforeAllTest();
     Assert.assertTrue(
-        PublicMethed.sendcoin(
-            witness001Address,
+        PublicMethod.sendcoin(
+            witnessAddress,
             2048000000L,
             foundationAccountAddress,
             foundationAccountKey,
             blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     getCommitData();
     openProposal(0, proposalMap);
     waitMaxTime = secondProposalMap.get(0L) * 2 + 10000L; //reload max wait time from proposal list
@@ -129,25 +121,25 @@ public class JsonRpcBase {
     openProposal(1, secondProposalMap);
     waitProposalApprove(ProposalEnum.getAllowCancelAllUnfreezeV2.getProposalName(), 1,blockingStubFull);
     Assert.assertTrue(
-        PublicMethed.sendcoin(
+        PublicMethod.sendcoin(
             jsonRpcOwnerAddress,
             2048000000L,
             foundationAccountAddress,
             foundationAccountKey,
             blockingStubFull));
-    if (PublicMethed.queryAccount(jsonRpcOwnerAddress, blockingStubFull).getAssetV2Count() == 0L) {
+    if (PublicMethod.queryAccount(jsonRpcOwnerAddress, blockingStubFull).getAssetV2Count() == 0L) {
       Assert.assertTrue(
-          PublicMethed.sendcoin(
+          PublicMethod.sendcoin(
               jsonRpcOwnerAddress,
               2048000000L,
               foundationAccountAddress,
               foundationAccountKey,
               blockingStubFull));
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethod.waitProduceNextBlock(blockingStubFull);
 
       // Create a new Asset Issue
       Assert.assertTrue(
-          PublicMethed.createAssetIssue(
+          PublicMethod.createAssetIssue(
               jsonRpcOwnerAddress,
               name,
               totalSupply,
@@ -165,11 +157,11 @@ public class JsonRpcBase {
               jsonRpcOwnerKey,
               blockingStubFull));
 
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethod.waitProduceNextBlock(blockingStubFull);
     }
 
-    response = HttpMethed.getAccount(httpFullNode, jsonRpcOwnerAddress);
-    responseContent = HttpMethed.parseResponseContent(response);
+    response = HttpMethod.getAccount(httpFullNode, jsonRpcOwnerAddress);
+    responseContent = HttpMethod.parseResponseContent(response);
     jsonRpcAssetId = responseContent.getString("asset_issued_ID");
 
     deployContract();
@@ -184,13 +176,13 @@ public class JsonRpcBase {
     ECKey ecKeyBefore = new ECKey(Utils.getRandom());
     byte[] address = ecKeyBefore.getAddress();
     String key = ByteArray.toHexString(ecKeyBefore.getPrivKeyBytes());
-    PublicMethed.printAddress(key);
-    Assert.assertTrue(PublicMethed.sendcoin(address, 201000000000L, foundationAccountAddress,
+    PublicMethod.printAddress(key);
+    Assert.assertTrue(PublicMethod.sendcoin(address, 201000000000L, foundationAccountAddress,
         foundationAccountKey, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(address, 100000000000L,
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(address, 100000000000L,
         0, 0, key, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(address, 100000000000L,
+    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(address, 100000000000L,
         0, 1, key, blockingStubFull));
   }
 
@@ -226,7 +218,7 @@ public class JsonRpcBase {
           return;
         }
       }
-      PublicMethed.waitProduceNextBlock(blockingStubFull);
+      PublicMethod.waitProduceNextBlock(blockingStubFull);
     }
   }
 
@@ -245,24 +237,23 @@ public class JsonRpcBase {
       System.out.println("no need to open proposal");
       return;
     }
-    PublicMethed.sendcoin(witness001Address,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(
-        PublicMethed.createProposal(
-            witness001Address, witnessKey001, proposalMap, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethod.sendcoin(witnessAddress,10000000000L,foundationAccountAddress,foundationAccountKey,blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethod.createProposal(
+            witnessAddress, witnessKey, proposalMap, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.ProposalList proposalList =
         blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<GrpcAPI.ProposalList> listProposals = Optional.ofNullable(proposalList);
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
     Assert.assertTrue(
-        PublicMethed.approveProposal(
-            witness001Address, witnessKey001, proposalId, true, blockingStubFull));
+        PublicMethod.approveProposal(
+            witnessAddress, witnessKey, proposalId, true, blockingStubFull));
     Assert.assertTrue(
-        PublicMethed.approveProposal(
-            witness002Address, witnessKey002, proposalId, true, blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+        PublicMethod.approveProposal(
+            witnessAddress2, witnessKey2, proposalId, true, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     // Get proposal list after approve
     proposalList = blockingStubFull.listProposals(GrpcAPI.EmptyMessage.newBuilder().build());
     listProposals = Optional.ofNullable(proposalList);
@@ -310,11 +301,10 @@ public class JsonRpcBase {
     return false;
   }
 
-
   /** constructor. */
   public void deployContract() throws Exception {
     final Long beforeTokenBalance =
-        PublicMethed.getAssetBalanceByAssetId(
+        PublicMethod.getAssetBalanceByAssetId(
             ByteString.copyFromUtf8(jsonRpcAssetId), jsonRpcOwnerKey, blockingStubFull);
 
     JsonObject param = new JsonObject();
@@ -323,7 +313,7 @@ public class JsonRpcBase {
     param.addProperty("gas", "0x245498");
     String filePath = "./src/test/resources/soliditycode/contractTrcToken001.sol";
     String contractName = "tokenTest";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
 
     String code = retMap.get("byteCode").toString();
     System.out.println("CODE:" + code);
@@ -341,26 +331,26 @@ public class JsonRpcBase {
     params.add(param);
     JsonObject requestBody = getJsonRpcBody("buildTransaction", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
-    responseContent = HttpMethed.parseResponseContent(response);
+    responseContent = HttpMethod.parseResponseContent(response);
     String transactionString = responseContent.getJSONObject("result").getString("transaction");
     String transactionSignString =
-        HttpMethed.gettransactionsign(httpFullNode, transactionString, jsonRpcOwnerKey);
+        HttpMethod.gettransactionsign(httpFullNode, transactionString, jsonRpcOwnerKey);
 
-    responseContent = HttpMethed.parseStringContent(transactionString);
+    responseContent = HttpMethod.parseStringContent(transactionString);
     final String txid = responseContent.getString("txID");
-    response = HttpMethed.broadcastTransaction(httpFullNode, transactionSignString);
-    org.junit.Assert.assertTrue(HttpMethed.verificationResult(response));
+    response = HttpMethod.broadcastTransaction(httpFullNode, transactionSignString);
+    org.junit.Assert.assertTrue(HttpMethod.verificationResult(response));
 
-    HttpMethed.waitToProduceOneBlock(httpFullNode);
+    HttpMethod.waitToProduceOneBlock(httpFullNode);
     Long afterTokenBalance =
-        PublicMethed.getAssetBalanceByAssetId(
+        PublicMethod.getAssetBalanceByAssetId(
             ByteString.copyFromUtf8(jsonRpcAssetId), jsonRpcOwnerKey, blockingStubFull);
 
     org.junit.Assert.assertEquals(beforeTokenBalance - afterTokenBalance, 1L);
 
-    response = HttpMethed.getTransactionById(httpFullNode, txid);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
+    response = HttpMethod.getTransactionById(httpFullNode, txid);
+    responseContent = HttpMethod.parseResponseContent(response);
+    HttpMethod.printJsonContent(responseContent);
     org.junit.Assert.assertTrue(!responseContent.getString("contract_address").isEmpty());
     contractAddressFrom58 = responseContent.getString("contract_address");
     logger.info("contractAddressFrom58:" + contractAddressFrom58);
@@ -369,9 +359,9 @@ public class JsonRpcBase {
   /** constructor. */
   public void triggerContract() throws Exception {
     final Long beforeTokenBalance =
-        PublicMethed.getAssetBalanceByAssetId(
+        PublicMethod.getAssetBalanceByAssetId(
             ByteString.copyFromUtf8(jsonRpcAssetId), foundationAccountKey, blockingStubFull);
-    final Long beforeBalance = HttpMethed.getBalance(httpFullNode, jsonRpcOwnerAddress);
+    final Long beforeBalance = HttpMethod.getBalance(httpFullNode, jsonRpcOwnerAddress);
     JsonObject param = new JsonObject();
     param.addProperty("from", "0x" + ByteArray.toHexString(jsonRpcOwnerAddress).substring(2));
     param.addProperty("to", "0x" + contractAddressFrom58);
@@ -400,37 +390,37 @@ public class JsonRpcBase {
     params.add(param);
     JsonObject requestBody = getJsonRpcBody("buildTransaction", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
-    responseContent = HttpMethed.parseResponseContent(response);
+    responseContent = HttpMethod.parseResponseContent(response);
     String transactionString = responseContent.getJSONObject("result").getString("transaction");
     logger.info("transactionString : " + transactionString);
     String transactionSignString =
-        HttpMethed.gettransactionsign(httpFullNode, transactionString, jsonRpcOwnerKey);
+        HttpMethod.gettransactionsign(httpFullNode, transactionString, jsonRpcOwnerKey);
     logger.info("transactionSignString:" + transactionSignString);
-    responseContent = HttpMethed.parseStringContent(transactionString);
+    responseContent = HttpMethod.parseStringContent(transactionString);
     txid = responseContent.getString("txID");
     logger.info("triggerTxid:" + txid);
 
-    response = HttpMethed.broadcastTransaction(httpFullNode, transactionSignString);
+    response = HttpMethod.broadcastTransaction(httpFullNode, transactionSignString);
     logger.info("response:" + response);
-    HttpMethed.verificationResult(response);
-    org.junit.Assert.assertTrue(HttpMethed.verificationResult(response));
+    HttpMethod.verificationResult(response);
+    org.junit.Assert.assertTrue(HttpMethod.verificationResult(response));
 
-    HttpMethed.waitToProduceOneBlock(httpFullNode);
+    HttpMethod.waitToProduceOneBlock(httpFullNode);
     Long afterTokenBalance =
-        PublicMethed.getAssetBalanceByAssetId(
+        PublicMethod.getAssetBalanceByAssetId(
             ByteString.copyFromUtf8(jsonRpcAssetId), foundationAccountKey, blockingStubFull);
-    Long afterBalance = HttpMethed.getBalance(httpFullNode, jsonRpcOwnerAddress);
+    Long afterBalance = HttpMethod.getBalance(httpFullNode, jsonRpcOwnerAddress);
 
     org.junit.Assert.assertEquals(beforeTokenBalance - afterTokenBalance, -1L);
     org.junit.Assert.assertTrue(beforeBalance - afterBalance >= 5000);
 
     blockNum =
-        (PublicMethed.getTransactionInfoById(txid, blockingStubFull).get().getBlockNumber());
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    response = HttpMethed.getBlockByNum(httpFullNode, blockNum);
+        (PublicMethod.getTransactionInfoById(txid, blockingStubFull).get().getBlockNumber());
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    response = HttpMethod.getBlockByNum(httpFullNode, blockNum);
     org.junit.Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
+    responseContent = HttpMethod.parseResponseContent(response);
+    HttpMethod.printJsonContent(responseContent);
     blockId = responseContent.get("blockID").toString();
   }
 
@@ -444,7 +434,7 @@ public class JsonRpcBase {
     String data = totalSupply.toString() + "," + "\"TokenTRC20\"" + "," + "\"zen20\"";
     logger.info("data:" + data);
     deployTrc20Txid =
-        PublicMethed.deployContractWithConstantParame(
+        PublicMethod.deployContractWithConstantParame(
             contractName,
             abi,
             code,
@@ -459,11 +449,11 @@ public class JsonRpcBase {
             jsonRpcOwnerAddress,
             blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     logger.info("deployTrc20Txid：" + deployTrc20Txid);
-    response = HttpMethed.getTransactionById(httpFullNode, deployTrc20Txid);
-    responseContent = HttpMethed.parseResponseContent(response);
-    HttpMethed.printJsonContent(responseContent);
+    response = HttpMethod.getTransactionById(httpFullNode, deployTrc20Txid);
+    responseContent = HttpMethod.parseResponseContent(response);
+    HttpMethod.printJsonContent(responseContent);
     org.junit.Assert.assertTrue(!responseContent.getString("contract_address").isEmpty());
     contractTrc20AddressFrom58 = responseContent.getString("contract_address");
     logger.info("contractTrc20AddressFrom58:" + contractTrc20AddressFrom58);
@@ -471,7 +461,7 @@ public class JsonRpcBase {
     //   NewFilterId = createNewFilterId();
 
     Optional<TransactionInfo> infoById =
-        PublicMethed.getTransactionInfoById(deployTrc20Txid, blockingStubFull);
+        PublicMethod.getTransactionInfoById(deployTrc20Txid, blockingStubFull);
 
     trc20AddressHex = ByteArray.toHexString(infoById.get().getContractAddress().toByteArray());
     byte[] trc20Address = infoById.get().getContractAddress().toByteArray();
@@ -483,7 +473,7 @@ public class JsonRpcBase {
     String transferValueParam = "0000000000000000000000000000000000000000000000000000000000000001";
     String paramString = addressParam + transferValueParam;
     trc20Txid =
-        PublicMethed.triggerContract(
+        PublicMethod.triggerContract(
             trc20Address,
             selector,
             paramString,
@@ -495,30 +485,27 @@ public class JsonRpcBase {
             jsonRpcOwnerAddress,
             jsonRpcOwnerKey,
             blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     blockNumForTrc20 =
 
-            (PublicMethed.getTransactionInfoById(trc20Txid, blockingStubFull)
+            (PublicMethod.getTransactionInfoById(trc20Txid, blockingStubFull)
                 .get()
                 .getBlockNumber());
   }
-
 
   /** constructor. */
   public void deploySelfDestructContract() throws InterruptedException {
     String filePath = "./src/test/resources/soliditycode/contractGrammar002test6Grammar013.sol";
     String contractName = "Counter";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    selfDestructAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    selfDestructAddressByte = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, jsonRpcOwnerKey,
         jsonRpcOwnerAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethed.getContract(selfDestructAddressByte,blockingStubFull).hasAbi());
-
-
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethod.getContract(selfDestructAddressByte,blockingStubFull).hasAbi());
 
   }
 
@@ -526,23 +513,23 @@ public class JsonRpcBase {
   public void deployCreate2Contract() {
     String filePath = "./src/test/resources/soliditycode/contractTrcToken001.sol";
     String contractName = "C";
-    HashMap retMap = PublicMethed.getBycodeAbi(filePath, contractName);
+    HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    byte[] cAddressByte = PublicMethed.deployContract(contractName, abi, code, "", maxFeeLimit,
+    byte[] cAddressByte = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
         0L, 100, null, jsonRpcOwnerKey,
         jsonRpcOwnerAddress, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(!PublicMethed.getContract(cAddressByte,blockingStubFull).getBytecode().isEmpty());
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(!PublicMethod.getContract(cAddressByte,blockingStubFull).getBytecode().isEmpty());
     String methedStr = "createWithSalted(bytes32)";
     String argsStr = "1232";
-    String txid = PublicMethed.triggerContract(cAddressByte, methedStr, argsStr,
+    String txid = PublicMethod.triggerContract(cAddressByte, methedStr, argsStr,
         false, 0, maxFeeLimit, jsonRpcOwnerAddress, jsonRpcOwnerKey, blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Protocol.TransactionInfo infoById =
-        PublicMethed.getTransactionInfoById(txid, blockingStubFull).get();
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull).get();
     logger.info("Trigger InfobyId: " + infoById);
     Assert.assertEquals(Protocol.TransactionInfo.code.SUCESS, infoById.getResult());
     Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS, infoById.getReceipt().getResult());
@@ -555,7 +542,7 @@ public class JsonRpcBase {
   public static HttpResponse getEthHttps(String ethHttpsNode, JsonObject jsonRpcObject) {
     try {
       String requestUrl = "https://" + ethHttpsNode + "/v3/dfb752dd45204b8daae74249f4653584";
-      response = HttpMethed.createConnect(requestUrl, jsonRpcObject);
+      response = HttpMethod.createConnect(requestUrl, jsonRpcObject);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -568,7 +555,7 @@ public class JsonRpcBase {
   public static HttpResponse getJsonRpc(String jsonRpcNode, JsonObject jsonRpcObject) {
     try {
       String requestUrl = "http://" + jsonRpcNode + "/jsonrpc";
-      response = HttpMethed.createConnect(requestUrl, jsonRpcObject);
+      response = HttpMethod.createConnect(requestUrl, jsonRpcObject);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -581,7 +568,7 @@ public class JsonRpcBase {
   public static HttpResponse getJsonRpc(String jsonRpcNode, JsonArray jsonRpcArray) {
     try {
       String requestUrl = "http://" + jsonRpcNode + "/jsonrpc";
-      response = HttpMethed.createConnect(requestUrl, jsonRpcArray);
+      response = HttpMethod.createConnect(requestUrl, jsonRpcArray);
     } catch (Exception e) {
       e.printStackTrace();
       httppost.releaseConnection();
@@ -617,7 +604,7 @@ public class JsonRpcBase {
     params.add("0x" + Long.toHexString(1));
     JsonObject requestBody = getJsonRpcBody("eth_getBalance", params);
     response = getJsonRpc(stateTreeNode, requestBody);
-    responseContent = HttpMethed.parseResponseContent(response);
+    responseContent = HttpMethod.parseResponseContent(response);
     String resStr = responseContent.toJSONString();
     logger.info(resStr);
 

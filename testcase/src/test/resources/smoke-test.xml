@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Smoke Test" parallel="classes" thread-count="4">
+  <listeners>
+    <listener class-name="stest.tron.wallet.common.client.utils.RetryListener"/>
+    <listener class-name="stest.tron.wallet.common.client.utils.FailureClassifier"/>
+  </listeners>
+  <test name="Smoke">
+    <groups>
+      <run>
+        <include name="smoke"/>
+      </run>
+    </groups>
+    <packages>
+      <package name="stest.tron.wallet.account"/>
+      <package name="stest.tron.wallet.transfer"/>
+      <package name="stest.tron.wallet.block"/>
+      <package name="stest.tron.wallet.witness"/>
+      <package name="stest.tron.wallet.committee"/>
+      <package name="stest.tron.wallet.contract.*"/>
+      <package name="stest.tron.wallet.multisign"/>
+      <package name="stest.tron.wallet.newaddinterface2"/>
+    </packages>
+  </test>
+</suite>

@@ -4,35 +4,29 @@ net {
 
 fullnode = {
   ip.list = [
-    #Docker env
     "127.0.0.1:50051",
-    "127.0.0.1:50052",
+    "127.0.0.1:50051"
   ]
 }
 
 solidityNode = {
   ip.list = [
-    #Docker env
-     "127.0.0.1:50053",
-     "127.0.0.1:50062",
-     "127.0.0.1:50071",
-     #witness2 PBFT
-     "127.0.0.1:50072"
+    "127.0.0.1:50053",
+    "127.0.0.1:50053",
+    "127.0.0.1:50071",
+    "127.0.0.1:50071"
   ]
 }
 
 httpnode = {
   ip.list = [
-    #docker env
     "127.0.0.1:8090",
-    "127.0.0.1:8093",
-    "127.0.0.1:8097",
+    "127.0.0.1:8090",
+    "127.0.0.1:8091",
     "127.0.0.1:8091",
     "127.0.0.1:8098",
-    #witeness2 solidity
-    "127.0.0.1:8094",
-    #witness2 pbft
-    "127.0.0.1:8099"
+    "127.0.0.1:8091",
+    "127.0.0.1:8098"
   ]
 }
 
@@ -64,6 +58,7 @@ jsonRpcNode = {
       "127.0.0.1:50546",
   ]
 }
+
 
 ethHttpsNode = {
   host.list = [
@@ -194,6 +189,7 @@ defaultParameter = {
   solidityCompilerVersion = "v5"
   solidityCompile = "../solcDIR/solc"
   gRPCurl = "../gRPCurl/./grpcurl"
+  slack = "../slackDIR/./slack"
   #test key, do not worry
   zenTokenOwnerKey = 2925e186bb1e88988855f11ebf20ea3a6e19ed92328b0ffb576122e769d45b68
   zenTokenId = 1000001
@@ -203,7 +199,7 @@ defaultParameter = {
   zenTrc20TokenOwnerKey = ede941a01eb8234866f60c7e8e95db4614bb0d05298d82bae0abea81f1861046
   jsonRpcOwnerKey = dbc78781ad27f3751358333412d5edc85b13e5eee129a1a77f7232baadafae0e
   blackHoleAddress = THmtHi1Rzq4gSKYGEKv1DPkV7au6xU1AUB
-  ReportFlag = "Serial Case"
+  ReportFlag = "Separate Execution Case"
 }
 
 

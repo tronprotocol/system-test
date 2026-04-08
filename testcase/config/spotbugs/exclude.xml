@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!-- Exclude protobuf/gRPC generated code -->
+  <Match>
+    <Package name="~org\.tron\.protos\..*"/>
+  </Match>
+  <Match>
+    <Package name="~org\.tron\.api\..*"/>
+  </Match>
+  <!-- Exclude test classes from main source analysis -->
+  <Match>
+    <Package name="~stest\.tron\.wallet\..*"/>
+    <Bug pattern="SE_NO_SERIALVERSIONID"/>
+  </Match>
+</FindBugsFilter>
