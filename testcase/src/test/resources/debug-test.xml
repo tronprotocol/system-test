@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Phase4 ALL" parallel="classes" thread-count="1">
+  <test name="Security">
+    <classes>
+      <class name="stest.tron.wallet.dailybuild.security.SecurityOverflowTest"/>
+      <class name="stest.tron.wallet.dailybuild.security.SecurityEnergyBombTest"/>
+      <class name="stest.tron.wallet.dailybuild.security.SecurityReentrancyTest"/>
+      <class name="stest.tron.wallet.dailybuild.security.SecurityPermissionTest"/>
+      <class name="stest.tron.wallet.dailybuild.security.SecuritySelfdestructTest"/>
+    </classes>
+  </test>
+  <test name="Consensus">
+    <classes>
+      <class name="stest.tron.wallet.dailybuild.consensus.VoteWeightTest"/>
+      <class name="stest.tron.wallet.dailybuild.consensus.WitnessElectionTest"/>
+      <class name="stest.tron.wallet.dailybuild.consensus.BlockProductionTest"/>
+      <class name="stest.tron.wallet.dailybuild.consensus.MaintenancePeriodTest"/>
+    </classes>
+  </test>
+  <test name="Performance">
+    <classes>
+      <class name="stest.tron.wallet.dailybuild.performance.ThroughputBenchmarkTest"/>
+      <class name="stest.tron.wallet.dailybuild.performance.BlockLatencyTest"/>
+      <class name="stest.tron.wallet.dailybuild.performance.ApiLatencyTest"/>
+    </classes>
+  </test>
+</suite>

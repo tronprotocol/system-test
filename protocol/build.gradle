@@ -1,0 +1,68 @@
+apply plugin: 'com.google.protobuf'
+def protobufVersion = '3.25.5'
+def grpcVersion = '1.60.0'
+
+
+dependencies {
+    implementation group: 'com.google.protobuf', name: 'protobuf-java', version: protobufVersion
+    implementation group: 'com.google.protobuf', name: 'protobuf-java-util', version: protobufVersion
+    implementation group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
+
+//    checkstyleConfig "com.puppycrawl.tools:checkstyle:${versions.checkstyle}"
+    // google grpc
+    implementation group: 'io.grpc', name: 'grpc-netty', version: grpcVersion
+    implementation group: 'io.grpc', name: 'grpc-protobuf', version: grpcVersion
+    implementation group: 'io.grpc', name: 'grpc-stub', version: grpcVersion
+    // end google grpc
+
+    implementation group: 'com.google.api.grpc', name: 'googleapis-common-protos', version: '0.0.3'
+}
+
+tasks.matching { it instanceof Test }.all {
+    testLogging.events = ["failed", "passed", "skipped"]
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir 'src/main/protos'
+        }
+        java {
+            srcDir 'src/main/gen'
+            srcDir 'src/main/java'
+        }
+    }
+
+}
+
+
+protobuf {
+    generatedFilesBaseDir = "$projectDir/src/"
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { outputSubDir = "java" }
+            }
+        }
+        all()*.plugins {
+            grpc {
+                outputSubDir = "java"
+            }
+        }
+    }
+}
+
+clean.doFirst {
+    delete "src/main/java"
+}
+
