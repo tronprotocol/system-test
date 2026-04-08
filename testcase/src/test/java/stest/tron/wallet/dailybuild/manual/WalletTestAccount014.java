@@ -1,0 +1,211 @@
+package stest.tron.wallet.dailybuild.manual;
+
+import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.testng.Assert;
+import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.tron.api.WalletSolidityGrpc;
+import org.tron.protos.Protocol.Account;
+import stest.tron.wallet.common.client.Configuration;
+import stest.tron.wallet.common.client.utils.*;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+
+@Slf4j
+public class WalletTestAccount014 extends TronBaseTest {
+
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
+  byte[] account014Address = ecKey1.getAddress();
+  String account014Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  ECKey ecKey2 = new ECKey(Utils.getRandom());
+  byte[] account014SecondAddress = ecKey2.getAddress();
+  String account014SecondKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+  private ManagedChannel channelSoliInFull = null;
+  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSoliInFull = null;
+  private String soliditynode = Configuration.getByPath("testng.conf")
+      .getStringList("solidityNode.ip.list").get(0);
+  private String soliInFullnode = Configuration.getByPath("testng.conf")
+      .getStringList("solidityNode.ip.list").get(1);
+
+  /**
+   * constructor.
+   */
+  @BeforeClass(enabled = true)
+  public void beforeClass() {
+    initSolidityChannel();
+    PublicMethod.printAddress(testKey002);    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
+        .usePlaintext()
+        .build();
+    channelSoliInFull = ManagedChannelBuilder.forTarget(soliInFullnode)
+        .usePlaintext()
+        .build();
+    blockingStubSoliInFull = WalletSolidityGrpc.newBlockingStub(channelSoliInFull);
+    if(PublicMethod.freezeV2ProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping delegate resource v1 test case");
+    }
+
+  }
+
+  @Test(enabled = true, description = "Query freeNetUsage in 50061", groups = {"daily"})
+  public void fullAndSoliMerged1ForFreeNetUsage() {
+    if(PublicMethod.freezeV2ProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping delegate resource v1 test case");
+    }
+
+    //Create account014
+    ecKey1 = new ECKey(Utils.getRandom());
+    account014Address = ecKey1.getAddress();
+    account014Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    ecKey2 = new ECKey(Utils.getRandom());
+    account014SecondAddress = ecKey2.getAddress();
+    account014SecondKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+    PublicMethod.printAddress(account014Key);
+    PublicMethod.printAddress(account014SecondKey);
+    Assert.assertTrue(PublicMethod.sendcoin(account014Address, 1000000000L, foundationAddress,
+        testKey002, blockingStubFull));
+  //Test freeNetUsage in fullnode and soliditynode.
+    Assert.assertTrue(PublicMethod.sendcoin(account014SecondAddress, 5000000L,
+        account014Address, account014Key,
+        blockingStubFull));
+    Assert.assertTrue(PublicMethod.sendcoin(account014SecondAddress, 5000000L,
+        account014Address, account014Key,
+        blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Account account014 = PublicMethod.queryAccount(account014Address, blockingStubFull);
+  final long freeNetUsageInFullnode = account014.getFreeNetUsage();
+  final long createTimeInFullnode = account014.getCreateTime();
+  final long lastOperationTimeInFullnode = account014.getLatestOprationTime();
+  final long lastCustomeFreeTimeInFullnode = account014.getLatestConsumeFreeTime();
+    PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
+    PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
+    account014 = PublicMethod.queryAccount(account014Address, blockingStubSoliInFull);
+  final long freeNetUsageInSoliInFull = account014.getFreeNetUsage();
+  final long createTimeInSoliInFull = account014.getCreateTime();
+  final long lastOperationTimeInSoliInFull = account014.getLatestOprationTime();
+  final long lastCustomeFreeTimeInSoliInFull = account014.getLatestConsumeFreeTime();
+    PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
+    account014 = PublicMethod.queryAccount(account014Address, blockingStubSolidity);
+  final long freeNetUsageInSolidity = account014.getFreeNetUsage();
+  final long createTimeInSolidity = account014.getCreateTime();
+  final long lastOperationTimeInSolidity = account014.getLatestOprationTime();
+  final long lastCustomeFreeTimeInSolidity = account014.getLatestConsumeFreeTime();
+    Assert.assertTrue(freeNetUsageInSoliInFull > 0 && freeNetUsageInSolidity > 0
+        && freeNetUsageInFullnode > 0);
+    Assert.assertTrue(freeNetUsageInFullnode <= freeNetUsageInSoliInFull + 5
+        && freeNetUsageInFullnode >= freeNetUsageInSoliInFull - 5);
+    Assert.assertTrue(freeNetUsageInFullnode <= freeNetUsageInSolidity + 5
+        && freeNetUsageInFullnode >= freeNetUsageInSolidity - 5);
+    Assert.assertTrue(createTimeInFullnode == createTimeInSolidity && createTimeInFullnode
+        == createTimeInSoliInFull);
+    Assert.assertTrue(createTimeInSoliInFull != 0);
+    Assert.assertTrue(lastOperationTimeInFullnode == lastOperationTimeInSolidity
+        && lastOperationTimeInFullnode == lastOperationTimeInSoliInFull);
+    Assert.assertTrue(lastOperationTimeInSoliInFull != 0);
+    Assert.assertTrue(lastCustomeFreeTimeInFullnode == lastCustomeFreeTimeInSolidity
+        && lastCustomeFreeTimeInFullnode == lastCustomeFreeTimeInSoliInFull);
+    Assert.assertTrue(lastCustomeFreeTimeInSoliInFull != 0);
+  }
+
+  @Test(enabled = true, description = "Query net usage in 50061", groups = {"daily"})
+  public void fullAndSoliMerged2ForNetUsage() {
+    if(PublicMethod.freezeV2ProposalIsOpen(blockingStubFull)) {
+      throw new SkipException("Skipping delegate resource v1 test case");
+    }
+
+    Assert.assertTrue(PublicMethod.freezeBalance(account014Address, 1000000L, 3,
+        account014Key, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethod.sendcoin(account014SecondAddress, 1000000L,
+        account014Address, account014Key, blockingStubFull));
+    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(account014Address, 1000000,
+        3, 1, account014Key, blockingStubFull));
+    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(account014Address, 1000000,
+        3, 0, ByteString.copyFrom(
+            account014SecondAddress), account014Key, blockingStubFull));
+    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(account014Address, 1000000,
+        3, 1, ByteString.copyFrom(
+            account014SecondAddress), account014Key, blockingStubFull));
+    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(account014SecondAddress, 1000000,
+        3, 0, ByteString.copyFrom(
+            account014Address), account014SecondKey, blockingStubFull));
+    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(account014SecondAddress, 1000000,
+        3, 1, ByteString.copyFrom(
+            account014Address), account014SecondKey, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSoliInFull);
+    Account account014 = PublicMethod.queryAccount(account014Address, blockingStubFull);
+    logger.info("account014: " + JsonFormat.printToString(account014));
+  final long lastCustomeTimeInFullnode = account014.getLatestConsumeTime();
+  final long netUsageInFullnode = account014.getNetUsage();
+  final long acquiredForBandwidthInFullnode = account014
+        .getAcquiredDelegatedFrozenBalanceForBandwidth();
+  final long delegatedBandwidthInFullnode = account014.getDelegatedFrozenBalanceForBandwidth();
+  final long acquiredForEnergyInFullnode = account014
+        .getAccountResource().getAcquiredDelegatedFrozenBalanceForEnergy();
+  final long delegatedForEnergyInFullnode = account014
+        .getAccountResource().getDelegatedFrozenBalanceForEnergy();
+    logger.info("delegatedForEnergyInFullnode " + delegatedForEnergyInFullnode);
+    account014 = PublicMethod.queryAccount(account014Address, blockingStubSoliInFull);
+  final long lastCustomeTimeInSoliInFull = account014.getLatestConsumeTime();
+
+    logger.info("freeNetUsageInSoliInFull " + lastCustomeTimeInSoliInFull);
+  final long netUsageInSoliInFull = account014.getNetUsage();
+  final long acquiredForBandwidthInSoliInFull = account014
+        .getAcquiredDelegatedFrozenBalanceForBandwidth();
+  final long delegatedBandwidthInSoliInFull = account014.getDelegatedFrozenBalanceForBandwidth();
+  final long acquiredForEnergyInSoliInFull = account014
+        .getAccountResource().getAcquiredDelegatedFrozenBalanceForEnergy();
+  final long delegatedForEnergyInSoliInFull = account014
+        .getAccountResource().getDelegatedFrozenBalanceForEnergy();
+    logger.info("delegatedForEnergyInSoliInFull " + delegatedForEnergyInSoliInFull);
+    account014 = PublicMethod.queryAccount(account014Address, blockingStubSolidity);
+  final long netUsageInSolidity = account014.getNetUsage();
+  final long lastCustomeTimeInSolidity = account014.getLatestConsumeTime();
+  final long acquiredForBandwidthInSolidity = account014
+        .getAcquiredDelegatedFrozenBalanceForBandwidth();
+  final long delegatedBandwidthInSolidity = account014.getDelegatedFrozenBalanceForBandwidth();
+  final long acquiredForEnergyInSolidity = account014.getAccountResource()
+        .getAcquiredDelegatedFrozenBalanceForEnergy();
+  final long delegatedForEnergyInSolidity = account014.getAccountResource()
+        .getDelegatedFrozenBalanceForEnergy();
+
+    logger.info("delegatedForEnergyInSolidity " + delegatedForEnergyInSolidity);
+    Assert.assertTrue(netUsageInSoliInFull > 0 && netUsageInSolidity > 0
+        && netUsageInFullnode > 0);
+    Assert.assertTrue(netUsageInFullnode <= netUsageInSoliInFull + 5
+        && netUsageInFullnode >= netUsageInSoliInFull - 5);
+    Assert.assertTrue(netUsageInFullnode <= netUsageInSolidity + 5
+        && netUsageInFullnode >= netUsageInSolidity - 5);
+    Assert.assertTrue(acquiredForBandwidthInFullnode == acquiredForBandwidthInSoliInFull
+        && acquiredForBandwidthInFullnode == acquiredForBandwidthInSolidity);
+    Assert.assertTrue(delegatedBandwidthInFullnode == delegatedBandwidthInSoliInFull
+        && delegatedBandwidthInFullnode == delegatedBandwidthInSolidity);
+    Assert.assertTrue(acquiredForEnergyInFullnode == acquiredForEnergyInSoliInFull
+        && acquiredForEnergyInFullnode == acquiredForEnergyInSolidity);
+    Assert.assertTrue(delegatedForEnergyInFullnode == delegatedForEnergyInSoliInFull
+        && delegatedForEnergyInFullnode == delegatedForEnergyInSolidity);
+    Assert.assertTrue(acquiredForBandwidthInSoliInFull == 1000000
+        && delegatedBandwidthInSoliInFull == 1000000 && acquiredForEnergyInSoliInFull == 1000000
+        && delegatedForEnergyInSoliInFull == 1000000);
+    logger.info("lastCustomeTimeInSoliInFull " + lastCustomeTimeInSoliInFull);
+    Assert.assertTrue(lastCustomeTimeInFullnode == lastCustomeTimeInSolidity
+        && lastCustomeTimeInFullnode == lastCustomeTimeInSoliInFull);
+    logger.info("lastCustomeTimeInSoliInFull " + lastCustomeTimeInSoliInFull);
+    Assert.assertTrue(lastCustomeTimeInSoliInFull != 0);
+
+  }
+
+  /**
+   * constructor.
+   */
+  @AfterClass
+  public void shutdown() throws InterruptedException {
+    PublicMethod.freeResource(account014Address, account014Key, foundationAddress, blockingStubFull);
+    PublicMethod
+        .freeResource(account014SecondAddress, account014SecondKey, foundationAddress, blockingStubFull);  }
+}
