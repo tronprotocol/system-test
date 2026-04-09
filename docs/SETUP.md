@@ -1,6 +1,5 @@
 # TRON System-Test Setup Guide
 
-**English** | [中文](SETUP_CN.md)
 
 Integration test suite for [java-tron](https://github.com/tronprotocol/java-tron). Tests gRPC, HTTP, JSON-RPC APIs, smart contracts, staking, multi-signature, and more against a running java-tron node.
 

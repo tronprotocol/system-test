@@ -1,55 +1,54 @@
-# FAQ — 常见问题
-
-[English](#faq) | 中文
+# FAQ
 
 ---
 
-## 1. 启动节点后区块号一直为 0
+## 1. Block number stays at 0 after starting the node
 
-**原因**：见证人私钥未正确配置，或 `needSyncCheck` 设置错误。
+**Cause**: Witness private keys are not configured correctly, or `needSyncCheck` is set incorrectly.
 
-**解决方案**：
+**Solution**:
 ```bash
-# 检查 config.conf 中：
+# Check config.conf:
 localwitness = [
   369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77,
   291C233A5A7660FB148BAE07FCBCF885224F2DF453239BD983F859E8E5AA4602
 ]
 
 block {
-  needSyncCheck = false    # 单节点必须设为 false
+  needSyncCheck = false    # Must be false for single-node setup
 }
 
-# 确认私钥对应的地址在 genesis.block.witnesses 中
+# Confirm that the addresses corresponding to the private keys
+# are listed in genesis.block.witnesses
 ```
 
 ---
 
-## 2. 测试报 "Connection refused" / "UNAVAILABLE"
+## 2. Tests report "Connection refused" / "UNAVAILABLE"
 
-**原因**：java-tron 节点未启动，或端口与 `testng.conf` 不匹配。
+**Cause**: The java-tron node is not running, or the ports do not match those in `testng.conf`.
 
-**解决方案**：
+**Solution**:
 ```bash
-# 1. 确认节点正在运行
+# 1. Verify the node is running
 curl -s http://127.0.0.1:8090/wallet/getnowblock | head -1
 
-# 2. 如果端口被占用
+# 2. If the port is occupied
 lsof -i :50051
 lsof -i :8090
 kill -9 <PID>
 
-# 3. 检查 testng.conf 的端口与 config.conf 是否一致
+# 3. Check that testng.conf ports match config.conf
 grep "50051" testcase/src/test/resources/testng.conf
 ```
 
 ---
 
-## 3. grpcurl 测试全部失败
+## 3. All grpcurl tests fail
 
-**原因**：java-tron 的 gRPC Reflection 服务默认关闭。
+**Cause**: The gRPC Reflection service in java-tron is disabled by default.
 
-**解决方案**：在 `config.conf` 的 `node.rpc` 段添加：
+**Solution**: Add the following to the `node.rpc` section in `config.conf`:
 ```hocon
 node {
   rpc {
@@ -57,26 +56,26 @@ node {
   }
 }
 ```
-重启节点后生效。
+Restart the node for the change to take effect.
 
 ---
 
-## 4. 合约部署失败 / solc 报错
+## 4. Contract deployment fails / solc errors
 
-**原因**：solc 未安装、权限不足、或使用了标准 Ethereum 版 solc。
+**Cause**: solc is not installed, lacks execution permission, or is the standard Ethereum version of solc.
 
-**解决方案**：
+**Solution**:
 ```bash
-# 检查 solc 是否存在且可执行
+# Check that solc exists and is executable
 ls -la solcDIR/solc
 chmod +x solcDIR/solc
 
-# 确认是 tronprotocol fork 版本
+# Verify it is the tronprotocol fork version
 ./solcDIR/solc --version
-# 应输出: solc.tron ... Version: 0.8.26+...
-# 如果显示 "solc, the solidity compiler"（没有 .tron），则版本不对
+# Expected output: solc.tron ... Version: 0.8.26+...
+# If it shows "solc, the solidity compiler" (without .tron), the version is wrong
 
-# 重新下载正确版本
+# Re-download the correct version
 # macOS:
 wget -O solcDIR/solc https://github.com/tronprotocol/solidity/releases/download/tv_0.8.26/solc-macos
 # Linux:
@@ -86,25 +85,25 @@ chmod +x solcDIR/solc
 
 ---
 
-## 5. `downloadTools` 下载超时（国内网络）
+## 5. `downloadTools` times out (slow network)
 
-**原因**：GitHub Release 在国内访问较慢。
+**Cause**: GitHub Releases may be slow to access depending on your region.
 
-**解决方案**：手动下载后放到指定目录：
+**Solution**: Download manually and place the files in the designated directories:
 
 ```bash
-# grpcurl — 放到 gRPCurl/grpcurl
-# 下载地址: https://github.com/fullstorydev/grpcurl/releases/tag/v1.8.9
+# grpcurl — place at gRPCurl/grpcurl
+# Download: https://github.com/fullstorydev/grpcurl/releases/tag/v1.8.9
 
-# solc — 放到 solcDIR/solc
-# 下载地址: https://github.com/tronprotocol/solidity/releases/tag/tv_0.8.26
+# solc — place at solcDIR/solc
+# Download: https://github.com/tronprotocol/solidity/releases/tag/tv_0.8.26
 
-# 放好后 Gradle 会自动检测到，不再重复下载
+# Once placed, Gradle will detect them automatically and skip re-downloading
 ```
 
-如果有代理，也可以设置 Gradle 代理：
+If you have a proxy, you can also configure Gradle proxy settings:
 ```bash
-# 在 gradle.properties 中添加
+# Add to gradle.properties
 systemProp.http.proxyHost=127.0.0.1
 systemProp.http.proxyPort=7890
 systemProp.https.proxyHost=127.0.0.1
@@ -113,23 +112,23 @@ systemProp.https.proxyPort=7890
 
 ---
 
-## 6. Solidity 查询始终返回空
+## 6. Solidity queries always return empty
 
-**原因**：单节点环境无法产生 solidified block（需要 2/3 见证人确认）。
+**Cause**: A single-node environment cannot produce solidified blocks (requires 2/3 witness confirmation).
 
-**解决方案**：
-- 单节点测试使用 `./gradlew singleNodeBuild`，自动跳过需要 Solidity 的测试
-- 或搭建双节点环境（参考 [NETWORK.md](NETWORK.md)），实现真正的 DPoS 共识
+**Solution**:
+- For single-node testing, use `./gradlew singleNodeBuild`, which automatically skips tests that require Solidity
+- Or set up a dual-node environment (see [NETWORK.md](NETWORK.md)) for real DPoS consensus
 
-单节点下可以使用 PBFT 端口（`:50071`）获取近似 solidified 的数据。
+On a single node, you can use the PBFT port (`:50071`) to obtain approximately solidified data.
 
 ---
 
-## 7. MongoEventQuery 测试全部跳过
+## 7. All MongoEventQuery tests are skipped
 
-**原因**：MongoDB 未安装。这是**正常行为**，不影响其他测试。
+**Cause**: MongoDB is not installed. This is **expected behavior** and does not affect other tests.
 
-**解决方案**（可选）：
+**Solution** (optional):
 ```bash
 # macOS
 brew tap mongodb/brew && brew install mongodb-community
@@ -139,27 +138,27 @@ brew services start mongodb-community
 sudo apt install mongodb
 sudo systemctl start mongodb
 
-# 确认 testng.conf 中的 MongoDB 地址
+# Verify the MongoDB address in testng.conf
 mongonode.ip.list = ["127.0.0.1:27017"]
 ```
 
 ---
 
-## 8. 编译报 "unsupported class file version"
+## 8. Build reports "unsupported class file version"
 
-**原因**：使用了错误的 JDK 版本。
+**Cause**: An incorrect JDK version is being used.
 
-**解决方案**：
+**Solution**:
 ```bash
-# 确认 JDK 版本
+# Check JDK version
 java -version
-# 应为 1.8.x（x86 平台）或 17.x（ARM 平台）
+# Should be 1.8.x (x86 platform) or 17.x (ARM platform)
 
-# macOS 安装 JDK 8
+# macOS — install JDK 8
 brew install --cask temurin@8
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
-# 多版本共存时切换
+# Switch between multiple versions
 # macOS:
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 # Linux:
@@ -168,27 +167,27 @@ sudo update-alternatives --config java
 
 ---
 
-## 9. dailyBuild 内存不足 (OOM)
+## 9. dailyBuild runs out of memory (OOM)
 
-**原因**：dailyBuild 默认 `maxHeapSize = 2048m`，机器内存不足。
+**Cause**: dailyBuild defaults to `maxHeapSize = 2048m`, which may exceed available memory.
 
-**解决方案**：
+**Solution**:
 ```bash
-# 方案 1：用单节点构建代替
+# Option 1: Use single-node build instead
 ./gradlew singleNodeBuild
 
-# 方案 2：减少线程数（编辑 testcase/build.gradle）
-# threadCount 从 2 改为 1
+# Option 2: Reduce thread count (edit testcase/build.gradle)
+# Change threadCount from 2 to 1
 
-# 方案 3：增加 Gradle JVM 内存（编辑 gradle.properties）
+# Option 3: Increase Gradle JVM memory (edit gradle.properties)
 org.gradle.jvmargs=-Xmx3072m
 ```
 
 ---
 
-## 10. 失败报告中如何区分环境问题和真正的 bug？
+## 10. How to distinguish environment issues from real bugs in failure reports?
 
-`dailyBuild` 结束后会自动打印 **Failure Classification Summary**：
+After `dailyBuild` completes, it automatically prints a **Failure Classification Summary**:
 
 ```
 === Failure Classification Summary ===
@@ -199,19 +198,19 @@ org.gradle.jvmargs=-Xmx3072m
   BUG:                2  (SecurityOverflowTest.test01 ...)
   ────────────────────────
   Total Failures:   234
-  Actionable Bugs:    2  <<< 只需关注这里
+  Actionable Bugs:    2  <<< Focus only on this
 =======================================
 ```
 
-- **ENV_*** — 环境问题，搭好环境就能过
-- **FLAKY** — 已知不稳定测试，标注了 `@Flaky`
-- **BUG** — 真正需要修复的问题
+- **ENV_***: Environment issues — will pass once the environment is properly set up
+- **FLAKY**: Known unstable tests, annotated with `@Flaky`
+- **BUG**: Real issues that need to be fixed
 
 ---
 
-## 还有问题？
+## Still have questions?
 
-- [TRON 开发者文档](https://tronprotocol.github.io/documentation-en/)
-- [TRON 改进提案 (TIPs)](https://github.com/tronprotocol/tips)
+- [TRON Developer Documentation](https://tronprotocol.github.io/documentation-en/)
+- [TRON Improvement Proposals (TIPs)](https://github.com/tronprotocol/tips)
 - [java-tron Issues](https://github.com/tronprotocol/java-tron/issues)
-- [网络拓扑指南](NETWORK.md) — 详细的组网和端口配置
+- [Network Topology Guide](NETWORK.md) — Detailed networking and port configuration

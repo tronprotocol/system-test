@@ -1,42 +1,40 @@
-# 单节点配置说明
+# Single-Node Configuration
 
-## 配置文件
+## Configuration File
 
-| 节点 | 配置文件 |
-|------|----------|
-| SR-1 节点（拖 3 witness） | `config.conf` |
+| Node | Configuration File |
+|------|--------------------|
+| SR-1 node (carrying 3 witnesses) | `config.conf` |
 
-## 节点启动参数
+## Node Startup Parameters
 
-SR-1 节点启动时需要添加参数：
+SR-1 node requires the following parameters at startup:
 
 ```
 --es --witness
 ```
 
-## 依赖工具
+## Required Tools
 
-### 编译器（solc）
+### Compiler (solc)
 
-- 下载地址：<https://github.com/tronprotocol/solidity/releases>
-- 下载后保存至 system-test 项目的 `solcDIR/` 目录，命名为 `solc`
-- 当前使用版本：`v0.8.26`
+- Download: <https://github.com/tronprotocol/solidity/releases>
+- Save to the `solcDIR/` directory of the system-test project, named `solc`
+- Current version: `v0.8.26`
 
 ### gRPCurl
 
-- 下载地址：<https://github.com/fullstorydev/grpcurl/releases>
-- 下载后保存至 system-test 项目的 `gRPCurl/` 目录，命名为 `grpcurl`
-- 当前使用版本：`v1.8.9`
+- Download: <https://github.com/fullstorydev/grpcurl/releases>
+- Save to the `gRPCurl/` directory of the system-test project, named `grpcurl`
+- Current version: `v1.8.9`
 
 
-## 注意事项
+## Notes
 
-### mongo 相关用例
+### MongoDB-related test cases
 
-单节点 event 配置使用了 native 配置，会导致 mongo 相关用例失败。若无需关注 mongo 用例，可禁用此部分用例。
+The single-node event configuration uses the native configuration, which causes MongoDB-related test cases to fail. If you do not need to run MongoDB test cases, you can disable them.
 
-### 限速相关用例
+### Rate-limiting test cases
 
-部分限速用例在单节点环境下运行会失败。若不关注此类用例，可预先禁用此部分用例。
-
-
+Some rate-limiting test cases will fail in a single-node environment. If you do not need to run these test cases, you can disable them in advance.
