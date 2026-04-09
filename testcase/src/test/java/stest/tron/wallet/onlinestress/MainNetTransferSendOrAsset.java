@@ -12,20 +12,20 @@ import stest.tron.wallet.common.client.utils.TronBaseTest;
 @Slf4j
 public class MainNetTransferSendOrAsset extends TronBaseTest {
 
-  //testng001、testng002、testng003、testng004
-  //all keys are for test
+  // testng001、testng002、testng003、testng004
+  // all keys are for test
   private final String testKey001 =
       "BC70ADC5A0971BA3F7871FBB7249E345D84CE7E5458828BE1E28BF8F98F2795B";
-  //toAssetIssue
+  // toAssetIssue
   private final String testKey002 =
       "F153A0E1A65193846A3D48A091CD0335594C0A3D9817B3441390FDFF71684C84";
-  //fromSend
+  // fromSend
   private final String testKey003 =
       "2514B1DD2942FF07F68C2DDC0EE791BC7FBE96FDD95E89B7B9BB3B4C4770FFAC";
-  //toSend
+  // toSend
   private final String testKey004 =
       "56244EE6B33C14C46704DFB67ED5D2BBCBED952EE46F1FD88A50C32C8C5C64CE";
-  //Default
+  // Default
   private final String defaultKey =
       "8DFBB4513AECF779A0803C7CEBF2CDCC51585121FAB1E086465C4E0B40724AF1";
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey001);
@@ -42,23 +42,35 @@ public class MainNetTransferSendOrAsset extends TronBaseTest {
   private Long beforeToAssetBalance = 0L;
   private Long afterToAssetBalance = 0L;
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = false)
-  public void beforeClass() {    Account fromAccount = PublicMethod.queryAccount(testKey001, blockingStubFull);
+  public void beforeClass() {
+    Account fromAccount = PublicMethod.queryAccount(testKey001, blockingStubFull);
     Account toAccount = PublicMethod.queryAccount(testKey002, blockingStubFull);
     if (fromAccount.getBalance() < 10000000000L) {
-      PublicMethod
-          .sendcoin(fromAddress, 10000000000L, defaultAddress, defaultKey, blockingStubFull);
+      PublicMethod.sendcoin(
+          fromAddress, 10000000000L, defaultAddress, defaultKey, blockingStubFull);
     }
     if (fromAccount.getAssetCount() == 0) {
       start = System.currentTimeMillis() + 2000;
       end = System.currentTimeMillis() + 1000000000;
-      PublicMethod.createAssetIssue(fromAddress, "testNetAsset", 1000000000000L,
-          1, 1, start, end, 1, "wwwwww", "wwwwwwww", 100000L,
-          100000L, 1L, 1L, testKey001, blockingStubFull);
+      PublicMethod.createAssetIssue(
+          fromAddress,
+          "testNetAsset",
+          1000000000000L,
+          1,
+          1,
+          start,
+          end,
+          1,
+          "wwwwww",
+          "wwwwwwww",
+          100000L,
+          100000L,
+          1L,
+          1L,
+          testKey001,
+          blockingStubFull);
     }
     beforeToBalance = toAccount.getBalance();
     beforeToAssetBalance = toAccount.getAssetMap().get("testNetAsset");
@@ -66,8 +78,8 @@ public class MainNetTransferSendOrAsset extends TronBaseTest {
     Account fromSendAccount = PublicMethod.queryAccount(testKey003, blockingStubFull);
     Account toSendAccount = PublicMethod.queryAccount(testKey004, blockingStubFull);
     if (fromSendAccount.getBalance() < 1000000000L) {
-      PublicMethod
-          .sendcoin(fromSendAddress, 1000000000L, defaultAddress, defaultKey, blockingStubFull);
+      PublicMethod.sendcoin(
+          fromSendAddress, 1000000000L, defaultAddress, defaultKey, blockingStubFull);
     }
     beforeToBalance = toAccount.getBalance();
     logger.info("Before From account balance is " + Long.toString(fromAccount.getBalance()));
@@ -75,7 +87,11 @@ public class MainNetTransferSendOrAsset extends TronBaseTest {
     start = System.currentTimeMillis();
   }
 
-  @Test(enabled = false, threadPoolSize = 20, invocationCount = 100000, groups = {"stress"})
+  @Test(
+      enabled = false,
+      threadPoolSize = 20,
+      invocationCount = 100000,
+      groups = {"stress"})
   public void freezeAnd() throws InterruptedException {
     Random rand = new Random();
     Integer randNum = 0;
@@ -88,16 +104,20 @@ public class MainNetTransferSendOrAsset extends TronBaseTest {
 
     Integer i = 0;
     while (i < 60) {
-      PublicMethod
-          .transferAsset(toAddress, "testNetAsset".getBytes(), transferAmount, fromAddress,
-              testKey001, blockingStubFull);
+      PublicMethod.transferAsset(
+          toAddress,
+          "testNetAsset".getBytes(),
+          transferAmount,
+          fromAddress,
+          testKey001,
+          blockingStubFull);
       try {
         Thread.sleep(200);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      PublicMethod.sendcoin(toSendAddress, sendAmount, fromSendAddress, testKey003,
-          blockingStubFull);
+      PublicMethod.sendcoin(
+          toSendAddress, sendAmount, fromSendAddress, testKey003, blockingStubFull);
       try {
         Thread.sleep(200);
       } catch (InterruptedException e) {
@@ -106,10 +126,7 @@ public class MainNetTransferSendOrAsset extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
     end = System.currentTimeMillis();
@@ -119,7 +136,6 @@ public class MainNetTransferSendOrAsset extends TronBaseTest {
     afterToBalance = toAccount.getBalance();
     afterToAssetBalance = toAccount.getAssetMap().get("testNetAsset");
 
-    logger.info("Success times is " + Long.toString(afterToAssetBalance - beforeToAssetBalance));  }
+    logger.info("Success times is " + Long.toString(afterToAssetBalance - beforeToAssetBalance));
+  }
 }
-
-

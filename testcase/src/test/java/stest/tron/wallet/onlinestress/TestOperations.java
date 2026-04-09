@@ -7,26 +7,32 @@ import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.utils.ByteArray;
 
-
 @Slf4j
 public class TestOperations {
 
-  @Test(enabled = true, groups = {"stress"})
+  @Test(
+      enabled = true,
+      groups = {"stress"})
   public void test002() {
-    Integer[] contractId = {0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 31, 32, 33,
-        41, 42, 43, 44, 45, 46, 48, 49, 52, 53, 54, 55, 56, 57, 58, 59};
+    Integer[] contractId = {
+      0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 31, 32, 33, 41, 42,
+      43, 44, 45, 46, 48, 49, 52, 53, 54, 55, 56, 57, 58, 59
+    };
     List<Integer> list = new ArrayList<>(Arrays.asList(contractId));
     byte[] operations = new byte[32];
-    list.forEach(e -> {
-      operations[e / 8] |= (1 << e % 8);
-    });
-    //7fff1fc0037ef30f000000000000000000000000000000000000000000000000
+    list.forEach(
+        e -> {
+          operations[e / 8] |= (1 << e % 8);
+        });
+    // 7fff1fc0037ef30f000000000000000000000000000000000000000000000000
     logger.info(ByteArray.toHexString(operations));
   }
 
-  @Test(enabled = true, groups = {"stress"})
+  @Test(
+      enabled = true,
+      groups = {"stress"})
   public void test003() {
-    //active default value, without 46
+    // active default value, without 46
     String operations = "7fff1fc0033ef30f000000000000000000000000000000000000000000000000";
     List<Integer> contractId = new ArrayList<>();
     for (int i = 0; i < operations.length(); i = i + 2) {

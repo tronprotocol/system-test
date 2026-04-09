@@ -25,11 +25,11 @@ import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
+
 @Slf4j
 @MultiNode
 public class FreezeBalance2Test extends TronBaseTest {
@@ -38,68 +38,75 @@ public class FreezeBalance2Test extends TronBaseTest {
     fullnode = config.getStringList("fullnode.ip.list").get(1);
   }
 
-  //only for test, do not worry
+  // only for test, do not worry
   private final String noFrozenBalanceTestKey =
-      "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";  private final byte[] noFrozenAddress = PublicMethod.getFinalAddress(noFrozenBalanceTestKey);  private ManagedChannel searchChannelFull = null;  private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;  private String searchFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
+  private final byte[] noFrozenAddress = PublicMethod.getFinalAddress(noFrozenBalanceTestKey);
+  private ManagedChannel searchChannelFull = null;
+  private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;
+  private String searchFullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode).usePlaintext().build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
   }
 
   @Test(enabled = true)
   public void testFreezeBalance2() {
-    //Freeze failed when freeze amount is large than currently balance.
+    // Freeze failed when freeze amount is large than currently balance.
     Return ret1 = freezeBalance2(fromAddress, 9000000000000000000L, 3L, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : frozenBalance must be less than accountBalance");
-    //Freeze failed when freeze amount less than 1Trx
+    // Freeze failed when freeze amount less than 1Trx
     ret1 = freezeBalance2(fromAddress, 999999L, 3L, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : frozenBalance must be more than 1TRX");
-    //Freeze failed when freeze duration isn't 3 days.
+    // Freeze failed when freeze duration isn't 3 days.
     ret1 = freezeBalance2(fromAddress, 1000000L, 2L, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : frozenDuration must be less than 3 days and more than 3 days");
-    //Unfreeze balance failed when 3 days hasn't come.
+    // Unfreeze balance failed when 3 days hasn't come.
     ret1 = unFreezeBalance2(fromAddress, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : It's not time to unfreeze.");
-    //Freeze failed when freeze amount is 0.
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : It's not time to unfreeze.");
+    // Freeze failed when freeze amount is 0.
     ret1 = freezeBalance2(fromAddress, 0L, 3L, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : frozenBalance must be positive");
-    //Freeze failed when freeze amount is -1.
+    // Freeze failed when freeze amount is -1.
     ret1 = freezeBalance2(fromAddress, -1L, 3L, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : frozenBalance must be positive");
-    //Freeze failed when freeze duration is -1.
+    // Freeze failed when freeze duration is -1.
     ret1 = freezeBalance2(fromAddress, 1000000L, -1L, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : frozenDuration must be less than 3 days and more than 3 days");
-    //Freeze failed when freeze duration is 0.
+    // Freeze failed when freeze duration is 0.
     ret1 = freezeBalance2(fromAddress, 1000000L, 0L, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : frozenDuration must be less than 3 days and more than 3 days");
 
     try {
@@ -107,7 +114,7 @@ public class FreezeBalance2Test extends TronBaseTest {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    //Freeze balance success.
+    // Freeze balance success.
     ret1 = PublicMethod.freezeBalance2(fromAddress, 1000000L, 3L, foundationKey2, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
@@ -115,18 +122,15 @@ public class FreezeBalance2Test extends TronBaseTest {
 
   @Test(enabled = true)
   public void testUnFreezeBalance2() {
-    //Unfreeze failed when there is no freeze balance.
+    // Unfreeze failed when there is no freeze balance.
     Return ret1 = unFreezeBalance2(noFrozenAddress, noFrozenBalanceTestKey);
     logger.info("Test unfreezebalance");
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : no frozenBalance(BANDWIDTH)");
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : no frozenBalance(BANDWIDTH)");
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -137,17 +141,14 @@ public class FreezeBalance2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
-  public Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
-      String priKey) {
+  /** constructor. */
+  public Boolean freezeBalance(
+      byte[] addRess, long freezeBalance, long freezeDuration, String priKey) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
 
-    //String priKey = foundationKey2;
+    // String priKey = foundationKey2;
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -160,18 +161,20 @@ public class FreezeBalance2Test extends TronBaseTest {
     final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Account beforeFronzen = queryAccount(ecKey, blockingStubFull);
     Long beforeFrozenBalance = 0L;
-    //Long beforeBandwidth     = beforeFronzen.getBandwidth();
+    // Long beforeBandwidth     = beforeFronzen.getBandwidth();
     if (beforeFronzen.getFrozenCount() != 0) {
       beforeFrozenBalance = beforeFronzen.getFrozen(0).getFrozenBalance();
-      //beforeBandwidth     = beforeFronzen.getBandwidth();
-      //logger.info(Long.toString(beforeFronzen.getBandwidth()));
+      // beforeBandwidth     = beforeFronzen.getBandwidth();
+      // logger.info(Long.toString(beforeFronzen.getBandwidth()));
       logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
     }
 
     FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
-    builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
+    builder
+        .setOwnerAddress(byteAddreess)
+        .setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
     FreezeBalanceContract contract = builder.build();
@@ -205,30 +208,28 @@ public class FreezeBalance2Test extends TronBaseTest {
 
     Account afterFronzen = queryAccount(ecKey, searchBlockingStubFull);
     Long afterFrozenBalance = afterFronzen.getFrozen(0).getFrozenBalance();
-    //Long afterBandwidth     = afterFronzen.getBandwidth();
-    //logger.info(Long.toString(afterFronzen.getBandwidth()));
+    // Long afterBandwidth     = afterFronzen.getBandwidth();
+    // logger.info(Long.toString(afterFronzen.getBandwidth()));
     logger.info(Long.toString(afterFronzen.getFrozen(0).getFrozenBalance()));
-    //logger.info(Integer.toString(search.getFrozenCount()));
+    // logger.info(Integer.toString(search.getFrozenCount()));
     logger.info(
-        "beforefronen" + beforeFrozenBalance.toString() + "    afterfronzen" + afterFrozenBalance
-            .toString());
+        "beforefronen"
+            + beforeFrozenBalance.toString()
+            + "    afterfronzen"
+            + afterFrozenBalance.toString());
     Assert.assertTrue(afterFrozenBalance - beforeFrozenBalance == freezeBalance);
-    //Assert.assertTrue(afterBandwidth - beforeBandwidth == freezeBalance * frozen_duration);
+    // Assert.assertTrue(afterBandwidth - beforeBandwidth == freezeBalance * frozen_duration);
     return true;
-
   }
 
-  /**
-   * constructor.
-   */
-
-  public Return freezeBalance2(byte[] addRess, long freezeBalance, long freezeDuration,
-      String priKey) {
+  /** constructor. */
+  public Return freezeBalance2(
+      byte[] addRess, long freezeBalance, long freezeDuration, String priKey) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
 
-    //String priKey = foundationKey2;
+    // String priKey = foundationKey2;
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -241,18 +242,20 @@ public class FreezeBalance2Test extends TronBaseTest {
     final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Account beforeFronzen = queryAccount(ecKey, blockingStubFull);
     Long beforeFrozenBalance = 0L;
-    //Long beforeBandwidth     = beforeFronzen.getBandwidth();
+    // Long beforeBandwidth     = beforeFronzen.getBandwidth();
     if (beforeFronzen.getFrozenCount() != 0) {
       beforeFrozenBalance = beforeFronzen.getFrozen(0).getFrozenBalance();
-      //beforeBandwidth     = beforeFronzen.getBandwidth();
-      //logger.info(Long.toString(beforeFronzen.getBandwidth()));
+      // beforeBandwidth     = beforeFronzen.getBandwidth();
+      // logger.info(Long.toString(beforeFronzen.getBandwidth()));
       logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
     }
 
     FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
-    builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
+    builder
+        .setOwnerAddress(byteAddreess)
+        .setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
     FreezeBalanceContract contract = builder.build();
@@ -302,23 +305,21 @@ public class FreezeBalance2Test extends TronBaseTest {
 
     Account afterFronzen = queryAccount(ecKey, searchBlockingStubFull);
     Long afterFrozenBalance = afterFronzen.getFrozen(0).getFrozenBalance();
-    //Long afterBandwidth     = afterFronzen.getBandwidth();
-    //logger.info(Long.toString(afterFronzen.getBandwidth()));
+    // Long afterBandwidth     = afterFronzen.getBandwidth();
+    // logger.info(Long.toString(afterFronzen.getBandwidth()));
     logger.info(Long.toString(afterFronzen.getFrozen(0).getFrozenBalance()));
-    //logger.info(Integer.toString(search.getFrozenCount()));
+    // logger.info(Integer.toString(search.getFrozenCount()));
     logger.info(
-        "beforefronen" + beforeFrozenBalance.toString() + "    afterfronzen" + afterFrozenBalance
-            .toString());
+        "beforefronen"
+            + beforeFrozenBalance.toString()
+            + "    afterfronzen"
+            + afterFrozenBalance.toString());
     Assert.assertTrue(afterFrozenBalance - beforeFrozenBalance == freezeBalance);
-    //Assert.assertTrue(afterBandwidth - beforeBandwidth == freezeBalance * frozen_duration);
+    // Assert.assertTrue(afterBandwidth - beforeBandwidth == freezeBalance * frozen_duration);
     return ret;
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public boolean unFreezeBalance(byte[] addRess, String priKey) {
     byte[] address = addRess;
 
@@ -332,8 +333,7 @@ public class FreezeBalance2Test extends TronBaseTest {
     ECKey ecKey = temKey;
     Account search = queryAccount(ecKey, blockingStubFull);
 
-    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract
-        .newBuilder();
+    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
@@ -356,10 +356,7 @@ public class FreezeBalance2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Return unFreezeBalance2(byte[] addRess, String priKey) {
     byte[] address = addRess;
 
@@ -373,8 +370,7 @@ public class FreezeBalance2Test extends TronBaseTest {
     ECKey ecKey = temKey;
     Account search = queryAccount(ecKey, blockingStubFull);
 
-    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract
-        .newBuilder();
+    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
@@ -411,14 +407,11 @@ public class FreezeBalance2Test extends TronBaseTest {
     return ret;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -434,25 +427,17 @@ public class FreezeBalance2Test extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 }
-

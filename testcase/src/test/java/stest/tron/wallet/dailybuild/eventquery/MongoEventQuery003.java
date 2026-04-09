@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-
 import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -76,7 +75,11 @@ public class MongoEventQuery003 extends MongoBase {
     logger.info("contractAddress:" + contractAddress);
   }
 
-  @Test(enabled = true, priority = 4, description = "MongoDB Event query for contract event", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 4,
+      description = "MongoDB Event query for contract event",
+      groups = {"daily", "serial"})
   public void test01MongoDbEventQueryForContractEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -126,7 +129,7 @@ public class MongoEventQuery003 extends MongoBase {
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     Assert.assertEquals(txid, jsonObject.getString("transactionId"));
 
-    //query contractlog to prove redundancy=true is valid
+    // query contractlog to prove redundancy=true is valid
     retryTimes = 5;
     while (retryTimes-- > 0) {
       PublicMethod.waitProduceNextBlock(blockingStubFull);
@@ -140,7 +143,6 @@ public class MongoEventQuery003 extends MongoBase {
     Assert.assertTrue(retryTimes > 0);
     JSONObject jsonObjectLog = JSON.parseObject(documentLog.toJson());
     Assert.assertEquals(txid, jsonObjectLog.getString("transactionId"));
-
 
     Assert.assertEquals("storedNumber", jsonObject.getString("eventName"));
     Assert.assertEquals(
@@ -167,8 +169,11 @@ public class MongoEventQuery003 extends MongoBase {
     testLatestSolidifiedBlockNumber(jsonObject);
   }
 
-  @Test(enabled = true, priority = 4, description
-      = "MongoDb Event query for solidity contract event", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 4,
+      description = "MongoDb Event query for solidity contract event",
+      groups = {"daily", "serial"})
   public void test02MongoDbEventQueryForContractSolidityEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -196,8 +201,8 @@ public class MongoEventQuery003 extends MongoBase {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     query.put("uniqueId", txid + "_1");
     FindIterable<Document> findIterable = mongoDatabase.getCollection("solidityevent").find(query);
-    FindIterable<Document> findIterableSolidityLog
-        = mongoDatabase.getCollection("soliditylog").find(query);
+    FindIterable<Document> findIterableSolidityLog =
+        mongoDatabase.getCollection("soliditylog").find(query);
 
     MongoCursor<Document> mongoCursor = findIterable.iterator();
     MongoCursor<Document> mongoCursorSolidityLog = findIterableSolidityLog.iterator();
@@ -219,8 +224,7 @@ public class MongoEventQuery003 extends MongoBase {
     JSONObject jsonObject = JSON.parseObject(document.toJson());
     Assert.assertEquals(txid, jsonObject.getString("transactionId"));
 
-
-    //query soliditylog to prove redundancy=true is valid
+    // query soliditylog to prove redundancy=true is valid
     retryTimes = 5;
     while (retryTimes-- > 0) {
       PublicMethod.waitProduceNextBlock(blockingStubFull);
@@ -263,7 +267,6 @@ public class MongoEventQuery003 extends MongoBase {
     testLatestSolidifiedBlockNumber(jsonObject);
   }
 
-
   private void testLatestSolidifiedBlockNumber(JSONObject jsonObject) {
     HttpMethod.printJsonContent(jsonObject);
     response = HttpMethod.getNowBlockFromSolidity(httpsolidityNode);
@@ -275,8 +278,9 @@ public class MongoEventQuery003 extends MongoBase {
         jsonObject.getLong("latestSolidifiedBlockNumber") < latestSolidifiedBlockNumber);
 
     logger.info("latestSolidifiedBlockNumber:" + latestSolidifiedBlockNumber);
-    logger.info("jsonObject.getLong(\"latestSolidifiedBlockNumber\"):"
-        + jsonObject.getLong("latestSolidifiedBlockNumber"));
+    logger.info(
+        "jsonObject.getLong(\"latestSolidifiedBlockNumber\"):"
+            + jsonObject.getLong("latestSolidifiedBlockNumber"));
     Assert.assertTrue(
         (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 10);
   }
@@ -349,5 +353,4 @@ public class MongoEventQuery003 extends MongoBase {
     responseContent = HttpMethod.parseResponseContent(response);
     Assert.assertEquals(responseContent.getString("blockID"), jsonObject.getString("blockHash"));
   }
-
 }

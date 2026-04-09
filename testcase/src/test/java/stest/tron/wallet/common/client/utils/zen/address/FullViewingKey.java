@@ -13,15 +13,9 @@ import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 @AllArgsConstructor
 public class FullViewingKey {
 
-  @Getter
-  @Setter
-  private byte[] ak; // 256
-  @Getter
-  @Setter
-  private byte[] nk; // 256
-  @Getter
-  @Setter
-  private byte[] ovk; // 256,the outgoing viewing key
+  @Getter @Setter private byte[] ak; // 256
+  @Getter @Setter private byte[] nk; // 256
+  @Getter @Setter private byte[] ovk; // 256,the outgoing viewing key
 
   public static FullViewingKey decode(byte[] data) {
     byte[] ak = new byte[32];

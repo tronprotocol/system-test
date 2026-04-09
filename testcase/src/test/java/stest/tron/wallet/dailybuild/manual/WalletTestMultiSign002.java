@@ -1,7 +1,6 @@
 package stest.tron.wallet.dailybuild.manual;
 
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +18,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestMultiSign002 extends TronBaseTest {
@@ -56,25 +55,24 @@ public class WalletTestMultiSign002 extends TronBaseTest {
   Integer exchangeRate = 10;
   Long firstTokenInitialBalance = 10000L;
   Long secondTokenInitialBalance = firstTokenInitialBalance * exchangeRate;
-  private long multiSignFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.multiSignFee");
-  private long updateAccountPermissionFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.updateAccountPermissionFee");
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(1);
+  private long multiSignFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.multiSignFee");
+  private long updateAccountPermissionFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.updateAccountPermissionFee");
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
   }
 
-  @Test(enabled = true, description = "MultiSign for create token", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MultiSign for create token",
+      groups = {"daily"})
   public void test1CreateUsedAsset() {
     ecKey1 = new ECKey(Utils.getRandom());
     exchange001Address = ecKey1.getAddress();
@@ -87,28 +85,72 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     PublicMethod.printAddress(exchange001Key);
     PublicMethod.printAddress(secondExchange001Key);
 
-    Assert.assertTrue(PublicMethod.sendcoin(exchange001Address, 10240000000L, foundationAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.sendcoin(secondExchange001Address, 10240000000L, foundationAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            exchange001Address, 10240000000L, foundationAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            secondExchange001Address,
+            10240000000L,
+            foundationAddress,
+            testKey002,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 100000000000L, 0, 0,
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            100000000000L,
+            0,
+            0,
             ByteString.copyFrom(exchange001Address),
-            testKey002, blockingStubFull));
+            testKey002,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long start = System.currentTimeMillis() + 5000L;
-  Long end = System.currentTimeMillis() + 5000000L;
-    Assert.assertTrue(PublicMethod.createAssetIssue(exchange001Address, name1, totalSupply, 1,
-        1, start, end, 1, description, url, 10000L, 10000L,
-        1L, 1L, exchange001Key, blockingStubFull));
-    Assert.assertTrue(PublicMethod.createAssetIssue(secondExchange001Address, name2, totalSupply, 1,
-        1, start, end, 1, description, url, 10000L, 10000L,
-        1L, 1L, secondExchange001Key, blockingStubFull));
+    Long start = System.currentTimeMillis() + 5000L;
+    Long end = System.currentTimeMillis() + 5000000L;
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            exchange001Address,
+            name1,
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            1L,
+            exchange001Key,
+            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            secondExchange001Address,
+            name2,
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            1L,
+            secondExchange001Key,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "MultiSign for create exchange", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MultiSign for create exchange",
+      groups = {"daily"})
   public void test2CreateExchange() {
     ecKey3 = new ECKey(Utils.getRandom());
     manager1Address = ecKey3.getAddress();
@@ -117,8 +159,8 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     ecKey4 = new ECKey(Utils.getRandom());
     manager2Address = ecKey4.getAddress();
     manager2Key = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
-  Long balanceBefore = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    Long balanceBefore =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     permissionKeyString[0] = manager1Key;
@@ -129,89 +171,119 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     ownerKeyString[2] = manager2Key;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":3,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager2Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(exchange001Key)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager2Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(exchange001Key)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager2Key)
+            + "\",\"weight\":1}"
             + "]}]}";
     logger.info(accountPermissionJson);
     PublicMethodForMultiSign.accountPermissionUpdate(
-        accountPermissionJson, exchange001Address, exchange001Key,
-        blockingStubFull, ownerKeyString);
+        accountPermissionJson,
+        exchange001Address,
+        exchange001Key,
+        blockingStubFull,
+        ownerKeyString);
 
     listExchange = PublicMethod.getExchangeList(blockingStubFull);
-  final Integer beforeCreateExchangeNum = listExchange.get().getExchangesCount();
+    final Integer beforeCreateExchangeNum = listExchange.get().getExchangesCount();
     exchangeId = listExchange.get().getExchangesCount();
 
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
     assetAccountId1 = getAssetIdFromThisAccount.getAssetIssuedID();
 
-    getAssetIdFromThisAccount = PublicMethod
-        .queryAccount(secondExchange001Address, blockingStubFull);
+    getAssetIdFromThisAccount =
+        PublicMethod.queryAccount(secondExchange001Address, blockingStubFull);
     assetAccountId2 = getAssetIdFromThisAccount.getAssetIssuedID();
 
     firstAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
-  Long token1BeforeBalance = 0L;
+    Long token1BeforeBalance = 0L;
     for (String name : firstAccount.getAssetMap().keySet()) {
       token1BeforeBalance = firstAccount.getAssetMap().get(name);
     }
-    Assert.assertTrue(PublicMethod.transferAsset(exchange001Address, assetAccountId2.toByteArray(),
-        secondTransferAssetToFirstAccountNum, secondExchange001Address,
-        secondExchange001Key, blockingStubFull));
-  Long token2BeforeBalance = secondTransferAssetToFirstAccountNum;
+    Assert.assertTrue(
+        PublicMethod.transferAsset(
+            exchange001Address,
+            assetAccountId2.toByteArray(),
+            secondTransferAssetToFirstAccountNum,
+            secondExchange001Address,
+            secondExchange001Key,
+            blockingStubFull));
+    Long token2BeforeBalance = secondTransferAssetToFirstAccountNum;
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //logger.info("name1 is " + name1);
-  //logger.info("name2 is " + name2);
-  //logger.info("first balance is " + Long.toString(token1BeforeBalance));
-  //logger.info("second balance is " + token2BeforeBalance.toString());
-  //CreateExchange
+    // logger.info("name1 is " + name1);
+    // logger.info("name2 is " + name2);
+    // logger.info("first balance is " + Long.toString(token1BeforeBalance));
+    // logger.info("second balance is " + token2BeforeBalance.toString());
+    // CreateExchange
     Assert.assertTrue(
         PublicMethodForMultiSign.exchangeCreate(
-            assetAccountId1.toByteArray(), firstTokenInitialBalance,
-            assetAccountId2.toByteArray(), secondTokenInitialBalance, exchange001Address,
-            exchange001Key, blockingStubFull, ownerKeyString));
+            assetAccountId1.toByteArray(),
+            firstTokenInitialBalance,
+            assetAccountId2.toByteArray(),
+            secondTokenInitialBalance,
+            exchange001Address,
+            exchange001Key,
+            blockingStubFull,
+            ownerKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     listExchange = PublicMethod.getExchangeList(blockingStubFull);
     exchangeId = listExchange.get().getExchangesCount();
-  Long balanceAfter = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    Long balanceAfter =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     long needCoin = updateAccountPermissionFee + multiSignFee;
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin + 1024_000_000L);
-
   }
 
-  @Test(enabled = true, description = "List exchange after create exchange by MultiSign", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "List exchange after create exchange by MultiSign",
+      groups = {"daily"})
   public void test3ListExchange() {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     listExchange = PublicMethod.getExchangeList(blockingStubFull);
     for (Integer i = 0; i < listExchange.get().getExchangesCount(); i++) {
-      Assert.assertFalse(ByteArray.toHexString(listExchange.get().getExchanges(i)
-          .getCreatorAddress().toByteArray()).isEmpty());
+      Assert.assertFalse(
+          ByteArray.toHexString(
+                  listExchange.get().getExchanges(i).getCreatorAddress().toByteArray())
+              .isEmpty());
       Assert.assertTrue(listExchange.get().getExchanges(i).getExchangeId() > 0);
-      Assert.assertFalse(ByteArray.toStr(listExchange.get().getExchanges(i).getFirstTokenId()
-          .toByteArray()).isEmpty());
+      Assert.assertFalse(
+          ByteArray.toStr(listExchange.get().getExchanges(i).getFirstTokenId().toByteArray())
+              .isEmpty());
       Assert.assertTrue(listExchange.get().getExchanges(i).getFirstTokenBalance() > 0);
     }
   }
 
-  @Test(enabled = true, description = "Multisign for inject exchange", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Multisign for inject exchange",
+      groups = {"daily"})
   public void test4InjectExchange() {
     exchangeIdInfo = PublicMethod.getExchange(exchangeId.toString(), blockingStubFull);
-  final Long beforeExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
-  final Long beforeExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
-  Long balanceBefore = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    final Long beforeExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
+    final Long beforeExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
+    Long balanceBefore =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     firstAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
-  Long beforeToken1Balance = 0L;
-  Long beforeToken2Balance = 0L;
+    Long beforeToken1Balance = 0L;
+    Long beforeToken2Balance = 0L;
     for (String id : firstAccount.getAssetV2Map().keySet()) {
       if (assetAccountId1.toStringUtf8().equalsIgnoreCase(id)) {
         beforeToken1Balance = firstAccount.getAssetV2Map().get(id);
@@ -225,12 +297,17 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     Integer injectBalance = 100;
     Assert.assertTrue(
         PublicMethodForMultiSign.injectExchange(
-            exchangeId, assetAccountId1.toByteArray(), injectBalance,
-            exchange001Address, exchange001Key, blockingStubFull, ownerKeyString));
+            exchangeId,
+            assetAccountId1.toByteArray(),
+            injectBalance,
+            exchange001Address,
+            exchange001Key,
+            blockingStubFull,
+            ownerKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     firstAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
-  Long afterToken1Balance = 0L;
-  Long afterToken2Balance = 0L;
+    Long afterToken1Balance = 0L;
+    Long afterToken2Balance = 0L;
     for (String id : firstAccount.getAssetV2Map().keySet()) {
       if (assetAccountId1.toStringUtf8().equalsIgnoreCase(id)) {
         afterToken1Balance = firstAccount.getAssetV2Map().get(id);
@@ -243,36 +320,37 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     logger.info("before token 2 balance is " + Long.toString(afterToken2Balance));
 
     Assert.assertTrue(beforeToken1Balance - afterToken1Balance == injectBalance);
-    Assert.assertTrue(beforeToken2Balance - afterToken2Balance == injectBalance
-        * exchangeRate);
+    Assert.assertTrue(beforeToken2Balance - afterToken2Balance == injectBalance * exchangeRate);
 
     exchangeIdInfo = PublicMethod.getExchange(exchangeId.toString(), blockingStubFull);
-  Long afterExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
-  Long afterExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
-    Assert.assertTrue(afterExchangeToken1Balance - beforeExchangeToken1Balance
-        == injectBalance);
-    Assert.assertTrue(afterExchangeToken2Balance - beforeExchangeToken2Balance
-        == injectBalance * exchangeRate);
-  Long balanceAfter = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    Long afterExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
+    Long afterExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
+    Assert.assertTrue(afterExchangeToken1Balance - beforeExchangeToken1Balance == injectBalance);
+    Assert.assertTrue(
+        afterExchangeToken2Balance - beforeExchangeToken2Balance == injectBalance * exchangeRate);
+    Long balanceAfter =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     long needCoin = multiSignFee;
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
   }
 
-  @Test(enabled = true, description = "MultiSign for withdraw exchange", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MultiSign for withdraw exchange",
+      groups = {"daily"})
   public void test5WithdrawExchange() {
 
-    Long balanceBefore = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    Long balanceBefore =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     exchangeIdInfo = PublicMethod.getExchange(exchangeId.toString(), blockingStubFull);
-  final Long beforeExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
-  final Long beforeExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
+    final Long beforeExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
+    final Long beforeExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
 
     firstAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
-  Long beforeToken1Balance = 0L;
-  Long beforeToken2Balance = 0L;
+    Long beforeToken1Balance = 0L;
+    Long beforeToken2Balance = 0L;
     for (String id : firstAccount.getAssetV2Map().keySet()) {
       if (assetAccountId1.toStringUtf8().equalsIgnoreCase(id)) {
         beforeToken1Balance = firstAccount.getAssetV2Map().get(id);
@@ -287,12 +365,17 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     Integer withdrawNum = 200;
     Assert.assertTrue(
         PublicMethodForMultiSign.exchangeWithdraw(
-            exchangeId, assetAccountId1.toByteArray(), withdrawNum,
-            exchange001Address, exchange001Key, blockingStubFull, ownerKeyString));
+            exchangeId,
+            assetAccountId1.toByteArray(),
+            withdrawNum,
+            exchange001Address,
+            exchange001Key,
+            blockingStubFull,
+            ownerKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     firstAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
-  Long afterToken1Balance = 0L;
-  Long afterToken2Balance = 0L;
+    Long afterToken1Balance = 0L;
+    Long afterToken2Balance = 0L;
     for (String id : firstAccount.getAssetV2Map().keySet()) {
       if (assetAccountId1.toStringUtf8().equalsIgnoreCase(id)) {
         afterToken1Balance = firstAccount.getAssetV2Map().get(id);
@@ -306,37 +389,37 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     logger.info("before token 2 balance is " + Long.toString(afterToken2Balance));
 
     Assert.assertTrue(afterToken1Balance - beforeToken1Balance == withdrawNum);
-    Assert.assertTrue(afterToken2Balance - beforeToken2Balance == withdrawNum
-        * exchangeRate);
+    Assert.assertTrue(afterToken2Balance - beforeToken2Balance == withdrawNum * exchangeRate);
     exchangeIdInfo = PublicMethod.getExchange(exchangeId.toString(), blockingStubFull);
-  Long afterExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
-  Long afterExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
-    Assert.assertTrue(afterExchangeToken1Balance - beforeExchangeToken1Balance
-        == -withdrawNum);
-    Assert.assertTrue(afterExchangeToken2Balance - beforeExchangeToken2Balance
-        == -withdrawNum * exchangeRate);
-  Long balanceAfter = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    Long afterExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
+    Long afterExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
+    Assert.assertTrue(afterExchangeToken1Balance - beforeExchangeToken1Balance == -withdrawNum);
+    Assert.assertTrue(
+        afterExchangeToken2Balance - beforeExchangeToken2Balance == -withdrawNum * exchangeRate);
+    Long balanceAfter =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     long needCoin = multiSignFee;
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
-
   }
 
-  @Test(enabled = false, description = "MultiSign for transaction exchange", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "MultiSign for transaction exchange",
+      groups = {"daily"})
   public void test6TransactionExchange() {
-    Long balanceBefore = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    Long balanceBefore =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     exchangeIdInfo = PublicMethod.getExchange(exchangeId.toString(), blockingStubFull);
-  final Long beforeExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
-  final Long beforeExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
+    final Long beforeExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
+    final Long beforeExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
     logger.info("beforeExchangeToken1Balance" + beforeExchangeToken1Balance);
     logger.info("beforeExchangeToken2Balance" + beforeExchangeToken2Balance);
 
     firstAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
-  Long beforeToken1Balance = 0L;
-  Long beforeToken2Balance = 0L;
+    Long beforeToken1Balance = 0L;
+    Long beforeToken2Balance = 0L;
     for (String id : firstAccount.getAssetV2Map().keySet()) {
       if (assetAccountId1.toStringUtf8().equalsIgnoreCase(id)) {
         beforeToken1Balance = firstAccount.getAssetV2Map().get(id);
@@ -350,13 +433,19 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     logger.info("before token 2 balance is " + Long.toString(beforeToken2Balance));
     Integer transactionNum = 50;
     Assert.assertTrue(
-        PublicMethodForMultiSign
-            .exchangeTransaction(exchangeId, assetAccountId1.toByteArray(), transactionNum, 1,
-                exchange001Address, exchange001Key, blockingStubFull, ownerKeyString));
+        PublicMethodForMultiSign.exchangeTransaction(
+            exchangeId,
+            assetAccountId1.toByteArray(),
+            transactionNum,
+            1,
+            exchange001Address,
+            exchange001Key,
+            blockingStubFull,
+            ownerKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     firstAccount = PublicMethod.queryAccount(exchange001Address, blockingStubFull);
-  Long afterToken1Balance = 0L;
-  Long afterToken2Balance = 0L;
+    Long afterToken1Balance = 0L;
+    Long afterToken2Balance = 0L;
     for (String id : firstAccount.getAssetV2Map().keySet()) {
       if (assetAccountId1.toStringUtf8().equalsIgnoreCase(id)) {
         afterToken1Balance = firstAccount.getAssetV2Map().get(id);
@@ -369,55 +458,54 @@ public class WalletTestMultiSign002 extends TronBaseTest {
     logger.info("before token 2 balance is " + Long.toString(afterToken2Balance));
 
     exchangeIdInfo = PublicMethod.getExchange(exchangeId.toString(), blockingStubFull);
-  Long afterExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
-  Long afterExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
+    Long afterExchangeToken1Balance = exchangeIdInfo.get().getFirstTokenBalance();
+    Long afterExchangeToken2Balance = exchangeIdInfo.get().getSecondTokenBalance();
     logger.info("afterExchangeToken1Balance" + afterExchangeToken1Balance);
     logger.info("afterExchangeToken2Balance" + afterExchangeToken2Balance);
-    Assert.assertTrue(afterExchangeToken1Balance - beforeExchangeToken1Balance
-        == beforeToken1Balance - afterToken1Balance);
-    Assert.assertTrue(afterExchangeToken2Balance - beforeExchangeToken2Balance
-        == beforeToken2Balance - afterToken2Balance);
-  Long balanceAfter = PublicMethod.queryAccount(exchange001Address, blockingStubFull)
-        .getBalance();
+    Assert.assertTrue(
+        afterExchangeToken1Balance - beforeExchangeToken1Balance
+            == beforeToken1Balance - afterToken1Balance);
+    Assert.assertTrue(
+        afterExchangeToken2Balance - beforeExchangeToken2Balance
+            == beforeToken2Balance - afterToken2Balance);
+    Long balanceAfter =
+        PublicMethod.queryAccount(exchange001Address, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     long needCoin = multiSignFee;
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
   }
 
-
-  @Test(enabled = true, description = "GetExchangeListPaginated after "
-      + "MultiSign exchange kind of transaction", groups = {"daily"})
-
+  @Test(
+      enabled = true,
+      description = "GetExchangeListPaginated after " + "MultiSign exchange kind of transaction",
+      groups = {"daily"})
   public void test7GetExchangeListPaginated() {
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(0);
     pageMessageBuilder.setLimit(100);
-    ExchangeList exchangeList = blockingStubFull
-        .getPaginatedExchangeList(pageMessageBuilder.build());
+    ExchangeList exchangeList =
+        blockingStubFull.getPaginatedExchangeList(pageMessageBuilder.build());
     Assert.assertTrue(exchangeList.getExchangesCount() >= 1);
     PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
-  //Solidity support getExchangeId
+    // Solidity support getExchangeId
     exchangeIdInfo = PublicMethod.getExchange(exchangeId.toString(), blockingStubSolidity);
     logger.info("createtime is" + exchangeIdInfo.get().getCreateTime());
     Assert.assertTrue(exchangeIdInfo.get().getCreateTime() > 0);
-  //Solidity support listexchange
+    // Solidity support listexchange
     listExchange = PublicMethod.getExchangeList(blockingStubSolidity);
     Assert.assertTrue(listExchange.get().getExchangesCount() > 0);
-    PublicMethod
-        .unFreezeBalance(foundationAddress, testKey002, 0, exchange001Address, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, testKey002, 0, exchange001Address, blockingStubFull);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod
-        .unFreezeBalance(exchange001Address, exchange001Key, 0, foundationAddress, blockingStubFull);
-    PublicMethod.freeResource(exchange001Address, exchange001Key, foundationAddress, blockingStubFull);
-    PublicMethod.freeResource(secondExchange001Address, secondExchange001Key, foundationAddress,
-        blockingStubFull);  }
+    PublicMethod.unFreezeBalance(
+        exchange001Address, exchange001Key, 0, foundationAddress, blockingStubFull);
+    PublicMethod.freeResource(
+        exchange001Address, exchange001Key, foundationAddress, blockingStubFull);
+    PublicMethod.freeResource(
+        secondExchange001Address, secondExchange001Key, foundationAddress, blockingStubFull);
+  }
 }
-
-

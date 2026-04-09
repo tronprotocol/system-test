@@ -22,7 +22,10 @@ public class Accounts004 extends JsonRpcBase {
   String newFilterResultIdfrom02 = null;
   String blockHash = null;
 
-  @Test(enabled = true, description = "Eth api of eth_newFilter contains nothing from solidity.", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Eth api of eth_newFilter contains nothing from solidity.",
+      groups = {"daily", "serial"})
   public void test01GetNewFilterContainNothing() {
     JsonObject paramBody = new JsonObject();
     JsonArray params = new JsonArray();
@@ -39,7 +42,8 @@ public class Accounts004 extends JsonRpcBase {
   @Test(
       enabled = true,
       description =
-          "Eth api of eth_newFilter contains address,fromBlock and toBlock from solidity.", groups = {"daily", "serial"})
+          "Eth api of eth_newFilter contains address,fromBlock and toBlock from solidity.",
+      groups = {"daily", "serial"})
   public void test02GetNewFilterContainAddress() {
     if (blockNumForTrc20 - 10 < 0) {
       fromBlock = "0";
@@ -66,7 +70,8 @@ public class Accounts004 extends JsonRpcBase {
 
   @Test(
       enabled = true,
-      description = "Eth api of eth_newFilter  contains topic fromBlock and toBlock from solidity.", groups = {"daily", "serial"})
+      description = "Eth api of eth_newFilter  contains topic fromBlock and toBlock from solidity.",
+      groups = {"daily", "serial"})
   public void test03GetNewFilterContainTopic() {
     response = HttpMethod.getBlockByNumFromSolidity(httpsolidityNode, blockNumForTrc20);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -93,7 +98,8 @@ public class Accounts004 extends JsonRpcBase {
 
   @Test(
       enabled = true,
-      description = "Eth api of eth_newFilter  contains topic and address from solidity.", groups = {"daily", "serial"})
+      description = "Eth api of eth_newFilter  contains topic and address from solidity.",
+      groups = {"daily", "serial"})
   public void test04GetNewFilterContainsTopicAndAddress() {
 
     JsonArray addressArray = new JsonArray();
@@ -117,7 +123,8 @@ public class Accounts004 extends JsonRpcBase {
 
   @Test(
       enabled = true,
-      description = "Eth api of eth_newFilter only contain topic and blockHash from solidity.", groups = {"daily", "serial"})
+      description = "Eth api of eth_newFilter only contain topic and blockHash from solidity.",
+      groups = {"daily", "serial"})
   public void test05GetNewFilterOnlyContainTopic() throws InterruptedException {
     JsonObject paramBody = new JsonObject();
     paramBody.addProperty("blockHash", blockHash);
@@ -136,7 +143,8 @@ public class Accounts004 extends JsonRpcBase {
 
   @Test(
       enabled = true,
-      description = "Eth api of eth_newFilter which only contains blockHash from solidity.", groups = {"daily", "serial"})
+      description = "Eth api of eth_newFilter which only contains blockHash from solidity.",
+      groups = {"daily", "serial"})
   public void test06GetNewFilterHasOnlyBlockHash() throws InterruptedException {
     response = HttpMethod.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -156,7 +164,8 @@ public class Accounts004 extends JsonRpcBase {
 
   @Test(
       enabled = true,
-      description = "Eth api of eth_newFilter check new  and after block from solidity.", groups = {"daily", "serial"})
+      description = "Eth api of eth_newFilter check new  and after block from solidity.",
+      groups = {"daily", "serial"})
   public void test07GetNewFilterCheckNewBlock() {
     JsonObject paramBody = new JsonObject();
     JsonArray topicArray = new JsonArray();
@@ -172,7 +181,10 @@ public class Accounts004 extends JsonRpcBase {
     Assert.assertNotNull(responseContent.getString("result"));
   }
 
-  @Test(enabled = true, description = "Eth api of eth_newBlockFilter from solidity", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Eth api of eth_newBlockFilter from solidity",
+      groups = {"daily", "serial"})
   public void test08GetEthNewBlockFilter() {
 
     JsonArray params = new JsonArray();
@@ -186,7 +198,8 @@ public class Accounts004 extends JsonRpcBase {
 
   @Test(
       enabled = true,
-      description = "Eth api of eth_getFilterChanges has less 20 elements from solidity.", groups = {"daily", "serial"})
+      description = "Eth api of eth_getFilterChanges has less 20 elements from solidity.",
+      groups = {"daily", "serial"})
   public void test09GetFilterChanges() {
 
     JsonArray params = new JsonArray();
@@ -212,7 +225,8 @@ public class Accounts004 extends JsonRpcBase {
   @Test(
       enabled = true,
       description =
-          "Eth api of eth_getLogs  contains address ,fromBlock and toBlock from solidity.", groups = {"daily", "serial"})
+          "Eth api of eth_getLogs  contains address ,fromBlock and toBlock from solidity.",
+      groups = {"daily", "serial"})
   public void test10GetLogsOnlyContainAddress() {
     JsonArray addressArray = new JsonArray();
     logger.info("contractTrc20AddressFrom58:" + contractTrc20AddressFrom58);
@@ -239,7 +253,8 @@ public class Accounts004 extends JsonRpcBase {
 
   @Test(
       enabled = true,
-      description = "Eth api of eth_getLogs both contains topic and address from solidity.", groups = {"daily", "serial"})
+      description = "Eth api of eth_getLogs both contains topic and address from solidity.",
+      groups = {"daily", "serial"})
   public void test11GetLogsContainsTopicAndAddress() {
     JsonArray topicArray = new JsonArray();
     topicArray.add(topic0);
@@ -261,7 +276,10 @@ public class Accounts004 extends JsonRpcBase {
     Assert.assertEquals(topicFromResult, topic0);
   }
 
-  @Test(enabled = true, description = "Eth api of eth_getFilterLogs from solidity.", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Eth api of eth_getFilterLogs from solidity.",
+      groups = {"daily", "serial"})
   public void test12GetFilterLogsContainsAddress() {
 
     JsonArray params = new JsonArray();
@@ -274,7 +292,10 @@ public class Accounts004 extends JsonRpcBase {
     Assert.assertNotNull(responseContent.getString("result"));
   }
 
-  @Test(enabled = true, description = "Eth api of eth_getFilterLogs from solidity.", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Eth api of eth_getFilterLogs from solidity.",
+      groups = {"daily", "serial"})
   public void test13GetFilterLogsContainsTopic() {
 
     JsonArray params = new JsonArray();
@@ -291,7 +312,8 @@ public class Accounts004 extends JsonRpcBase {
       enabled = true,
       description =
           "Eth api of eth_uninstallFilter which method is eth_newFilter from solidity"
-              + " and params has one element ", groups = {"daily", "serial"})
+              + " and params has one element ",
+      groups = {"daily", "serial"})
   public void test14EthUninstallFilter() {
     // create ID
     JsonArray addressArray = new JsonArray();
@@ -345,7 +367,8 @@ public class Accounts004 extends JsonRpcBase {
       enabled = true,
       description =
           "Eth api of eth_uninstallFilter which method is eth_newBlockFilter"
-              + " and params has one element from solidity", groups = {"daily", "serial"})
+              + " and params has one element from solidity",
+      groups = {"daily", "serial"})
   public void test15EthUninstallFilter() {
     // create ID
 

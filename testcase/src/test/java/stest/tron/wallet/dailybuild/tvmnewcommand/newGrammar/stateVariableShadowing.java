@@ -17,16 +17,16 @@ import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
 public class stateVariableShadowing extends TronBaseTest {
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethod.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -34,65 +34,83 @@ public class stateVariableShadowing extends TronBaseTest {
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    PublicMethod.printAddress(contractExcKey);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(contractExcKey);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod
-        .sendcoin(contractExcAddress, 1000_000_000L, testNetAccountAddress, testNetAccountKey,
-            blockingStubFull);
+    PublicMethod.sendcoin(
+        contractExcAddress,
+        1000_000_000L,
+        testNetAccountAddress,
+        testNetAccountKey,
+        blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "src/test/resources/soliditycode/stateVariableShadowing.sol";
-  String contractName = "stateVariableShadowing";
+    String filePath = "src/test/resources/soliditycode/stateVariableShadowing.sol";
+    String contractName = "stateVariableShadowing";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
-            contractExcAddress, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Verify that the compilation is successful", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Verify that the compilation is successful",
+      groups = {"contract", "daily"})
   public void test01VerifyCompile() {
     Protocol.Account info;
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethod
-        .getAccountResource(contractExcAddress, blockingStubFull);
+    GrpcAPI.AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
+    String txid = "";
     ArrayList<String> methods = new ArrayList<String>();
     methods.add("setValue2(uint256)");
     methods.add("setValue3(uint256)");
     for (String tmp : methods) {
       System.out.println(tmp);
-      txid = PublicMethod.triggerContract(contractAddress,
-          tmp, "100", false,
-          0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+      txid =
+          PublicMethod.triggerContract(
+              contractAddress,
+              tmp,
+              "100",
+              false,
+              0,
+              maxFeeLimit,
+              contractExcAddress,
+              contractExcKey,
+              blockingStubFull);
       Optional<Protocol.TransactionInfo> infoById = null;
       PublicMethod.waitProduceNextBlock(blockingStubFull);
       infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
@@ -104,8 +122,10 @@ public class stateVariableShadowing extends TronBaseTest {
 
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod
-        .freeResource(contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);    if (channelFull1 != null) {
+    PublicMethod.freeResource(
+        contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }  }
+    }
+  }
 }

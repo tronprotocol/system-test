@@ -23,12 +23,12 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ByteUtil;
 import stest.tron.wallet.common.client.utils.CommonParameter;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -47,53 +47,74 @@ public class TestValidatemultisign003 extends TronBaseTest {
   ECKey ecKey003 = new ECKey(Utils.getRandom());
   byte[] ownerAddress = ecKey003.getAddress();
   String ownerKey = ByteArray.toHexString(ecKey003.getPrivKeyBytes());
-  private String fullnodeLocal = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private long multiSignFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.multiSignFee");
-  private long updateAccountPermissionFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.updateAccountPermissionFee");
+  private String fullnodeLocal =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private long multiSignFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.multiSignFee");
+  private long updateAccountPermissionFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.updateAccountPermissionFee");
   private byte[] contractAddress = null;
   private ECKey ecKey1 = new ECKey(Utils.getRandom());
   private byte[] dev001Address = ecKey1.getAddress();
   private String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    PublicMethod.printAddress(dev001Key);
+  public void beforeClass() {
+    PublicMethod.printAddress(dev001Key);
   }
 
-  @Test(enabled = true, description = "Deploy validatemultisign contract", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Deploy validatemultisign contract",
+      groups = {"contract", "daily"})
   public void test001DeployContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(dev001Address, 1000_000_000L, foundationAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(foundationAddress, 100_000_000L + PublicMethod.randomFreezeAmount.addAndGet(1),
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 1000_000_000L, foundationAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            100_000_000L + PublicMethod.randomFreezeAmount.addAndGet(1),
+            0,
+            0,
+            ByteString.copyFrom(dev001Address),
+            testKey002,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     Protocol.Account info = PublicMethod.queryAccount(dev001Key, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = accountResource.getEnergyUsed();
-  Long beforeNetUsed = accountResource.getNetUsed();
-  Long beforeFreeNetUsed = accountResource.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = accountResource.getEnergyUsed();
+    Long beforeNetUsed = accountResource.getNetUsed();
+    Long beforeFreeNetUsed = accountResource.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String filePath = "./src/test/resources/soliditycode/validatemultisign001.sol";
-  String contractName = "validatemultisignTest";
+    String filePath = "./src/test/resources/soliditycode/validatemultisign001.sol";
+    String contractName = "validatemultisignTest";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  String txid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, dev001Key,
-            dev001Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
@@ -101,18 +122,17 @@ public class TestValidatemultisign003 extends TronBaseTest {
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod.getContract(contractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
 
     PublicMethod.printAddress(ownerKey);
 
     long needCoin = updateAccountPermissionFee * 1 + multiSignFee * 3;
     Assert.assertTrue(
-        PublicMethod.sendcoin(ownerAddress, needCoin + 2048000000L, foundationAddress, testKey002,
-            blockingStubFull));
+        PublicMethod.sendcoin(
+            ownerAddress, needCoin + 2048000000L, foundationAddress, testKey002, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     permissionKeyString[0] = manager1Key;
@@ -121,51 +141,74 @@ public class TestValidatemultisign003 extends TronBaseTest {
     ownerKeyString[1] = manager1Key;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":2,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(ownerKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(ownerKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager2Key)
+            + "\",\"weight\":1}"
             + "]}]}";
 
     logger.info(accountPermissionJson);
-    Assert.assertTrue(PublicMethodForMultiSign
-        .accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
-            blockingStubFull, ownerKeyString));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson, ownerAddress, ownerKey, blockingStubFull, ownerKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Trigger validatemultisign precompiled contract, "
-      + "with wrong hash bytes", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger validatemultisign precompiled contract, " + "with wrong hash bytes",
+      groups = {"contract", "daily"})
   public void test002validatemultisign() {
     List<Object> signatures = new ArrayList<>();
 
     ownerKeyString[0] = ownerKey;
     ownerKeyString[1] = manager1Key;
 
-    Transaction transaction = PublicMethodForMultiSign.sendcoinGetTransaction(
-        foundationAddress, 1L, ownerAddress, ownerKey, blockingStubFull, ownerKeyString);
-  byte[] hash = Sha256Hash.of(CommonParameter.getInstance()
-        .isECKeyCryptoEngine(), transaction.getRawData().toByteArray()).getBytes();
-  byte[] merged = ByteUtil.merge(ownerAddress, ByteArray.fromInt(0), hash);
-  byte[] tosign = Sha256Hash.hash(CommonParameter.getInstance()
-        .isECKeyCryptoEngine(), merged);
+    Transaction transaction =
+        PublicMethodForMultiSign.sendcoinGetTransaction(
+            foundationAddress, 1L, ownerAddress, ownerKey, blockingStubFull, ownerKeyString);
+    byte[] hash =
+        Sha256Hash.of(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray())
+            .getBytes();
+    byte[] merged = ByteUtil.merge(ownerAddress, ByteArray.fromInt(0), hash);
+    byte[] tosign = Sha256Hash.hash(CommonParameter.getInstance().isECKeyCryptoEngine(), merged);
     signatures.add(Hex.toHexString(ecKey003.sign(tosign).toByteArray()));
     signatures.add(Hex.toHexString(ecKey001.sign(tosign).toByteArray()));
 
-    List<Object> parameters = Arrays.asList(WalletClient.encode58Check(ownerAddress),
-        0, "0x" + Hex.toHexString(hash), signatures);
-  String argsStr = PublicMethod.parametersString(parameters);
-  byte[] inputBytesArray = Hex.decode(AbiUtil.parseMethod(
-        "validatemultisign(address,uint256,bytes32,bytes[])", argsStr, false));
-  String input = ByteArray.toHexString(inputBytesArray);
-  String methodStr = "testMultiPrecompileContract(bytes)";
-  String TriggerTxid = PublicMethod.triggerContract(contractAddress, methodStr,
-        AbiUtil.parseParameters(methodStr, Arrays.asList(input)), true,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    List<Object> parameters =
+        Arrays.asList(
+            WalletClient.encode58Check(ownerAddress), 0, "0x" + Hex.toHexString(hash), signatures);
+    String argsStr = PublicMethod.parametersString(parameters);
+    byte[] inputBytesArray =
+        Hex.decode(
+            AbiUtil.parseMethod(
+                "validatemultisign(address,uint256,bytes32,bytes[])", argsStr, false));
+    String input = ByteArray.toHexString(inputBytesArray);
+    String methodStr = "testMultiPrecompileContract(bytes)";
+    String TriggerTxid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodStr,
+            AbiUtil.parseParameters(methodStr, Arrays.asList(input)),
+            true,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
@@ -175,34 +218,48 @@ public class TestValidatemultisign003 extends TronBaseTest {
     Assert.assertEquals(1, infoById.get().getResultValue());
   }
 
-  @Test(enabled = true, description = "Trigger validatemultisign precompiled contract, "
-      + "with correct hash bytes", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger validatemultisign precompiled contract, " + "with correct hash bytes",
+      groups = {"contract", "daily"})
   public void test003validatemultisign() {
     List<Object> signatures = new ArrayList<>();
 
     ownerKeyString[0] = ownerKey;
     ownerKeyString[1] = manager1Key;
 
-    Transaction transaction = PublicMethodForMultiSign.sendcoinGetTransaction(
-        foundationAddress, 1L, ownerAddress, ownerKey, blockingStubFull, ownerKeyString);
-  byte[] hash = Sha256Hash.of(CommonParameter.getInstance()
-        .isECKeyCryptoEngine(), transaction.getRawData().toByteArray()).getBytes();
-  byte[] merged = ByteUtil.merge(ownerAddress, ByteArray.fromInt(0), hash);
-  byte[] tosign = Sha256Hash.hash(CommonParameter.getInstance()
-        .isECKeyCryptoEngine(), merged);
+    Transaction transaction =
+        PublicMethodForMultiSign.sendcoinGetTransaction(
+            foundationAddress, 1L, ownerAddress, ownerKey, blockingStubFull, ownerKeyString);
+    byte[] hash =
+        Sha256Hash.of(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray())
+            .getBytes();
+    byte[] merged = ByteUtil.merge(ownerAddress, ByteArray.fromInt(0), hash);
+    byte[] tosign = Sha256Hash.hash(CommonParameter.getInstance().isECKeyCryptoEngine(), merged);
 
     signatures.add(Hex.toHexString(ecKey003.sign(tosign).toByteArray()));
     signatures.add(Hex.toHexString(ecKey001.sign(tosign).toByteArray()));
 
-    List<Object> parameters = Arrays.asList(WalletClient.encode58Check(ownerAddress),
-        0, "0x" + Hex.toHexString(hash), signatures);
-  String argsStr = PublicMethod.parametersString(parameters);
-  String input = AbiUtil.parseParameters(
-        "validatemultisign(address,uint256,bytes32,bytes[])", argsStr);
-  String methodStr = "testMultiPrecompileContract(bytes)";
-  String TriggerTxid = PublicMethod.triggerContract(contractAddress, methodStr,
-        AbiUtil.parseParameters(methodStr, Arrays.asList(input)), true,
-        0, 100000000, dev001Address, dev001Key, blockingStubFull);
+    List<Object> parameters =
+        Arrays.asList(
+            WalletClient.encode58Check(ownerAddress), 0, "0x" + Hex.toHexString(hash), signatures);
+    String argsStr = PublicMethod.parametersString(parameters);
+    String input =
+        AbiUtil.parseParameters("validatemultisign(address,uint256,bytes32,bytes[])", argsStr);
+    String methodStr = "testMultiPrecompileContract(bytes)";
+    String TriggerTxid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodStr,
+            AbiUtil.parseParameters(methodStr, Arrays.asList(input)),
+            true,
+            0,
+            100000000,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
@@ -210,7 +267,5 @@ public class TestValidatemultisign003 extends TronBaseTest {
     logger.info("infoById" + infoById);
 
     Assert.assertEquals(1, infoById.get().getResultValue());
-
   }
-
 }

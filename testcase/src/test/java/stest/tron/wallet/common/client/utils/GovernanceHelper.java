@@ -13,10 +13,6 @@ import org.tron.api.GrpcAPI.Return;
 import org.tron.api.GrpcAPI.TransactionExtention;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
-import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.CommonParameter;
-import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.Sha256Hash;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.Transaction;
@@ -33,28 +29,30 @@ public class GovernanceHelper {
 
   /** Check whether the FreezeV2 proposal (UnfreezeDelayDays) is enabled on-chain. */
   public static Boolean freezeV2ProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return GovernanceHelper.getChainParametersValue(ProposalEnum.GetUnfreezeDelayDays
-        .getProposalName(), blockingStubFull) > 0;
+    return GovernanceHelper.getChainParametersValue(
+            ProposalEnum.GetUnfreezeDelayDays.getProposalName(), blockingStubFull)
+        > 0;
   }
-
 
   /** Check whether the TronPower (AllowNewResourceModel) proposal is enabled on-chain. */
   public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return GovernanceHelper.getChainParametersValue(ProposalEnum.GetAllowNewResourceModel
-        .getProposalName(), blockingStubFull) == 1;
+    return GovernanceHelper.getChainParametersValue(
+            ProposalEnum.GetAllowNewResourceModel.getProposalName(), blockingStubFull)
+        == 1;
   }
 
   /** Check whether the AllowDynamicEnergy proposal is enabled on-chain. */
-  public static Boolean getAllowDynamicEnergyProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return GovernanceHelper.getChainParametersValue(ProposalEnum.GetAllowDynamicEnergy
-        .getProposalName(), blockingStubFull) == 1;
+  public static Boolean getAllowDynamicEnergyProposalIsOpen(
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return GovernanceHelper.getChainParametersValue(
+            ProposalEnum.GetAllowDynamicEnergy.getProposalName(), blockingStubFull)
+        == 1;
   }
-
-
 
   /** Get the current memo fee from the proposal parameters. */
   public static Long getProposalMemoFee(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return GovernanceHelper.getChainParametersValue(ProposalEnum.GetMemoFee.getProposalName(),blockingStubFull);
+    return GovernanceHelper.getChainParametersValue(
+        ProposalEnum.GetMemoFee.getProposalName(), blockingStubFull);
   }
 
   /** Query the memo fee price history string from the full node. */
@@ -68,7 +66,8 @@ public class GovernanceHelper {
   }
 
   /** Query the energy price history string from the solidity node. */
-  public static String getEnergyPriceSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static String getEnergyPriceSolidity(
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return blockingStubFull.getEnergyPrices(EmptyMessage.newBuilder().build()).getPrices();
   }
 
@@ -78,7 +77,8 @@ public class GovernanceHelper {
   }
 
   /** Query the bandwidth price history string from the solidity node. */
-  public static String getBandwidthPricesSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static String getBandwidthPricesSolidity(
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return blockingStubFull.getBandwidthPrices(EmptyMessage.newBuilder().build()).getPrices();
   }
 
@@ -264,20 +264,19 @@ public class GovernanceHelper {
   }
 
   /** Look up a chain parameter value by its proposal name string. */
-  public static Long getChainParametersValue(String proposalName,WalletGrpc.WalletBlockingStub blockingStubFull) {
-    ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(EmptyMessage.newBuilder().build());
+  public static Long getChainParametersValue(
+      String proposalName, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ChainParameters chainParameters =
+        blockingStubFull.getChainParameters(EmptyMessage.newBuilder().build());
     Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
     logger.info(Long.toString(getChainParameters.get().getChainParameterCount()));
     for (Integer i = 0; i < getChainParameters.get().getChainParameterCount(); i++) {
-      if(getChainParameters.get().getChainParameter(i).getKey().equals(proposalName)) {
+      if (getChainParameters.get().getChainParameter(i).getKey().equals(proposalName)) {
         return getChainParameters.get().getChainParameter(i).getValue();
       }
     }
 
     return 0L;
-
-
   }
 
   /** List all active witnesses from the full node. */

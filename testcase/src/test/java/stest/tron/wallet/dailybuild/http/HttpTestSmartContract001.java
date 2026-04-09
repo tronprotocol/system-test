@@ -50,7 +50,10 @@ public class HttpTestSmartContract001 {
   JSONObject responseCon2;
 
   /** constructor. */
-  @Test(enabled = true, description = "Deploy smart contract by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Deploy smart contract by http",
+      groups = {"daily", "serial"})
   public void test1DeployContract() {
     PublicMethod.printAddress(assetOwnerKey);
     response = HttpMethod.sendCoin(httpnode, fromAddress, assetOwnerAddress, amount, testKey002);
@@ -139,7 +142,10 @@ public class HttpTestSmartContract001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Get contract by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get contract by http",
+      groups = {"daily", "serial"})
   public void test2GetContract() {
     response = HttpMethod.getContract(httpnode, contractAddress);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -154,7 +160,10 @@ public class HttpTestSmartContract001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Trigger contract by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Trigger contract by http",
+      groups = {"daily", "serial"})
   public void test3TriggerContract() {
 
     String hexReceiverAddress = ByteArray.toHexString(assetReceiverAddress);
@@ -196,7 +205,9 @@ public class HttpTestSmartContract001 {
     Long afterBalance = HttpMethod.getBalance(httpnode, assetOwnerAddress);
     logger.info("beforeBalance: " + beforeBalance);
     logger.info("afterBalance: " + afterBalance);
-    Assert.assertTrue(beforeBalance - afterBalance == callValue + Long.valueOf(responseContent.getOrDefault("fee",0L).toString()));
+    Assert.assertTrue(
+        beforeBalance - afterBalance
+            == callValue + Long.valueOf(responseContent.getOrDefault("fee", 0L).toString()));
 
     JSONObject receiptString = responseContent.getJSONObject("receipt");
     Assert.assertEquals(receiptString.getString("result"), "SUCCESS");
@@ -210,7 +221,10 @@ public class HttpTestSmartContract001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Get transaction info by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get transaction info by http",
+      groups = {"daily", "serial"})
   public void test4GetTransactionInfoByBlocknum() throws InterruptedException {
     String hexReceiverAddress = ByteArray.toHexString(assetReceiverAddress);
     String addressParam = "000000000000000000000000" + hexReceiverAddress.substring(2); // [0,3)
@@ -258,8 +272,7 @@ public class HttpTestSmartContract001 {
       HttpMethod.printJsonContent(responseCon2);
       if (responseCon1.getLong("blockNumber").equals(responseCon2.getLong("blockNumber"))) {
         HttpResponse responseByBlocknum =
-            HttpMethod.getTransactionInfoByBlocknum(
-                httpnode, responseCon1.getLong("blockNumber"));
+            HttpMethod.getTransactionInfoByBlocknum(httpnode, responseCon1.getLong("blockNumber"));
         List<JSONObject> responseContentByBlocknum =
             HttpMethod.parseResponseContentArray(responseByBlocknum);
         boolean flag1 = false;
@@ -282,9 +295,13 @@ public class HttpTestSmartContract001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Get transaction info by http from solidity", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get transaction info by http from solidity",
+      groups = {"daily", "serial"})
   public void test5GetTransactionInfoByBlocknumFromSolidity() {
-    HttpMethod.waitUntilFixedBlockFromSolidity(responseCon1.getIntValue("blockNumber"), httpSolidityNode);
+    HttpMethod.waitUntilFixedBlockFromSolidity(
+        responseCon1.getIntValue("blockNumber"), httpSolidityNode);
     HttpResponse responseByBlocknum =
         HttpMethod.getTransactionInfoByBlocknumFromSolidity(
             httpSolidityNode, responseCon1.getLong("blockNumber"));
@@ -305,9 +322,13 @@ public class HttpTestSmartContract001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Get transaction info by http from real solidity", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get transaction info by http from real solidity",
+      groups = {"daily", "serial"})
   public void test6GetTransactionInfoByBlocknumFromRealSolidity() {
-    HttpMethod.waitUntilFixedBlockFromSolidity(responseCon1.getIntValue("blockNumber"), httpRealSolidityNode);
+    HttpMethod.waitUntilFixedBlockFromSolidity(
+        responseCon1.getIntValue("blockNumber"), httpRealSolidityNode);
     HttpResponse responseByBlocknum =
         HttpMethod.getTransactionInfoByBlocknumFromSolidity(
             httpRealSolidityNode, responseCon1.getLong("blockNumber"));
@@ -328,7 +349,10 @@ public class HttpTestSmartContract001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "UpdateSetting contract by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "UpdateSetting contract by http",
+      groups = {"daily", "serial"})
   public void test7UpdateSetting() {
 
     // assetOwnerAddress, assetOwnerKey
@@ -349,7 +373,10 @@ public class HttpTestSmartContract001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "UpdateEnergyLimit contract by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "UpdateEnergyLimit contract by http",
+      groups = {"daily", "serial"})
   public void test8UpdateEnergyLimit() {
 
     // assetOwnerAddress, assetOwnerKey

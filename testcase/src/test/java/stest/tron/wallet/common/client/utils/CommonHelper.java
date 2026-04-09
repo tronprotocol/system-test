@@ -4,7 +4,6 @@ import com.google.common.primitives.Longs;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -17,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
@@ -27,7 +25,9 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract.ABI;
 import stest.tron.wallet.common.client.WalletClient;
 
 @Slf4j
-/** Helper for common utilities: address/key conversion, encoding, and general-purpose operations. */
+/**
+ * Helper for common utilities: address/key conversion, encoding, and general-purpose operations.
+ */
 public class CommonHelper {
 
   // ---------------------------------------------------------------------------
@@ -83,7 +83,9 @@ public class CommonHelper {
   // Encoding / Decoding
   // ---------------------------------------------------------------------------
 
-  /** Decodes a Base58Check-encoded string and verifies its checksum, returning the payload bytes. */
+  /**
+   * Decodes a Base58Check-encoded string and verifies its checksum, returning the payload bytes.
+   */
   public static byte[] decode58Check(String input) {
     byte[] decodeCheck = Base58.decode(input);
     if (decodeCheck.length <= 4) {
@@ -500,7 +502,10 @@ public class CommonHelper {
   // Contract address helpers
   // ---------------------------------------------------------------------------
 
-  /** Generates a contract address by hashing the transaction raw data combined with the owner address. */
+  /**
+   * Generates a contract address by hashing the transaction raw data combined with the owner
+   * address.
+   */
   public static byte[] generateContractAddress(Transaction trx, byte[] owneraddress) {
 
     // get owner address
@@ -640,7 +645,7 @@ public class CommonHelper {
   }
 
   /** Executes a shell command and returns stdout or stderr, whichever is longer. */
-  public synchronized static String exec(String command) throws InterruptedException {
+  public static synchronized String exec(String command) throws InterruptedException {
     String returnString = "";
     String errReturnString = "";
     Process pro = null;

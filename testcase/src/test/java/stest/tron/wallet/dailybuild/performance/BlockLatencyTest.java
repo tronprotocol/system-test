@@ -12,25 +12,28 @@ import stest.tron.wallet.common.client.utils.TronBaseTest;
 /**
  * Block latency measurement.
  *
- * <p>Measures actual block production intervals by observing consecutive
- * blocks and computing statistics. TRON targets 3-second block intervals.
+ * <p>Measures actual block production intervals by observing consecutive blocks and computing
+ * statistics. TRON targets 3-second block intervals.
  */
 @Slf4j
 public class BlockLatencyTest extends TronBaseTest {
 
   private static final int SAMPLE_SIZE = 10;
 
-  @Test(enabled = true, description = "Measure block production interval statistics",
+  @Test(
+      enabled = true,
+      description = "Measure block production interval statistics",
       groups = {"daily"})
   public void test01BlockIntervalStatistics() {
     // Wait for enough blocks to exist
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    Block latest = blockingStubFull.getNowBlock(org.tron.api.GrpcAPI.EmptyMessage.newBuilder().build());
+    Block latest =
+        blockingStubFull.getNowBlock(org.tron.api.GrpcAPI.EmptyMessage.newBuilder().build());
     long currentNum = latest.getBlockHeader().getRawData().getNumber();
-    Assert.assertTrue(currentNum > SAMPLE_SIZE,
-        "Need at least " + SAMPLE_SIZE + " blocks, got " + currentNum);
+    Assert.assertTrue(
+        currentNum > SAMPLE_SIZE, "Need at least " + SAMPLE_SIZE + " blocks, got " + currentNum);
 
     long startNum = currentNum - SAMPLE_SIZE;
     List<Long> intervals = new ArrayList<>();
@@ -63,14 +66,18 @@ public class BlockLatencyTest extends TronBaseTest {
     logger.info("  Min: {} ms, Max: {} ms", minMs, maxMs);
 
     // TRON targets 3000ms blocks; allow 2000-6000ms average
-    Assert.assertTrue(avgMs >= 2000 && avgMs <= 6000,
+    Assert.assertTrue(
+        avgMs >= 2000 && avgMs <= 6000,
         "Average block interval should be 2-6 seconds, got " + avgMs + " ms");
   }
 
-  @Test(enabled = true, description = "Block numbers should be strictly sequential",
+  @Test(
+      enabled = true,
+      description = "Block numbers should be strictly sequential",
       groups = {"daily"})
   public void test02BlockNumberSequential() {
-    Block latest = blockingStubFull.getNowBlock(org.tron.api.GrpcAPI.EmptyMessage.newBuilder().build());
+    Block latest =
+        blockingStubFull.getNowBlock(org.tron.api.GrpcAPI.EmptyMessage.newBuilder().build());
     long currentNum = latest.getBlockHeader().getRawData().getNumber();
 
     long startNum = Math.max(1, currentNum - 20);
@@ -79,11 +86,13 @@ public class BlockLatencyTest extends TronBaseTest {
       Block block = PublicMethod.getBlock(i, blockingStubFull);
       Assert.assertNotNull(block, "Block " + i + " should exist");
       long num = block.getBlockHeader().getRawData().getNumber();
-      Assert.assertEquals(num, prevNum + 1,
-          "Block numbers should be sequential");
+      Assert.assertEquals(num, prevNum + 1, "Block numbers should be sequential");
       prevNum = num;
     }
-    logger.info("Verified {} sequential blocks ({} to {})",
-        currentNum - startNum + 1, startNum, currentNum);
+    logger.info(
+        "Verified {} sequential blocks ({} to {})",
+        currentNum - startNum + 1,
+        startNum,
+        currentNum);
   }
 }

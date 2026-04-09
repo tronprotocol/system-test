@@ -1,8 +1,12 @@
 package stest.tron.wallet.fuzz;
 
-import net.jqwik.api.*;
-import net.jqwik.api.constraints.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.constraints.IntRange;
+import net.jqwik.api.constraints.LongRange;
 import stest.tron.wallet.common.client.utils.ByteArray;
 
 class ByteArrayPropertyTest {

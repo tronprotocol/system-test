@@ -1,8 +1,6 @@
 package stest.tron.wallet.common.client.utils;
 
-/**
- * Cipher exception wrapper.
- */
+/** Cipher exception wrapper. */
 public class CipherException extends Exception {
 
   public CipherException(String message) {

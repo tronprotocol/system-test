@@ -29,64 +29,77 @@ import stest.tron.wallet.common.client.utils.TronBaseTest;
 @Slf4j
 public class WalletTestAssetIssue004 extends TronBaseTest {
 
-  //testng001、testng002、testng003、testng004
+  // testng001、testng002、testng003、testng004
   /*  private static final byte[] foundationAddress = Base58
-      .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");*/
-  private static final byte[] NO_ASSET_ADDRESS = Base58
-      .decodeFromBase58Check("27XeWZUtufGk8jdjF3m1tuPnnRqqKgzS3pT");
-  private static final byte[] INVALID_ADDRESS = Base58
-      .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
+  .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");*/
+  private static final byte[] NO_ASSET_ADDRESS =
+      Base58.decodeFromBase58Check("27XeWZUtufGk8jdjF3m1tuPnnRqqKgzS3pT");
+  private static final byte[] INVALID_ADDRESS =
+      Base58.decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
   private static final long now = System.currentTimeMillis();
   private static final String name = "testAssetIssue004_" + Long.toString(now);
   private static final long totalSupply = now;
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   String description = "just-test";
   String url = "https://github.com/tronprotocol/wallet-cli/";
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    ByteString addressBs1 = ByteString.copyFrom(foundationAddress);
+  public void beforeClass() {
+    ByteString addressBs1 = ByteString.copyFrom(foundationAddress);
     Account request1 = Account.newBuilder().setAddress(addressBs1).build();
-    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull
-        .getAssetIssueByAccount(request1);
+    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull.getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
     if (queryAssetByAccount.get().getAssetIssueCount() == 0) {
       Long start = System.currentTimeMillis() + 2000;
-  Long end = System.currentTimeMillis() + 1000000000;
-  //Create a new asset issue
-      Assert.assertTrue(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 6, 1000,
-          start, end, 2, description, url, 10000L, 10000L,
-          1L, 1L, foundationKey, blockingStubFull));
+      Long end = System.currentTimeMillis() + 1000000000;
+      // Create a new asset issue
+      Assert.assertTrue(
+          PublicMethod.createAssetIssue(
+              foundationAddress,
+              name,
+              totalSupply,
+              6,
+              1000,
+              start,
+              end,
+              2,
+              description,
+              url,
+              10000L,
+              10000L,
+              1L,
+              1L,
+              foundationKey,
+              blockingStubFull));
       PublicMethod.waitProduceNextBlock(blockingStubFull);
     } else {
       logger.info("This account already create an assetisue");
     }
-
   }
 
-  @Test(enabled = true, description = "Get asset issue by account", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Get asset issue by account",
+      groups = {"daily"})
   public void testGetAssetIssueByAccount() {
     ByteString addressBs = ByteString.copyFrom(foundationAddress);
     Account request = Account.newBuilder().setAddress(addressBs).build();
-    GrpcAPI.AssetIssueList assetIssueList = blockingStubFull
-        .getAssetIssueByAccount(request);
+    GrpcAPI.AssetIssueList assetIssueList = blockingStubFull.getAssetIssueByAccount(request);
     Optional<GrpcAPI.AssetIssueList> queryAssetIssueByAccount = Optional.ofNullable(assetIssueList);
     logger.info(Integer.toString(queryAssetIssueByAccount.get().getAssetIssueCount()));
     Assert.assertTrue(queryAssetIssueByAccount.get().getAssetIssueCount() == 1);
     for (Integer j = 0; j < queryAssetIssueByAccount.get().getAssetIssueCount(); j++) {
       if (queryAssetIssueByAccount.get().getAssetIssue(j).getTotalSupply() == totalSupply) {
         Assert.assertTrue(queryAssetIssueByAccount.isPresent());
-  //Assert.assertTrue(queryAssetIssueByAccount.get().getAssetIssue(j).getDecayRatio() > 0);
+        // Assert.assertTrue(queryAssetIssueByAccount.get().getAssetIssue(j).getDecayRatio() > 0);
         Assert.assertTrue(queryAssetIssueByAccount.get().getAssetIssue(j).getTrxNum() > 0);
         Assert.assertTrue(queryAssetIssueByAccount.get().getAssetIssue(j).getVoteScore() > 0);
         Assert.assertFalse(queryAssetIssueByAccount.get().getAssetIssue(j).getUrl().isEmpty());
@@ -94,38 +107,40 @@ public class WalletTestAssetIssue004 extends TronBaseTest {
       }
     }
 
-    //No exception when the address didn't create asset issue.
+    // No exception when the address didn't create asset issue.
     ByteString addressBS1 = ByteString.copyFrom(NO_ASSET_ADDRESS);
     Account request1 = Account.newBuilder().setAddress(addressBS1).build();
-    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull
-        .getAssetIssueByAccount(request1);
+    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull.getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryNoAssetByAccount = Optional.ofNullable(assetIssueList1);
     Assert.assertTrue(queryNoAssetByAccount.get().getAssetIssueCount() == 0);
     logger.info("No asset account queryed nothing");
-  //No exception when the address is invalid.
+    // No exception when the address is invalid.
     addressBS1 = ByteString.copyFrom(INVALID_ADDRESS);
     request1 = Account.newBuilder().setAddress(addressBS1).build();
-    assetIssueList1 = blockingStubFull
-        .getAssetIssueByAccount(request1);
+    assetIssueList1 = blockingStubFull.getAssetIssueByAccount(request1);
     queryNoAssetByAccount = Optional.ofNullable(assetIssueList1);
     Assert.assertTrue(queryNoAssetByAccount.get().getAssetIssueCount() == 0);
     logger.info("No asset account queryed nothing");
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, Long fronzenAmount, Long frozenDay,
+  /** constructor. */
+  public Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      Long fronzenAmount,
+      Long frozenDay,
       String priKey) {
     ECKey temKey = null;
     try {
@@ -150,9 +165,8 @@ public class WalletTestAssetIssue004 extends TronBaseTest {
       builder.setUrl(ByteString.copyFrom(url.getBytes()));
       builder.setFreeAssetNetLimit(20000);
       builder.setPublicFreeAssetNetLimit(20000);
-      AssetIssueContract.FrozenSupply.Builder
-          frozenBuilder = AssetIssueContract.FrozenSupply
-          .newBuilder();
+      AssetIssueContract.FrozenSupply.Builder frozenBuilder =
+          AssetIssueContract.FrozenSupply.newBuilder();
       frozenBuilder.setFrozenAmount(fronzenAmount);
       frozenBuilder.setFrozenDays(frozenDay);
       builder.addFrozenSupply(0, frozenBuilder);
@@ -173,19 +187,17 @@ public class WalletTestAssetIssue004 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -195,23 +207,18 @@ public class WalletTestAssetIssue004 extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -223,11 +230,9 @@ public class WalletTestAssetIssue004 extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -259,5 +264,3 @@ public class WalletTestAssetIssue004 extends TronBaseTest {
     return response.getResult();
   }
 }
-
-

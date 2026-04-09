@@ -13,26 +13,26 @@ import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-  //import java.io.FileWriter;
-//import java.io.BufferedWriter;
+import stest.tron.wallet.common.client.utils.Utils;
 
+// import java.io.FileWriter;
+// import java.io.BufferedWriter;
 
 @Slf4j
 public class TestMapBigLongAndNumbers extends TronBaseTest {
 
-  //testng001、testng002、testng003、testng004
-  //the key is for test
+  // testng001、testng002、testng003、testng004
+  // the key is for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
-  //private final String testAddress41 = ByteArray.toHexString(foundationAddress);
+  // private final String testAddress41 = ByteArray.toHexString(foundationAddress);
   String kittyCoreAddressAndCut = "";
   byte[] kittyCoreContractAddress = null;
   byte[] saleClockAuctionContractAddress = null;
   byte[] siringClockAuctionContractAddress = null;
   byte[] geneScienceInterfaceContractAddress = null;
-  //Integer consumeUserResourcePercent = 20;
+  // Integer consumeUserResourcePercent = 20;
   Integer consumeUserResourcePercent = 100;
   String txid = "";
   Optional<TransactionInfo> infoById = null;
@@ -40,30 +40,44 @@ public class TestMapBigLongAndNumbers extends TronBaseTest {
   byte[] triggerAddress = ecKey2.getAddress();
   String triggerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(triggerKey);  }
+    PublicMethod.printAddress(triggerKey);
+  }
 
-  @Test(enabled = true, threadPoolSize = 10, invocationCount = 10, groups = {"stress"})
+  @Test(
+      enabled = true,
+      threadPoolSize = 10,
+      invocationCount = 10,
+      groups = {"stress"})
   public void deployErc721KittyCore() {
 
     Long maxFeeLimit = 1000000000L;
-  String contractName = "MappingExample";
-  String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_TestMapBigLongAndNumbers_deployErc721KittyCore");
-  String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_TestMapBigLongAndNumbers_deployErc721KittyCore");
-    kittyCoreContractAddress = PublicMethod.deployContract(contractName, abi, code, "",
-        maxFeeLimit, 0L, consumeUserResourcePercent, null, testKey002,
-        foundationAddress, blockingStubFull);
-  String data1 = "a";
-  String data2 = "b";
-  String data3 = "c";
-  String data4 = "d";
+    String contractName = "MappingExample";
+    String code =
+        Configuration.getByPath("testng.conf")
+            .getString("code.code_TestMapBigLongAndNumbers_deployErc721KittyCore");
+    String abi =
+        Configuration.getByPath("testng.conf")
+            .getString("abi.abi_TestMapBigLongAndNumbers_deployErc721KittyCore");
+    kittyCoreContractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            consumeUserResourcePercent,
+            null,
+            testKey002,
+            foundationAddress,
+            blockingStubFull);
+    String data1 = "a";
+    String data2 = "b";
+    String data3 = "c";
+    String data4 = "d";
 
     for (int i = 0; i < 13; i++) {
       data1 += data1;
@@ -80,14 +94,14 @@ public class TestMapBigLongAndNumbers extends TronBaseTest {
     }
     String data;
     data = data1 + data2 + data3 + data4;
-  String data5 = "a";
+    String data5 = "a";
 
     Account account = PublicMethod.queryAccountByAddress(foundationAddress, blockingStubFull);
     System.out.println(Long.toString(account.getBalance()));
     long accountBalance = account.getBalance();
 
     Random random = new Random();
-  int randNumber = random.nextInt(15) + 15;
+    int randNumber = random.nextInt(15) + 15;
 
     System.out.println("random number:" + randNumber);
 
@@ -99,35 +113,62 @@ public class TestMapBigLongAndNumbers extends TronBaseTest {
 
     for (int ii = 1; ii < 111100000; ii++) {
       ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] userAddress = ecKey1.getAddress();
-  String inputKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  String addresstest = Base58.encode58Check(userAddress);
-  String saleContractString = "\"" + data + "\"" + "," + "\""
-          + Base58.encode58Check(userAddress) + "\"";
+      byte[] userAddress = ecKey1.getAddress();
+      String inputKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+      String addresstest = Base58.encode58Check(userAddress);
+      String saleContractString =
+          "\"" + data + "\"" + "," + "\"" + Base58.encode58Check(userAddress) + "\"";
 
       System.out.println("long string address:" + addresstest);
 
-      txid = PublicMethod.triggerContract(kittyCoreContractAddress, "update2(string,address)",
-          saleContractString, false, 0, 1000000000L, foundationAddress, testKey002, blockingStubFull);
+      txid =
+          PublicMethod.triggerContract(
+              kittyCoreContractAddress,
+              "update2(string,address)",
+              saleContractString,
+              false,
+              0,
+              1000000000L,
+              foundationAddress,
+              testKey002,
+              blockingStubFull);
       logger.info(txid);
-  String saleContractString1 = "\"" + data5 + "\"" + "," + "\""
-          + Base58.encode58Check(userAddress) + "\"";
+      String saleContractString1 =
+          "\"" + data5 + "\"" + "," + "\"" + Base58.encode58Check(userAddress) + "\"";
 
       System.out.println("short string address:" + addresstest);
 
-      txid = PublicMethod.triggerContract(kittyCoreContractAddress, "update2(string,address)",
-          saleContractString1, false, 0, 1000000000L, foundationAddress, testKey002, blockingStubFull);
+      txid =
+          PublicMethod.triggerContract(
+              kittyCoreContractAddress,
+              "update2(string,address)",
+              saleContractString1,
+              false,
+              0,
+              1000000000L,
+              foundationAddress,
+              testKey002,
+              blockingStubFull);
       logger.info(txid);
 
       System.out.println("time out");
 
-      txid = PublicMethod.triggerContract(kittyCoreContractAddress, "testUseCpu(uint256)",
-          "1000000000", false, 0, 1000000000L, foundationAddress, testKey002, blockingStubFull);
+      txid =
+          PublicMethod.triggerContract(
+              kittyCoreContractAddress,
+              "testUseCpu(uint256)",
+              "1000000000",
+              false,
+              0,
+              1000000000L,
+              foundationAddress,
+              testKey002,
+              blockingStubFull);
 
       infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
 
       infoById.get().getResultValue();
-  String isSuccess;
+      String isSuccess;
 
       if (infoById.get().getResultValue() == 0) {
         logger.info("success:" + " Number:" + ii);
@@ -139,13 +180,7 @@ public class TestMapBigLongAndNumbers extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
-
+  public void shutdown() throws InterruptedException {}
 }
-
-

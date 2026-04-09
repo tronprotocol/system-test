@@ -11,19 +11,19 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestAssetIssue019 extends TronBaseTest {
 
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   String description = "just-test";
   String url = "https://github.com/tronprotocol/wallet-cli/";
-  //get account
+  // get account
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] asset019Address = ecKey1.getAddress();
@@ -32,16 +32,15 @@ public class WalletTestAssetIssue019 extends TronBaseTest {
   byte[] asset019SecondAddress = ecKey2.getAddress();
   String asset019SecondKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, groups = {"daily"})
+  @Test(
+      enabled = true,
+      groups = {"daily"})
   public void testCanNotCreateTokenNameByTrx() {
-    //get account
+    // get account
     ecKey1 = new ECKey(Utils.getRandom());
     asset019Address = ecKey1.getAddress();
     asset019Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -52,60 +51,215 @@ public class WalletTestAssetIssue019 extends TronBaseTest {
     asset019SecondKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
     PublicMethod.printAddress(asset019SecondKey);
 
-    Assert.assertTrue(PublicMethod.sendcoin(asset019Address, 2048000000, foundationAddress,
-        foundationKey, blockingStubFull));
-    Assert.assertTrue(PublicMethod.sendcoin(asset019SecondAddress, 2048000000, foundationAddress,
-        foundationKey, blockingStubFull));
-  //Can create 32 char token name.
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            asset019Address, 2048000000, foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            asset019SecondAddress, 2048000000, foundationAddress, foundationKey, blockingStubFull));
+    // Can create 32 char token name.
     Long start = System.currentTimeMillis() + 20000000;
-  Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "trx", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Long end = System.currentTimeMillis() + 1000000000;
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "trx",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "TRX", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "TRX",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "Trx", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "Trx",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "tRx", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "tRx",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "trX", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "trX",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "TRx", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "TRx",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "TrX", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "TrX",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset019Address,
-        "tRX", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "tRX",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertTrue(PublicMethod.createAssetIssue(asset019Address,
-        "trxtrx", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            asset019Address,
+            "trxtrx",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019Key,
+            blockingStubFull));
 
-    Assert.assertTrue(PublicMethod.createAssetIssue(asset019SecondAddress,
-        "_", totalSupply, 1, 1, start, end, 1, description, url,
-        2000L, 2000L, 1L, 1L, asset019SecondKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            asset019SecondAddress,
+            "_",
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            asset019SecondKey,
+            blockingStubFull));
   }
 
-  @Test(enabled = true, groups = {"daily"})
+  @Test(
+      enabled = true,
+      groups = {"daily"})
   public void testGetAssetLastOperationTimeAndAssetIssueFreeNetUsed() {
-    Assert.assertTrue(PublicMethod.freezeBalance(asset019Address, 100000000L, 3,
-        asset019Key, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalance(asset019SecondAddress, 100000000L, 3,
-        asset019SecondKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(asset019Address, 100000000L, 3, asset019Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(
+            asset019SecondAddress, 100000000L, 3, asset019SecondKey, blockingStubFull));
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethod.queryAccount(asset019Address, blockingStubFull);
     ByteString asset019AccountId = getAssetIdFromThisAccount.getAssetIssuedID();
@@ -113,15 +267,35 @@ public class WalletTestAssetIssue019 extends TronBaseTest {
     getAssetIdFromThisAccount = PublicMethod.queryAccount(asset019SecondAddress, blockingStubFull);
     ByteString asset019SecondAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
 
-    PublicMethod.transferAsset(asset019SecondAddress, asset019AccountId.toByteArray(), 100L,
-        asset019Address, asset019Key, blockingStubFull);
-    PublicMethod.transferAsset(asset019Address, asset019SecondAccountId.toByteArray(), 100L,
-        asset019SecondAddress, asset019SecondKey, blockingStubFull);
+    PublicMethod.transferAsset(
+        asset019SecondAddress,
+        asset019AccountId.toByteArray(),
+        100L,
+        asset019Address,
+        asset019Key,
+        blockingStubFull);
+    PublicMethod.transferAsset(
+        asset019Address,
+        asset019SecondAccountId.toByteArray(),
+        100L,
+        asset019SecondAddress,
+        asset019SecondKey,
+        blockingStubFull);
 
-    PublicMethod.transferAsset(asset019Address, asset019AccountId.toByteArray(), 10L,
-        asset019SecondAddress, asset019SecondKey, blockingStubFull);
-    PublicMethod.transferAsset(asset019SecondAddress, asset019SecondAccountId.toByteArray(),
-        10L, asset019Address, asset019Key, blockingStubFull);
+    PublicMethod.transferAsset(
+        asset019Address,
+        asset019AccountId.toByteArray(),
+        10L,
+        asset019SecondAddress,
+        asset019SecondKey,
+        blockingStubFull);
+    PublicMethod.transferAsset(
+        asset019SecondAddress,
+        asset019SecondAccountId.toByteArray(),
+        10L,
+        asset019Address,
+        asset019Key,
+        blockingStubFull);
 
     getAssetIdFromThisAccount = PublicMethod.queryAccount(asset019Address, blockingStubFull);
     for (String id : getAssetIdFromThisAccount.getFreeAssetNetUsageV2Map().keySet()) {
@@ -138,10 +312,7 @@ public class WalletTestAssetIssue019 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }

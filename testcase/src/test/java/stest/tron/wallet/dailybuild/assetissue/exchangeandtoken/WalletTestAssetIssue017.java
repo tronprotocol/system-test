@@ -1,7 +1,6 @@
 package stest.tron.wallet.dailybuild.assetissue.exchangeandtoken;
 
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.math.BigInteger;
 import java.util.Optional;
@@ -21,8 +20,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestAssetIssue017 extends TronBaseTest {
@@ -34,28 +33,38 @@ public class WalletTestAssetIssue017 extends TronBaseTest {
   private static long now = System.currentTimeMillis();
   private static String name = "AssetIssue017_" + Long.toString(now);
   private static long totalSupply = now;
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   Long freeAssetNetLimit = 30000L;
   Long publicFreeAssetNetLimit = 30000L;
   String description = "for case assetissue017";
   String url = "https://stest.assetissue016.url";
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] asset017Address = ecKey1.getAddress();
   String testKeyForAssetIssue017 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  //private Manager dbManager;
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  // private Manager dbManager;
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-  public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
-      Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
-      String description, String url, Long freeAssetNetLimit, Long publicFreeAssetNetLimit,
-      Long fronzenAmount, Long frozenDay, String priKey,
+  /** constructor. */
+  public static Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      Long freeAssetNetLimit,
+      Long publicFreeAssetNetLimit,
+      Long fronzenAmount,
+      Long frozenDay,
+      String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
@@ -65,11 +74,10 @@ public class WalletTestAssetIssue017 extends TronBaseTest {
       ex.printStackTrace();
     }
     ECKey ecKey = temKey;
-  //Protocol.Account search = queryAccount(ecKey, blockingStubFull);
+    // Protocol.Account search = queryAccount(ecKey, blockingStubFull);
     try {
       AssetIssueContractOuterClass.AssetIssueContract.Builder builder =
-          AssetIssueContractOuterClass.AssetIssueContract
-              .newBuilder();
+          AssetIssueContractOuterClass.AssetIssueContract.newBuilder();
       builder.setOwnerAddress(ByteString.copyFrom(address));
       builder.setName(ByteString.copyFrom(name.getBytes()));
       builder.setTotalSupply(totalSupply);
@@ -108,50 +116,60 @@ public class WalletTestAssetIssue017 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-  public static Protocol.Transaction signTransaction(ECKey ecKey,
-      Protocol.Transaction transaction) {
+  /** constructor. */
+  public static Protocol.Transaction signTransaction(
+      ECKey ecKey, Protocol.Transaction transaction) {
     if (ecKey == null || ecKey.getPrivKey() == null) {
-      //logger.warn("Warning: Can't sign,there is no private key !!");
+      // logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    logger.info(testKeyForAssetIssue017);    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    }
+    logger.info(testKeyForAssetIssue017);
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
+  }
 
-  @Test(enabled = true, groups = {"daily"})
+  @Test(
+      enabled = true,
+      groups = {"daily"})
   public void atestGetPaginatedAssetIssueList() {
-    //get account
+    // get account
     ecKey1 = new ECKey(Utils.getRandom());
     asset017Address = ecKey1.getAddress();
     testKeyForAssetIssue017 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethod
-        .sendcoin(asset017Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            asset017Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
     start = System.currentTimeMillis() + 2000;
     end = System.currentTimeMillis() + 1000000000;
     now = System.currentTimeMillis();
     name = "AssetIssue017_" + Long.toString(now);
     totalSupply = now;
-    Assert.assertTrue(createAssetIssue(asset017Address, name, totalSupply, 1, 1,
-        start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L,
-        1L, testKeyForAssetIssue017, blockingStubFull));
+    Assert.assertTrue(
+        createAssetIssue(
+            asset017Address,
+            name,
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            freeAssetNetLimit,
+            publicFreeAssetNetLimit,
+            1L,
+            1L,
+            testKeyForAssetIssue017,
+            blockingStubFull));
 
     Integer offset = 0;
     Integer limit = 100;
@@ -160,8 +178,8 @@ public class WalletTestAssetIssue017 extends TronBaseTest {
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
 
-    AssetIssueList assetIssueList = blockingStubFull
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    AssetIssueList assetIssueList =
+        blockingStubFull.getPaginatedAssetIssueList(pageMessageBuilder.build());
     Optional<AssetIssueList> assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() >= 1);
@@ -171,55 +189,56 @@ public class WalletTestAssetIssue017 extends TronBaseTest {
     PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
   }
 
-  @Test(enabled = true, groups = {"daily"})
+  @Test(
+      enabled = true,
+      groups = {"daily"})
   public void btestGetPaginatedAssetIssueListException() {
-    //offset is 0, limit is 0.
+    // offset is 0, limit is 0.
     Integer offset = 0;
     Integer limit = 0;
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    AssetIssueList assetIssueList = blockingStubFull
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    AssetIssueList assetIssueList =
+        blockingStubFull.getPaginatedAssetIssueList(pageMessageBuilder.build());
     Optional<AssetIssueList> assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() == 0);
-  //offset is -1, limit is 100.
+    // offset is -1, limit is 100.
     offset = -1;
     limit = 100;
     pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    assetIssueList = blockingStubFull
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    assetIssueList = blockingStubFull.getPaginatedAssetIssueList(pageMessageBuilder.build());
     assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() == 0);
-  //offset is 0, limit is -1.
+    // offset is 0, limit is -1.
     offset = 0;
     limit = -1;
     pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    assetIssueList = blockingStubFull
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    assetIssueList = blockingStubFull.getPaginatedAssetIssueList(pageMessageBuilder.build());
     assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() == 0);
-  //offset is 0, limit is 50.
+    // offset is 0, limit is 50.
     offset = 0;
     limit = 50;
     pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    assetIssueList = blockingStubFull
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    assetIssueList = blockingStubFull.getPaginatedAssetIssueList(pageMessageBuilder.build());
     assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() >= 1);
   }
 
-  @Test(enabled = true, groups = {"daily"})
+  @Test(
+      enabled = true,
+      groups = {"daily"})
   public void ctestGetPaginatedAssetIssueListOnSolidityNode() {
 
     Integer offset = 0;
@@ -228,10 +247,10 @@ public class WalletTestAssetIssue017 extends TronBaseTest {
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    Assert.assertTrue(PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull,
-        blockingStubSolidity));
-    AssetIssueList assetIssueList = blockingStubSolidity
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    Assert.assertTrue(
+        PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity));
+    AssetIssueList assetIssueList =
+        blockingStubSolidity.getPaginatedAssetIssueList(pageMessageBuilder.build());
     Optional<AssetIssueList> assetIssueListPaginated = Optional.ofNullable(assetIssueList);
 
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
@@ -241,69 +260,64 @@ public class WalletTestAssetIssue017 extends TronBaseTest {
     }
   }
 
-  @Test(enabled = true, groups = {"daily"})
+  @Test(
+      enabled = true,
+      groups = {"daily"})
   public void dtestGetPaginatedAssetIssueListExceptionOnSolidityNode() {
-    //offset is 0, limit is 0.
+    // offset is 0, limit is 0.
     Integer offset = 0;
     Integer limit = 0;
     PaginatedMessage.Builder pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    AssetIssueList assetIssueList = blockingStubSolidity
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    AssetIssueList assetIssueList =
+        blockingStubSolidity.getPaginatedAssetIssueList(pageMessageBuilder.build());
     Optional<AssetIssueList> assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() == 0);
-  //offset is 0, limit is -1.
+    // offset is 0, limit is -1.
     offset = 0;
     limit = -1;
     pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    assetIssueList = blockingStubSolidity
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    assetIssueList = blockingStubSolidity.getPaginatedAssetIssueList(pageMessageBuilder.build());
     assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() == 0);
-  //offset is 0, limit is 50.
+    // offset is 0, limit is 50.
     offset = 0;
     limit = 50;
     pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    assetIssueList = blockingStubSolidity
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    assetIssueList = blockingStubSolidity.getPaginatedAssetIssueList(pageMessageBuilder.build());
     assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() >= 1);
-  //offset is 0, limit is 1000.
+    // offset is 0, limit is 1000.
     offset = 0;
     limit = 1000;
     pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    assetIssueList = blockingStubSolidity
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    assetIssueList = blockingStubSolidity.getPaginatedAssetIssueList(pageMessageBuilder.build());
     assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() >= 1);
-  //offset is -1, limit is 100.
+    // offset is -1, limit is 100.
     offset = -1;
     limit = 100;
     pageMessageBuilder = PaginatedMessage.newBuilder();
     pageMessageBuilder.setOffset(offset);
     pageMessageBuilder.setLimit(limit);
-    assetIssueList = blockingStubSolidity
-        .getPaginatedAssetIssueList(pageMessageBuilder.build());
+    assetIssueList = blockingStubSolidity.getPaginatedAssetIssueList(pageMessageBuilder.build());
     assetIssueListPaginated = Optional.ofNullable(assetIssueList);
     logger.info(Long.toString(assetIssueListPaginated.get().getAssetIssueCount()));
     Assert.assertTrue(assetIssueListPaginated.get().getAssetIssueCount() == 0);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }

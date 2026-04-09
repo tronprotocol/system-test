@@ -11,14 +11,15 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethod;
 import stest.tron.wallet.common.client.utils.JsonRpcBase;
 
-
 @Slf4j
-
 public class EthSmartContract001 extends JsonRpcBase {
   private JSONObject responseContent;
   private HttpResponse response;
 
-  @Test(enabled = true, description = "Json rpc api of eth_call", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_call",
+      groups = {"daily", "serial"})
   public void test01JsonRpcApiTestForEthCall() throws Exception {
     JsonObject param = new JsonObject();
     param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
@@ -30,26 +31,30 @@ public class EthSmartContract001 extends JsonRpcBase {
     JsonArray params = new JsonArray();
     params.add(param);
     params.add("latest");
-    JsonObject requestBody = getJsonRpcBody("eth_call",params);
+    JsonObject requestBody = getJsonRpcBody("eth_call", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethod.parseResponseContent(response);
     String dataResult = responseContent.getString("result");
-    Assert.assertEquals(dataResult,"0x000000000000000000000000000000000000000000000000000"
-        + "0000000000020000000000000000000000000000000000000000000000000000000000000000a546f6b65"
-        + "6e545243323000000000000000000000000000000000000000000000");
+    Assert.assertEquals(
+        dataResult,
+        "0x000000000000000000000000000000000000000000000000000"
+            + "0000000000020000000000000000000000000000000000000000000000000000000000000000a546f6b6"
+            + "5"
+            + "6e545243323000000000000000000000000000000000000000000000");
   }
 
-
-  @Test(enabled = true, description = "Json rpc api of eth_getCode", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getCode",
+      groups = {"daily", "serial"})
   public void test02JsonRpcApiTestForEthGetCode() throws Exception {
     JsonArray params = new JsonArray();
     params.add(trc20AddressHex);
     params.add("latest");
-    JsonObject requestBody = getJsonRpcBody("eth_getCode",params);
+    JsonObject requestBody = getJsonRpcBody("eth_getCode", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethod.parseResponseContent(response);
     String dataResult = responseContent.getString("result");
     Assert.assertTrue(dataResult.length() > 1000L);
   }
-
 }

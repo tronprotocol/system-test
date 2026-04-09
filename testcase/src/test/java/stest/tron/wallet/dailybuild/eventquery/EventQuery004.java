@@ -1,7 +1,6 @@
 package stest.tron.wallet.dailybuild.eventquery;
 
 import com.alibaba.fastjson.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,12 +14,13 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 import zmq.ZMQ.Event;
 
 @Slf4j
-public class EventQuery004 extends TronBaseTest {  private final String testKey003 =
+public class EventQuery004 extends TronBaseTest {
+  private final String testKey003 =
       Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   byte[] contractAddress;
@@ -32,12 +32,14 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
   private String eventnode =
       Configuration.getByPath("testng.conf").getStringList("eventnode.ip.list").get(0);
   private String soliditynode =
-      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);  List<String> transactionIdList = null;
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
+  List<String> transactionIdList = null;
 
   /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    initSolidityChannel();    ecKey1 = new ECKey(Utils.getRandom());
+    initSolidityChannel();
+    ecKey1 = new ECKey(Utils.getRandom());
     event001Address = ecKey1.getAddress();
     event001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     PublicMethod.printAddress(event001Key);
@@ -46,10 +48,10 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
         PublicMethod.sendcoin(
             event001Address, maxFeeLimit * 30, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String contractName = "addressDemo";
-  String code =
+    String contractName = "addressDemo";
+    String code =
         Configuration.getByPath("testng.conf").getString("code.code_ContractEventAndLog1");
-  String abi = Configuration.getByPath("testng.conf").getString("abi.abi_ContractEventAndLog1");
+    String abi = Configuration.getByPath("testng.conf").getString("abi.abi_ContractEventAndLog1");
     contractAddress =
         PublicMethod.deployContract(
             contractName,
@@ -63,11 +65,11 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
             event001Key,
             event001Address,
             blockingStubFull);
-  String filePath2 = "src/test/resources/soliditycode/contractTestLog.sol";
-  String contractName1 = "C";
+    String filePath2 = "src/test/resources/soliditycode/contractTestLog.sol";
+    String contractName1 = "C";
     HashMap retMap2 = PublicMethod.getBycodeAbi(filePath2, contractName1);
-  String code1 = retMap2.get("byteCode").toString();
-  String abi1 = retMap2.get("abI").toString();
+    String code1 = retMap2.get("byteCode").toString();
+    String abi1 = retMap2.get("abI").toString();
     contractAddress1 =
         PublicMethod.deployContract(
             contractName,
@@ -83,26 +85,28 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
             blockingStubFull);
   }
 
-  @Test(enabled = true, priority=3, description = "Filter  contractTopic event query for contract log", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 3,
+      description = "Filter  contractTopic event query for contract log",
+      groups = {"daily", "serial"})
   public void test01filterContractTopicEventQueryForContractLog() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
     req.subscribe("contractLogTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
-    new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
-              }
-            })
-        .start();
+    Runnable moniterTask =
+        () -> {
+          while (true) {
+            Event event = Event.read(moniter.base());
+            System.out.println(event.event + "  " + event.addr);
+          }
+        };
+    new Thread(moniterTask).start();
     req.connect(eventnode);
     req.setReceiveTimeOut(5000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 3;
 
@@ -121,10 +125,12 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
                 blockingStubFull);
         logger.info(txid);
 
-/*        if (PublicMethod.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
-            == 0) {
-          sendTransaction = false;
-        }*/
+        /*
+         * if (PublicMethod.getTransactionInfoById(txid, blockingStubFull)
+         *     .get().getResultValue() == 0) {
+         *   sendTransaction = false;
+         * }
+         */
       }
       byte[] message = req.recv();
 
@@ -136,35 +142,37 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
         }
       }
     }
-    //test native event filter function , should not find message in zmq
+    // test native event filter function , should not find message in zmq
     Assert.assertTrue(retryTimes < 0);
   }
 
-  @Test(enabled = true, priority=3, description = "Filter  contractTopic event query for solidity contract log", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 3,
+      description = "Filter  contractTopic event query for solidity contract log",
+      groups = {"daily", "serial"})
   public void test02filterContractTopicEventQueryForContractSolidityLog() {
     PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("solidityLogTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
-    new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
-              }
-            })
-        .start();
+    Runnable moniterTask =
+        () -> {
+          while (true) {
+            Event event = Event.read(moniter.base());
+            System.out.println(event.event + "  " + event.addr);
+          }
+        };
+    new Thread(moniterTask).start();
     req.connect(eventnode);
     req.setReceiveTimeOut(5000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 3;
-  String txid1 = "";
+    String txid1 = "";
 
     while (retryTimes-- > 0) {
       if (sendTransaction) {
@@ -180,13 +188,15 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
                 event001Key,
                 blockingStubFull);
         logger.info(txid1);
-/*        if (PublicMethod.getTransactionInfoById(txid, blockingStubFull).get().getResultValue()
-            == 0) {
-          sendTransaction = false;
-        }*/
+        /*
+         * if (PublicMethod.getTransactionInfoById(txid,
+         *     blockingStubFull).get().getResultValue()
+         *     == 0) {
+         *   sendTransaction = false;
+         * }
+         */
       }
       byte[] message = req.recv();
-
 
       if (message != null) {
 
@@ -197,31 +207,33 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
         }
       }
     }
-    //test native event filter function, should not find message in zmq
+    // test native event filter function, should not find message in zmq
     Assert.assertTrue(retryTimes < 0);
   }
 
-  @Test(enabled = true, priority=3, description = "Event query for contract log", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 3,
+      description = "Event query for contract log",
+      groups = {"daily", "serial"})
   public void test03EventQueryForContractLog() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("contractLogTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
-    new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
-              }
-            })
-        .start();
+    Runnable moniterTask =
+        () -> {
+          while (true) {
+            Event event = Event.read(moniter.base());
+            System.out.println(event.event + "  " + event.addr);
+          }
+        };
+    new Thread(moniterTask).start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
     transactionIdList = new ArrayList<>();
@@ -268,33 +280,35 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
     Assert.assertEquals(blockObject.getString("triggerName"), "contractLogTrigger");
   }
 
-  @Test(enabled = true, priority=3, description = "Event query for solidity contract log", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 3,
+      description = "Event query for solidity contract log",
+      groups = {"daily", "serial"})
   public void test04EventQueryForContractSolidityLog() {
     PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull, blockingStubSolidity);
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("solidityLogTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
-    new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
-              }
-            })
-        .start();
+    Runnable moniterTask =
+        () -> {
+          while (true) {
+            Event event = Event.read(moniter.base());
+            System.out.println(event.event + "  " + event.addr);
+          }
+        };
+    new Thread(moniterTask).start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
-  String txid1 = "";
-  String txid2 = "";
-  String txid3 = "";
+    String txid1 = "";
+    String txid2 = "";
+    String txid3 = "";
     transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
       if (sendTransaction) {
@@ -369,5 +383,5 @@ public class EventQuery004 extends TronBaseTest {  private final String testKey0
 
   /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }

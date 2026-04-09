@@ -49,7 +49,10 @@ import stest.tron.wallet.common.client.utils.zen.address.PaymentAddress;
 import stest.tron.wallet.common.client.utils.zen.address.SpendingKey;
 
 @Slf4j
-/** Helper for shielded/privacy operations: note management, shield transfers, and zero-knowledge proofs. */
+/**
+ * Helper for shielded/privacy operations: note management, shield transfers, and zero-knowledge
+ * proofs.
+ */
 public class ShieldHelper {
 
   public static Map<Long, ShieldNoteInfo> utxoMapNote = new ConcurrentHashMap();
@@ -354,7 +357,8 @@ public class ShieldHelper {
       }
 
       Transaction.raw.Builder rawBuilder =
-          transaction.toBuilder()
+          transaction
+              .toBuilder()
               .getRawDataBuilder()
               .clearContract()
               .addContract(

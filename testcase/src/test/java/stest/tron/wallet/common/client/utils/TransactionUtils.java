@@ -17,25 +17,19 @@ package stest.tron.wallet.common.client.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import io.grpc.ManagedChannel;
 import java.lang.reflect.Constructor;
-import java.nio.charset.StandardCharsets;
 import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
@@ -83,73 +77,88 @@ import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
 import org.tron.protos.contract.WitnessContract.WitnessCreateContract;
 import org.tron.protos.contract.WitnessContract.WitnessUpdateContract;
 import stest.tron.wallet.common.client.utils.ECKey.ECDSASignature;
+
 @Slf4j
 public class TransactionUtils {
 
   public static final int NORMALTRANSACTION = 0;
   public static final int UNEXECUTEDDEFERREDTRANSACTION = 1;
   public static final int EXECUTINGDEFERREDTRANSACTION = 2;
-//  private static final Logger logger = LoggerFactory.getLogger("Transaction");
+  //  private static final Logger logger = LoggerFactory.getLogger("Transaction");
   private static final int RESERVE_BALANCE = 10;
-  public static HashMap<ContractType,Class<?>> transactionMap = new HashMap<>();
+  public static HashMap<ContractType, Class<?>> transactionMap = new HashMap<>();
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static byte[] getHash(Transaction transaction) {
     Transaction.Builder tmp = transaction.toBuilder();
-    //tmp.clearId();
-    return Sha256Hash.hash(CommonParameter
-        .getInstance().isECKeyCryptoEngine(), tmp.build().toByteArray());
+    // tmp.clearId();
+    return Sha256Hash.hash(
+        CommonParameter.getInstance().isECKeyCryptoEngine(), tmp.build().toByteArray());
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static byte[] getOwner(Transaction.Contract contract) {
     ByteString owner;
     try {
       switch (contract.getType()) {
         case AccountCreateContract:
-          owner = contract.getParameter()
-              .unpack(AccountCreateContract.class).getOwnerAddress();
+          owner = contract.getParameter().unpack(AccountCreateContract.class).getOwnerAddress();
           break;
         case TransferContract:
-          owner = contract.getParameter().unpack(BalanceContract.TransferContract.class)
-              .getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(BalanceContract.TransferContract.class)
+                  .getOwnerAddress();
           break;
         case TransferAssetContract:
-          owner = contract.getParameter()
-              .unpack(AssetIssueContractOuterClass.TransferAssetContract.class).getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(AssetIssueContractOuterClass.TransferAssetContract.class)
+                  .getOwnerAddress();
           break;
         case VoteAssetContract:
-          owner = contract.getParameter()
-              .unpack(VoteAssetContractOuterClass.VoteAssetContract.class)
-              .getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(VoteAssetContractOuterClass.VoteAssetContract.class)
+                  .getOwnerAddress();
           break;
         case VoteWitnessContract:
-          owner = contract.getParameter().unpack(WitnessContract.VoteWitnessContract.class)
-              .getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(WitnessContract.VoteWitnessContract.class)
+                  .getOwnerAddress();
           break;
         case WitnessCreateContract:
-          owner = contract.getParameter()
-              .unpack(WitnessContract.WitnessCreateContract.class).getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(WitnessContract.WitnessCreateContract.class)
+                  .getOwnerAddress();
           break;
         case AssetIssueContract:
-          owner = contract.getParameter()
-              .unpack(AssetIssueContractOuterClass.AssetIssueContract.class)
-              .getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(AssetIssueContractOuterClass.AssetIssueContract.class)
+                  .getOwnerAddress();
           break;
         case ParticipateAssetIssueContract:
-          owner = contract.getParameter()
-              .unpack(AssetIssueContractOuterClass.ParticipateAssetIssueContract.class)
-              .getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(AssetIssueContractOuterClass.ParticipateAssetIssueContract.class)
+                  .getOwnerAddress();
           break;
         case CreateSmartContract:
-          owner = contract.getParameter().unpack(SmartContractOuterClass.CreateSmartContract.class)
-              .getOwnerAddress();
+          owner =
+              contract
+                  .getParameter()
+                  .unpack(SmartContractOuterClass.CreateSmartContract.class)
+                  .getOwnerAddress();
           break;
         default:
           return null;
@@ -161,16 +170,13 @@ public class TransactionUtils {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static String getBase64FromByteString(ByteString sign) {
     byte[] r = sign.substring(0, 32).toByteArray();
     byte[] s = sign.substring(32, 64).toByteArray();
     byte v = sign.byteAt(64);
     if (v < 27) {
-      v += 27; //revId -> v
+      v += 27; // revId -> v
     }
     ECDSASignature signature = ECDSASignature.fromComponents(r, s, v);
     return signature.toBase64();
@@ -183,16 +189,15 @@ public class TransactionUtils {
    * 4. check balance
    */
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static boolean validTransaction(Transaction signedTransaction) {
     assert (signedTransaction.getSignatureCount()
         == signedTransaction.getRawData().getContractCount());
     List<Transaction.Contract> listContract = signedTransaction.getRawData().getContractList();
-    byte[] hash = Sha256Hash.hash(CommonParameter
-        .getInstance().isECKeyCryptoEngine(), signedTransaction.getRawData().toByteArray());
+    byte[] hash =
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            signedTransaction.getRawData().toByteArray());
     int count = signedTransaction.getSignatureCount();
     if (count == 0) {
       return false;
@@ -201,8 +206,9 @@ public class TransactionUtils {
       try {
         Transaction.Contract contract = listContract.get(i);
         byte[] owner = getOwner(contract);
-        byte[] address = ECKey
-            .signatureToAddress(hash, getBase64FromByteString(signedTransaction.getSignature(i)));
+        byte[] address =
+            ECKey.signatureToAddress(
+                hash, getBase64FromByteString(signedTransaction.getSignature(i)));
         if (!Arrays.equals(owner, address)) {
           return false;
         }
@@ -214,44 +220,44 @@ public class TransactionUtils {
     return true;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static Transaction sign(Transaction transaction, ECKey myKey) {
     ByteString lockSript = ByteString.copyFrom(myKey.getAddress());
     Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
 
-    byte[] hash = Sha256Hash.hash(CommonParameter
-        .getInstance().isECKeyCryptoEngine(), transaction.getRawData().toByteArray());
+    byte[] hash =
+        Sha256Hash.hash(
+            CommonParameter.getInstance().isECKeyCryptoEngine(),
+            transaction.getRawData().toByteArray());
     List<Contract> listContract = transaction.getRawData().getContractList();
     for (int i = 0; i < listContract.size(); i++) {
       ECDSASignature signature = myKey.sign(hash);
       ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
       transactionBuilderSigned.addSignature(
-          bsSign);//Each contract may be signed with a different private key in the future.
+          bsSign); // Each contract may be signed with a different private key in the future.
     }
 
     transaction = transactionBuilderSigned.build();
     try {
-      String txId = ByteArray.toHexString(
+      String txId =
+          ByteArray.toHexString(
               Sha256Hash.hash(
-                      CommonParameter.getInstance().isECKeyCryptoEngine(),
-                      transaction.getRawData().toByteArray()));
+                  CommonParameter.getInstance().isECKeyCryptoEngine(),
+                  transaction.getRawData().toByteArray()));
       String txType = transaction.getRawData().getContract(0).getType().name();
-      logger.info("Transaction type: {}, id: {}" ,txType ,txId);
-    }catch (Exception e){
+      logger.info("Transaction type: {}, id: {}", txType, txId);
+    } catch (Exception e) {
       logger.warn("err transaction, please check, " + transaction + " err: " + e.getMessage());
     }
     return transaction;
   }
 
-
   public static byte[] generateContractAddress(Transaction trx, byte[] ownerAddress) {
     // get tx hash
-    byte[] txRawDataHash = Sha256Hash
-        .of(CommonParameter.getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())
-        .getBytes();
+    byte[] txRawDataHash =
+        Sha256Hash.of(
+                CommonParameter.getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())
+            .getBytes();
 
     // combine
     byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
@@ -261,25 +267,24 @@ public class TransactionUtils {
     return Hash.sha3omit12(combined);
   }
 
-
   public static void initTransactionMap() {
-    if(transactionMap.isEmpty()) {
-      transactionMap.put(ContractType.TransferContract,TransferContract.class);
+    if (transactionMap.isEmpty()) {
+      transactionMap.put(ContractType.TransferContract, TransferContract.class);
       transactionMap.put(ContractType.AccountUpdateContract, AccountUpdateContract.class);
       transactionMap.put(ContractType.VoteWitnessContract, VoteWitnessContract.class);
       transactionMap.put(ContractType.WitnessUpdateContract, WitnessUpdateContract.class);
-      transactionMap.put(ContractType.AccountCreateContract,AccountCreateContract.class);
-      transactionMap.put(ContractType.AccountPermissionUpdateContract,
-          AccountPermissionUpdateContract.class);
+      transactionMap.put(ContractType.AccountCreateContract, AccountCreateContract.class);
+      transactionMap.put(
+          ContractType.AccountPermissionUpdateContract, AccountPermissionUpdateContract.class);
       transactionMap.put(ContractType.AssetIssueContract, AssetIssueContract.class);
       transactionMap.put(ContractType.ClearABIContract, ClearABIContract.class);
-      transactionMap.put(ContractType.CreateSmartContract,CreateSmartContract.class);
+      transactionMap.put(ContractType.CreateSmartContract, CreateSmartContract.class);
       transactionMap.put(ContractType.DelegateResourceContract, DelegateResourceContract.class);
       transactionMap.put(ContractType.ExchangeCreateContract, ExchangeCreateContract.class);
       transactionMap.put(ContractType.ExchangeInjectContract, ExchangeInjectContract.class);
       transactionMap.put(ContractType.ExchangeWithdrawContract, ExchangeWithdrawContract.class);
-      transactionMap.put(ContractType.ExchangeTransactionContract,
-          ExchangeTransactionContract.class);
+      transactionMap.put(
+          ContractType.ExchangeTransactionContract, ExchangeTransactionContract.class);
       transactionMap.put(ContractType.FreezeBalanceV2Contract, FreezeBalanceV2Contract.class);
       transactionMap.put(ContractType.UnfreezeBalanceV2Contract, UnfreezeBalanceV2Contract.class);
       transactionMap.put(ContractType.UnDelegateResourceContract, UnDelegateResourceContract.class);
@@ -288,7 +293,8 @@ public class TransactionUtils {
       transactionMap.put(ContractType.FreezeBalanceContract, FreezeBalanceContract.class);
       transactionMap.put(ContractType.MarketCancelOrderContract, MarketCancelOrderContract.class);
       transactionMap.put(ContractType.MarketSellAssetContract, MarketSellAssetContract.class);
-      transactionMap.put(ContractType.ParticipateAssetIssueContract, ParticipateAssetIssueContract.class);
+      transactionMap.put(
+          ContractType.ParticipateAssetIssueContract, ParticipateAssetIssueContract.class);
       transactionMap.put(ContractType.ShieldedTransferContract, ShieldedTransferContract.class);
       transactionMap.put(ContractType.SetAccountIdContract, SetAccountIdContract.class);
       transactionMap.put(ContractType.TransferAssetContract, TransferAssetContract.class);
@@ -299,77 +305,81 @@ public class TransactionUtils {
       transactionMap.put(ContractType.UpdateEnergyLimitContract, UpdateEnergyLimitContract.class);
       transactionMap.put(ContractType.UpdateSettingContract, UpdateSettingContract.class);
       transactionMap.put(ContractType.WithdrawBalanceContract, WithdrawBalanceContract.class);
-      transactionMap.put(ContractType.WithdrawExpireUnfreezeContract, WithdrawExpireUnfreezeContract.class);
+      transactionMap.put(
+          ContractType.WithdrawExpireUnfreezeContract, WithdrawExpireUnfreezeContract.class);
       transactionMap.put(ContractType.ProposalApproveContract, ProposalApproveContract.class);
       transactionMap.put(ContractType.ProposalDeleteContract, ProposalDeleteContract.class);
       transactionMap.put(ContractType.ProposalCreateContract, ProposalCreateContract.class);
       transactionMap.put(ContractType.VoteAssetContract, VoteAssetContract.class);
-      transactionMap.put(ContractType.CancelAllUnfreezeV2Contract, BalanceContract.CancelAllUnfreezeV2Contract.class);
+      transactionMap.put(
+          ContractType.CancelAllUnfreezeV2Contract,
+          BalanceContract.CancelAllUnfreezeV2Contract.class);
     }
   }
 
   public static JSONObject printTransactionToJSON(Transaction transaction, boolean selfType) {
     initTransactionMap();
-    JSONObject jsonTransaction = JSONObject
-        .parseObject(JsonFormat.printToString(transaction, selfType));
+    JSONObject jsonTransaction =
+        JSONObject.parseObject(JsonFormat.printToString(transaction, selfType));
     JSONArray contracts = new JSONArray();
-    transaction.getRawData().getContractList().stream().forEach(contract -> {
-      try {
-        JSONObject contractJson = null;
-        Any contractParameter = contract.getParameter();
-        switch (contract.getType()) {
-          case CreateSmartContract:
-            CreateSmartContract deployContract = contractParameter
-                .unpack(CreateSmartContract.class);
-            contractJson = JSONObject
-                .parseObject(JsonFormat.printToString(deployContract, selfType));
-            byte[] ownerAddress = deployContract.getOwnerAddress().toByteArray();
-            byte[] contractAddress = generateContractAddress(transaction, ownerAddress);
-            jsonTransaction.put("contract_address", ByteArray.toHexString(contractAddress));
-            break;
-          default:
-            Class clazz = transactionMap.get(contract.getType());
-            if (clazz != null) {
-              contractJson = JSONObject
-                  .parseObject(JsonFormat.printToString(contractParameter.unpack(clazz), selfType));
-            } else {
-              logger.error(
-                  "cannot find ContractType, do not forget add ContractType to transactionMap!!");
-            }
-            break;
-        }
+    transaction.getRawData().getContractList().stream()
+        .forEach(
+            contract -> {
+              try {
+                JSONObject contractJson = null;
+                Any contractParameter = contract.getParameter();
+                switch (contract.getType()) {
+                  case CreateSmartContract:
+                    CreateSmartContract deployContract =
+                        contractParameter.unpack(CreateSmartContract.class);
+                    contractJson =
+                        JSONObject.parseObject(JsonFormat.printToString(deployContract, selfType));
+                    byte[] ownerAddress = deployContract.getOwnerAddress().toByteArray();
+                    byte[] contractAddress = generateContractAddress(transaction, ownerAddress);
+                    jsonTransaction.put("contract_address", ByteArray.toHexString(contractAddress));
+                    break;
+                  default:
+                    Class clazz = transactionMap.get(contract.getType());
+                    if (clazz != null) {
+                      contractJson =
+                          JSONObject.parseObject(
+                              JsonFormat.printToString(contractParameter.unpack(clazz), selfType));
+                    } else {
+                      logger.error(
+                          "cannot find ContractType, do not forget add ContractType to transactionM"
+                              + "ap!!");
+                    }
+                    break;
+                }
 
-        JSONObject parameter = new JSONObject();
-        parameter.put("value", contractJson);
-        parameter.put("type_url", contract.getParameterOrBuilder().getTypeUrl());
-        JSONObject jsonContract = new JSONObject();
-        jsonContract.put("parameter", parameter);
-        jsonContract.put("type", contract.getType());
-        if (contract.getPermissionId() > 0) {
-          jsonContract.put("Permission_id", contract.getPermissionId());
-        }
-        contracts.add(jsonContract);
-      } catch (InvalidProtocolBufferException e) {
-        logger.debug("InvalidProtocolBufferException: {}", e.getMessage());
-      }
-    });
+                JSONObject parameter = new JSONObject();
+                parameter.put("value", contractJson);
+                parameter.put("type_url", contract.getParameterOrBuilder().getTypeUrl());
+                JSONObject jsonContract = new JSONObject();
+                jsonContract.put("parameter", parameter);
+                jsonContract.put("type", contract.getType());
+                if (contract.getPermissionId() > 0) {
+                  jsonContract.put("Permission_id", contract.getPermissionId());
+                }
+                contracts.add(jsonContract);
+              } catch (InvalidProtocolBufferException e) {
+                logger.debug("InvalidProtocolBufferException: {}", e.getMessage());
+              }
+            });
 
     JSONObject rawData = JSONObject.parseObject(jsonTransaction.get("raw_data").toString());
     rawData.put("contract", contracts);
     jsonTransaction.put("raw_data", rawData);
     String rawDataHex = ByteArray.toHexString(transaction.getRawData().toByteArray());
     jsonTransaction.put("raw_data_hex", rawDataHex);
-    String txID = ByteArray.toHexString(Sha256Hash
-        .hash(true,
-            transaction.getRawData().toByteArray()));
+    String txID =
+        ByteArray.toHexString(Sha256Hash.hash(true, transaction.getRawData().toByteArray()));
     jsonTransaction.put("txID", txID);
-    jsonTransaction.put("visible",selfType);
+    jsonTransaction.put("visible", selfType);
     return jsonTransaction;
   }
 
-  /**
-   * Note: the contracts of the returned transaction may be empty
-   */
+  /** Note: the contracts of the returned transaction may be empty */
   public static Transaction packTransaction(String strTransaction, boolean selfType) {
     initTransactionMap();
     JSONObject jsonTransaction = JSON.parseObject(strTransaction);
@@ -409,7 +419,6 @@ public class TransactionUtils {
         }
       } catch (Exception e) {
         e.printStackTrace();
-
       }
     }
     rawData.put("contract", contracts);
@@ -424,39 +433,33 @@ public class TransactionUtils {
     }
   }
 
-  public static String getTransactionSign(String transaction, String priKey,
-      boolean visible) {
+  public static String getTransactionSign(String transaction, String priKey, boolean visible) {
 
     byte[] privateKey = ByteArray.fromHexString(priKey);
     try {
-      TransactionCapsule trx = new TransactionCapsule(packTransaction(transaction,visible));
+      TransactionCapsule trx = new TransactionCapsule(packTransaction(transaction, visible));
       trx.sign(privateKey);
-      return printTransactionToJSON(trx.getInstance(),visible).toJSONString();
+      return printTransactionToJSON(trx.getInstance(), visible).toJSONString();
     } catch (Exception e) {
       logger.error("{}", e);
     }
     return null;
   }
 
-
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static Transaction setTimestamp(Transaction transaction) {
-    long currentTime = System.currentTimeMillis() + PublicMethod.randomTimeOffset.getAndAdd(1);//*1000000 + System.nanoTime()%1000000;
+    long currentTime =
+        System.currentTimeMillis()
+            + PublicMethod.randomTimeOffset.getAndAdd(1); // *1000000 + System.nanoTime()%1000000;
     Transaction.Builder builder = transaction.toBuilder();
-    org.tron.protos.Protocol.Transaction.raw.Builder rowBuilder = transaction.getRawData()
-        .toBuilder();
+    org.tron.protos.Protocol.Transaction.raw.Builder rowBuilder =
+        transaction.getRawData().toBuilder();
     rowBuilder.setTimestamp(currentTime);
     builder.setRawData(rowBuilder.build());
     return builder.build();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   /*  public static Transaction setDelaySeconds(Transaction transaction, long delaySeconds) {
     DeferredStage deferredStage = transaction.getRawData().toBuilder()
         .getDeferredStage().toBuilder().setDelaySeconds(delaySeconds)
@@ -466,9 +469,9 @@ public class TransactionUtils {
     return transaction.toBuilder().setRawData(rawData).build();
   }*/
 
-  /*  *//**
-   * constructor.
-   *//*
+  /*  */
+  /** constructor. */
+  /*
   public static GrpcAPI.TransactionExtention setDelaySecondsToExtension(GrpcAPI
       .TransactionExtention transactionExtention, long delaySeconds) {
     if (delaySeconds == 0) {

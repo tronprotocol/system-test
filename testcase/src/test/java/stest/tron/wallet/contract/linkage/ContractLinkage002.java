@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
@@ -19,55 +18,56 @@ import org.tron.protos.Protocol.Transaction.Result.contractResult;
 import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray; import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.Utils;
 
-import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
 @Slf4j
 @MultiNode
-public class ContractLinkage002 extends TronBaseTest {  ECKey ecKey1 = new ECKey(Utils.getRandom());
+public class ContractLinkage002 extends TronBaseTest {
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] linkage002Address = ecKey1.getAddress();
-  String linkage002Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());  private ManagedChannel channelFull1 = null;
+  String linkage002Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);  /**
-   * constructor.
-   */
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  /** constructor. */
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(linkage002Key);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(linkage002Key);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
   @Test(enabled = true)
   public void updateSetting() {
-    String sendcoin = PublicMethod
-        .sendcoinGetTransactionId(linkage002Address, 200000000000L, fromAddress,
-            foundationKey2, blockingStubFull);
+    String sendcoin =
+        PublicMethod.sendcoinGetTransactionId(
+            linkage002Address, 200000000000L, foundationAddress2, foundationKey2, blockingStubFull);
     Account info;
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById0 = null;
     infoById0 = PublicMethod.getTransactionInfoById(sendcoin, blockingStubFull);
     logger.info("infoById0   " + infoById0.get());
-    Assert.assertEquals(ByteArray.toHexString(infoById0.get().getContractResult(0).toByteArray()),
-        "");
+    Assert.assertEquals(
+        ByteArray.toHexString(infoById0.get().getContractResult(0).toByteArray()), "");
     Assert.assertEquals(infoById0.get().getResult().getNumber(), 0);
     Optional<Transaction> ById = PublicMethod.getTransactionById(sendcoin, blockingStubFull);
-    Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(),
-        SUCCESS_VALUE);
+    Assert.assertEquals(ById.get().getRet(0).getContractRet().getNumber(), SUCCESS_VALUE);
     Assert.assertEquals(ById.get().getRet(0).getContractRetValue(), SUCCESS_VALUE);
     Assert.assertEquals(ById.get().getRet(0).getContractRet(), contractResult.SUCCESS);
 
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(linkage002Address, 50000000L,
-        3, 1, linkage002Key, blockingStubFull));
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(linkage002Address,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            linkage002Address, 50000000L, 3, 1, linkage002Key, blockingStubFull));
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(linkage002Address, blockingStubFull);
     info = PublicMethod.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
     Long beforeEnergyLimit = resourceInfo.getEnergyLimit();
@@ -91,14 +91,25 @@ public class ContractLinkage002 extends TronBaseTest {  ECKey ecKey1 = new ECKey
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    //Set the consumeUserResourcePercent is -1,Nothing change.
+    // Set the consumeUserResourcePercent is -1,Nothing change.
     byte[] contractAddress;
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "",
-        maxFeeLimit, 0L, -1, null, linkage002Key, linkage002Address, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            -1,
+            null,
+            linkage002Key,
+            linkage002Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account infoafter = PublicMethod.queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(linkage002Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(linkage002Address, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -118,9 +129,9 @@ public class ContractLinkage002 extends TronBaseTest {  ECKey ecKey1 = new ECKey
     Assert.assertTrue(afterEnergyUsed == 0);
     Assert.assertTrue(afterFreeNetUsed > 0);
 
-    //Set the consumeUserResourcePercent is 101,Nothing change.
-    AccountResourceMessage resourceInfo3 = PublicMethod.getAccountResource(linkage002Address,
-        blockingStubFull);
+    // Set the consumeUserResourcePercent is 101,Nothing change.
+    AccountResourceMessage resourceInfo3 =
+        PublicMethod.getAccountResource(linkage002Address, blockingStubFull);
     Account info3 = PublicMethod.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance3 = info3.getBalance();
     Long beforeEnergyLimit3 = resourceInfo3.getEnergyLimit();
@@ -137,11 +148,23 @@ public class ContractLinkage002 extends TronBaseTest {  ECKey ecKey1 = new ECKey
     logger.info("beforeNetUsed3:" + beforeNetUsed3);
     logger.info("beforeFreeNetUsed3:" + beforeFreeNetUsed3);
 
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 101, null, linkage002Key, linkage002Address, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            101,
+            null,
+            linkage002Key,
+            linkage002Address,
+            blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account infoafter3 = PublicMethod.queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter3 = PublicMethod.getAccountResource(linkage002Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter3 =
+        PublicMethod.getAccountResource(linkage002Address, blockingStubFull1);
     Long afterBalance3 = infoafter3.getBalance();
     Long afterEnergyLimit3 = resourceInfoafter3.getEnergyLimit();
     Long afterEnergyUsed3 = resourceInfoafter3.getEnergyUsed();
@@ -162,16 +185,29 @@ public class ContractLinkage002 extends TronBaseTest {  ECKey ecKey1 = new ECKey
     Assert.assertTrue(afterEnergyUsed3 == 0);
     Assert.assertTrue(afterFreeNetUsed3 > 0);
 
-    //Set consumeUserResourcePercent is 100,balance not change,use FreeNet freezeBalanceGetEnergy.
+    // Set consumeUserResourcePercent is 100,balance not change,use FreeNet freezeBalanceGetEnergy.
 
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, linkage002Key, linkage002Address, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            linkage002Key,
+            linkage002Address,
+            blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == 100);
 
-    //Set the consumeUserResourcePercent is 0,balance not change,use FreeNet freezeBalanceGetEnergy.
-    AccountResourceMessage resourceInfo2 = PublicMethod.getAccountResource(linkage002Address,
-        blockingStubFull);
+    // Set the consumeUserResourcePercent is 0,balance not change,use FreeNet
+    // freezeBalanceGetEnergy.
+    AccountResourceMessage resourceInfo2 =
+        PublicMethod.getAccountResource(linkage002Address, blockingStubFull);
     Account info2 = PublicMethod.queryAccount(linkage002Address, blockingStubFull);
     Long beforeBalance2 = info2.getBalance();
     Long beforeEnergyLimit2 = resourceInfo2.getEnergyLimit();
@@ -188,12 +224,23 @@ public class ContractLinkage002 extends TronBaseTest {  ECKey ecKey1 = new ECKey
     logger.info("beforeNetUsed2:" + beforeNetUsed2);
     logger.info("beforeFreeNetUsed2:" + beforeFreeNetUsed2);
 
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 0, null, linkage002Key, linkage002Address, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            null,
+            linkage002Key,
+            linkage002Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account infoafter2 = PublicMethod.queryAccount(linkage002Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter2 = PublicMethod.getAccountResource(linkage002Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter2 =
+        PublicMethod.getAccountResource(linkage002Address, blockingStubFull1);
     Long afterBalance2 = infoafter2.getBalance();
     Long afterEnergyLimit2 = resourceInfoafter2.getEnergyLimit();
     Long afterEnergyUsed2 = resourceInfoafter2.getEnergyUsed();
@@ -216,18 +263,19 @@ public class ContractLinkage002 extends TronBaseTest {  ECKey ecKey1 = new ECKey
     smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == 0);
 
-    //Update the consumeUserResourcePercent setting.
-    Assert.assertTrue(PublicMethod.updateSetting(contractAddress, 66L,
-        linkage002Key, linkage002Address, blockingStubFull));
+    // Update the consumeUserResourcePercent setting.
+    Assert.assertTrue(
+        PublicMethod.updateSetting(
+            contractAddress, 66L, linkage002Key, linkage002Address, blockingStubFull));
     smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertTrue(smartContract.getConsumeUserResourcePercent() == 66);
 
-    //Updaate the consumeUserResourcePercent setting with -1 and 101
-    Assert.assertFalse(PublicMethod.updateSetting(contractAddress, -1L,
-        linkage002Key, linkage002Address, blockingStubFull));
-    Assert.assertFalse(PublicMethod.updateSetting(contractAddress, 101L,
-        linkage002Key, linkage002Address, blockingStubFull));
-
+    // Updaate the consumeUserResourcePercent setting with -1 and 101
+    Assert.assertFalse(
+        PublicMethod.updateSetting(
+            contractAddress, -1L, linkage002Key, linkage002Address, blockingStubFull));
+    Assert.assertFalse(
+        PublicMethod.updateSetting(
+            contractAddress, 101L, linkage002Key, linkage002Address, blockingStubFull));
   }
 }
-

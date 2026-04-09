@@ -18,17 +18,18 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.DataWord;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
+
 @Slf4j
 @MultiNode
 public class ExtCodeHashTest005 extends TronBaseTest {
 
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey002);
-  private String fullnodeLocal = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnodeLocal =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   private byte[] extCodeHashContractAddress = null;
   private byte[] testContractAddress = null;
   private String contractCodeHash = null;
@@ -42,16 +43,15 @@ public class ExtCodeHashTest005 extends TronBaseTest {
   private byte[] testAddress = ecKey3.getAddress();
   private String testKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    PublicMethod.printAddress(dev001Key);
+  public void beforeClass() {
+    PublicMethod.printAddress(dev001Key);
     PublicMethod.printAddress(user001Key);
-  String fakeAddress = "";
+    String fakeAddress = "";
 
     logger.info("realAddress: " + fakeAddress);
-  byte[] fullHexAddr = new DataWord(fakeAddress).getData();
+    byte[] fullHexAddr = new DataWord(fakeAddress).getData();
     logger.info("fullHexAddr  ++=  " + Hex.toHexString(fullHexAddr));
 
     fakeAddress = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
@@ -59,41 +59,67 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     logger.info("realAddress: " + fakeAddress);
     fullHexAddr = new DataWord(fakeAddress).getData();
     logger.info("fullHexAddr  ++=  " + Hex.toHexString(fullHexAddr));
-
   }
 
-  @Test(enabled = true, description = "Deploy extcodehash contract", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Deploy extcodehash contract",
+      groups = {"contract", "daily"})
   public void test01DeployExtCodeHashContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(dev001Address, 1000_000_000L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(dev001Address, dev001Key, 170000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 1000_000_000L, fromAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            PublicMethod.getFreezeBalanceCount(dev001Address, dev001Key, 170000L, blockingStubFull),
+            0,
+            1,
+            ByteString.copyFrom(dev001Address),
+            testKey002,
+            blockingStubFull));
 
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress, 10_000_000L + PublicMethod.randomFreezeAmount.getAndAdd(1),
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            10_000_000L + PublicMethod.randomFreezeAmount.getAndAdd(1),
+            0,
+            0,
+            ByteString.copyFrom(dev001Address),
+            testKey002,
+            blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
     long balanceBefore = PublicMethod.queryAccount(dev001Key, blockingStubFull).getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
-  String filePath = "./src/test/resources/soliditycode/extCodeHash.sol";
-  String contractName = "TestExtCodeHash";
+    String filePath = "./src/test/resources/soliditycode/extCodeHash.sol";
+    String contractName = "TestExtCodeHash";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  final String transferTokenTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, dev001Key,
-            dev001Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    final String transferTokenTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethod.getAccountResource(dev001Address, blockingStubFull);
@@ -105,8 +131,8 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
@@ -117,24 +143,34 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     extCodeHashContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod.getContract(extCodeHashContractAddress,
-        blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(extCodeHashContractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
   }
 
-  @Test(enabled = true, description = "Get codehash of a real contract by uint", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Get codehash of a real contract by uint",
+      groups = {"contract", "daily"})
   public void test02GetContractCodeHash() {
 
-    Assert.assertTrue(PublicMethod.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            user001Address, 100_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            PublicMethod.getFreezeBalanceCount(
+                user001Address, user001Key, 50000L, blockingStubFull),
+            0,
+            1,
+            ByteString.copyFrom(user001Address),
+            testKey002,
+            blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethod.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -146,20 +182,29 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
-  Long callValue = Long.valueOf(0);
-  String testAddress = ByteArray.toHexString(extCodeHashContractAddress);
+    Long callValue = Long.valueOf(0);
+    String testAddress = ByteArray.toHexString(extCodeHashContractAddress);
     logger.info("realAddress: " + testAddress);
-  byte[] fullHexAddr = new DataWord(testAddress).getData();
-  final String triggerTxid = PublicMethod.triggerContract(extCodeHashContractAddress,
-        "getCodeHashByUint(uint256)", Hex.toHexString(fullHexAddr), true, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    byte[] fullHexAddr = new DataWord(testAddress).getData();
+    final String triggerTxid =
+        PublicMethod.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashByUint(uint256)",
+            Hex.toHexString(fullHexAddr),
+            true,
+            callValue,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -175,15 +220,15 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -194,33 +239,40 @@ public class ExtCodeHashTest005 extends TronBaseTest {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethod
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethod.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
 
     Assert.assertFalse(retList.isEmpty());
-    Assert.assertNotEquals("C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470",
-        retList.get(0));
-    Assert.assertNotEquals("0000000000000000000000000000000000000000000000000000000000000000",
-        retList.get(0));
+    Assert.assertNotEquals(
+        "C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470", retList.get(0));
+    Assert.assertNotEquals(
+        "0000000000000000000000000000000000000000000000000000000000000000", retList.get(0));
 
     contractCodeHash = retList.get(0);
 
-    SmartContract smartContract = PublicMethod
-        .getContract(extCodeHashContractAddress, blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(extCodeHashContractAddress, blockingStubFull);
     logger.info(smartContract.getBytecode().toStringUtf8());
   }
 
-  @Test(enabled = true, description = "Get codehash of a fake address by uint", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Get codehash of a fake address by uint",
+      groups = {"contract", "daily"})
   public void test03GetInvalidAddressCodeHash() {
-    PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull);
-
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
+    PublicMethod.freezeBalanceForReceiver(
+        fromAddress,
+        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L, blockingStubFull),
+        0,
+        1,
+        ByteString.copyFrom(user001Address),
+        testKey002,
         blockingStubFull);
+
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethod.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -232,20 +284,29 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
-  Long callValue = Long.valueOf(0);
-  String fakeAddress = "41660757B2543F4849D3F42B90F58DE1C14C7E0038";
+    Long callValue = Long.valueOf(0);
+    String fakeAddress = "41660757B2543F4849D3F42B90F58DE1C14C7E0038";
     logger.info("realAddress: " + fakeAddress);
-  byte[] fullHexAddr = new DataWord(fakeAddress).getData();
-  final String triggerTxid = PublicMethod.triggerContract(extCodeHashContractAddress,
-        "getCodeHashByUint(uint256)", Hex.toHexString(fullHexAddr), true, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    byte[] fullHexAddr = new DataWord(fakeAddress).getData();
+    final String triggerTxid =
+        PublicMethod.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashByUint(uint256)",
+            Hex.toHexString(fullHexAddr),
+            true,
+            callValue,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -261,15 +322,15 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -280,30 +341,39 @@ public class ExtCodeHashTest005 extends TronBaseTest {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethod
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethod.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
 
     Assert.assertFalse(retList.isEmpty());
 
-    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000000",
-        retList.get(0));
+    Assert.assertEquals(
+        "0000000000000000000000000000000000000000000000000000000000000000", retList.get(0));
 
-    SmartContract smartContract = PublicMethod
-        .getContract(extCodeHashContractAddress, blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(extCodeHashContractAddress, blockingStubFull);
     logger.info(smartContract.getBytecode().toStringUtf8());
   }
 
-  @Test(enabled = true, description = "Get codehash of a normal account by uint", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Get codehash of a normal account by uint",
+      groups = {"contract", "daily"})
   public void test04GetNormalAddressCodeHash() {
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            PublicMethod.getFreezeBalanceCount(
+                user001Address, user001Key, 50000L, blockingStubFull),
+            0,
+            1,
+            ByteString.copyFrom(user001Address),
+            testKey002,
+            blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethod.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -315,20 +385,29 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
-  Long callValue = Long.valueOf(0);
-  String fakeAddress = ByteArray.toHexString(user001Address);
+    Long callValue = Long.valueOf(0);
+    String fakeAddress = ByteArray.toHexString(user001Address);
     logger.info("realAddress: " + fakeAddress);
-  byte[] fullHexAddr = new DataWord(fakeAddress).getData();
-  final String triggerTxid = PublicMethod.triggerContract(extCodeHashContractAddress,
-        "getCodeHashByUint(uint256)", Hex.toHexString(fullHexAddr), true, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    byte[] fullHexAddr = new DataWord(fakeAddress).getData();
+    final String triggerTxid =
+        PublicMethod.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashByUint(uint256)",
+            Hex.toHexString(fullHexAddr),
+            true,
+            callValue,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -344,15 +423,15 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -363,32 +442,40 @@ public class ExtCodeHashTest005 extends TronBaseTest {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethod
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethod.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
     Assert.assertFalse(retList.isEmpty());
 
-    Assert.assertEquals("C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470",
-        retList.get(0));
+    Assert.assertEquals(
+        "C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470", retList.get(0));
 
-    SmartContract smartContract = PublicMethod
-        .getContract(extCodeHashContractAddress, blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(extCodeHashContractAddress, blockingStubFull);
     logger.info(smartContract.getBytecode().toStringUtf8());
   }
 
-  @Test(enabled = true, description = "Get codehash of a empty address by uint", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Get codehash of a empty address by uint",
+      groups = {"contract", "daily"})
   public void test05GetEmptyAddressCodeHash() {
-    Assert.assertTrue(PublicMethod.sendcoin(user001Address, 1000_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            user001Address, 1000_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull);
-
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
+    PublicMethod.freezeBalanceForReceiver(
+        fromAddress,
+        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L, blockingStubFull),
+        0,
+        1,
+        ByteString.copyFrom(user001Address),
+        testKey002,
         blockingStubFull);
+
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethod.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -400,22 +487,31 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
-  Long callValue = Long.valueOf(0);
-  String fakeAddress = "";
+    Long callValue = Long.valueOf(0);
+    String fakeAddress = "";
 
     logger.info("realAddress: " + fakeAddress);
-  byte[] fullHexAddr = new DataWord(fakeAddress).getData();
+    byte[] fullHexAddr = new DataWord(fakeAddress).getData();
     logger.info("fullHexAddr  ++=  " + Hex.toHexString(fullHexAddr));
-  final String triggerTxid = PublicMethod.triggerContract(extCodeHashContractAddress,
-        "getCodeHashByUint(uint256)", Hex.toHexString(fullHexAddr), true, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    final String triggerTxid =
+        PublicMethod.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashByUint(uint256)",
+            Hex.toHexString(fullHexAddr),
+            true,
+            callValue,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -431,15 +527,15 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -450,32 +546,42 @@ public class ExtCodeHashTest005 extends TronBaseTest {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethod
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethod.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
     Assert.assertFalse(retList.isEmpty());
 
-    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000000",
-        retList.get(0));
+    Assert.assertEquals(
+        "0000000000000000000000000000000000000000000000000000000000000000", retList.get(0));
 
-    SmartContract smartContract = PublicMethod
-        .getContract(extCodeHashContractAddress, blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(extCodeHashContractAddress, blockingStubFull);
     logger.info(smartContract.getBytecode().toStringUtf8());
   }
 
-  @Test(enabled = true, description = "Get codehash of a fffffff*64 address by uint", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Get codehash of a fffffff*64 address by uint",
+      groups = {"contract", "daily"})
   public void test06GetFakeAddressCodeHash() {
-    Assert.assertTrue(PublicMethod.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            user001Address, 100_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            PublicMethod.getFreezeBalanceCount(
+                user001Address, user001Key, 50000L, blockingStubFull),
+            0,
+            1,
+            ByteString.copyFrom(user001Address),
+            testKey002,
+            blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethod.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -487,22 +593,31 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
-  Long callValue = Long.valueOf(0);
-  String fakeAddress = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+    Long callValue = Long.valueOf(0);
+    String fakeAddress = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
     logger.info("realAddress: " + fakeAddress);
-  byte[] fullHexAddr = new DataWord(fakeAddress).getData();
+    byte[] fullHexAddr = new DataWord(fakeAddress).getData();
     logger.info("fullHexAddr  ++=  " + Hex.toHexString(fullHexAddr));
-  final String triggerTxid = PublicMethod.triggerContract(extCodeHashContractAddress,
-        "getCodeHashByUint(uint256)", Hex.toHexString(fullHexAddr), true, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    final String triggerTxid =
+        PublicMethod.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashByUint(uint256)",
+            Hex.toHexString(fullHexAddr),
+            true,
+            callValue,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -518,15 +633,15 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -537,32 +652,42 @@ public class ExtCodeHashTest005 extends TronBaseTest {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethod
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethod.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
     Assert.assertFalse(retList.isEmpty());
 
-    Assert.assertEquals("0000000000000000000000000000000000000000000000000000000000000000",
-        retList.get(0));
+    Assert.assertEquals(
+        "0000000000000000000000000000000000000000000000000000000000000000", retList.get(0));
 
-    SmartContract smartContract = PublicMethod
-        .getContract(extCodeHashContractAddress, blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(extCodeHashContractAddress, blockingStubFull);
     logger.info(smartContract.getBytecode().toStringUtf8());
   }
 
-  @Test(enabled = true, description = "Get codehash of a real contract plus 2**160 by uint", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Get codehash of a real contract plus 2**160 by uint",
+      groups = {"contract", "daily"})
   public void test07GetContractAddress96CodeHash() {
-    Assert.assertTrue(PublicMethod.sendcoin(user001Address, 100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            user001Address, 100_000_000L, fromAddress, testKey002, blockingStubFull));
 
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            PublicMethod.getFreezeBalanceCount(
+                user001Address, user001Key, 50000L, blockingStubFull),
+            0,
+            1,
+            ByteString.copyFrom(user001Address),
+            testKey002,
+            blockingStubFull));
 
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethod.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -574,21 +699,30 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceBefore =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
-  Long callValue = Long.valueOf(0);
+    Long callValue = Long.valueOf(0);
 
     BigInteger bigIntAddr = new DataWord(extCodeHashContractAddress).sValue();
-  String bigIntAddrChange = BigInteger.valueOf(2).pow(160).add(bigIntAddr).toString(16);
-  byte[] fullHexAddr = new DataWord(bigIntAddrChange).getData();
-  final String triggerTxid = PublicMethod.triggerContract(extCodeHashContractAddress,
-        "getCodeHashByUint(uint256)", Hex.toHexString(fullHexAddr), true, callValue,
-        1000000000L, "0", 0, user001Address, user001Key,
-        blockingStubFull);
+    String bigIntAddrChange = BigInteger.valueOf(2).pow(160).add(bigIntAddr).toString(16);
+    byte[] fullHexAddr = new DataWord(bigIntAddrChange).getData();
+    final String triggerTxid =
+        PublicMethod.triggerContract(
+            extCodeHashContractAddress,
+            "getCodeHashByUint(uint256)",
+            Hex.toHexString(fullHexAddr),
+            true,
+            callValue,
+            1000000000L,
+            "0",
+            0,
+            user001Address,
+            user001Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -604,15 +738,15 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethod.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
+    long userBalanceAfter =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(triggerTxid, blockingStubFull);
 
     TransactionInfo transactionInfo = infoById.get();
     logger.info("EnergyUsageTotal: " + transactionInfo.getReceipt().getEnergyUsageTotal());
@@ -623,24 +757,20 @@ public class ExtCodeHashTest005 extends TronBaseTest {
           "transaction failed with message: " + infoById.get().getResMessage().toStringUtf8());
     }
 
-    List<String> retList = PublicMethod
-        .getStrings(transactionInfo.getContractResult(0).toByteArray());
+    List<String> retList =
+        PublicMethod.getStrings(transactionInfo.getContractResult(0).toByteArray());
 
     logger.info("the value: " + retList);
     Assert.assertFalse(retList.isEmpty());
-  // expect the code hash same
+    // expect the code hash same
     Assert.assertEquals(contractCodeHash, retList.get(0));
 
-    SmartContract smartContract = PublicMethod
-        .getContract(extCodeHashContractAddress, blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(extCodeHashContractAddress, blockingStubFull);
     logger.info(smartContract.getBytecode().toStringUtf8());
-
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     PublicMethod.freeResource(user001Address, user001Key, fromAddress, blockingStubFull);
@@ -648,7 +778,6 @@ public class ExtCodeHashTest005 extends TronBaseTest {
     PublicMethod.unFreezeBalance(fromAddress, testKey002, 0, user001Address, blockingStubFull);
     PublicMethod.unFreezeBalance(fromAddress, testKey002, 0, dev001Address, blockingStubFull);
     PublicMethod.unFreezeBalance(fromAddress, testKey002, 1, dev001Address, blockingStubFull);
-    PublicMethod.unFreezeBalance(fromAddress, testKey002, 1, user001Address, blockingStubFull);  }
+    PublicMethod.unFreezeBalance(fromAddress, testKey002, 1, user001Address, blockingStubFull);
+  }
 }
-
-

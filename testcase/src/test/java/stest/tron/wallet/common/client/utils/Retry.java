@@ -7,9 +7,10 @@ import org.testng.ITestResult;
  * TestNG retry analyzer for flaky tests.
  *
  * <p>Configurable via system properties:
+ *
  * <ul>
- *   <li>{@code tron.test.retry.max} - max retry count (default: 2)</li>
- *   <li>{@code tron.test.retry.interval} - sleep between retries in ms (default: 3000)</li>
+ *   <li>{@code tron.test.retry.max} - max retry count (default: 2)
+ *   <li>{@code tron.test.retry.interval} - sleep between retries in ms (default: 3000)
  * </ul>
  *
  * <p>Example: {@code -Dtron.test.retry.max=3 -Dtron.test.retry.interval=5000}
@@ -32,9 +33,15 @@ public class Retry implements IRetryAnalyzer {
   public boolean retry(ITestResult result) {
     if (retryCount < maxRetryCount) {
       retryCount++;
-      System.out.println("Retrying test " + result.getName() + " ["
-          + getResultStatusName(result.getStatus()) + "] attempt " + retryCount
-          + "/" + maxRetryCount);
+      System.out.println(
+          "Retrying test "
+              + result.getName()
+              + " ["
+              + getResultStatusName(result.getStatus())
+              + "] attempt "
+              + retryCount
+              + "/"
+              + maxRetryCount);
       try {
         Thread.sleep(intervalMs);
       } catch (InterruptedException e) {
@@ -47,10 +54,14 @@ public class Retry implements IRetryAnalyzer {
 
   private static String getResultStatusName(int status) {
     switch (status) {
-      case ITestResult.SUCCESS: return "SUCCESS";
-      case ITestResult.FAILURE: return "FAILURE";
-      case ITestResult.SKIP: return "SKIP";
-      default: return "UNKNOWN";
+      case ITestResult.SUCCESS:
+        return "SUCCESS";
+      case ITestResult.FAILURE:
+        return "FAILURE";
+      case ITestResult.SKIP:
+        return "SKIP";
+      default:
+        return "UNKNOWN";
     }
   }
 }

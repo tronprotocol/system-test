@@ -9,17 +9,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.EmptyMessage;
-import org.tron.api.GrpcAPI.NumberMessage;
 import org.tron.api.WalletGrpc;
-import org.tron.protos.Protocol.Account;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
 
 /**
  * TIP-467: Rate limiting boundary tests.
  *
- * <p>Tests gRPC rate limiting behavior including burst requests,
- * different API endpoint limits, and recovery after rate limiting.
+ * <p>Tests gRPC rate limiting behavior including burst requests, different API endpoint limits, and
+ * recovery after rate limiting.
  */
 @Slf4j
 public class RateLimitEdgeTest001 extends TronBaseTest {
@@ -29,15 +27,23 @@ public class RateLimitEdgeTest001 extends TronBaseTest {
     // Base class provides channelFull and blockingStubFull
   }
 
-  @Test(enabled = true, description = "Single request should always succeed",
+  @Test(
+      enabled = true,
+      description = "Single request should always succeed",
       groups = {"daily", "serial"})
   public void test01SingleRequestSucceeds() {
-    long blockNum = blockingStubFull.getNowBlock2(
-        EmptyMessage.newBuilder().build()).getBlockHeader().getRawData().getNumber();
+    long blockNum =
+        blockingStubFull
+            .getNowBlock2(EmptyMessage.newBuilder().build())
+            .getBlockHeader()
+            .getRawData()
+            .getNumber();
     logger.info("Current block number: {}", blockNum);
   }
 
-  @Test(enabled = true, description = "Burst of getNowBlock requests",
+  @Test(
+      enabled = true,
+      description = "Burst of getNowBlock requests",
       groups = {"daily", "serial"})
   public void test02BurstGetNowBlock() {
     int successCount = 0;
@@ -54,12 +60,17 @@ public class RateLimitEdgeTest001 extends TronBaseTest {
       }
     }
 
-    logger.info("Burst test: {} success, {} rate limited out of {}",
-        successCount, failCount, totalRequests);
+    logger.info(
+        "Burst test: {} success, {} rate limited out of {}",
+        successCount,
+        failCount,
+        totalRequests);
     Assert.assertTrue(successCount > 0, "At least some requests should succeed");
   }
 
-  @Test(enabled = true, description = "Burst of getAccount requests",
+  @Test(
+      enabled = true,
+      description = "Burst of getAccount requests",
       groups = {"daily", "serial"})
   public void test03BurstGetAccount() {
     int successCount = 0;
@@ -75,12 +86,17 @@ public class RateLimitEdgeTest001 extends TronBaseTest {
       }
     }
 
-    logger.info("getAccount burst: {} success, {} limited out of {}",
-        successCount, failCount, totalRequests);
+    logger.info(
+        "getAccount burst: {} success, {} limited out of {}",
+        successCount,
+        failCount,
+        totalRequests);
     Assert.assertTrue(successCount > 0, "At least some requests should succeed");
   }
 
-  @Test(enabled = true, description = "Recovery after rate limiting pause",
+  @Test(
+      enabled = true,
+      description = "Recovery after rate limiting pause",
       groups = {"daily", "serial"})
   public void test04RecoveryAfterPause() throws InterruptedException {
     // Send a burst to potentially trigger rate limiting
@@ -104,12 +120,13 @@ public class RateLimitEdgeTest001 extends TronBaseTest {
     }
   }
 
-  @Test(enabled = true, description = "Multiple connections should have independent rate limits",
+  @Test(
+      enabled = true,
+      description = "Multiple connections should have independent rate limits",
       groups = {"daily", "serial"})
   public void test05IndependentConnectionLimits() throws InterruptedException {
     // Create a second channel
-    ManagedChannel channel2 = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext().build();
+    ManagedChannel channel2 = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     WalletGrpc.WalletBlockingStub stub2 = WalletGrpc.newBlockingStub(channel2);
 
     try {

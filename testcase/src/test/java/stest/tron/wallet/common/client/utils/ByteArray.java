@@ -1,6 +1,6 @@
 package stest.tron.wallet.common.client.utils;
 
-//import static org.tron.common.utils.ByteUtil.EMPTY_BYTE_ARRAY;
+// import static org.tron.common.utils.ByteUtil.EMPTY_BYTE_ARRAY;
 
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
@@ -40,9 +40,7 @@ public class ByteArray {
     return data == null ? "" : Hex.toHexString(data);
   }
 
-  /**
-   * get bytes data from hex string data.
-   */
+  /** get bytes data from hex string data. */
   public static byte[] fromHexString(String data) {
     if (data == null) {
       return ByteUtil.EMPTY_BYTE_ARRAY;
@@ -56,30 +54,22 @@ public class ByteArray {
     return Hex.decode(data);
   }
 
-  /**
-   * get long data from bytes data.
-   */
+  /** get long data from bytes data. */
   public static long toLong(byte[] b) {
     return ArrayUtils.isEmpty(b) ? 0 : new BigInteger(1, b).longValue();
   }
 
-  /**
-   * get int data from bytes data.
-   */
+  /** get int data from bytes data. */
   public static int toInt(byte[] b) {
     return ArrayUtils.isEmpty(b) ? 0 : new BigInteger(1, b).intValue();
   }
 
-  /**
-   * get bytes data from string data.
-   */
+  /** get bytes data from string data. */
   public static byte[] fromString(String s) {
     return StringUtils.isBlank(s) ? null : s.getBytes();
   }
 
-  /**
-   * get string data from bytes data.
-   */
+  /** get string data from bytes data. */
   public static String toStr(byte[] b) {
     return ArrayUtils.isEmpty(b) ? null : new String(b);
   }
@@ -92,9 +82,7 @@ public class ByteArray {
     return Ints.toByteArray(val);
   }
 
-  /**
-   * get bytes data from object data.
-   */
+  /** get bytes data from object data. */
   public static byte[] fromObject(Object obj) {
     byte[] bytes = null;
     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -108,13 +96,21 @@ public class ByteArray {
     return bytes;
   }
 
-  /**
-   * Stringify byte[] x
-   * null for null
-   * null for empty []
-   */
+  /** Stringify byte[] x null for null null for empty [] */
   public static String toJsonHex(byte[] x) {
     return x == null || x.length == 0 ? "0x" : "0x" + Hex.toHexString(x);
+  }
+
+  public static String toJsonHex(Long x) {
+    return x == null ? null : "0x" + Long.toHexString(x);
+  }
+
+  public static String toJsonHex(int x) {
+    return toJsonHex((long) x);
+  }
+
+  public static String toJsonHex(String x) {
+    return "0x" + x;
   }
 
   // ignore the 41
@@ -129,18 +125,6 @@ public class ByteArray {
         return "0x" + res;
       }
     }
-  }
-
-  public static String toJsonHex(Long x) {
-    return x == null ? null : "0x" + Long.toHexString(x);
-  }
-
-  public static String toJsonHex(int x) {
-    return toJsonHex((long) x);
-  }
-
-  public static String toJsonHex(String x) {
-    return "0x" + x;
   }
 
   public static BigInteger hexToBigInteger(String input) {
@@ -174,7 +158,7 @@ public class ByteArray {
    * @param start the start index
    * @param end the end index
    * @return a subarray of <tt>input</tt>, ranging from <tt>start</tt> (inclusively) to <tt>end</tt>
-   * (exclusively)
+   *     (exclusively)
    */
   public static byte[] subArray(byte[] input, int start, int end) {
     byte[] result = new byte[end - start];

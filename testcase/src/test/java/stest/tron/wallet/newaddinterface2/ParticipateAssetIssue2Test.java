@@ -25,8 +25,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class ParticipateAssetIssue2Test extends TronBaseTest {
@@ -34,57 +34,71 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private static String name = "testAssetIssue002_" + Long.toString(now);
-  //testng001、testng002、testng003、testng004
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  // testng001、testng002、testng003、testng004
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   String description = "just-test";
   String url = "https://github.com/tronprotocol/wallet-cli/";
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] participateAccountAddress = ecKey1.getAddress();
   String participateAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] assetIssueAccount002 = ecKey2.getAddress();
-  String testKeyForAssetIssueAccount002 = ByteArray.toHexString(ecKey2
-      .getPrivKeyBytes());
+  String testKeyForAssetIssueAccount002 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void testParticipateAssetissue2() {
     ByteString addressBS1 = ByteString.copyFrom(participateAccountAddress);
     Account request1 = Account.newBuilder().setAddress(addressBS1).build();
-    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull
-        .getAssetIssueByAccount(request1);
+    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull.getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
     if (queryAssetByAccount.get().getAssetIssueCount() == 0) {
       Long start = System.currentTimeMillis() + 2000;
-  Long end = System.currentTimeMillis() + 1000000000;
-  //send coin to the new account
-      Assert.assertTrue(PublicMethod.sendcoin(participateAccountAddress, 2048000000, foundationAddress,
-          foundationKey, blockingStubFull));
-  //Create a new Asset Issue
-      Assert.assertTrue(PublicMethod.createAssetIssue(participateAccountAddress,
-          name, totalSupply, 1, 1, System.currentTimeMillis() + 2000,
-          System.currentTimeMillis() + 1000000000, 1, description, url,
-          2000L, 2000L, 1L, 1L,
-          participateAccountKey, blockingStubFull));
+      Long end = System.currentTimeMillis() + 1000000000;
+      // send coin to the new account
+      Assert.assertTrue(
+          PublicMethod.sendcoin(
+              participateAccountAddress,
+              2048000000,
+              foundationAddress,
+              foundationKey,
+              blockingStubFull));
+      // Create a new Asset Issue
+      Assert.assertTrue(
+          PublicMethod.createAssetIssue(
+              participateAccountAddress,
+              name,
+              totalSupply,
+              1,
+              1,
+              System.currentTimeMillis() + 2000,
+              System.currentTimeMillis() + 1000000000,
+              1,
+              description,
+              url,
+              2000L,
+              2000L,
+              1L,
+              1L,
+              participateAccountKey,
+              blockingStubFull));
     } else {
       logger.info("This account already create an assetisue");
       Optional<GrpcAPI.AssetIssueList> queryAssetByAccount1 = Optional.ofNullable(assetIssueList1);
       name = ByteArray.toStr(queryAssetByAccount1.get().getAssetIssue(0).getName().toByteArray());
-
     }
 
     try {
@@ -92,51 +106,71 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    //Participate AssetIssue success
+    // Participate AssetIssue success
     logger.info(name);
-  //Freeze amount to get bandwitch.
-    Assert.assertTrue(PublicMethod.freezeBalance(toAddress, 10000000, 3, testKey003,
-        blockingStubFull));
-  //The amount is large than the total supply, participate failed.
-    Return ret1 = PublicMethod.participateAssetIssue2(participateAccountAddress,
-        name.getBytes(), 9100000000000000000L, toAddress, testKey003, blockingStubFull);
+    // Freeze amount to get bandwitch.
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(toAddress, 10000000, 3, testKey003, blockingStubFull));
+    // The amount is large than the total supply, participate failed.
+    Return ret1 =
+        PublicMethod.participateAssetIssue2(
+            participateAccountAddress,
+            name.getBytes(),
+            9100000000000000000L,
+            toAddress,
+            testKey003,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : No enough balance !");
-  //The asset issue name is not correct, participate failed.
-    ret1 = PublicMethod.participateAssetIssue2(participateAccountAddress,
-        (name + "wrong").getBytes(), 100L, toAddress, testKey003, blockingStubFull);
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : No enough balance !");
+    // The asset issue name is not correct, participate failed.
+    ret1 =
+        PublicMethod.participateAssetIssue2(
+            participateAccountAddress,
+            (name + "wrong").getBytes(),
+            100L,
+            toAddress,
+            testKey003,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-  //The amount is 0, participate asset issue failed.
-    ret1 = PublicMethod.participateAssetIssue2(participateAccountAddress,
-        name.getBytes(), 0L, toAddress, testKey003, blockingStubFull);
+    // The amount is 0, participate asset issue failed.
+    ret1 =
+        PublicMethod.participateAssetIssue2(
+            participateAccountAddress,
+            name.getBytes(),
+            0L,
+            toAddress,
+            testKey003,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : Amount must greater than 0!");
-  //The amount is -1, participate asset issue failed.
-    ret1 = PublicMethod.participateAssetIssue2(participateAccountAddress,
-        name.getBytes(), -1L, toAddress, testKey003, blockingStubFull);
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : Amount must greater than 0!");
+    // The amount is -1, participate asset issue failed.
+    ret1 =
+        PublicMethod.participateAssetIssue2(
+            participateAccountAddress,
+            name.getBytes(),
+            -1L,
+            toAddress,
+            testKey003,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : Amount must greater than 0!");
-  //The asset issue owner address is not correct, participate asset issue failed.
-    ret1 = PublicMethod.participateAssetIssue2(foundationAddress, name.getBytes(), 100L,
-        toAddress, testKey003, blockingStubFull);
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : Amount must greater than 0!");
+    // The asset issue owner address is not correct, participate asset issue failed.
+    ret1 =
+        PublicMethod.participateAssetIssue2(
+            foundationAddress, name.getBytes(), 100L, toAddress, testKey003, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
-  public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
-      String priKey) {
+  /** constructor. */
+  public boolean participateAssetIssue(
+      byte[] to, byte[] assertName, long amount, byte[] from, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -146,8 +180,7 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
     }
     final ECKey ecKey = temKey;
 
-    ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract
-        .newBuilder();
+    ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(from);
@@ -168,12 +201,20 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, Long fronzenAmount, Long frozenDay,
+  /** constructor. */
+  public Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      Long fronzenAmount,
+      Long frozenDay,
       String priKey) {
     ECKey temKey = null;
     try {
@@ -222,12 +263,10 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -236,13 +275,13 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
     }
     ECKey ecKey = temKey;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -252,23 +291,18 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -280,11 +314,9 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -315,11 +347,8 @@ public class ParticipateAssetIssue2Test extends TronBaseTest {
       logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
       return false;
     } else {
-      //Account search = queryAccount(ecKey, blockingStubFull);
+      // Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
-
   }
 }
-
-

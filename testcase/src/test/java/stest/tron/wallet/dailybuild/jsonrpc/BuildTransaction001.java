@@ -21,13 +21,11 @@ import stest.tron.wallet.common.client.utils.JsonRpcBase;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.Utils;
 
-
 @Slf4j
-
 public class BuildTransaction001 extends JsonRpcBase {
 
   JSONArray jsonRpcReceives = new JSONArray();
-  //String txid;
+  // String txid;
   private JSONObject responseContent;
   private HttpResponse response;
   String transactionString;
@@ -37,23 +35,19 @@ public class BuildTransaction001 extends JsonRpcBase {
   byte[] receiverAddress = ecKey1.getAddress();
   final String receiverKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-
-
-  @Test(enabled = true, description = "Json rpc api of buildTransaction for transfer trx", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of buildTransaction for transfer trx",
+      groups = {"daily", "serial"})
   public void test01JsonRpcApiTestOfBuildTransactionForTransferTrx() throws Exception {
     final Long beforeRecevierBalance = HttpMethod.getBalance(httpFullNode, receiverAddress);
-
 
     JsonObject param = new JsonObject();
     param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
@@ -61,27 +55,30 @@ public class BuildTransaction001 extends JsonRpcBase {
     param.addProperty("value", "0x1");
     JsonArray params = new JsonArray();
     params.add(param);
-    JsonObject requestBody = getJsonRpcBody("buildTransaction",params);
+    JsonObject requestBody = getJsonRpcBody("buildTransaction", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethod.parseResponseContent(response);
     transactionString = responseContent.getJSONObject("result").getString("transaction");
-    transactionSignString = HttpMethod.gettransactionsign(httpFullNode, transactionString,
-        jsonRpcOwnerKey);
+    transactionSignString =
+        HttpMethod.gettransactionsign(httpFullNode, transactionString, jsonRpcOwnerKey);
     response = HttpMethod.broadcastTransaction(httpFullNode, transactionSignString);
     Assert.assertTrue(HttpMethod.verificationResult(response));
 
     HttpMethod.waitToProduceOneBlock(httpFullNode);
     Long afterRecevierBalance = HttpMethod.getBalance(httpFullNode, receiverAddress);
 
-    Assert.assertEquals(afterRecevierBalance - beforeRecevierBalance,1L);
-
+    Assert.assertEquals(afterRecevierBalance - beforeRecevierBalance, 1L);
   }
 
-  @Test(enabled = true, description = "Json rpc api of buildTransaction for transfer trc10", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of buildTransaction for transfer trc10",
+      groups = {"daily", "serial"})
   public void test02JsonRpcApiTestOfBuildTransactionForTransferTrc10() throws Exception {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    final Long beforeTokenBalance = PublicMethod.getAssetBalanceByAssetId(ByteString
-        .copyFromUtf8(jsonRpcAssetId), receiverKey, blockingStubFull);
+    final Long beforeTokenBalance =
+        PublicMethod.getAssetBalanceByAssetId(
+            ByteString.copyFromUtf8(jsonRpcAssetId), receiverKey, blockingStubFull);
     JsonObject param = new JsonObject();
     param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
     param.addProperty("to", ByteArray.toHexString(receiverAddress));
@@ -89,32 +86,28 @@ public class BuildTransaction001 extends JsonRpcBase {
     param.addProperty("tokenValue", 1);
     JsonArray params = new JsonArray();
     params.add(param);
-    JsonObject requestBody = getJsonRpcBody("buildTransaction",params);
+    JsonObject requestBody = getJsonRpcBody("buildTransaction", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethod.parseResponseContent(response);
     transactionString = responseContent.getJSONObject("result").getString("transaction");
-    transactionSignString = HttpMethod.gettransactionsign(httpFullNode, transactionString,
-        jsonRpcOwnerKey);
+    transactionSignString =
+        HttpMethod.gettransactionsign(httpFullNode, transactionString, jsonRpcOwnerKey);
     response = HttpMethod.broadcastTransaction(httpFullNode, transactionSignString);
     Assert.assertTrue(HttpMethod.verificationResult(response));
 
     HttpMethod.waitToProduceOneBlock(httpFullNode);
-    Long afterTokenBalance = PublicMethod.getAssetBalanceByAssetId(ByteString
-        .copyFromUtf8(jsonRpcAssetId), receiverKey, blockingStubFull);
+    Long afterTokenBalance =
+        PublicMethod.getAssetBalanceByAssetId(
+            ByteString.copyFromUtf8(jsonRpcAssetId), receiverKey, blockingStubFull);
 
-    Assert.assertEquals(afterTokenBalance - beforeTokenBalance,1L);
-
+    Assert.assertEquals(afterTokenBalance - beforeTokenBalance, 1L);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

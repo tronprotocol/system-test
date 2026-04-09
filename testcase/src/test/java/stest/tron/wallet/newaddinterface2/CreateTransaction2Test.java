@@ -24,12 +24,12 @@ import org.tron.protos.contract.BalanceContract.TransferContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.Utils;
 
-import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
 @Slf4j
 @MultiNode
 public class CreateTransaction2Test extends TronBaseTest {
@@ -37,19 +37,24 @@ public class CreateTransaction2Test extends TronBaseTest {
   {
     fullnode = config.getStringList("fullnode.ip.list").get(1);
   }
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
 
   /*  //testng001、testng002、testng003、testng004
   private static final byte[] fromAddress = Base58
       .decodeFromBase58Check("THph9K2M2nLvkianrMGswRhz5hjSA9fuH7");
   private static final byte[] toAddress = Base58
-      .decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*/  private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
-  //receipt account
+      .decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*/
+  private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
+  // receipt account
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] receiptAccountAddress = ecKey2.getAddress();
-  String receiptAccountKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());  private ManagedChannel searchChannelFull = null;  private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;  private String searchFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  String receiptAccountKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+  private ManagedChannel searchChannelFull = null;
+  private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;
+  private String searchFullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   private ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] sendAccountAddress = ecKey1.getAddress();
   String sendAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -59,22 +64,18 @@ public class CreateTransaction2Test extends TronBaseTest {
     return String.valueOf(buf, 32, 130);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode).usePlaintext().build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
-
   }
 
   @Test
   public void testSendCoin2() {
-    Assert.assertTrue(PublicMethod.sendcoin(sendAccountAddress, 90000000000L,
-        fromAddress, foundationKey2, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            sendAccountAddress, 90000000000L, fromAddress, foundationKey2, blockingStubFull));
 
     logger.info(receiptAccountKey);
     Account sendAccount = PublicMethod.queryAccount(sendAccountKey, blockingStubFull);
@@ -83,9 +84,14 @@ public class CreateTransaction2Test extends TronBaseTest {
     Account receiptAccount = PublicMethod.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountBeforeBalance = receiptAccount.getBalance();
     Assert.assertTrue(receiptAccountBeforeBalance == 0);
-    //normal sendcoin2
-    Return ret1 = PublicMethod.sendcoin2(receiptAccountAddress, 49880000000L,
-        sendAccountAddress, sendAccountKey, blockingStubFull);
+    // normal sendcoin2
+    Return ret1 =
+        PublicMethod.sendcoin2(
+            receiptAccountAddress,
+            49880000000L,
+            sendAccountAddress,
+            sendAccountKey,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
 
@@ -97,36 +103,51 @@ public class CreateTransaction2Test extends TronBaseTest {
     receiptAccount = PublicMethod.queryAccount(receiptAccountKey, blockingStubFull);
     Long receiptAccountAfterBalance = receiptAccount.getBalance();
     Assert.assertTrue(receiptAccountAfterBalance == 49880000000L);
-    //Send coin failed due to no enough balance.
-    ret1 = PublicMethod
-        .sendcoin2(receiptAccountAddress, 9199999999999999999L, sendAccountAddress, sendAccountKey,
+    // Send coin failed due to no enough balance.
+    ret1 =
+        PublicMethod.sendcoin2(
+            receiptAccountAddress,
+            9199999999999999999L,
+            sendAccountAddress,
+            sendAccountKey,
             blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : Validate TransferContract error, balance is not sufficient.");
-    //Send coin failed due to the amount is 0.
-    ret1 = PublicMethod
-        .sendcoin2(receiptAccountAddress, 0L, sendAccountAddress, sendAccountKey, blockingStubFull);
+    // Send coin failed due to the amount is 0.
+    ret1 =
+        PublicMethod.sendcoin2(
+            receiptAccountAddress, 0L, sendAccountAddress, sendAccountKey, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : Amount must be greater than 0.");
-    //Send coin failed due to the amount is -1Trx.
-    ret1 = PublicMethod
-        .sendcoin2(receiptAccountAddress, -1000000L, sendAccountAddress, sendAccountKey,
-            blockingStubFull);
+    // Send coin failed due to the amount is -1Trx.
+    ret1 =
+        PublicMethod.sendcoin2(
+            receiptAccountAddress, -1000000L, sendAccountAddress, sendAccountKey, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : Amount must be greater than 0..");
 
-    //Send coin to yourself
-    ret1 = PublicMethod.sendcoin2(sendAccountAddress, 1000000L, sendAccountAddress, sendAccountKey,
-        blockingStubFull);
+    // Send coin to yourself
+    ret1 =
+        PublicMethod.sendcoin2(
+            sendAccountAddress, 1000000L, sendAccountAddress, sendAccountKey, blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : Cannot transfer trx to yourself.");
-    //transfer all balance
-    ret1 = PublicMethod.sendcoin2(receiptAccountAddress, 40119900000L,
-        sendAccountAddress, sendAccountKey, blockingStubFull);
+    // transfer all balance
+    ret1 =
+        PublicMethod.sendcoin2(
+            receiptAccountAddress,
+            40119900000L,
+            sendAccountAddress,
+            sendAccountKey,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
 
@@ -142,10 +163,7 @@ public class CreateTransaction2Test extends TronBaseTest {
     Assert.assertTrue(receiptAccountAfterBalance1 == 49880000000L + 40119900000L);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -156,17 +174,14 @@ public class CreateTransaction2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
-  public Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
-      String priKey) {
+  /** constructor. */
+  public Boolean freezeBalance(
+      byte[] addRess, long freezeBalance, long freezeDuration, String priKey) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
 
-    //String priKey = foundationKey2;
+    // String priKey = foundationKey2;
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -179,18 +194,20 @@ public class CreateTransaction2Test extends TronBaseTest {
     final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Account beforeFronzen = queryAccount(ecKey, blockingStubFull);
     Long beforeFrozenBalance = 0L;
-    //Long beforeBandwidth     = beforeFronzen.getBandwidth();
+    // Long beforeBandwidth     = beforeFronzen.getBandwidth();
     if (beforeFronzen.getFrozenCount() != 0) {
       beforeFrozenBalance = beforeFronzen.getFrozen(0).getFrozenBalance();
-      //beforeBandwidth     = beforeFronzen.getBandwidth();
-      //logger.info(Long.toString(beforeFronzen.getBandwidth()));
+      // beforeBandwidth     = beforeFronzen.getBandwidth();
+      // logger.info(Long.toString(beforeFronzen.getBandwidth()));
       logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
     }
 
     FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
-    builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
+    builder
+        .setOwnerAddress(byteAddreess)
+        .setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
     FreezeBalanceContract contract = builder.build();
@@ -213,8 +230,8 @@ public class CreateTransaction2Test extends TronBaseTest {
     Long afterBlockNum = 0L;
     Integer wait = 0;
     while (afterBlockNum < beforeBlockNum + 1 && wait < 10) {
-      Block currentBlock1 = searchBlockingStubFull
-          .getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+      Block currentBlock1 =
+          searchBlockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
       afterBlockNum = currentBlock1.getBlockHeader().getRawData().getNumber();
       wait++;
       try {
@@ -227,26 +244,24 @@ public class CreateTransaction2Test extends TronBaseTest {
 
     Account afterFronzen = queryAccount(ecKey, searchBlockingStubFull);
     Long afterFrozenBalance = afterFronzen.getFrozen(0).getFrozenBalance();
-    //Long afterBandwidth     = afterFronzen.getBandwidth();
-    //logger.info(Long.toString(afterFronzen.getBandwidth()));
+    // Long afterBandwidth     = afterFronzen.getBandwidth();
+    // logger.info(Long.toString(afterFronzen.getBandwidth()));
     logger.info(Long.toString(afterFronzen.getFrozen(0).getFrozenBalance()));
-    //logger.info(Integer.toString(search.getFrozenCount()));
+    // logger.info(Integer.toString(search.getFrozenCount()));
     logger.info(
-        "beforefronen" + beforeFrozenBalance.toString() + "    afterfronzen" + afterFrozenBalance
-            .toString());
+        "beforefronen"
+            + beforeFrozenBalance.toString()
+            + "    afterfronzen"
+            + afterFrozenBalance.toString());
     Assert.assertTrue(afterFrozenBalance - beforeFrozenBalance == freezeBalance);
-    //Assert.assertTrue(afterBandwidth - beforeBandwidth == freezeBalance * frozen_duration);
+    // Assert.assertTrue(afterBandwidth - beforeBandwidth == freezeBalance * frozen_duration);
     return true;
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Boolean sendcoin(byte[] to, long amount, byte[] owner, String priKey) {
 
-    //String priKey = foundationKey2;
+    // String priKey = foundationKey2;
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -278,14 +293,11 @@ public class CreateTransaction2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -301,25 +313,18 @@ public class CreateTransaction2Test extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -331,4 +336,3 @@ public class CreateTransaction2Test extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 }
-

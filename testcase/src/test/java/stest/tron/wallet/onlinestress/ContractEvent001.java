@@ -36,10 +36,10 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.JsonRpcBase;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.Utils;
 import zmq.ZMQ.Event;
-import stest.tron.wallet.common.client.utils.MultiNode;
 
 @Slf4j
 @MultiNode
@@ -73,8 +73,6 @@ public class ContractEvent001 extends JsonRpcBase {
   private Long maxFeeLimit =
       Configuration.getByPath("testng.conf").getLong("defaultParameter.maxFeeLimit");
 
-  
-
   /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -84,7 +82,9 @@ public class ContractEvent001 extends JsonRpcBase {
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, groups = {"stress"})
+  @Test(
+      enabled = true,
+      groups = {"stress"})
   public void test1ContractEventAndLog() {
     ecKey1 = new ECKey(Utils.getRandom());
     event001Address = ecKey1.getAddress();
@@ -436,7 +436,8 @@ public class ContractEvent001 extends JsonRpcBase {
       enabled = true,
       threadPoolSize = 5,
       invocationCount = 5,
-      description = "test eth_getFilterChanges", groups = {"stress"})
+      description = "test eth_getFilterChanges",
+      groups = {"stress"})
   public void testEthGetFilterChanges() throws InterruptedException {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] event001Address = ecKey1.getAddress();
@@ -545,7 +546,8 @@ public class ContractEvent001 extends JsonRpcBase {
       enabled = true,
       threadPoolSize = 5,
       invocationCount = 5,
-      description = "Eth api of eth_getFilterChanges .", groups = {"stress"})
+      description = "Eth api of eth_getFilterChanges .",
+      groups = {"stress"})
   public void test09GetFilterChanges() {
     long sumSize = 0;
     while (true) {
@@ -680,7 +682,10 @@ public class ContractEvent001 extends JsonRpcBase {
     return response;
   }
 
-  @Test(enabled = true, description = "Subscribe event client", groups = {"stress"})
+  @Test(
+      enabled = true,
+      description = "Subscribe event client",
+      groups = {"stress"})
   public void testEnergyCostDetail() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
@@ -692,15 +697,16 @@ public class ContractEvent001 extends JsonRpcBase {
     req.monitor("inproc://reqmoniter", ZMQ.EVENT_CONNECTED | ZMQ.EVENT_DISCONNECTED);
     final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
-    new Thread(new Runnable() {
-      public void run() {
-        while (true) {
-          Event event = Event.read(moniter.base());
-          System.out.println(event.event + "  " + event.addr);
-        }
-      }
-
-    }).start();
+    new Thread(
+        new Runnable() {
+          public void run() {
+            while (true) {
+              Event event = Event.read(moniter.base());
+              System.out.println(event.event + "  " + event.addr);
+            }
+          }
+        })
+        .start();
     req.connect("tcp://47.94.197.215:55555");
     req.setReceiveTimeOut(10000);
 
@@ -712,9 +718,7 @@ public class ContractEvent001 extends JsonRpcBase {
     }
   }
 
-
-
-// the keys below are for test, do not worry
+  // the keys below are for test, do not worry
   /*
   @Test(enabled = true, groups = {"stress"})
   public void testSingForHex() {
@@ -724,11 +728,13 @@ public class ContractEvent001 extends JsonRpcBase {
               ByteArray.fromHexString(
                   "6815B367FDDE637E53E9ADC8E69424E07724333C9A2B973CFA469975E20753FC"),
               true);
-      *//*      ByteString sig = ByteString.copyFrom(cryptoEngine.Base64toBytes(cryptoEngine
-      .signHash(Sha256Hash.of(DBConfig.isECKeyCryptoEngine(),
-          ByteArray.fromHexString(
-              "ba989430c392dedef66a259a1f1112b178dbe7f2793975d8cf80f9b31ecd33ff"))
-              .getBytes())));*//*
+      */
+  /*      ByteString sig = ByteString.copyFrom(cryptoEngine.Base64toBytes(cryptoEngine
+  .signHash(Sha256Hash.of(DBConfig.isECKeyCryptoEngine(),
+      ByteArray.fromHexString(
+          "ba989430c392dedef66a259a1f1112b178dbe7f2793975d8cf80f9b31ecd33ff"))
+          .getBytes())));*/
+  /*
       //
       ByteString sig =
           ByteString.copyFrom(

@@ -17,9 +17,8 @@ import stest.tron.wallet.common.client.utils.Utils;
 /**
  * Transaction throughput benchmark.
  *
- * <p>Measures how many TRX transfer transactions can be submitted and
- * confirmed within a given time window. This is a smoke benchmark,
- * not a full stress test.
+ * <p>Measures how many TRX transfer transactions can be submitted and confirmed within a given time
+ * window. This is a smoke benchmark, not a full stress test.
  */
 @Slf4j
 public class ThroughputBenchmarkTest extends TronBaseTest {
@@ -37,9 +36,13 @@ public class ThroughputBenchmarkTest extends TronBaseTest {
     senderKeyStr = ByteArray.toHexString(senderKey.getPrivKeyBytes());
 
     // Fund sender with enough TRX for batch transfers + fees
-    Assert.assertTrue(PublicMethod.sendcoin(senderAddress,
-        TronConstants.TEN_THOUSAND_TRX * 10,
-        foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            senderAddress,
+            TronConstants.TEN_THOUSAND_TRX * 10,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     // Pre-generate receiver addresses
@@ -49,7 +52,9 @@ public class ThroughputBenchmarkTest extends TronBaseTest {
     }
   }
 
-  @Test(enabled = true, description = "Batch submit TRX transfers and measure throughput",
+  @Test(
+      enabled = true,
+      description = "Batch submit TRX transfers and measure throughput",
       groups = {"daily"})
   public void test01BatchTransferThroughput() {
     long sendAmount = 100_000L; // 0.1 TRX each
@@ -57,20 +62,22 @@ public class ThroughputBenchmarkTest extends TronBaseTest {
 
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < BATCH_SIZE; i++) {
-      boolean result = PublicMethod.sendcoin(receiverAddresses.get(i), sendAmount,
-          senderAddress, senderKeyStr, blockingStubFull);
+      boolean result =
+          PublicMethod.sendcoin(
+              receiverAddresses.get(i), sendAmount, senderAddress, senderKeyStr, blockingStubFull);
       if (result) {
         successCount++;
       }
     }
     long elapsed = System.currentTimeMillis() - startTime;
 
-    logger.info("Submitted {} transactions in {} ms ({} success)",
-        BATCH_SIZE, elapsed, successCount);
+    logger.info(
+        "Submitted {} transactions in {} ms ({} success)", BATCH_SIZE, elapsed, successCount);
     double tps = (successCount * 1000.0) / elapsed;
     logger.info("Submission TPS: {:.2f}", tps);
 
-    Assert.assertTrue(successCount > BATCH_SIZE * 0.8,
+    Assert.assertTrue(
+        successCount > BATCH_SIZE * 0.8,
         "At least 80% of transactions should be accepted, got " + successCount);
 
     // Wait for confirmation
@@ -80,8 +87,8 @@ public class ThroughputBenchmarkTest extends TronBaseTest {
     // Verify some transactions were confirmed
     int confirmedCount = 0;
     for (int i = 0; i < Math.min(10, BATCH_SIZE); i++) {
-      org.tron.protos.Protocol.Account acc = PublicMethod.queryAccount(
-          receiverAddresses.get(i), blockingStubFull);
+      org.tron.protos.Protocol.Account acc =
+          PublicMethod.queryAccount(receiverAddresses.get(i), blockingStubFull);
       if (acc.getBalance() == sendAmount) {
         confirmedCount++;
       }

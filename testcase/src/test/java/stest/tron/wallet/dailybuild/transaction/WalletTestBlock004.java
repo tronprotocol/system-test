@@ -18,16 +18,17 @@ import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class WalletTestBlock004 extends TronBaseTest {  private final String fullnode =
+public class WalletTestBlock004 extends TronBaseTest {
+  private final String fullnode =
       Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] testAddress = ecKey1.getAddress();
   private String txId = null;
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
@@ -36,18 +37,22 @@ public class WalletTestBlock004 extends TronBaseTest {  private final String ful
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
-    initSolidityChannel();    txId =
+    initSolidityChannel();
+    txId =
         PublicMethod.sendcoinGetTransactionId(
             testAddress, 10000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     logger.info("txId:" + txId);
   }
 
-  @Test(enabled = true, description = "Get block by limit next.", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Get block by limit next.",
+      groups = {"daily"})
   public void testGetBlockByLimitNext() {
     //
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Assert.assertFalse(currentBlockNum < 0);
     while (currentBlockNum <= 5) {
       logger.info("Now has very little block, Please wait");
@@ -92,7 +97,10 @@ public class WalletTestBlock004 extends TronBaseTest {  private final String ful
             .isEmpty());
   }
 
-  @Test(enabled = true, description = "Get block by limit next with type is zero.", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Get block by limit next with type is zero.",
+      groups = {"daily"})
   public void testGetBlockByLimitNextWithTypeIsZero() throws InterruptedException {
     Long blockNumber =
         PublicMethod.getTransactionInfoById(txId, blockingStubFull).get().getBlockNumber();
@@ -105,12 +113,15 @@ public class WalletTestBlock004 extends TronBaseTest {  private final String ful
     GrpcAPI.BlockList blockList = blockingStubFull.getBlockByLimitNext(builder.build());
     Optional<GrpcAPI.BlockList> getBlockByLimitNext = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLimitNext.get().getBlockCount() == 1);
-  Long num = getBlockByLimitNext.get().getBlock(0).getBlockHeader().getRawData().getNumber();
+    Long num = getBlockByLimitNext.get().getBlock(0).getBlockHeader().getRawData().getNumber();
     Assert.assertEquals(blockNumber, num);
     Assert.assertTrue(!getBlockByLimitNext.get().getBlock(0).getTransactionsList().isEmpty());
   }
 
-  @Test(enabled = false, description = "Get block by limit next with type is one.", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "Get block by limit next with type is one.",
+      groups = {"daily"})
   public void testGetBlockByLimitNextWithTypeIsOne() throws InterruptedException {
     Long blockNumber =
         PublicMethod.getTransactionInfoById(txId, blockingStubFull).get().getBlockNumber();
@@ -122,15 +133,18 @@ public class WalletTestBlock004 extends TronBaseTest {  private final String ful
     GrpcAPI.BlockList blockList = blockingStubFull.getBlockByLimitNext(builder.build());
     Optional<GrpcAPI.BlockList> getBlockByLimitNext = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLimitNext.get().getBlockCount() == 1);
-  Long num = getBlockByLimitNext.get().getBlock(0).getBlockHeader().getRawData().getNumber();
+    Long num = getBlockByLimitNext.get().getBlock(0).getBlockHeader().getRawData().getNumber();
     Assert.assertEquals(blockNumber, num);
     Assert.assertTrue(getBlockByLimitNext.get().getBlock(0).getTransactionsList().isEmpty());
   }
 
-  @Test(enabled = false, description = "Get block by exception limit next.", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "Get block by exception limit next.",
+      groups = {"daily"})
   public void testGetBlockByExceptionLimitNext() {
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Assert.assertFalse(currentBlockNum < 0);
     while (currentBlockNum <= 5) {
       logger.info("Now has very little block, Please wait");
@@ -145,21 +159,21 @@ public class WalletTestBlock004 extends TronBaseTest {  private final String ful
     GrpcAPI.BlockList blockList = blockingStubFull.getBlockByLimitNext(builder.build());
     Optional<GrpcAPI.BlockList> getBlockByLimitNext = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLimitNext.get().getBlockCount() == 0);
-  // From 3 to 3
+    // From 3 to 3
     builder = GrpcAPI.BlockLimit.newBuilder();
     builder.setStartNum(3);
     builder.setEndNum(3);
     blockList = blockingStubFull.getBlockByLimitNext(builder.build());
     getBlockByLimitNext = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLimitNext.get().getBlockCount() == 0);
-  // From 4 to 2
+    // From 4 to 2
     builder = GrpcAPI.BlockLimit.newBuilder();
     builder.setStartNum(4);
     builder.setEndNum(2);
     blockList = blockingStubFull.getBlockByLimitNext(builder.build());
     getBlockByLimitNext = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLimitNext.get().getBlockCount() == 0);
-  // From 999999990 to 999999999
+    // From 999999990 to 999999999
     builder = GrpcAPI.BlockLimit.newBuilder();
     builder.setStartNum(999999990);
     builder.setEndNum(999999999);
@@ -170,12 +184,12 @@ public class WalletTestBlock004 extends TronBaseTest {  private final String ful
 
   /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
   /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -190,7 +204,7 @@ public class WalletTestBlock004 extends TronBaseTest {  private final String ful
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);

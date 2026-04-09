@@ -1051,9 +1051,11 @@ public class AssetHelper {
   }
 
   /** Get the exchange ID for exchanges created by a specific address. */
-  public static Long getExchangeIdByCreatorAddress(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    List<Exchange> exchangeList =  PublicMethod.getExchangeList(blockingStubFull).get().getExchangesList();
-    for (int i = 0; i < exchangeList.size(); i++){
+  public static Long getExchangeIdByCreatorAddress(
+      byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    List<Exchange> exchangeList =
+        PublicMethod.getExchangeList(blockingStubFull).get().getExchangesList();
+    for (int i = 0; i < exchangeList.size(); i++) {
       Exchange exchange = exchangeList.get(i);
       if (exchange.getCreatorAddress().equals(ByteString.copyFrom(address))) {
         return exchange.getExchangeId();

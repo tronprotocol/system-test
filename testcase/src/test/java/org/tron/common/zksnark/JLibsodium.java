@@ -1,6 +1,5 @@
 package org.tron.common.zksnark;
 
-
 import org.tron.common.zksnark.JLibsodiumParam.Black2bSaltPersonalParams;
 import org.tron.common.zksnark.JLibsodiumParam.Blake2bFinalParams;
 import org.tron.common.zksnark.JLibsodiumParam.Blake2bInitSaltPersonalParams;
@@ -19,33 +18,42 @@ public class JLibsodium {
     if (!isOpenZen()) {
       return 0;
     }
-    return INSTANCE
-        .cryptoGenerichashBlake2BInitSaltPersonal(params.getState(), params.getKey(),
-            params.getKeyLen(), params.getOutLen(), params.getSalt(), params.getPersonal());
+    return INSTANCE.cryptoGenerichashBlake2BInitSaltPersonal(
+        params.getState(),
+        params.getKey(),
+        params.getKeyLen(),
+        params.getOutLen(),
+        params.getSalt(),
+        params.getPersonal());
   }
 
   public static int cryptoGenerichashBlake2bUpdate(Blake2bUpdateParams params) {
     if (!isOpenZen()) {
       return 0;
     }
-    return INSTANCE
-        .cryptoGenerichashBlake2BUpdate(params.getState(), params.getIn(), params.getInLen());
+    return INSTANCE.cryptoGenerichashBlake2BUpdate(
+        params.getState(), params.getIn(), params.getInLen());
   }
 
   public static int cryptoGenerichashBlake2bFinal(Blake2bFinalParams params) {
     if (!isOpenZen()) {
       return 0;
     }
-    return INSTANCE.cryptoGenerichashBlake2BFinal(params.getState(),
-        params.getOut(), params.getOutLen());
+    return INSTANCE.cryptoGenerichashBlake2BFinal(
+        params.getState(), params.getOut(), params.getOutLen());
   }
 
   public static int cryptoGenerichashBlack2bSaltPersonal(Black2bSaltPersonalParams params) {
     if (!isOpenZen()) {
       return 0;
     }
-    return INSTANCE.cryptoGenerichashBlake2BSaltPersonal(params.getOut(), params.getOutLen(),
-        params.getIn(), params.getInLen(), params.getKey(), params.getKeyLen(),
+    return INSTANCE.cryptoGenerichashBlake2BSaltPersonal(
+        params.getOut(),
+        params.getOutLen(),
+        params.getIn(),
+        params.getInLen(),
+        params.getKey(),
+        params.getKeyLen(),
         params.getSalt(),
         params.getPersonal());
   }
@@ -55,11 +63,16 @@ public class JLibsodium {
     if (!isOpenZen()) {
       return 0;
     }
-    return INSTANCE
-        .cryptoAeadChacha20Poly1305IetfDecrypt(params.getM(), params.getMLenP(),
-            params.getNSec(),
-            params.getC(), params.getCLen(), params.getAd(),
-            params.getAdLen(), params.getNPub(), params.getK());
+    return INSTANCE.cryptoAeadChacha20Poly1305IetfDecrypt(
+        params.getM(),
+        params.getMLenP(),
+        params.getNSec(),
+        params.getC(),
+        params.getCLen(),
+        params.getAd(),
+        params.getAdLen(),
+        params.getNPub(),
+        params.getK());
   }
 
   public static int cryptoAeadChacha20Poly1305IetfEncrypt(
@@ -67,10 +80,16 @@ public class JLibsodium {
     if (!isOpenZen()) {
       return 0;
     }
-    return INSTANCE
-        .cryptoAeadChacha20Poly1305IetfEncrypt(params.getC(), params.getCLenP(), params.getM(),
-            params.getMLen(), params.getAd(), params.getAdLen(),
-            params.getNSec(), params.getNPub(), params.getK());
+    return INSTANCE.cryptoAeadChacha20Poly1305IetfEncrypt(
+        params.getC(),
+        params.getCLenP(),
+        params.getM(),
+        params.getMLen(),
+        params.getAd(),
+        params.getAdLen(),
+        params.getNSec(),
+        params.getNPub(),
+        params.getK());
   }
 
   public static long initState() {
@@ -88,8 +107,7 @@ public class JLibsodium {
   }
 
   private static boolean isOpenZen() {
-    boolean res = CommonParameter.getInstance()
-        .isFullNodeAllowShieldedTransactionArgs();
+    boolean res = CommonParameter.getInstance().isFullNodeAllowShieldedTransactionArgs();
     if (res) {
       INSTANCE = LibsodiumWrapper.getInstance();
     }

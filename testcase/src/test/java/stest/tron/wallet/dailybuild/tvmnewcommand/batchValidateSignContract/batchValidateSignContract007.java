@@ -24,16 +24,16 @@ import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.Hash;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
 public class batchValidateSignContract007 extends TronBaseTest {
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethod.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -41,67 +41,84 @@ public class batchValidateSignContract007 extends TronBaseTest {
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(contractExcKey);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
+    PublicMethod.printAddress(contractExcKey);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, description = "Constructor test multivalidatesign", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Constructor test multivalidatesign",
+      groups = {"contract", "daily"})
   public void test01Constructor() {
-    String txid = PublicMethod
-        .sendcoinGetTransactionId(contractExcAddress, 2000000000L, testNetAccountAddress,
-            testNetAccountKey, blockingStubFull);
+    String txid =
+        PublicMethod.sendcoinGetTransactionId(
+            contractExcAddress,
+            2000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    GrpcAPI.AccountResourceMessage resourceInfo = PublicMethod
-        .getAccountResource(contractExcAddress, blockingStubFull);
+    GrpcAPI.AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     Protocol.Account info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String filePath = "src/test/resources/soliditycode/batchvalidatesign007.sol";
-  String contractName = "Demo";
+    String filePath = "src/test/resources/soliditycode/batchvalidatesign007.sol";
+    String contractName = "Demo";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  byte[] hash = Hash.sha3(txid.getBytes());
+    byte[] hash = Hash.sha3(txid.getBytes());
     for (int i = 0; i < 16; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
       addresses.add(WalletClient.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-  String data = PublicMethod.parametersString(parameters);
-  String constructorStr = "constructor(bytes32,bytes[],address[])";
-    txid = PublicMethod
-        .deployContractWithConstantParame(contractName, abi, code, constructorStr, data, "",
-            maxFeeLimit, 0L, 100, null, contractExcKey, contractExcAddress, blockingStubFull);
+    String data = PublicMethod.parametersString(parameters);
+    String constructorStr = "constructor(bytes32,bytes[],address[])";
+    txid =
+        PublicMethod.deployContractWithConstantParame(
+            contractName,
+            abi,
+            code,
+            constructorStr,
+            data,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, infoById.get().getResultValue());
-  Long fee1 = infoById.get().getFee();
-  Long netUsed1 = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById.get().getReceipt().getNetFee();
+    Long fee1 = infoById.get().getFee();
+    Long netUsed1 = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById.get().getReceipt().getEnergyUsageTotal();
     logger.info("fee1:" + fee1);
     logger.info("netUsed1:" + netUsed1);
@@ -110,33 +127,54 @@ public class batchValidateSignContract007 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
     contractAddress = infoById.get().getContractAddress().toByteArray();
 
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(contractAddress, "testConstructorPure()", "", false, 0,
-            0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "testConstructorPure()",
+            "",
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
-    Assert.assertEquals("11111111111111110000000000000000",
+    Assert.assertEquals(
+        "11111111111111110000000000000000",
         PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
     Assert.assertEquals("SUCCESS", transactionExtention.getResult().getCode().toString());
 
-    txid = PublicMethod
-        .triggerContract(contractAddress, "testConstructor()", "", false, 0, maxFeeLimit,
-            contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testConstructor()",
+            "",
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById2 = null;
     infoById2 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     if (infoById2.get().getResultValue() == 0) {
-      Assert.assertEquals("11111111111111110000000000000000",
+      Assert.assertEquals(
+          "11111111111111110000000000000000",
           PublicMethod.bytes32ToString(infoById2.get().getContractResult(0).toByteArray()));
     } else {
-      Assert.assertTrue(infoById2.get().getResMessage().toStringUtf8().contains("CPU timeout for")
-          || "Already Time Out".equals(infoById2.get().getResMessage().toStringUtf8()));
+      Assert.assertTrue(
+          infoById2.get().getResMessage().toStringUtf8().contains("CPU timeout for")
+              || "Already Time Out".equals(infoById2.get().getResMessage().toStringUtf8()));
       PublicMethod.waitProduceNextBlock(blockingStubFull);
     }
     Long fee2 = infoById2.get().getFee();
-  Long netUsed2 = infoById2.get().getReceipt().getNetUsage();
-  Long energyUsed2 = infoById2.get().getReceipt().getEnergyUsage();
-  Long netFee2 = infoById2.get().getReceipt().getNetFee();
+    Long netUsed2 = infoById2.get().getReceipt().getNetUsage();
+    Long energyUsed2 = infoById2.get().getReceipt().getEnergyUsage();
+    Long netFee2 = infoById2.get().getReceipt().getNetFee();
     long energyUsageTotal2 = infoById2.get().getReceipt().getEnergyUsageTotal();
     logger.info("fee2:" + fee2);
     logger.info("netUsed2:" + netUsed2);
@@ -145,12 +183,12 @@ public class batchValidateSignContract007 extends TronBaseTest {
     logger.info("energyUsageTotal2:" + energyUsageTotal2);
 
     Protocol.Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull1);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethod
-        .getAccountResource(contractExcAddress, blockingStubFull1);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    GrpcAPI.AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull1);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -161,14 +199,13 @@ public class batchValidateSignContract007 extends TronBaseTest {
     Assert.assertTrue(beforeNetUsed + netUsed1 + netUsed2 >= afterNetUsed);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     long balance = PublicMethod.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethod.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);    if (channelFull1 != null) {
+    PublicMethod.sendcoin(
+        testNetAccountAddress, balance, contractExcAddress, contractExcKey, blockingStubFull);
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }

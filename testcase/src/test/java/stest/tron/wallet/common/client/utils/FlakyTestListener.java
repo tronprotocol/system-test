@@ -10,11 +10,11 @@ import org.testng.ITestResult;
 /**
  * TestNG listener that tracks flaky test results separately.
  *
- * <p>When a test annotated with {@link Flaky} fails, it is logged but does not
- * count as an unexpected failure. At the end of the suite, a summary of all
- * flaky failures is printed.
+ * <p>When a test annotated with {@link Flaky} fails, it is logged but does not count as an
+ * unexpected failure. At the end of the suite, a summary of all flaky failures is printed.
  *
  * <p>Register in testng XML:
+ *
  * <pre>
  * &lt;listeners&gt;
  *   &lt;listener class-name="stest.tron.wallet.common.client.utils.FlakyTestListener"/&gt;

@@ -27,7 +27,6 @@ import org.tron.protos.contract.ShieldContract.OutputPoint;
 import org.tron.protos.contract.ShieldContract.OutputPointInfo;
 import stest.tron.wallet.common.client.Configuration;
 
-
 public class ShieldWrapper {
 
   private static final String PREFIX_FOLDER = "WalletShield";
@@ -35,31 +34,21 @@ public class ShieldWrapper {
   private static final String UNSPEND_NOTE_FILE_NAME = PREFIX_FOLDER + "/unspendnote";
   private static final String SPEND_NOTE_FILE_NAME = PREFIX_FOLDER + "/spendnote";
   private static final String SHIELD_ADDRESS_FILE_NAME = PREFIX_FOLDER + "/shieldaddress";
-  //private WalletApi wallet;
+  // private WalletApi wallet;
   private static AtomicLong nodeIndex = new AtomicLong(0L);
-  @Getter
-  @Setter
-  public Map<String, Long> ivkMapScanBlockNum = new ConcurrentHashMap();
-  @Getter
-  @Setter
-  public Map<Long, ShieldNoteInfo> utxoMapNote = new ConcurrentHashMap();
+  @Getter @Setter public Map<String, Long> ivkMapScanBlockNum = new ConcurrentHashMap();
+  @Getter @Setter public Map<Long, ShieldNoteInfo> utxoMapNote = new ConcurrentHashMap();
 
-  //Wallet wallet = new Wallet();
-  @Getter
-  @Setter
-  public List<ShieldNoteInfo> spendUtxoList = new ArrayList<>();
-  @Setter
-  @Getter
-  Map<String, ShieldAddressInfo> shieldAddressInfoMap = new ConcurrentHashMap();
-  private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-      .get(0);
-  private ManagedChannel channelFull = ManagedChannelBuilder.forTarget(fullnode)
-      .usePlaintext()
-      .build();
+  // Wallet wallet = new Wallet();
+  @Getter @Setter public List<ShieldNoteInfo> spendUtxoList = new ArrayList<>();
+  @Setter @Getter Map<String, ShieldAddressInfo> shieldAddressInfoMap = new ConcurrentHashMap();
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private ManagedChannel channelFull =
+      ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
   private WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   private Thread thread;
-  @Setter
-  private boolean resetNote = false;
+  @Setter private boolean resetNote = false;
 
   /*  public void setWallet(WalletApi walletApi) {
     wallet = walletApi;
@@ -147,11 +136,11 @@ public class ShieldWrapper {
         outPointBuild.setIndex(noteInfo.getIndex());
         request.addOutPoints(outPointBuild.build());
 
-        IncrementalMerkleVoucherInfo merkleVoucherInfo = blockingStubFull.getMerkleTreeVoucherInfo(
-            request.build());
+        IncrementalMerkleVoucherInfo merkleVoucherInfo =
+            blockingStubFull.getMerkleTreeVoucherInfo(request.build());
         if (merkleVoucherInfo.getVouchersCount() > 0) {
-          ShieldAddressInfo addressInfo = getShieldAddressInfoMap().get(
-              noteInfo.getPaymentAddress());
+          ShieldAddressInfo addressInfo =
+              getShieldAddressInfoMap().get(noteInfo.getPaymentAddress());
           NoteParameters.Builder builder = NoteParameters.newBuilder();
           builder.setAk(ByteString.copyFrom(addressInfo.getFullViewingKey().getAk()));
           builder.setNk(ByteString.copyFrom(addressInfo.getFullViewingKey().getNk()));
@@ -162,7 +151,7 @@ public class ShieldWrapper {
           noteBuild.setRcm(ByteString.copyFrom(noteInfo.getR()));
           noteBuild.setMemo(ByteString.copyFrom(noteInfo.getMemo()));
           builder.setNote(noteBuild.build());
-          //builder.setVoucher(merkleVoucherInfo.getVouchers(0));
+          // builder.setVoucher(merkleVoucherInfo.getVouchers(0));
 
           SpendResult result = blockingStubFull.isSpend(builder.build());
 
@@ -188,9 +177,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean spendNote(long noteIndex) {
     ShieldNoteInfo noteInfo = utxoMapNote.get(noteIndex);
     if (noteInfo != null) {
@@ -205,9 +192,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean addNewShieldAddress(final ShieldAddressInfo addressInfo) {
     appendAddressInfoToFile(addressInfo);
     long blockNum = 0;
@@ -228,9 +213,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   private boolean updateIvkAndBlockNum(final String ivk, long blockNum) {
     synchronized (IVK_AND_NUM_FILE_NAME) {
       String date = ivk + ";" + blockNum;
@@ -239,9 +222,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   private boolean updateIvkAndBlockNumFile() {
     synchronized (IVK_AND_NUM_FILE_NAME) {
       ZenUtils.clearFile(IVK_AND_NUM_FILE_NAME);
@@ -253,9 +234,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   private boolean loadIvkFromFile() {
     ivkMapScanBlockNum.clear();
     List<String> list = ZenUtils.getListFromFile(IVK_AND_NUM_FILE_NAME);
@@ -270,9 +249,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * get shield address list.
-   */
+  /** get shield address list. */
   public List<String> getShieldAddressList() {
     List<String> addressList = new ArrayList<>();
     for (Entry<String, ShieldAddressInfo> entry : shieldAddressInfoMap.entrySet()) {
@@ -281,9 +258,7 @@ public class ShieldWrapper {
     return addressList;
   }
 
-  /**
-   * update unspend note.
-   */
+  /** update unspend note. */
   private boolean saveUnspendNoteToFile() {
     ZenUtils.clearFile(UNSPEND_NOTE_FILE_NAME);
     for (Entry<Long, ShieldNoteInfo> entry : utxoMapNote.entrySet()) {
@@ -293,9 +268,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * load unspend note from file.
-   */
+  /** load unspend note from file. */
   private boolean loadUnSpendNoteFromFile() {
     utxoMapNote.clear();
 
@@ -312,18 +285,14 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * append spend note to file tail.
-   */
+  /** append spend note to file tail. */
   private boolean saveSpendNoteToFile(ShieldNoteInfo noteInfo) {
     String date = noteInfo.encode();
     ZenUtils.appendToFileTail(SPEND_NOTE_FILE_NAME, date);
     return true;
   }
 
-  /**
-   * load spend note from file.
-   */
+  /** load spend note from file. */
   private boolean loadSpendNoteFromFile() {
     spendUtxoList.clear();
     List<String> list = ZenUtils.getListFromFile(SPEND_NOTE_FILE_NAME);
@@ -335,9 +304,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * load shield address from file.
-   */
+  /** load shield address from file. */
   public boolean loadAddressFromFile() {
     List<String> addressList = ZenUtils.getListFromFile(SHIELD_ADDRESS_FILE_NAME);
 
@@ -353,9 +320,7 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean appendAddressInfoToFile(final ShieldAddressInfo addressInfo) {
     String shieldAddress = addressInfo.getAddress();
     if (!StringUtil.isNullOrEmpty(shieldAddress)) {
@@ -367,18 +332,18 @@ public class ShieldWrapper {
     return true;
   }
 
-  /**
-   * sort by value of UTXO.
-   */
+  /** sort by value of UTXO. */
   public List<String> getvalidateSortUtxoList() {
     List<Map.Entry<Long, ShieldNoteInfo>> list = new ArrayList<>(utxoMapNote.entrySet());
-    Collections.sort(list, (Entry<Long, ShieldNoteInfo> o1, Entry<Long, ShieldNoteInfo> o2) -> {
-      if (o1.getValue().getValue() < o2.getValue().getValue()) {
-        return 1;
-      } else {
-        return -1;
-      }
-    });
+    Collections.sort(
+        list,
+        (Entry<Long, ShieldNoteInfo> o1, Entry<Long, ShieldNoteInfo> o2) -> {
+          if (o1.getValue().getValue() < o2.getValue().getValue()) {
+            return 1;
+          } else {
+            return -1;
+          }
+        });
 
     List<String> utxoList = new ArrayList<>();
     for (Map.Entry<Long, ShieldNoteInfo> entry : list) {
@@ -404,7 +369,7 @@ public class ShieldWrapper {
         try {
           scanBlockByIvk();
           updateNoteWhetherSpend();
-          //wait for 2.5 seconds
+          // wait for 2.5 seconds
           for (int i = 0; i < 5; ++i) {
             Thread.sleep(500);
             if (resetNote) {
@@ -419,6 +384,4 @@ public class ShieldWrapper {
       }
     }
   }
-
-
 }

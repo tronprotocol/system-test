@@ -19,17 +19,18 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
+
 @Slf4j
 @MultiNode
 public class Create2Test020 extends TronBaseTest {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethod.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -37,75 +38,95 @@ public class Create2Test020 extends TronBaseTest {
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    PublicMethod.printAddress(contractExcKey);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(contractExcKey);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    }
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
+  }
 
-  @Test(enabled = true, description = "Deploy Factory contract, create2 with salt type : trcToken", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Deploy Factory contract, create2 with salt type : trcToken",
+      groups = {"contract", "daily"})
   public void testTriggerContract() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(contractExcAddress, 500000000000L, testNetAccountAddress, testNetAccountKey,
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contractExcAddress,
+            500000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
             blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "src/test/resources/soliditycode/create2contract22.sol";
-  String contractName = "Factory";
+    String filePath = "src/test/resources/soliditycode/create2contract22.sol";
+    String contractName = "Factory";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String contractName1 = "TestConstract";
+    String contractName1 = "TestConstract";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  String txid = "";
-  String num = "\"" + code1 + "\"" + "," + 1000001;
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy(bytes,trcToken)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    String txid = "";
+    String num = "\"" + code1 + "\"" + "," + 1000001;
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy(bytes,trcToken)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -115,12 +136,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -131,21 +152,30 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-  String returnAddress = Base58.encode58Check(returnAddressBytes);
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
+    String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethod
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee1 = infoById1.get().getFee();
-  Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById1.get().getReceipt().getNetFee();
+    Long fee1 = infoById1.get().getFee();
+    Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById1.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee1:" + fee1);
@@ -155,12 +185,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance1);
     logger.info("afterEnergyUsed:" + afterEnergyUsed1);
     logger.info("afterNetUsed:" + afterNetUsed1);
@@ -169,47 +199,59 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-  Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
-
   }
 
-
-  @Test(enabled = true, description = "Deploy Factory contract, create2 with salt type : uint8", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Deploy Factory contract, create2 with salt type : uint8",
+      groups = {"contract", "daily"})
   public void testTriggerContract1() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String contractName1 = "TestConstract";
-  String filePath = "src/test/resources/soliditycode/create2contract22.sol";
+    String contractName1 = "TestConstract";
+    String filePath = "src/test/resources/soliditycode/create2contract22.sol";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  String txid = "";
-  String num = "\"" + code1 + "\"" + "," + 1000031;
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy1(bytes,uint256)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    String txid = "";
+    String num = "\"" + code1 + "\"" + "," + 1000031;
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy1(bytes,uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -219,12 +261,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -235,21 +277,30 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-  String returnAddress = Base58.encode58Check(returnAddressBytes);
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
+    String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethod
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee1 = infoById1.get().getFee();
-  Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById1.get().getReceipt().getNetFee();
+    Long fee1 = infoById1.get().getFee();
+    Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById1.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee1:" + fee1);
@@ -259,12 +310,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance1);
     logger.info("afterEnergyUsed:" + afterEnergyUsed1);
     logger.info("afterNetUsed:" + afterNetUsed1);
@@ -273,48 +324,59 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-  Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
-
-
   }
 
-
-  @Test(enabled = true, description = "Deploy Factory contract, create2 with salt type : address", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Deploy Factory contract, create2 with salt type : address",
+      groups = {"contract", "daily"})
   public void testTriggerContract2() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String contractName1 = "TestConstract";
-  String filePath = "src/test/resources/soliditycode/create2contract22.sol";
+    String contractName1 = "TestConstract";
+    String filePath = "src/test/resources/soliditycode/create2contract22.sol";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  String txid = "";
-  String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractExcAddress) + "\"";
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy2(bytes,address)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    String txid = "";
+    String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractExcAddress) + "\"";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy2(bytes,address)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -324,12 +386,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -340,21 +402,30 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-  String returnAddress = Base58.encode58Check(returnAddressBytes);
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
+    String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethod
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee1 = infoById1.get().getFee();
-  Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById1.get().getReceipt().getNetFee();
+    Long fee1 = infoById1.get().getFee();
+    Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById1.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee1:" + fee1);
@@ -364,12 +435,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance1);
     logger.info("afterEnergyUsed:" + afterEnergyUsed1);
     logger.info("afterNetUsed:" + afterNetUsed1);
@@ -378,48 +449,59 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-  Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
-
-
   }
 
-
-  @Test(enabled = true, description = "Deploy Factory contract, create2 with salt type : string", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Deploy Factory contract, create2 with salt type : string",
+      groups = {"contract", "daily"})
   public void testTriggerContract3() {
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String contractName1 = "TestConstract";
-  String filePath = "src/test/resources/soliditycode/create2contract22.sol";
+    String contractName1 = "TestConstract";
+    String filePath = "src/test/resources/soliditycode/create2contract22.sol";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  String txid = "";
-  String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractExcAddress) + "\"";
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy3(bytes,string)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    String txid = "";
+    String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractExcAddress) + "\"";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy3(bytes,string)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -429,12 +511,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -445,21 +527,30 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-  String returnAddress = Base58.encode58Check(returnAddressBytes);
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
+    String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethod
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee1 = infoById1.get().getFee();
-  Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById1.get().getReceipt().getNetFee();
+    Long fee1 = infoById1.get().getFee();
+    Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById1.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee1:" + fee1);
@@ -469,12 +560,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance1);
     logger.info("afterEnergyUsed:" + afterEnergyUsed1);
     logger.info("afterNetUsed:" + afterNetUsed1);
@@ -483,48 +574,60 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-  Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
-
-
   }
 
-
-  @Test(enabled = true, description = "TriggerContract a constant function created by create2"
-      + "can not create2 twice if salt type is string", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description =
+          "TriggerContract a constant function created by create2"
+              + "can not create2 twice if salt type is string",
+      groups = {"contract", "daily"})
   public void testTriggerContract4() {
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String contractName1 = "TestConstract1";
-  String filePath = "src/test/resources/soliditycode/create2contract22.sol";
+    String contractName1 = "TestConstract1";
+    String filePath = "src/test/resources/soliditycode/create2contract22.sol";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  String txid = "";
-  String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy3(bytes,string)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    String txid = "";
+    String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy3(bytes,string)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -534,12 +637,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -550,21 +653,30 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-  String returnAddress = Base58.encode58Check(returnAddressBytes);
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
+    String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethod
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee1 = infoById1.get().getFee();
-  Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById1.get().getReceipt().getNetFee();
+    Long fee1 = infoById1.get().getFee();
+    Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById1.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee1:" + fee1);
@@ -574,12 +686,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance1);
     logger.info("afterEnergyUsed:" + afterEnergyUsed1);
     logger.info("afterNetUsed:" + afterNetUsed1);
@@ -588,62 +700,84 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-  Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(2 == returnnumber);
 
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy3(bytes,string)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy3(bytes,string)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById2 = null;
     infoById2 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
 
     Assert.assertTrue(infoById2.get().getResultValue() != 0);
-    Assert
-        .assertThat(ByteArray
-                .toStr(infoById2.get().getResMessage().toByteArray()),
-            containsString("REVERT opcode executed"));
+    Assert.assertThat(
+        ByteArray.toStr(infoById2.get().getResMessage().toByteArray()),
+        containsString("REVERT opcode executed"));
   }
 
-
-  @Test(enabled = true, description = "TriggerContract a constant function created by create2"
-      + "can not create2 twice if salt type is string", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description =
+          "TriggerContract a constant function created by create2"
+              + "can not create2 twice if salt type is string",
+      groups = {"contract", "daily"})
   public void testTriggerContract5() {
 
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String contractName1 = "TestConstract2";
-  String filePath = "src/test/resources/soliditycode/create2contract22.sol";
+    String contractName1 = "TestConstract2";
+    String filePath = "src/test/resources/soliditycode/create2contract22.sol";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  String txid = "";
-  String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy3(bytes,string)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    String txid = "";
+    String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy3(bytes,string)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -653,12 +787,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -669,21 +803,30 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-  String returnAddress = Base58.encode58Check(returnAddressBytes);
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
+    String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethod
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee1 = infoById1.get().getFee();
-  Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById1.get().getReceipt().getNetFee();
+    Long fee1 = infoById1.get().getFee();
+    Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById1.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee1:" + fee1);
@@ -693,12 +836,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance1);
     logger.info("afterEnergyUsed:" + afterEnergyUsed1);
     logger.info("afterNetUsed:" + afterNetUsed1);
@@ -707,63 +850,85 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-  Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(3 == returnnumber);
     num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(testNetAccountAddress) + "\"";
 
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy3(bytes,string)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy3(bytes,string)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById2 = null;
     infoById2 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
 
     Assert.assertTrue(infoById2.get().getResultValue() != 0);
-    Assert
-        .assertThat(ByteArray
-                .toStr(infoById2.get().getResMessage().toByteArray()),
-            containsString("REVERT opcode executed"));
+    Assert.assertThat(
+        ByteArray.toStr(infoById2.get().getResMessage().toByteArray()),
+        containsString("REVERT opcode executed"));
   }
 
-
-  @Test(enabled = true, description = "TriggerContract a constant function created by create2"
-      + "can not create2 twice if salt type is string", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description =
+          "TriggerContract a constant function created by create2"
+              + "can not create2 twice if salt type is string",
+      groups = {"contract", "daily"})
   public void testTriggerContract6() {
 
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String contractName1 = "TestConstract3";
-  String filePath = "src/test/resources/soliditycode/create2contract22.sol";
+    String contractName1 = "TestConstract3";
+    String filePath = "src/test/resources/soliditycode/create2contract22.sol";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  String txid = "";
-  String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy3(bytes,string)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    String txid = "";
+    String num = "\"" + code1 + "\"" + ",\"" + Base58.encode58Check(contractAddress) + "\"";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy3(bytes,string)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -773,12 +938,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -789,21 +954,30 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  byte[] returnAddressBytes = infoById.get().getInternalTransactions(0).getTransferToAddress()
-        .toByteArray();
-  String returnAddress = Base58.encode58Check(returnAddressBytes);
+    byte[] returnAddressBytes =
+        infoById.get().getInternalTransactions(0).getTransferToAddress().toByteArray();
+    String returnAddress = Base58.encode58Check(returnAddressBytes);
     logger.info("returnAddress:" + returnAddress);
-    txid = PublicMethod
-        .triggerContract(returnAddressBytes,
-            "i()", "#", false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            returnAddressBytes,
+            "i()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById1 = null;
     infoById1 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee1 = infoById1.get().getFee();
-  Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
-  Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
-  Long netFee1 = infoById1.get().getReceipt().getNetFee();
+    Long fee1 = infoById1.get().getFee();
+    Long netUsed1 = infoById1.get().getReceipt().getNetUsage();
+    Long energyUsed1 = infoById1.get().getReceipt().getEnergyUsage();
+    Long netFee1 = infoById1.get().getReceipt().getNetFee();
     long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee1:" + fee1);
@@ -813,12 +987,12 @@ public class Create2Test020 extends TronBaseTest {
     logger.info("energyUsageTotal1:" + energyUsageTotal1);
 
     Account infoafter1 = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance1);
     logger.info("afterEnergyUsed:" + afterEnergyUsed1);
     logger.info("afterNetUsed:" + afterNetUsed1);
@@ -827,38 +1001,46 @@ public class Create2Test020 extends TronBaseTest {
     Assert.assertTrue(infoById1.get().getResultValue() == 0);
     Assert.assertTrue(afterBalance1 + fee1 == afterBalance);
     Assert.assertTrue(afterEnergyUsed + energyUsed1 >= afterEnergyUsed1);
-  Long returnnumber = ByteArray.toLong(ByteArray
-        .fromHexString(ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
+    Long returnnumber =
+        ByteArray.toLong(
+            ByteArray.fromHexString(
+                ByteArray.toHexString(infoById1.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(4 == returnnumber);
-  String fakeAddress = "FFFFFFF";
+    String fakeAddress = "FFFFFFF";
 
     num = "\"" + code1 + "\"" + ",\"" + fakeAddress + "\"";
 
-    txid = PublicMethod
-        .triggerContract(contractAddress,
-            "deploy3(bytes,string)", num, false,
-            0, maxFeeLimit, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "deploy3(bytes,string)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById2 = null;
     infoById2 = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
 
     Assert.assertTrue(infoById2.get().getResultValue() != 0);
-    Assert
-        .assertThat(ByteArray
-                .toStr(infoById2.get().getResMessage().toByteArray()),
-            containsString("REVERT opcode executed"));
+    Assert.assertThat(
+        ByteArray.toStr(infoById2.get().getResMessage().toByteArray()),
+        containsString("REVERT opcode executed"));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod
-        .freeResource(contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);    if (channelFull1 != null) {
+    PublicMethod.freeResource(
+        contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }  }
-
-
+    }
+  }
 }

@@ -16,11 +16,11 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -30,10 +30,10 @@ public class MultiSign13 extends TronBaseTest {
   private static String tokenName = "testAssetIssue_" + Long.toString(now);
   private static ByteString assetAccountId = null;
   private final byte[] witnessAddress001 = PublicMethod.getFinalAddress(witnessKey);
-  private long multiSignFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.multiSignFee");
-  private long updateAccountPermissionFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.updateAccountPermissionFee");
+  private long multiSignFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.multiSignFee");
+  private long updateAccountPermissionFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.updateAccountPermissionFee");
   private ECKey ecKey1 = new ECKey(Utils.getRandom());
   private byte[] ownerAddress = ecKey1.getAddress();
   private String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -46,36 +46,42 @@ public class MultiSign13 extends TronBaseTest {
   private ECKey tmpEcKey02 = new ECKey(Utils.getRandom());
   private byte[] tmpAddr02 = tmpEcKey02.getAddress();
   private String tmpKey02 = ByteArray.toHexString(tmpEcKey02.getPrivKeyBytes());
-  private String fullnodeLocal = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnodeLocal =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   private byte[] transferTokenContractAddress = null;
-  private String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  private String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
+  private String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
+  private String url =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, description = "Witness permission_name is witness", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name is witness",
+      groups = {"daily", "multisig"})
   public void testWitnessName01() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
     long needCoin = updateAccountPermissionFee * 2;
 
-    PublicMethod
-        .sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethod.sendcoin(
+        ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
 
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     PublicMethod.printAddress(ownerKey);
     PublicMethod.printAddress(tmpKey02);
@@ -85,76 +91,101 @@ public class MultiSign13 extends TronBaseTest {
     ownerPermissionKeys.add(ownerKey);
 
     logger.info("** update owner and active permission to two address");
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":{\"type\":1,\"permission_name\":\"witness\","
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2,
-        PublicMethodForMultiSign.getActivePermissionKeyCount(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getWitnessPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getWitnessPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getWitnessPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
 
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
 
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness permission_name is witness12", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name is witness12",
+      groups = {"daily", "multisig"})
   public void testWitnessName02() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
     long needCoin = updateAccountPermissionFee * 2;
 
-    PublicMethod.sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000L, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    PublicMethod.sendcoin(
+        ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000L,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     PublicMethod.printAddress(ownerKey);
     PublicMethod.printAddress(tmpKey02);
@@ -164,77 +195,102 @@ public class MultiSign13 extends TronBaseTest {
     ownerPermissionKeys.add(ownerKey);
 
     logger.info("** update owner and active permission to two address");
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":{\"type\":1,\"permission_name\":\"witness12\","
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2,
-        PublicMethodForMultiSign.getActivePermissionKeyCount(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getWitnessPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getWitnessPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getWitnessPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
 
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness permission_name is \"123\"", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name is \"123\"",
+      groups = {"daily", "multisig"})
   public void testWitnessName03() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
     long needCoin = updateAccountPermissionFee * 2;
 
-    PublicMethod.sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethod.sendcoin(
+        ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
 
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     PublicMethod.printAddress(ownerKey);
     PublicMethod.printAddress(tmpKey02);
@@ -244,77 +300,102 @@ public class MultiSign13 extends TronBaseTest {
     ownerPermissionKeys.add(ownerKey);
 
     logger.info("** update owner and active permission to two address");
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":{\"type\":1,\"permission_name\":\"123\","
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2,
-        PublicMethodForMultiSign.getActivePermissionKeyCount(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getWitnessPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getWitnessPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getWitnessPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
 
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness permission_name is \"\"", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name is \"\"",
+      groups = {"daily", "multisig"})
   public void testWitnessName04() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
     long needCoin = updateAccountPermissionFee * 2;
 
-    PublicMethod.sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethod.sendcoin(
+        ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
 
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     List<String> ownerPermissionKeys = new ArrayList<>();
 
@@ -324,74 +405,99 @@ public class MultiSign13 extends TronBaseTest {
     ownerPermissionKeys.add(ownerKey);
 
     logger.info("** update owner and active permission to two address");
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":{\"type\":1,\"permission_name\":\"\","
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2, PublicMethodForMultiSign.getActivePermissionKeyCount(
-        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getWitnessPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getWitnessPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getWitnessPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
-
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness permission_name is null", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name is null",
+      groups = {"daily", "multisig"})
   public void testWitnessName05() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
-    PublicMethod.sendcoin(ownerAddress, 1_000000, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethod.sendcoin(
+        ownerAddress, 1_000000, foundationAddress, foundationKey, blockingStubFull);
 
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     List<String> ownerPermissionKeys = new ArrayList<>();
 
@@ -399,54 +505,68 @@ public class MultiSign13 extends TronBaseTest {
     PublicMethod.printAddress(tmpKey02);
 
     ownerPermissionKeys.add(ownerKey);
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
-            + "\"witness_permission\":{\"type\":1,\"permission_name\":" + null
+            + "\"witness_permission\":{\"type\":1,\"permission_name\":"
+            + null
             + ",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
     boolean ret = false;
     try {
-      GrpcAPI.Return response = PublicMethod
-          .accountPermissionUpdateForResponse(accountPermissionJson,
-              ownerAddress, ownerKey, blockingStubFull);
+      GrpcAPI.Return response =
+          PublicMethod.accountPermissionUpdateForResponse(
+              accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     } catch (NullPointerException e) {
       logger.info("Expected NullPointerException!");
       ret = true;
     }
     Assert.assertTrue(ret);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore, balanceAfter);
 
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
-
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness doesn't have permission_name", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness doesn't have permission_name",
+      groups = {"daily", "multisig"})
   public void testWitnessName06() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
     long needCoin = updateAccountPermissionFee * 2;
 
-    PublicMethod.sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    PublicMethod.sendcoin(
+        ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     List<String> ownerPermissionKeys = new ArrayList<>();
 
@@ -454,75 +574,100 @@ public class MultiSign13 extends TronBaseTest {
     PublicMethod.printAddress(tmpKey02);
 
     ownerPermissionKeys.add(ownerKey);
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":{\"type\":1,\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2, PublicMethodForMultiSign.getActivePermissionKeyCount(
-        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getWitnessPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getWitnessPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getWitnessPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
 
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
-
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness permission_name is 123", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name is 123",
+      groups = {"daily", "multisig"})
   public void testWitnessName07() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
     long needCoin = updateAccountPermissionFee * 2;
 
-    PublicMethod.sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    PublicMethod.sendcoin(
+        ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     List<String> ownerPermissionKeys = new ArrayList<>();
 
@@ -530,75 +675,101 @@ public class MultiSign13 extends TronBaseTest {
     PublicMethod.printAddress(tmpKey02);
 
     ownerPermissionKeys.add(ownerKey);
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":{\"permission_name\":123,\"type\":1,"
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2, PublicMethodForMultiSign.getActivePermissionKeyCount(
-        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getWitnessPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getWitnessPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getWitnessPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness permission_name is 0.1", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name is 0.1",
+      groups = {"daily", "multisig"})
   public void testWitnessName08() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
     long needCoin = updateAccountPermissionFee * 2;
 
-    PublicMethod.sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 1000000000, 0, 0, ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+    PublicMethod.sendcoin(
+        ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            1000000000,
+            0,
+            0,
+            ByteString.copyFrom(ownerAddress),
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     List<String> ownerPermissionKeys = new ArrayList<>();
 
@@ -606,77 +777,102 @@ public class MultiSign13 extends TronBaseTest {
     PublicMethod.printAddress(tmpKey02);
 
     ownerPermissionKeys.add(ownerKey);
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":{\"permission_name\":\"0.1\",\"type\":1,"
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2, PublicMethodForMultiSign.getActivePermissionKeyCount(
-        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getWitnessPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getWitnessPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getWitnessPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
 
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness permission_name length is 32", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name length is 32",
+      groups = {"daily", "multisig"})
   public void testWitnessName09() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
 
     long needCoin = updateAccountPermissionFee * 2;
 
-    Assert.assertTrue(PublicMethod.sendcoin(ownerAddress, needCoin + 1000000, foundationAddress,
-        foundationKey, blockingStubFull));
-    Assert.assertTrue(PublicMethod
-        .freezeBalanceForReceiver(foundationAddress, 100000000L, 0, 0,
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            ownerAddress, needCoin + 1000000, foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            foundationAddress,
+            100000000L,
+            0,
+            0,
             ByteString.copyFrom(ownerAddress),
-            foundationKey, blockingStubFull));
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     List<String> ownerPermissionKeys = new ArrayList<>();
@@ -685,118 +881,137 @@ public class MultiSign13 extends TronBaseTest {
     PublicMethod.printAddress(tmpKey02);
 
     ownerPermissionKeys.add(ownerKey);
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":"
             + "{\"permission_name\":\"abcdefghijklmnopqrstuvwxyzabcdef\",\"type\":1,"
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdate(
+            accountPermissionJson,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(foundationKey);
 
-    Assert.assertEquals(2, PublicMethodForMultiSign.getActivePermissionKeyCount(
-        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(
+        2,
+        PublicMethodForMultiSign.getActivePermissionKeyCount(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
-    Assert.assertEquals(1, PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission().getKeysCount());
+    Assert.assertEquals(
+        1,
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull)
+            .getOwnerPermission()
+            .getKeysCount());
 
-    PublicMethodForMultiSign.printPermissionList(PublicMethod.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList());
+    PublicMethodForMultiSign.printPermissionList(
+        PublicMethod.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList());
 
-    System.out
-        .printf(PublicMethodForMultiSign.printPermission(PublicMethod.queryAccount(ownerAddress,
-            blockingStubFull).getOwnerPermission()));
+    System.out.printf(
+        PublicMethodForMultiSign.printPermission(
+            PublicMethod.queryAccount(ownerAddress, blockingStubFull).getOwnerPermission()));
 
-    PublicMethodForMultiSign
-        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethodForMultiSign.recoverWitnessPermission(
+        ownerKey, ownerPermissionKeys, blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
 
     Assert.assertEquals(balanceBefore - balanceAfter, needCoin);
 
-    PublicMethod
-        .unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
-
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-
-  @Test(enabled = true, description = "Witness permission_name length is 33", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description = "Witness permission_name length is 33",
+      groups = {"daily", "multisig"})
   public void testWitnessName10() {
     ownerKey = witnessKey;
     ownerAddress = new WalletClient(ownerKey).getAddress();
 
-    Assert.assertTrue(PublicMethod.sendcoin(ownerAddress, 1000000, foundationAddress,
-        foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            ownerAddress, 1000000, foundationAddress, foundationKey, blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethod.printAddress(ownerKey);
     PublicMethod.printAddress(tmpKey02);
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(foundationKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(foundationKey)
             + "\",\"weight\":1}]},"
             + "\"witness_permission\":"
             + "{\"permission_name\":\"abcdefghijklmnopqrstuvwxyzabcdefg\",\"type\":1,"
             + "\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active\",\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(tmpKey02)
+            + "\",\"weight\":1}"
             + "]}]}";
 
-    GrpcAPI.Return response = PublicMethod.accountPermissionUpdateForResponse(
-        accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
+    GrpcAPI.Return response =
+        PublicMethod.accountPermissionUpdateForResponse(
+            accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("Contract validate error : permission's name is too long",
+    Assert.assertEquals(
+        "Contract validate error : permission's name is too long",
         response.getMessage().toStringUtf8());
-  Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull)
-        .getBalance();
+    Long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
 
     Assert.assertEquals(balanceBefore, balanceAfter);
-
   }
 
   @AfterMethod
   public void aftertest() {
     PublicMethod.freeResource(ownerAddress, ownerKey, foundationAddress, blockingStubFull);
-    PublicMethod.unFreezeBalance(foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, foundationKey, 0, ownerAddress, blockingStubFull);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
-
+  public void shutdown() throws InterruptedException {}
 }

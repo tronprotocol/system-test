@@ -13,7 +13,8 @@ import stest.tron.wallet.common.client.utils.TronBaseTest;
 import zmq.ZMQ.Event;
 
 @Slf4j
-public class EventQuery001 extends TronBaseTest {  private final String testKey003 =
+public class EventQuery001 extends TronBaseTest {
+  private final String testKey003 =
       Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   private String eventnode =
@@ -21,28 +22,32 @@ public class EventQuery001 extends TronBaseTest {  private final String testKey0
 
   /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
-  @Test(enabled = true, description = "Event query for block", groups = {"daily", "serial"})
+  public void beforeClass() {}
+
+  @Test(
+      enabled = true,
+      description = "Event query for block",
+      groups = {"daily", "serial"})
   public void test01EventQueryForBlock() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("blockTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
-              }
-            })
+        new Runnable() {
+          public void run() {
+            while (true) {
+              Event event = Event.read(moniter.base());
+              System.out.println(event.event + "  " + event.addr);
+            }
+          }
+        })
         .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String blockMessage = "";
+    String blockMessage = "";
 
     Integer retryTimes = 20;
     while (retryTimes-- > 0) {
@@ -66,27 +71,30 @@ public class EventQuery001 extends TronBaseTest {  private final String testKey0
     Assert.assertTrue(blockObject.getInteger("transactionSize") >= 0);
   }
 
-  @Test(enabled = true, description = "Event query for block on solidity", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Event query for block on solidity",
+      groups = {"daily", "serial"})
   public void test02EventQueryForBlockOnSolidity() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("solidityTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
-              }
-            })
+        new Runnable() {
+          public void run() {
+            while (true) {
+              Event event = Event.read(moniter.base());
+              System.out.println(event.event + "  " + event.addr);
+            }
+          }
+        })
         .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String blockMessage = "";
+    String blockMessage = "";
 
     Integer retryTimes = 20;
 
@@ -111,5 +119,5 @@ public class EventQuery001 extends TronBaseTest {  private final String testKey0
 
   /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }

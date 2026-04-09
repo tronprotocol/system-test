@@ -46,7 +46,6 @@ public class EnergyCost {
   private static final long STOP = 0;
   private static final long CREATE_DATA = 200;
 
-
   public static long getNewAcctCall() {
     return NEW_ACCT_CALL;
   }
@@ -54,8 +53,4 @@ public class EnergyCost {
   public static long getCreateData() {
     return CREATE_DATA;
   }
-
-
-
-
 }

@@ -1,7 +1,6 @@
 package stest.tron.wallet.dailybuild.eventquery;
 
 import com.alibaba.fastjson.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +13,13 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 import zmq.ZMQ.Event;
 
 @Slf4j
-public class EventQuery002 extends TronBaseTest {  private final String testKey003 =
+public class EventQuery002 extends TronBaseTest {
+  private final String testKey003 =
       Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   private String eventnode =
@@ -33,7 +33,8 @@ public class EventQuery002 extends TronBaseTest {  private final String testKey0
 
   /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    ecKey1 = new ECKey(Utils.getRandom());
+  public void beforeClass() {
+    ecKey1 = new ECKey(Utils.getRandom());
     event001Address = ecKey1.getAddress();
     event001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     PublicMethod.printAddress(event001Key);
@@ -42,10 +43,10 @@ public class EventQuery002 extends TronBaseTest {  private final String testKey0
         PublicMethod.sendcoin(
             event001Address, maxFeeLimit * 30, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String contractName = "addressDemo";
-  String code =
+    String contractName = "addressDemo";
+    String code =
         Configuration.getByPath("testng.conf").getString("code.code_ContractEventAndLog1");
-  String abi = Configuration.getByPath("testng.conf").getString("abi.abi_ContractEventAndLog1");
+    String abi = Configuration.getByPath("testng.conf").getString("abi.abi_ContractEventAndLog1");
     contractAddress =
         PublicMethod.deployContract(
             contractName,
@@ -62,27 +63,30 @@ public class EventQuery002 extends TronBaseTest {  private final String testKey0
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Event query for transaction", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Event query for transaction",
+      groups = {"daily", "serial"})
   public void test01EventQueryForTransaction() {
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("transactionTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
-            new Runnable() {
-              public void run() {
-                while (true) {
-                  Event event = Event.read(moniter.base());
-                  System.out.println(event.event + "  " + event.addr);
-                }
-              }
-            })
+        new Runnable() {
+          public void run() {
+            while (true) {
+              Event event = Event.read(moniter.base());
+              System.out.println(event.event + "  " + event.addr);
+            }
+          }
+        })
         .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
     transactionIdList = new ArrayList<>();
@@ -108,7 +112,6 @@ public class EventQuery002 extends TronBaseTest {  private final String testKey0
       }
       byte[] message = req.recv();
 
-
       if (message != null) {
         transactionMessage = new String(message);
         logger.info("transaction message:" + transactionMessage);
@@ -116,7 +119,7 @@ public class EventQuery002 extends TronBaseTest {  private final String testKey0
         if (!transactionMessage.equals("transactionTrigger")
             && !transactionMessage.isEmpty()
             && transactionMessage.contains("transactionId")) {
-         break;
+          break;
         }
       } else {
         sendTransaction = true;
@@ -132,5 +135,5 @@ public class EventQuery002 extends TronBaseTest {  private final String testKey0
 
   /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }

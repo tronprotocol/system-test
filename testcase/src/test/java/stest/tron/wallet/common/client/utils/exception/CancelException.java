@@ -9,5 +9,4 @@ public class CancelException extends TronException {
   public CancelException(String message) {
     super(message);
   }
-
 }

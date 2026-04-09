@@ -20,8 +20,8 @@ import stest.tron.wallet.common.client.utils.Utils;
 /**
  * DPoS witness election tests.
  *
- * <p>Verifies the SR witness list, voting mechanics, and vote-count
- * reflection in the witness schedule.
+ * <p>Verifies the SR witness list, voting mechanics, and vote-count reflection in the witness
+ * schedule.
  */
 @Slf4j
 public class WitnessElectionTest extends TronBaseTest {
@@ -37,22 +37,31 @@ public class WitnessElectionTest extends TronBaseTest {
     voterKeyStr1 = ByteArray.toHexString(voterKey1.getPrivKeyBytes());
     PublicMethod.printAddress(voterKeyStr1);
 
-    Assert.assertTrue(PublicMethod.sendcoin(voterAddress1, TronConstants.TEN_THOUSAND_TRX,
-        foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            voterAddress1,
+            TronConstants.TEN_THOUSAND_TRX,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Witness list should not be empty",
+  @Test(
+      enabled = true,
+      description = "Witness list should not be empty",
       groups = {"daily"})
   public void test01WitnessListNotEmpty() {
     Optional<WitnessList> witnessList = PublicMethod.listWitnesses(blockingStubFull);
     Assert.assertTrue(witnessList.isPresent(), "Witness list should be present");
-    Assert.assertTrue(witnessList.get().getWitnessesCount() > 0,
-        "Should have at least one witness");
+    Assert.assertTrue(
+        witnessList.get().getWitnessesCount() > 0, "Should have at least one witness");
     logger.info("Total witnesses: {}", witnessList.get().getWitnessesCount());
   }
 
-  @Test(enabled = true, description = "All witnesses should have valid addresses",
+  @Test(
+      enabled = true,
+      description = "All witnesses should have valid addresses",
       groups = {"daily"})
   public void test02WitnessAddressesValid() {
     Optional<WitnessList> witnessList = PublicMethod.listWitnesses(blockingStubFull);
@@ -61,12 +70,13 @@ public class WitnessElectionTest extends TronBaseTest {
       byte[] addr = witness.getAddress().toByteArray();
       Assert.assertEquals(addr.length, 21, "Witness address should be 21 bytes");
       Assert.assertEquals(addr[0], (byte) 0x41, "Witness address should start with 0x41");
-      logger.info("Witness: {} voteCount={}", ByteArray.toHexString(addr),
-          witness.getVoteCount());
+      logger.info("Witness: {} voteCount={}", ByteArray.toHexString(addr), witness.getVoteCount());
     }
   }
 
-  @Test(enabled = true, description = "Vote for witness and verify vote count increases",
+  @Test(
+      enabled = true,
+      description = "Vote for witness and verify vote count increases",
       groups = {"daily"})
   public void test03VoteIncreasesWitnessVoteCount() {
     // Get initial vote count for our test witness
@@ -83,16 +93,20 @@ public class WitnessElectionTest extends TronBaseTest {
     logger.info("Initial vote count for witness: {}", initialVoteCount);
 
     // Freeze (Stake 2.0) and vote
-    Assert.assertTrue(PublicMethod.freezeBalanceV2(
-        voterAddress1, TronConstants.THOUSAND_TRX,
-        TronConstants.FREEZE_BANDWIDTH, voterKeyStr1, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceV2(
+            voterAddress1,
+            TronConstants.THOUSAND_TRX,
+            TronConstants.FREEZE_BANDWIDTH,
+            voterKeyStr1,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     long voteAmount = TronConstants.THOUSAND_TRX / TronConstants.ONE_TRX;
     HashMap<byte[], Long> voteMap = new HashMap<>();
     voteMap.put(witnessAddress, voteAmount);
-    Assert.assertTrue(PublicMethod.voteWitness(voterAddress1, voterKeyStr1,
-        voteMap, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.voteWitness(voterAddress1, voterKeyStr1, voteMap, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     // Verify voter account recorded the vote
@@ -101,7 +115,9 @@ public class WitnessElectionTest extends TronBaseTest {
     Assert.assertEquals(voterAccount.getVotes(0).getVoteCount(), voteAmount);
   }
 
-  @Test(enabled = true, description = "Witnesses all have non-negative vote counts",
+  @Test(
+      enabled = true,
+      description = "Witnesses all have non-negative vote counts",
       groups = {"daily"})
   public void test04WitnessVoteCountsValid() {
     Optional<WitnessList> witnessList = PublicMethod.listWitnesses(blockingStubFull);
@@ -109,10 +125,11 @@ public class WitnessElectionTest extends TronBaseTest {
     // Note: ListWitnesses API does not guarantee descending sort order.
     // Verify all vote counts are non-negative and log them for inspection.
     for (Witness w : witnessList.get().getWitnessesList()) {
-      Assert.assertTrue(w.getVoteCount() >= 0,
-          "Witness vote count should be non-negative");
-      logger.info("Witness {} voteCount={}",
-          ByteArray.toHexString(w.getAddress().toByteArray()), w.getVoteCount());
+      Assert.assertTrue(w.getVoteCount() >= 0, "Witness vote count should be non-negative");
+      logger.info(
+          "Witness {} voteCount={}",
+          ByteArray.toHexString(w.getAddress().toByteArray()),
+          w.getVoteCount());
     }
   }
 

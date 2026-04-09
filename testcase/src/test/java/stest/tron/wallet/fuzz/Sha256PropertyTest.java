@@ -1,8 +1,13 @@
 package stest.tron.wallet.fuzz;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.Arrays;
-import net.jqwik.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+import net.jqwik.api.Assume;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
 
 class Sha256PropertyTest {

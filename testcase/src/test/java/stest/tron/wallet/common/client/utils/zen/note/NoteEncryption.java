@@ -27,11 +27,9 @@ import stest.tron.wallet.common.client.utils.zen.note.NoteEncryption.Encryption.
 public class NoteEncryption {
 
   // Ephemeral public key
-  @Getter
-  private byte[] epk;
+  @Getter private byte[] epk;
   // Ephemeral secret key
-  @Getter
-  private byte[] esk;
+  @Getter private byte[] esk;
 
   private boolean alreadyEncryptedEnc;
   private boolean alreadyEncryptedOut;
@@ -41,15 +39,13 @@ public class NoteEncryption {
     this.esk = esk;
   }
 
-  /**
-   * generate pair of (esk,epk). epk = esk * d
-   */
+  /** generate pair of (esk,epk). epk = esk * d */
   public static Optional<NoteEncryption> fromDiversifier(DiversifierT d) throws ZksnarkException {
     byte[] epk = new byte[32];
     byte[] esk = new byte[32];
     JLibrustzcash.librustzcashSaplingGenerateR(esk);
-    if (!JLibrustzcash
-        .librustzcashSaplingKaDerivepublic(new KaDerivepublicParams(d.getData(), esk, epk))) {
+    if (!JLibrustzcash.librustzcashSaplingKaDerivepublic(
+        new KaDerivepublicParams(d.getData(), esk, epk))) {
       return Optional.empty();
     }
     return Optional.of(new NoteEncryption(epk, esk));
@@ -71,22 +67,28 @@ public class NoteEncryption {
     }
 
     byte[] kEnc = new byte[Encryption.NOTEENCRYPTION_CIPHER_KEYSIZE];
-    //generate kEnc by sharedsecret and epk
+    // generate kEnc by sharedsecret and epk
     Encryption.kdfSapling(kEnc, dhsecret, epk);
     byte[] cipherNonce = new byte[CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES];
     EncCiphertext ciphertext = new EncCiphertext();
-    JLibsodium.cryptoAeadChacha20Poly1305IetfEncrypt(new Chacha20Poly1305IetfEncryptParams(
-        ciphertext.data, null, message.data,
-        ZenChainParams.ZC_ENCPLAINTEXT_SIZE, null, 0, null, cipherNonce, kEnc));
+    JLibsodium.cryptoAeadChacha20Poly1305IetfEncrypt(
+        new Chacha20Poly1305IetfEncryptParams(
+            ciphertext.data,
+            null,
+            message.data,
+            ZenChainParams.ZC_ENCPLAINTEXT_SIZE,
+            null,
+            0,
+            null,
+            cipherNonce,
+            kEnc));
     alreadyEncryptedEnc = true;
     return Optional.of(ciphertext);
   }
 
-  /**
-   * encrypt plain_out with ock to c_out, use this epk
-   */
-  public OutCiphertext encryptToOurselves(
-      byte[] ovk, byte[] cv, byte[] cm, OutPlaintext message) throws ZksnarkException {
+  /** encrypt plain_out with ock to c_out, use this epk */
+  public OutCiphertext encryptToOurselves(byte[] ovk, byte[] cv, byte[] cm, OutPlaintext message)
+      throws ZksnarkException {
     if (alreadyEncryptedOut) {
       throw new ZksnarkException("already encrypted to the recipient using this key");
     }
@@ -96,9 +98,17 @@ public class NoteEncryption {
 
     byte[] cipherNonce = new byte[CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES];
     OutCiphertext ciphertext = new OutCiphertext();
-    JLibsodium.cryptoAeadChacha20Poly1305IetfEncrypt(new Chacha20Poly1305IetfEncryptParams(
-        ciphertext.data, null, message.data,
-        ZenChainParams.ZC_OUTPLAINTEXT_SIZE, null, 0, null, cipherNonce, ock));
+    JLibsodium.cryptoAeadChacha20Poly1305IetfEncrypt(
+        new Chacha20Poly1305IetfEncryptParams(
+            ciphertext.data,
+            null,
+            message.data,
+            ZenChainParams.ZC_OUTPLAINTEXT_SIZE,
+            null,
+            0,
+            null,
+            cipherNonce,
+            ock));
     alreadyEncryptedOut = true;
     return ciphertext;
   }
@@ -107,9 +117,7 @@ public class NoteEncryption {
 
     public static final int NOTEENCRYPTION_CIPHER_KEYSIZE = 32;
 
-    /**
-     * generate ock by ovk, cv, cm, epk
-     */
+    /** generate ock by ovk, cv, cm, epk */
     public static void prfOck(byte[] ock, byte[] ovk, byte[] cv, byte[] cm, byte[] epk)
         throws ZksnarkException {
       byte[] block = new byte[128];
@@ -121,20 +129,22 @@ public class NoteEncryption {
       byte[] personalization = new byte[JLibsodium.CRYPTO_GENERICHASH_BLAKE2B_PERSONALBYTES];
       byte[] temp = "Ztron_Derive_ock".getBytes();
       System.arraycopy(temp, 0, personalization, 0, temp.length);
-      if (JLibsodium.cryptoGenerichashBlack2bSaltPersonal(new Black2bSaltPersonalParams(
-          ock, NOTEENCRYPTION_CIPHER_KEYSIZE,
-          block, 128,
-          null, 0, // No key.
-          null,    // No salt.
-          personalization)
-      ) != 0) {
+      if (JLibsodium.cryptoGenerichashBlack2bSaltPersonal(
+              new Black2bSaltPersonalParams(
+                  ock,
+                  NOTEENCRYPTION_CIPHER_KEYSIZE,
+                  block,
+                  128,
+                  null,
+                  0, // No key.
+                  null, // No salt.
+                  personalization))
+          != 0) {
         throw new ZksnarkException("hash function failure");
       }
     }
 
-    /**
-     * generate kEnc by sharedsecret and epk
-     */
+    /** generate kEnc by sharedsecret and epk */
     public static void kdfSapling(byte[] kEnc, byte[] sharedsecret, byte[] epk)
         throws ZksnarkException {
       byte[] block = new byte[64];
@@ -143,13 +153,17 @@ public class NoteEncryption {
       byte[] personalization = new byte[JLibsodium.CRYPTO_GENERICHASH_BLAKE2B_PERSONALBYTES];
       byte[] temp = "Ztron_SaplingKDF".getBytes();
       System.arraycopy(temp, 0, personalization, 0, temp.length);
-      if (JLibsodium.cryptoGenerichashBlack2bSaltPersonal(new Black2bSaltPersonalParams(
-          kEnc, NOTEENCRYPTION_CIPHER_KEYSIZE,
-          block, 64,
-          null, 0, // No key.
-          null,    // No salt.
-          personalization)
-      ) != 0) {
+      if (JLibsodium.cryptoGenerichashBlack2bSaltPersonal(
+              new Black2bSaltPersonalParams(
+                  kEnc,
+                  NOTEENCRYPTION_CIPHER_KEYSIZE,
+                  block,
+                  64,
+                  null,
+                  0, // No key.
+                  null, // No salt.
+                  personalization))
+          != 0) {
         throw new ZksnarkException(("hash function failure"));
       }
     }
@@ -161,24 +175,29 @@ public class NoteEncryption {
     public static Optional<EncPlaintext> attemptEncDecryption(
         byte[] ciphertext, byte[] ivk, byte[] epk) throws ZksnarkException {
       byte[] sharedsecret = new byte[32];
-      //generate sharedsecret by epk and ivk
+      // generate sharedsecret by epk and ivk
       if (!JLibrustzcash.librustzcashKaAgree(new KaAgreeParams(epk, ivk, sharedsecret))) {
         return Optional.empty();
       }
       byte[] kEnc = new byte[NOTEENCRYPTION_CIPHER_KEYSIZE];
-      //generate kEnc by sharedsecret and epk
+      // generate kEnc by sharedsecret and epk
       kdfSapling(kEnc, sharedsecret, epk);
       byte[] cipher_nonce = new byte[CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES];
       EncPlaintext plaintext = new EncPlaintext();
       plaintext.data = new byte[ZenChainParams.ZC_ENCPLAINTEXT_SIZE];
-      //decrypt cEnc by kEnc
-      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(new Chacha20poly1305IetfDecryptParams(
-          plaintext.data, null,
-          null,
-          ciphertext, ZenChainParams.ZC_ENCCIPHERTEXT_SIZE,
-          null,
-          0,
-          cipher_nonce, kEnc)) != 0) {
+      // decrypt cEnc by kEnc
+      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(
+              new Chacha20poly1305IetfDecryptParams(
+                  plaintext.data,
+                  null,
+                  null,
+                  ciphertext,
+                  ZenChainParams.ZC_ENCCIPHERTEXT_SIZE,
+                  null,
+                  0,
+                  cipher_nonce,
+                  kEnc))
+          != 0) {
         return Optional.empty();
       }
       return Optional.of(plaintext);
@@ -191,92 +210,92 @@ public class NoteEncryption {
     public static Optional<EncPlaintext> attemptEncDecryption(
         EncCiphertext ciphertext, byte[] epk, byte[] esk, byte[] pkD) throws ZksnarkException {
       byte[] sharedsecret = new byte[32];
-      //generate sharedsecret by esk and pkD. esk + pkD = sharedsecret = epk + ivk
+      // generate sharedsecret by esk and pkD. esk + pkD = sharedsecret = epk + ivk
       if (!JLibrustzcash.librustzcashKaAgree(new KaAgreeParams(pkD, esk, sharedsecret))) {
         return Optional.empty();
       }
       byte[] kEnc = new byte[NOTEENCRYPTION_CIPHER_KEYSIZE];
-      //generate kEnc by sharedsecret and epk
+      // generate kEnc by sharedsecret and epk
       kdfSapling(kEnc, sharedsecret, epk);
       byte[] cipherNonce = new byte[CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES];
       EncPlaintext plaintext = new EncPlaintext();
       plaintext.data = new byte[ZenChainParams.ZC_ENCPLAINTEXT_SIZE];
-      //decrypt cEnc by kEnc.
-      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(new Chacha20poly1305IetfDecryptParams(
-          plaintext.data, null,
-          null,
-          ciphertext.data, ZenChainParams.ZC_ENCCIPHERTEXT_SIZE,
-          null,
-          0,
-          cipherNonce, kEnc)) != 0) {
+      // decrypt cEnc by kEnc.
+      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(
+              new Chacha20poly1305IetfDecryptParams(
+                  plaintext.data,
+                  null,
+                  null,
+                  ciphertext.data,
+                  ZenChainParams.ZC_ENCCIPHERTEXT_SIZE,
+                  null,
+                  0,
+                  cipherNonce,
+                  kEnc))
+          != 0) {
         return Optional.empty();
       }
 
       return Optional.of(plaintext);
     }
 
-    /**
-     * decrypt c_out to plain_out with ock generate ovk
-     */
+    /** decrypt c_out to plain_out with ock generate ovk */
     public static Optional<OutPlaintext> attemptOutDecryption(
         OutCiphertext ciphertext, byte[] ovk, byte[] cv, byte[] cm, byte[] epk)
         throws ZksnarkException {
       byte[] ock = new byte[NOTEENCRYPTION_CIPHER_KEYSIZE];
-      //generate ock by ovk, cv, cm, epk
+      // generate ock by ovk, cv, cm, epk
       prfOck(ock, ovk, cv, cm, epk);
       byte[] cipherNonce = new byte[CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES];
       OutPlaintext plaintext = new OutPlaintext();
       plaintext.data = new byte[ZenChainParams.ZC_OUTPLAINTEXT_SIZE];
-      //decrypt out by ock, get esk, pkD
-      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(new Chacha20poly1305IetfDecryptParams(
-          plaintext.data, null,
-          null,
-          ciphertext.data, ZenChainParams.ZC_OUTCIPHERTEXT_SIZE,
-          null,
-          0,
-          cipherNonce, ock)) != 0) {
+      // decrypt out by ock, get esk, pkD
+      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(
+              new Chacha20poly1305IetfDecryptParams(
+                  plaintext.data,
+                  null,
+                  null,
+                  ciphertext.data,
+                  ZenChainParams.ZC_OUTCIPHERTEXT_SIZE,
+                  null,
+                  0,
+                  cipherNonce,
+                  ock))
+          != 0) {
         return Optional.empty();
       }
       return Optional.of(plaintext);
     }
 
-    /**
-     * encrypt the message by ovk used for scanning
-     */
-    public static Optional<byte[]> encryptBurnMessageByOvk(byte[] ovk, BigInteger toAmount,
-        byte[] transparentToAddress)
-        throws ZksnarkException {
+    /** encrypt the message by ovk used for scanning */
+    public static Optional<byte[]> encryptBurnMessageByOvk(
+        byte[] ovk, BigInteger toAmount, byte[] transparentToAddress) throws ZksnarkException {
       byte[] plaintext = new byte[64];
       byte[] amountArray = ByteUtil.bigIntegerToBytes(toAmount, 32);
       byte[] cipherNonce = new byte[12];
       byte[] cipher = new byte[80];
       System.arraycopy(amountArray, 0, plaintext, 0, 32);
-      System.arraycopy(transparentToAddress, 0, plaintext, 32,
-          21);
+      System.arraycopy(transparentToAddress, 0, plaintext, 32, 21);
 
-      if (JLibsodium.cryptoAeadChacha20Poly1305IetfEncrypt(new Chacha20Poly1305IetfEncryptParams(
-          cipher, null, plaintext,
-          64, null, 0, null, cipherNonce, ovk)) != 0) {
+      if (JLibsodium.cryptoAeadChacha20Poly1305IetfEncrypt(
+              new Chacha20Poly1305IetfEncryptParams(
+                  cipher, null, plaintext, 64, null, 0, null, cipherNonce, ovk))
+          != 0) {
         return Optional.empty();
       }
 
       return Optional.of(cipher);
     }
 
-    /**
-     * decrypt the message by ovk used for scanning
-     */
+    /** decrypt the message by ovk used for scanning */
     public static Optional<byte[]> decryptBurnMessageByOvk(byte[] ovk, byte[] ciphertext)
         throws ZksnarkException {
       byte[] outPlaintext = new byte[64];
       byte[] cipherNonce = new byte[12];
-      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(new Chacha20poly1305IetfDecryptParams(
-          outPlaintext, null,
-          null,
-          ciphertext, 80,
-          null,
-          0,
-          cipherNonce, ovk)) != 0) {
+      if (JLibsodium.cryptoAeadChacha20poly1305IetfDecrypt(
+              new Chacha20poly1305IetfDecryptParams(
+                  outPlaintext, null, null, ciphertext, 80, null, 0, cipherNonce, ovk))
+          != 0) {
         return Optional.empty();
       }
       return Optional.of(outPlaintext);
@@ -284,29 +303,25 @@ public class NoteEncryption {
 
     public static class EncCiphertext {
 
-      @Getter
-      @Setter
+      @Getter @Setter
       private byte[] data = new byte[ZenChainParams.ZC_ENCCIPHERTEXT_SIZE]; // ZC_ENCCIPHERTEXT_SIZE
     }
 
     public static class EncPlaintext {
 
-      @Getter
-      @Setter
+      @Getter @Setter
       private byte[] data = new byte[ZenChainParams.ZC_ENCPLAINTEXT_SIZE]; // ZC_ENCPLAINTEXT_SIZE
     }
 
     public static class OutCiphertext {
 
-      @Getter
-      @Setter
+      @Getter @Setter
       private byte[] data = new byte[ZenChainParams.ZC_OUTCIPHERTEXT_SIZE]; // ZC_OUTCIPHERTEXT_SIZE
     }
 
     public static class OutPlaintext {
 
-      @Getter
-      @Setter
+      @Getter @Setter
       private byte[] data = new byte[ZenChainParams.ZC_OUTPLAINTEXT_SIZE]; // ZC_OUTPLAINTEXT_SIZE
     }
   }

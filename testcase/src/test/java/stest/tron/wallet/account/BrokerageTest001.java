@@ -5,7 +5,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.BytesMessage;
@@ -16,7 +15,6 @@ import org.tron.protos.Protocol;
 import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-
 import stest.tron.wallet.common.client.utils.TronBaseTest;
 
 @Slf4j
@@ -24,23 +22,19 @@ public class BrokerageTest001 extends TronBaseTest {
 
   private ManagedChannel channelSoliInFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSoliInFull = null;
-  private String soliInFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(1);
+  private String soliInFullnode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
 
   private String dev001Key = foundationKey;
   private byte[] dev001Address = foundationAddress;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
     initPbftChannel();
 
-    channelSoliInFull = ManagedChannelBuilder.forTarget(soliInFullnode)
-        .usePlaintext()
-        .build();
+    channelSoliInFull = ManagedChannelBuilder.forTarget(soliInFullnode).usePlaintext().build();
     blockingStubSoliInFull = WalletSolidityGrpc.newBlockingStub(channelSoliInFull);
 
     PublicMethod.printAddress(dev001Key);
@@ -63,9 +57,8 @@ public class BrokerageTest001 extends TronBaseTest {
 
   @Test
   public void getBrokerageTest001() {
-    BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(ByteString
-        .copyFrom(witnessAddress))
-        .build();
+    BytesMessage bytesMessage =
+        BytesMessage.newBuilder().setValue(ByteString.copyFrom(witnessAddress)).build();
 
     Assert.assertEquals(20, blockingStubFull.getBrokerageInfo(bytesMessage).getNum());
 
@@ -77,9 +70,8 @@ public class BrokerageTest001 extends TronBaseTest {
 
   @Test
   public void getRewardTest002() {
-    BytesMessage bytesMessage = BytesMessage.newBuilder().setValue(ByteString
-        .copyFrom(witnessAddress))
-        .build();
+    BytesMessage bytesMessage =
+        BytesMessage.newBuilder().setValue(ByteString.copyFrom(witnessAddress)).build();
     Assert.assertTrue(blockingStubFull.getRewardInfo(bytesMessage) != null);
 
     // getRewardInfo from solidity node
@@ -87,19 +79,20 @@ public class BrokerageTest001 extends TronBaseTest {
     Assert.assertTrue(blockingStubPbft.getRewardInfo(bytesMessage) != null);
     Assert.assertTrue(blockingStubSoliInFull.getRewardInfo(bytesMessage) != null);
   }
-  boolean updateBrokerage(byte[] owner, int brokerage,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+
+  boolean updateBrokerage(
+      byte[] owner, int brokerage, WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     UpdateBrokerageContract.Builder updateBrokerageContract = UpdateBrokerageContract.newBuilder();
     updateBrokerageContract.setOwnerAddress(ByteString.copyFrom(owner)).setBrokerage(brokerage);
-    TransactionExtention transactionExtention = blockingStubFull
-        .updateBrokerage(updateBrokerageContract.build());
+    TransactionExtention transactionExtention =
+        blockingStubFull.updateBrokerage(updateBrokerageContract.build());
     Protocol.Transaction transaction = transactionExtention.getTransaction();
     if (transactionExtention == null || !transactionExtention.getResult().getResult()) {
       if (transactionExtention != null) {
         System.out.println("Code = " + transactionExtention.getResult().getCode());
-        System.out
-            .println("Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
+        System.out.println(
+            "Message = " + transactionExtention.getResult().getMessage().toStringUtf8());
       }
       return false;
     }
@@ -110,7 +103,5 @@ public class BrokerageTest001 extends TronBaseTest {
     return true;
   }
 
-  public void getBrokerage() {
-
-  }
+  public void getBrokerage() {}
 }

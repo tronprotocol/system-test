@@ -51,42 +51,52 @@ public class HttpTestZenToken004 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] receiverPublicAddress = ecKey1.getAddress();
   String receiverPublicKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String foundationZenTokenKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenOwnerKey");
+  private String httpnode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
+  private String httpSolidityNode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
+  private String foundationZenTokenKey =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenOwnerKey");
   byte[] foundationZenTokenAddress = PublicMethod.getFinalAddress(foundationZenTokenKey);
-  private Long zenTokenFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.zenTokenFee");
-  private Long zenTokenWhenCreateNewAddress = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.zenTokenWhenCreateNewAddress");
+  private Long zenTokenFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.zenTokenFee");
+  private Long zenTokenWhenCreateNewAddress =
+      Configuration.getByPath("testng.conf")
+          .getLong("defaultParameter.zenTokenWhenCreateNewAddress");
   private Long sendTokenAmount = 18 * zenTokenFee;
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethod.printAddress(foundationZenTokenKey);
-    //Args.setFullNodeAllowShieldedTransaction(true);
+    // Args.setFullNodeAllowShieldedTransaction(true);
   }
 
-  @Test(enabled = false, description = "Shield to two shield transaction by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Shield to two shield transaction by http",
+      groups = {"daily", "serial"})
   public void test01ShieldToTwoShieldTransaction() {
     sendShieldAddressInfo = HttpMethod.generateShieldAddress(httpnode);
     sendShieldAddress = sendShieldAddressInfo.get().getAddress();
     logger.info("sendShieldAddress:" + sendShieldAddress);
     String memo = "Shield memo in " + System.currentTimeMillis();
-    shieldOutList = HttpMethod
-        .addShieldOutputList(httpnode, shieldOutList, sendShieldAddress, "" + sendTokenAmount,
-            memo);
-    response = HttpMethod
-        .sendShieldCoin(httpnode, foundationZenTokenAddress, sendTokenAmount + zenTokenFee, null,
-            null, shieldOutList, null, 0, foundationZenTokenKey);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode, shieldOutList, sendShieldAddress, "" + sendTokenAmount, memo);
+    response =
+        HttpMethod.sendShieldCoin(
+            httpnode,
+            foundationZenTokenAddress,
+            sendTokenAmount + zenTokenFee,
+            null,
+            null,
+            shieldOutList,
+            null,
+            0,
+            foundationZenTokenKey);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     HttpMethod.waitToProduceOneBlock(httpnode);
@@ -103,14 +113,24 @@ public class HttpTestZenToken004 {
     Long sendToShiledAddress1Amount = 1 * zenTokenFee;
     Long sendToShiledAddress2Amount = sendTokenAmount - sendToShiledAddress1Amount - zenTokenFee;
     shieldOutList.clear();
-    shieldOutList = HttpMethod.addShieldOutputList(httpnode, shieldOutList, receiverShieldAddress1,
-        "" + sendToShiledAddress1Amount, memo1);
-    shieldOutList = HttpMethod.addShieldOutputList(httpnode, shieldOutList, receiverShieldAddress2,
-        "" + sendToShiledAddress2Amount, memo2);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            receiverShieldAddress1,
+            "" + sendToShiledAddress1Amount,
+            memo1);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            receiverShieldAddress2,
+            "" + sendToShiledAddress2Amount,
+            memo2);
 
-    response = HttpMethod
-        .sendShieldCoin(httpnode, null, 0, sendShieldAddressInfo.get(), sendNote, shieldOutList,
-            null, 0, null);
+    response =
+        HttpMethod.sendShieldCoin(
+            httpnode, null, 0, sendShieldAddressInfo.get(), sendNote, shieldOutList, null, 0, null);
     org.junit.Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
@@ -127,19 +147,30 @@ public class HttpTestZenToken004 {
     Assert.assertTrue(HttpMethod.getSpendResult(httpnode, sendShieldAddressInfo.get(), sendNote));
   }
 
-  @Test(enabled = false, description = "Shield to one public and one shield transaction by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Shield to one public and one shield transaction by http",
+      groups = {"daily", "serial"})
   public void test02ShieldToOnePublicAndOneShieldTransaction() {
     sendShieldAddressInfo = HttpMethod.generateShieldAddress(httpnode);
     sendShieldAddress = sendShieldAddressInfo.get().getAddress();
     logger.info("sendShieldAddress:" + sendShieldAddress);
     String memo = "Shield memo in " + System.currentTimeMillis();
     shieldOutList.clear();
-    shieldOutList = HttpMethod
-        .addShieldOutputList(httpnode, shieldOutList, sendShieldAddress, "" + sendTokenAmount,
-            memo);
-    response = HttpMethod
-        .sendShieldCoin(httpnode, foundationZenTokenAddress, sendTokenAmount + zenTokenFee, null,
-            null, shieldOutList, null, 0, foundationZenTokenKey);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode, shieldOutList, sendShieldAddress, "" + sendTokenAmount, memo);
+    response =
+        HttpMethod.sendShieldCoin(
+            httpnode,
+            foundationZenTokenAddress,
+            sendTokenAmount + zenTokenFee,
+            null,
+            null,
+            shieldOutList,
+            null,
+            0,
+            foundationZenTokenKey);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     HttpMethod.waitToProduceOneBlock(httpnode);
@@ -153,8 +184,8 @@ public class HttpTestZenToken004 {
     HttpMethod.printJsonContent(responseContent);
     assetIssueId = responseContent.getString("asset_issued_ID");
 
-    final Long beforeAssetBalance = HttpMethod
-        .getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
+    final Long beforeAssetBalance =
+        HttpMethod.getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
     response = HttpMethod.getAccountReource(httpnode, receiverPublicAddress);
     responseContent = HttpMethod.parseResponseContent(response);
     final Long beforeNetUsed = responseContent.getLong("freeNetUsed");
@@ -164,19 +195,28 @@ public class HttpTestZenToken004 {
     Long sendToShiledAddressAmount =
         sendTokenAmount - sendToPublicAddressAmount - zenTokenWhenCreateNewAddress;
     memo3 = "Send shield to receiver shield memo in" + System.currentTimeMillis();
-    shieldOutList = HttpMethod.addShieldOutputList(httpnode, shieldOutList, receiverShieldAddress3,
-        "" + sendToShiledAddressAmount, memo3);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode, shieldOutList, receiverShieldAddress3, "" + sendToShiledAddressAmount, memo3);
 
     PublicMethod.printAddress(receiverPublicKey);
-    response = HttpMethod
-        .sendShieldCoin(httpnode, null, 0, sendShieldAddressInfo.get(), sendNote, shieldOutList,
-            receiverPublicAddress, sendToPublicAddressAmount, null);
+    response =
+        HttpMethod.sendShieldCoin(
+            httpnode,
+            null,
+            0,
+            sendShieldAddressInfo.get(),
+            sendNote,
+            shieldOutList,
+            receiverPublicAddress,
+            sendToPublicAddressAmount,
+            null);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     HttpMethod.waitToProduceOneBlock(httpnode);
 
-    final Long afterAssetBalance = HttpMethod
-        .getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
+    final Long afterAssetBalance =
+        HttpMethod.getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
     response = HttpMethod.getAccountReource(httpnode, receiverPublicAddress);
     responseContent = HttpMethod.parseResponseContent(response);
     final Long afterNetUsed = responseContent.getLong("freeNetUsed");
@@ -191,33 +231,45 @@ public class HttpTestZenToken004 {
     Assert.assertTrue(HttpMethod.getSpendResult(httpnode, sendShieldAddressInfo.get(), sendNote));
 
     HttpMethod.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    Assert.assertTrue(HttpMethod
-        .getSpendResultFromSolidity(httpnode, httpSolidityNode, sendShieldAddressInfo.get(),
-            sendNote));
-    Assert.assertFalse(HttpMethod
-        .getSpendResultFromSolidity(httpnode, httpSolidityNode, receiverShieldAddressInfo3.get(),
-            receiverNote3));
+    Assert.assertTrue(
+        HttpMethod.getSpendResultFromSolidity(
+            httpnode, httpSolidityNode, sendShieldAddressInfo.get(), sendNote));
+    Assert.assertFalse(
+        HttpMethod.getSpendResultFromSolidity(
+            httpnode, httpSolidityNode, receiverShieldAddressInfo3.get(), receiverNote3));
 
     Assert.assertTrue(
         HttpMethod.scanAndMarkNoteByIvk(httpnode, sendShieldAddressInfo.get()).get(0).getIsSpend());
     Assert.assertFalse(
-        HttpMethod.scanAndMarkNoteByIvk(httpnode, receiverShieldAddressInfo3.get()).get(0)
+        HttpMethod.scanAndMarkNoteByIvk(httpnode, receiverShieldAddressInfo3.get())
+            .get(0)
             .getIsSpend());
   }
 
-  @Test(enabled = false, description = "Shield to one public and two shield transaction by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Shield to one public and two shield transaction by http",
+      groups = {"daily", "serial"})
   public void test03ShieldToOnePublicAndTwoShieldTransaction() {
     sendShieldAddressInfo = HttpMethod.generateShieldAddress(httpnode);
     sendShieldAddress = sendShieldAddressInfo.get().getAddress();
     logger.info("sendShieldAddress:" + sendShieldAddress);
     String memo = "Shield memo in " + System.currentTimeMillis();
     shieldOutList.clear();
-    shieldOutList = HttpMethod
-        .addShieldOutputList(httpnode, shieldOutList, sendShieldAddress, "" + sendTokenAmount,
-            memo);
-    response = HttpMethod
-        .sendShieldCoin(httpnode, foundationZenTokenAddress, sendTokenAmount + zenTokenFee, null,
-            null, shieldOutList, null, 0, foundationZenTokenKey);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode, shieldOutList, sendShieldAddress, "" + sendTokenAmount, memo);
+    response =
+        HttpMethod.sendShieldCoin(
+            httpnode,
+            foundationZenTokenAddress,
+            sendTokenAmount + zenTokenFee,
+            null,
+            null,
+            shieldOutList,
+            null,
+            0,
+            foundationZenTokenKey);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     HttpMethod.waitToProduceOneBlock(httpnode);
@@ -228,8 +280,8 @@ public class HttpTestZenToken004 {
     receiverShieldAddressInfo5 = HttpMethod.generateShieldAddress(httpnode);
     receiverShieldAddress5 = receiverShieldAddressInfo5.get().getAddress();
 
-    final Long beforeAssetBalance = HttpMethod
-        .getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
+    final Long beforeAssetBalance =
+        HttpMethod.getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
     response = HttpMethod.getAccountReource(httpnode, receiverPublicAddress);
     responseContent = HttpMethod.parseResponseContent(response);
     final Long beforeNetUsed = responseContent.getLong("freeNetUsed");
@@ -241,21 +293,39 @@ public class HttpTestZenToken004 {
         sendTokenAmount - sendToPublicAddressAmount - sendToShiledAddress1Amount - zenTokenFee;
     memo4 = "Send shield to receiver shield memo in" + System.currentTimeMillis();
     memo5 = "Send shield to receiver shield memo in" + System.currentTimeMillis();
-    shieldOutList = HttpMethod.addShieldOutputList(httpnode, shieldOutList, receiverShieldAddress4,
-        "" + sendToShiledAddress1Amount, memo4);
-    shieldOutList = HttpMethod.addShieldOutputList(httpnode, shieldOutList, receiverShieldAddress5,
-        "" + sendToShiledAddress2Amount, memo5);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            receiverShieldAddress4,
+            "" + sendToShiledAddress1Amount,
+            memo4);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            receiverShieldAddress5,
+            "" + sendToShiledAddress2Amount,
+            memo5);
 
     PublicMethod.printAddress(receiverPublicKey);
-    response = HttpMethod
-        .sendShieldCoin(httpnode, null, 0, sendShieldAddressInfo.get(), sendNote, shieldOutList,
-            receiverPublicAddress, sendToPublicAddressAmount, null);
+    response =
+        HttpMethod.sendShieldCoin(
+            httpnode,
+            null,
+            0,
+            sendShieldAddressInfo.get(),
+            sendNote,
+            shieldOutList,
+            receiverPublicAddress,
+            sendToPublicAddressAmount,
+            null);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     HttpMethod.waitToProduceOneBlock(httpnode);
 
-    final Long afterAssetBalance = HttpMethod
-        .getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
+    final Long afterAssetBalance =
+        HttpMethod.getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
     response = HttpMethod.getAccountReource(httpnode, receiverPublicAddress);
     responseContent = HttpMethod.parseResponseContent(response);
     final Long afterNetUsed = responseContent.getLong("freeNetUsed");
@@ -274,15 +344,17 @@ public class HttpTestZenToken004 {
     Assert.assertTrue(HttpMethod.getSpendResult(httpnode, sendShieldAddressInfo.get(), sendNote));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    final Long assetBalance = HttpMethod
-        .getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
-    HttpMethod
-        .transferAsset(httpnode, receiverPublicAddress, foundationZenTokenAddress, assetIssueId,
-            assetBalance, receiverPublicKey);
+    final Long assetBalance =
+        HttpMethod.getAssetIssueValue(httpnode, receiverPublicAddress, assetIssueId);
+    HttpMethod.transferAsset(
+        httpnode,
+        receiverPublicAddress,
+        foundationZenTokenAddress,
+        assetIssueId,
+        assetBalance,
+        receiverPublicKey);
   }
 }

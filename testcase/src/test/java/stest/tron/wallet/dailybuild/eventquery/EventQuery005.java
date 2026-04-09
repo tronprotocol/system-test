@@ -2,20 +2,24 @@ package stest.tron.wallet.dailybuild.eventquery;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.zeromq.ZMQ;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import stest.tron.wallet.common.client.utils.Base58;
+import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class EventQuery005 extends TronBaseTest {  private final byte[] foundationAddress = PublicMethod.getFinalAddress(foundationKey);
+public class EventQuery005 extends TronBaseTest {
+  private final byte[] foundationAddress = PublicMethod.getFinalAddress(foundationKey);
   private String eventnode =
       Configuration.getByPath("testng.conf").getStringList("eventnode.ip.list").get(0);
   private String soliditynode =
@@ -24,15 +28,18 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
   /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    initSolidityChannel();  }
+    initSolidityChannel();
+  }
 
-
-  @Test(enabled = true, description = "Test new Field for FreezeBalanceV2 in NativeQueue", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Test new Field for FreezeBalanceV2 in NativeQueue",
+      groups = {"daily", "serial"})
   public void test01EventQueryForTransactionFreezeBalanceV2() throws InterruptedException {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] freezeAccount = ecKey1.getAddress();
-  String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  Long freezeAmount = maxFeeLimit * 40;
+    byte[] freezeAccount = ecKey1.getAddress();
+    String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    Long freezeAmount = maxFeeLimit * 40;
     Assert.assertTrue(
         PublicMethod.sendcoin(
             freezeAccount, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
@@ -44,14 +51,14 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("transactionTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
         new Runnable() {
           public void run() {
             while (true) {
               zmq.ZMQ.Event event = zmq.ZMQ.Event.read(moniter.base());
-                logger.info("!!!!{}  {}", event.event, event.addr);
+              logger.info("!!!!{}  {}", event.event, event.addr);
               System.out.println(event.event + "  " + event.addr);
             }
           }
@@ -59,12 +66,13 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 40;
     transactionIdList = new ArrayList<>();
     ArrayList<byte[]> messageArray = new ArrayList<byte[]>();
-    Thread readLoopThread = new Thread(
+    Thread readLoopThread =
+        new Thread(
         new Runnable() {
           public void run() {
             while (true) {
@@ -77,16 +85,17 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
     boolean success = false;
 
     while (retryTimes-- > 0) {
-      if(success){
+      if (success) {
         break;
       }
-      String txid = PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-          maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+      String txid =
+          PublicMethod.freezeBalanceV2AndGetTxId(
+              freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
       transactionIdList.add(txid);
       PublicMethod.waitProduceNextBlock(blockingStubFull);
 
       try {
-        for(byte[] message: messageArray){
+        for (byte[] message : messageArray) {
           if (message != null) {
             transactionMessage = new String(message);
             logger.info("transaction message:" + transactionMessage);
@@ -100,7 +109,8 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
               if (transactionIdList.contains(id)) {
                 logger.info("find target tx, begin to Assert and abort loop");
                 Assert.assertEquals(data.getString("contractType"), "FreezeBalanceV2Contract");
-                Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+                Assert.assertEquals(
+                    data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
                 Assert.assertEquals(data.getString("assetName"), "trx");
                 Assert.assertEquals(data.getLongValue("assetAmount"), maxFeeLimit);
                 success = true;
@@ -109,29 +119,30 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
             }
           }
         }
-      } catch (Exception e) {
-
+      } catch (Exception expected) {
+        // expected
       }
-
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);
     Assert.assertTrue(retryTimes >= 0);
   }
 
-
-  @Test(enabled = true, description = "Test new Field for UnfreezeBalanceV2 in NativeQueue", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Test new Field for UnfreezeBalanceV2 in NativeQueue",
+      groups = {"daily", "serial"})
   public void test02EventQueryForTransactionUnfreezeBalanceV2() throws InterruptedException {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] freezeAccount = ecKey1.getAddress();
-  String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  Long freezeAmount = maxFeeLimit * 20;
+    byte[] freezeAccount = ecKey1.getAddress();
+    String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    Long freezeAmount = maxFeeLimit * 20;
     Assert.assertTrue(
         PublicMethod.sendcoin(
             freezeAccount, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     List<String> transactionIdList = new ArrayList<>();
@@ -140,7 +151,7 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("transactionTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
         new Runnable() {
@@ -154,12 +165,13 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 40;
     transactionIdList = new ArrayList<>();
     ArrayList<byte[]> messageArray = new ArrayList<byte[]>();
-    Thread readLoopThread = new Thread(
+    Thread readLoopThread =
+        new Thread(
         new Runnable() {
           public void run() {
             while (true) {
@@ -170,20 +182,20 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         });
     readLoopThread.start();
     boolean success = false;
-  Long unfreezeAmount = 10000000L;
+    Long unfreezeAmount = 10000000L;
     while (retryTimes-- > 0) {
-      if (success){
+      if (success) {
         break;
       }
-      String txid = PublicMethod.unFreezeBalanceV2AndGetTxId(freezeAccount,
-          freezeAccountKey, unfreezeAmount, 0, blockingStubFull);
+      String txid =
+          PublicMethod.unFreezeBalanceV2AndGetTxId(
+              freezeAccount, freezeAccountKey, unfreezeAmount, 0, blockingStubFull);
 
       transactionIdList.add(txid);
       PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-
       try {
-        for(byte[] message: messageArray){
+        for (byte[] message : messageArray) {
           if (message != null) {
             transactionMessage = new String(message);
             logger.info("transaction message:" + transactionMessage);
@@ -193,11 +205,12 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
                 && transactionMessage.contains("transactionId")) {
               JSONObject data = JSON.parseObject(transactionMessage);
               String id = data.getString("transactionId");
-              if(transactionIdList.contains(id)) {
+              if (transactionIdList.contains(id)) {
                 logger.info("find target tx, begin to Assert and abort loop");
                 logger.info("trxId : " + data.getString("transactionId"));
                 Assert.assertEquals(data.getString("contractType"), "UnfreezeBalanceV2Contract");
-                Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+                Assert.assertEquals(
+                    data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
                 Assert.assertEquals(data.getString("assetName"), "trx");
                 Assert.assertEquals(data.getLong("assetAmount"), unfreezeAmount);
                 success = true;
@@ -206,28 +219,29 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
             }
           }
         }
-      }catch (Exception e){
-
+      } catch (Exception expected) {
+        // expected
       }
-
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);
     Assert.assertTrue(retryTimes >= 0);
   }
 
-
-  @Test(enabled = true, description = "Test new Field for DelegateResource in NativeQueue", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Test new Field for DelegateResource in NativeQueue",
+      groups = {"daily", "serial"})
   public void test03EventQueryForTransactionDelegateResource() throws InterruptedException {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] freezeAccount = ecKey1.getAddress();
-  String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    byte[] freezeAccount = ecKey1.getAddress();
+    String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     PublicMethod.printAddress(freezeAccountKey);
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] receiverAddress = ecKey2.getAddress();
-  String receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+    ECKey ecKey2 = new ECKey(Utils.getRandom());
+    byte[] receiverAddress = ecKey2.getAddress();
+    String receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
     PublicMethod.printAddress(receiverKey);
-  Long freezeAmount = maxFeeLimit * 20;
+    Long freezeAmount = maxFeeLimit * 20;
     Assert.assertTrue(
         PublicMethod.sendcoin(
             freezeAccount, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
@@ -235,17 +249,16 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         PublicMethod.sendcoin(
             receiverAddress, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     ZMQ.Context context = ZMQ.context(1);
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     List<String> transactionIdList = new ArrayList<>();
 
-
     req.subscribe("transactionTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
         new Runnable() {
@@ -259,12 +272,13 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
     transactionIdList = new ArrayList<>();
     ArrayList<byte[]> messageArray = new ArrayList<byte[]>();
-    Thread readLoopThread = new Thread(
+    Thread readLoopThread =
+        new Thread(
         new Runnable() {
           public void run() {
             while (true) {
@@ -275,19 +289,25 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         });
     readLoopThread.start();
     boolean success = false;
-  Long delegateAmount = 10000000L;
+    Long delegateAmount = 10000000L;
     while (retryTimes-- > 0) {
-      if(success) {
+      if (success) {
         break;
       }
-      String txid = PublicMethod.delegateResourceV2AndGetTxId(freezeAccount,
-          delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
+      String txid =
+          PublicMethod.delegateResourceV2AndGetTxId(
+              freezeAccount,
+              delegateAmount,
+              0,
+              receiverAddress,
+              freezeAccountKey,
+              blockingStubFull);
 
       transactionIdList.add(txid);
       PublicMethod.waitProduceNextBlock(blockingStubFull);
 
       try {
-        for(byte[] message: messageArray) {
+        for (byte[] message : messageArray) {
           if (message != null) {
             transactionMessage = new String(message);
             logger.info("transaction message:" + transactionMessage);
@@ -301,39 +321,41 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
                 logger.info("find target tx, begin to Assert and abort loop");
                 logger.info("trxId : " + id);
                 Assert.assertEquals(data.getString("contractType"), "DelegateResourceContract");
-                Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-                Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
+                Assert.assertEquals(
+                    data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+                Assert.assertEquals(
+                    data.getString("toAddress"), Base58.encode58Check(receiverAddress));
                 Assert.assertEquals(data.getString("assetName"), "trx");
                 Assert.assertEquals(data.getLong("assetAmount"), delegateAmount);
                 success = true;
                 break;
               }
-
             }
           }
         }
-      } catch (Exception e) {
-
+      } catch (Exception expected) {
+        // expected
       }
-
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);
     Assert.assertTrue(retryTimes >= 0);
   }
 
-
-  @Test(enabled = false, description = "Test new Field for UnDelegateResource in NativeQueue", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Test new Field for UnDelegateResource in NativeQueue",
+      groups = {"daily", "serial"})
   public void test04EventQueryForTransactionUnDelegateResource() throws InterruptedException {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] freezeAccount = ecKey1.getAddress();
-  String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    byte[] freezeAccount = ecKey1.getAddress();
+    String freezeAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     PublicMethod.printAddress(freezeAccountKey);
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] receiverAddress = ecKey2.getAddress();
-  String receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+    ECKey ecKey2 = new ECKey(Utils.getRandom());
+    byte[] receiverAddress = ecKey2.getAddress();
+    String receiverKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
     PublicMethod.printAddress(receiverKey);
-  Long freezeAmount = maxFeeLimit * 20;
+    Long freezeAmount = maxFeeLimit * 20;
     Assert.assertTrue(
         PublicMethod.sendcoin(
             freezeAccount, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
@@ -342,14 +364,14 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         PublicMethod.sendcoin(
             receiverAddress, freezeAmount, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 1, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 1, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long delegateAmount = 20000000L;
-  Long unDelegateAmount = 1000000L;
+    Long delegateAmount = 20000000L;
+    Long unDelegateAmount = 1000000L;
 
-    PublicMethod.delegateResourceV2AndGetTxId(freezeAccount,
-        delegateAmount, 1, receiverAddress, freezeAccountKey, blockingStubFull);
+    PublicMethod.delegateResourceV2AndGetTxId(
+        freezeAccount, delegateAmount, 1, receiverAddress, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     List<String> transactionIdList = new ArrayList<>();
@@ -358,7 +380,7 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
     ZMQ.Socket req = context.socket(ZMQ.SUB);
 
     req.subscribe("transactionTrigger");
-  final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
+    final ZMQ.Socket moniter = context.socket(ZMQ.PAIR);
     moniter.connect("inproc://reqmoniter");
     new Thread(
         new Runnable() {
@@ -372,14 +394,20 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
         .start();
     req.connect(eventnode);
     req.setReceiveTimeOut(10000);
-  String transactionMessage = "";
+    String transactionMessage = "";
     Boolean sendTransaction = true;
     Integer retryTimes = 20;
     transactionIdList = new ArrayList<>();
     while (retryTimes-- > 0) {
       if (sendTransaction) {
-        String txid = PublicMethod.unDelegateResourceV2AndGetTxId(freezeAccount,
-            unDelegateAmount, 1, receiverAddress, freezeAccountKey, blockingStubFull);
+        String txid =
+            PublicMethod.unDelegateResourceV2AndGetTxId(
+                freezeAccount,
+                unDelegateAmount,
+                1,
+                receiverAddress,
+                freezeAccountKey,
+                blockingStubFull);
 
         transactionIdList.add(txid);
         PublicMethod.waitProduceNextBlock(blockingStubFull);
@@ -404,26 +432,24 @@ public class EventQuery005 extends TronBaseTest {  private final byte[] foundati
               logger.info("find target tx, begin to Assert and abort loop");
               logger.info("trxId : " + data.getString("transactionId"));
               Assert.assertEquals(data.getString("contractType"), "UnDelegateResourceContract");
-              Assert.assertEquals(data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
-              Assert.assertEquals(data.getString("toAddress"), Base58.encode58Check(receiverAddress));
+              Assert.assertEquals(
+                  data.getString("fromAddress"), Base58.encode58Check(freezeAccount));
+              Assert.assertEquals(
+                  data.getString("toAddress"), Base58.encode58Check(receiverAddress));
               Assert.assertEquals(data.getString("assetName"), "trx");
               Assert.assertEquals(data.getLong("assetAmount"), unDelegateAmount);
               break;
             }
-
           }
         } else {
           sendTransaction = true;
         }
-      } catch (Exception e) {
-
+      } catch (Exception expected) {
+        // expected
       }
-
     }
     logger.info("Final transaction message:" + transactionMessage);
     logger.info("retryTimes: " + retryTimes);
     Assert.assertTrue(retryTimes >= 0);
   }
-
-
 }

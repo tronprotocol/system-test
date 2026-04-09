@@ -20,9 +20,7 @@ package stest.tron.wallet.common.client.utils.cryptohash;
 
 public class Keccak512 extends KeccakCore {
 
-  /**
-   * Create the engine.
-   */
+  /** Create the engine. */
   public Keccak512() {
     super("tron-keccak-512");
   }
@@ -41,10 +39,8 @@ public class Keccak512 extends KeccakCore {
   }
 
   @Override
-  protected void engineUpdate(byte input) {
-  }
+  protected void engineUpdate(byte input) {}
 
   @Override
-  protected void engineUpdate(byte[] input, int offset, int len) {
-  }
+  protected void engineUpdate(byte[] input, int offset, int len) {}
 }

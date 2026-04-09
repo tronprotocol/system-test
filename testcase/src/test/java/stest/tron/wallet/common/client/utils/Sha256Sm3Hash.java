@@ -33,8 +33,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import org.bouncycastle.crypto.digests.SM3Digest;
 
-
-
 /**
  * A Sha256Sm3Hash just wraps a byte[] so that equals and hashcode work correctly, allowing it to be
  * used as keys in a map. It also checks that the length is correct and provides a bit more type
@@ -69,9 +67,7 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
     this.bytes = rawHashBytes;
   }
 
-  /**
-   * Use {@link #wrap(byte[])} instead.
-   */
+  /** Use {@link #wrap(byte[])} instead. */
   @Deprecated
   public Sha256Sm3Hash(byte[] rawHashBytes) {
     checkArgument(rawHashBytes.length == LENGTH);
@@ -94,9 +90,7 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
     return wrap(rawHashByteString.toByteArray());
   }
 
-  /**
-   * Use {@link #of(byte[])} instead: this old name is ambiguous.
-   */
+  /** Use {@link #of(byte[])} instead: this old name is ambiguous. */
   @Deprecated
   public static Sha256Sm3Hash create(byte[] contents) {
     return of(contents);
@@ -128,9 +122,7 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
     }
   }
 
-  /**
-   * Use {@link #twiceOf(byte[])} instead: this old name is ambiguous.
-   */
+  /** Use {@link #twiceOf(byte[])} instead: this old name is ambiguous. */
   @Deprecated
   public static Sha256Sm3Hash createDouble(byte[] contents) {
     return twiceOf(contents);
@@ -156,7 +148,7 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
     try {
       return MessageDigest.getInstance("SHA-256");
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);  // Can't happen.
+      throw new RuntimeException(e); // Can't happen.
     }
   }
 
@@ -200,7 +192,6 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
       digest.doFinal(eHash, 0);
       return eHash;
     }
-
   }
 
   /**
@@ -236,15 +227,14 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
       digest.doFinal(eHash, 0);
       return eHash;
     }
-
   }
 
   /**
    * Calculates the hash of hash on the given byte ranges. This is equivalent to concatenating the
    * two ranges and then passing the result to {@link #hashTwice(byte[])}.
    */
-  public static byte[] hashTwice(byte[] input1, int offset1, int length1,
-      byte[] input2, int offset2, int length2) {
+  public static byte[] hashTwice(
+      byte[] input1, int offset1, int length1, byte[] input2, int offset2, int length2) {
     if (isEckey) {
       MessageDigest digest = newDigest();
       digest.update(input1, offset1, length1);
@@ -300,13 +290,11 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
   @Override
   public int hashCode() {
     // Use the last 4 bytes, not the first 4 which are often zeros in Bitcoin.
-    return Ints
-        .fromBytes(bytes[LENGTH - 4], bytes[LENGTH - 3], bytes[LENGTH - 2], bytes[LENGTH - 1]);
+    return Ints.fromBytes(
+        bytes[LENGTH - 4], bytes[LENGTH - 3], bytes[LENGTH - 2], bytes[LENGTH - 1]);
   }
 
-  /**
-   * Returns the bytes interpreted as a positive integer.
-   */
+  /** Returns the bytes interpreted as a positive integer. */
   public BigInteger toBigInteger() {
     return new BigInteger(1, bytes);
   }
@@ -319,9 +307,7 @@ public class Sha256Sm3Hash implements Serializable, Comparable<Sha256Sm3Hash> {
     return bytes;
   }
 
-  /**
-   * For pb return ByteString.
-   */
+  /** For pb return ByteString. */
   public ByteString getByteString() {
     return ByteString.copyFrom(bytes);
   }

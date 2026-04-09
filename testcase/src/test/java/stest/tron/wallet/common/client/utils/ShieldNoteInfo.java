@@ -4,41 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @AllArgsConstructor
 public class ShieldNoteInfo {
 
-  @Setter
-  @Getter
-  public long value = 0;
-  @Setter
-  @Getter
-  public String paymentAddress;
-  @Setter
-  @Getter
-  public byte[] r; // 256
-  @Setter
-  @Getter
-  public String trxId;
-  @Setter
-  @Getter
-  public int index;
-  @Setter
-  @Getter
-  public long noteIndex;
-  @Setter
-  @Getter
-  public byte[] memo;
-  @Setter
-  @Getter
-  public Boolean isSpend;
+  @Setter @Getter public long value = 0;
+  @Setter @Getter public String paymentAddress;
+  @Setter @Getter public byte[] r; // 256
+  @Setter @Getter public String trxId;
+  @Setter @Getter public int index;
+  @Setter @Getter public long noteIndex;
+  @Setter @Getter public byte[] memo;
+  @Setter @Getter public Boolean isSpend;
 
-  public ShieldNoteInfo() {
-  }
+  public ShieldNoteInfo() {}
 
-  /**
-   * format shield note to a string.
-   */
+  /** format shield note to a string. */
   public String encode() {
     String encodeString = noteIndex + ";";
     encodeString += paymentAddress;
@@ -57,9 +37,7 @@ public class ShieldNoteInfo {
     return encodeString;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean decode(final String data) {
     String[] sourceStrArray = data.split(";");
     if (sourceStrArray.length != 8) {
@@ -76,6 +54,4 @@ public class ShieldNoteInfo {
     isSpend = Boolean.valueOf(sourceStrArray[7]);
     return true;
   }
-
 }
-

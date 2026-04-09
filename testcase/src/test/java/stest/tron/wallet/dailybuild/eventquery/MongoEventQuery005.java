@@ -5,13 +5,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.junit.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.*;
+import stest.tron.wallet.common.client.utils.Base58;
+import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MongoBase;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class MongoEventQuery005 extends MongoBase {
@@ -19,9 +23,10 @@ public class MongoEventQuery005 extends MongoBase {
   public static String httpFullNode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
 
-
-  @Test(enabled = true, description =
-      "MongoDB Event query for new Field in FreezeBalanceV2Contract", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MongoDB Event query for new Field in FreezeBalanceV2Contract",
+      groups = {"daily"})
   public void test01EventQueryForTransactionFreezeBalanceV2() throws InterruptedException {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey.getAddress();
@@ -32,8 +37,9 @@ public class MongoEventQuery005 extends MongoBase {
             freezeAccount, freezeAmount, foundationAddress2, foundationKey2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    String txid = PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    String txid =
+        PublicMethod.freezeBalanceV2AndGetTxId(
+            freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     BasicDBObject query = new BasicDBObject();
     query.put("transactionId", txid);
     FindIterable<org.bson.Document> findIterable =
@@ -60,9 +66,10 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertEquals(maxFeeLimit, jsonObject.getLongValue("assetAmount"));
   }
 
-
-  @Test(enabled = true,
-      description = "MongoDB Event query for new Field in UnFreezeBalanceV2Contract", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MongoDB Event query for new Field in UnFreezeBalanceV2Contract",
+      groups = {"daily"})
   public void test02EventQueryForTransactionUnFreezeBalanceV2() throws InterruptedException {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey.getAddress();
@@ -72,11 +79,12 @@ public class MongoEventQuery005 extends MongoBase {
         PublicMethod.sendcoin(
             freezeAccount, freezeAmount, foundationAddress2, foundationKey2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    String txid = PublicMethod.unFreezeBalanceV2AndGetTxId(freezeAccount,
-        freezeAccountKey, maxFeeLimit, 0, blockingStubFull);
+    String txid =
+        PublicMethod.unFreezeBalanceV2AndGetTxId(
+            freezeAccount, freezeAccountKey, maxFeeLimit, 0, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     BasicDBObject query = new BasicDBObject();
     query.put("transactionId", txid);
@@ -105,8 +113,10 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertEquals(maxFeeLimit, jsonObject.getLongValue("assetAmount"));
   }
 
-  @Test(enabled = true,
-      description = "MongoDB Event query for new Field in CancelAllUnFreezeV2Contract", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MongoDB Event query for new Field in CancelAllUnFreezeV2Contract",
+      groups = {"daily"})
   public void test03EventQueryForTransactionCancelAllUnFreezeV2() throws InterruptedException {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey.getAddress();
@@ -117,17 +127,18 @@ public class MongoEventQuery005 extends MongoBase {
             freezeAccount, freezeAmount, foundationAddress2, foundationKey2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod.unFreezeBalanceV2AndGetTxId(freezeAccount,
-        freezeAccountKey, maxFeeLimit, 0, blockingStubFull);
+    PublicMethod.unFreezeBalanceV2AndGetTxId(
+        freezeAccount, freezeAccountKey, maxFeeLimit, 0, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    String txid = PublicMethod.cancelAllUnFreezeBalanceV2AndGetTxid(freezeAccount, freezeAccountKey,
-        blockingStubFull);
+    String txid =
+        PublicMethod.cancelAllUnFreezeBalanceV2AndGetTxid(
+            freezeAccount, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-        BasicDBObject query = new BasicDBObject();
+    BasicDBObject query = new BasicDBObject();
     query.put("transactionId", txid);
     FindIterable<org.bson.Document> findIterable =
         mongoDatabase.getCollection("transaction").find(query);
@@ -151,12 +162,13 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertEquals("CancelAllUnfreezeV2Contract", jsonObject.getString("contractType"));
     Assert.assertEquals(Base58.encode58Check(freezeAccount), jsonObject.getString("fromAddress"));
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
-    Assert.assertEquals(maxFeeLimit,
-        jsonObject.getJSONObject("extMap").getLongValue("BANDWIDTH"));
+    Assert.assertEquals(maxFeeLimit, jsonObject.getJSONObject("extMap").getLongValue("BANDWIDTH"));
   }
 
-  @Test(enabled = true,
-      description = "MongoDB Event query for new Field in DelegateResourceContract", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MongoDB Event query for new Field in DelegateResourceContract",
+      groups = {"daily"})
   public void test04EventQueryForTransactionDelegateResource() throws InterruptedException {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey.getAddress();
@@ -178,11 +190,12 @@ public class MongoEventQuery005 extends MongoBase {
             receiverAddress, freezeAmount, foundationAddress2, foundationKey2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    String txid = PublicMethod.delegateResourceV2AndGetTxId(freezeAccount,
-        delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
+    String txid =
+        PublicMethod.delegateResourceV2AndGetTxId(
+            freezeAccount, delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     BasicDBObject query = new BasicDBObject();
@@ -214,8 +227,10 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertEquals(delegateAmount.longValue(), jsonObject.getLongValue("assetAmount"));
   }
 
-  @Test(enabled = true,
-      description = "MongoDB Event query for new Field in UnDelegateResourceContract", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MongoDB Event query for new Field in UnDelegateResourceContract",
+      groups = {"daily"})
   public void test05EventQueryForTransactionUnDelegateResource() throws InterruptedException {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey.getAddress();
@@ -237,14 +252,15 @@ public class MongoEventQuery005 extends MongoBase {
             receiverAddress, freezeAmount, foundationAddress2, foundationKey2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod.delegateResourceV2AndGetTxId(freezeAccount,
-        delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
+    PublicMethod.delegateResourceV2AndGetTxId(
+        freezeAccount, delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    String txid = PublicMethod.unDelegateResourceV2AndGetTxId(freezeAccount,
-        delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
+    String txid =
+        PublicMethod.unDelegateResourceV2AndGetTxId(
+            freezeAccount, delegateAmount, 0, receiverAddress, freezeAccountKey, blockingStubFull);
 
     BasicDBObject query = new BasicDBObject();
     query.put("transactionId", txid);
@@ -275,8 +291,10 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertEquals(delegateAmount.longValue(), jsonObject.getLongValue("assetAmount"));
   }
 
-  @Test(enabled = true,
-      description = "MongoDB Event query for new Field in WithdrawExpireUnfreezeContract", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "MongoDB Event query for new Field in WithdrawExpireUnfreezeContract",
+      groups = {"daily"})
   public void test06EventQueryForTransactionWithdrawExpireUnfreeze() throws InterruptedException {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] freezeAccount = ecKey.getAddress();
@@ -289,16 +307,17 @@ public class MongoEventQuery005 extends MongoBase {
         PublicMethod.sendcoin(
             freezeAccount, freezeAmount, foundationAddress2, foundationKey2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    PublicMethod.freezeBalanceV2AndGetTxId(freezeAccount,
-        maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
+    PublicMethod.freezeBalanceV2AndGetTxId(
+        freezeAccount, maxFeeLimit, 0, freezeAccountKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    PublicMethod.unFreezeBalanceV2AndGetTxId(freezeAccount,
-        freezeAccountKey, maxFeeLimit, 0, blockingStubFull);
+    PublicMethod.unFreezeBalanceV2AndGetTxId(
+        freezeAccount, freezeAccountKey, maxFeeLimit, 0, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Thread.sleep(60000);
-    String txid = PublicMethod.withdrawExpireUnfreezeAndGetTxId(freezeAccount,
-        freezeAccountKey, blockingStubFull);
+    String txid =
+        PublicMethod.withdrawExpireUnfreezeAndGetTxId(
+            freezeAccount, freezeAccountKey, blockingStubFull);
     BasicDBObject query = new BasicDBObject();
     query.put("transactionId", txid);
     FindIterable<org.bson.Document> findIterable =
@@ -325,6 +344,4 @@ public class MongoEventQuery005 extends MongoBase {
     Assert.assertEquals("trx", jsonObject.getString("assetName"));
     Assert.assertEquals(maxFeeLimit, jsonObject.getLongValue("assetAmount"));
   }
-
-
 }

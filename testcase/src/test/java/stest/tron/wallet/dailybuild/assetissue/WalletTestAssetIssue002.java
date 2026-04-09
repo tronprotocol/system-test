@@ -23,8 +23,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestAssetIssue002 extends TronBaseTest {
@@ -32,95 +32,135 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private static String name = "testAssetIssue002_" + Long.toString(now);
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
+  String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
+  String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, description = "Participate token", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Participate token",
+      groups = {"daily"})
   public void testParticipateAssetissue() {
-    //get account
+    // get account
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] participateAccountAddress = ecKey1.getAddress();
-  final String participateAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] toAddress = ecKey2.getAddress();
-  final String testKey003 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  //send coin to the new account
-    Assert.assertTrue(PublicMethod.sendcoin(participateAccountAddress, 2048000000, foundationAddress,
-        foundationKey, blockingStubFull));
+    byte[] participateAccountAddress = ecKey1.getAddress();
+    final String participateAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    ECKey ecKey2 = new ECKey(Utils.getRandom());
+    byte[] toAddress = ecKey2.getAddress();
+    final String testKey003 = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
+    // send coin to the new account
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            participateAccountAddress,
+            2048000000,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethod.sendcoin(toAddress, 2048000000, foundationAddress,
-        foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            toAddress, 2048000000, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //Create a new Asset Issue
-    Assert.assertTrue(PublicMethod.createAssetIssue(participateAccountAddress,
-        name, totalSupply, 1, 1, System.currentTimeMillis() + 5000,
-        System.currentTimeMillis() + 1000000000, 1, description, url,
-        2000L, 2000L, 1L, 1L,
-        participateAccountKey, blockingStubFull));
+    // Create a new Asset Issue
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            participateAccountAddress,
+            name,
+            totalSupply,
+            1,
+            1,
+            System.currentTimeMillis() + 5000,
+            System.currentTimeMillis() + 1000000000,
+            1,
+            description,
+            url,
+            2000L,
+            2000L,
+            1L,
+            1L,
+            participateAccountKey,
+            blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethod.queryAccount(participateAccountKey, blockingStubFull);
-  final ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
-  //Participate AssetIssue success
+    final ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
+    // Participate AssetIssue success
     logger.info(name);
-  //Freeze amount to get bandwitch.
-    logger.info("toaddress balance is "
-        + PublicMethod.queryAccount(toAddress, blockingStubFull).getBalance());
-    Assert.assertTrue(PublicMethod.freezeBalance(toAddress, 10000000, 3, testKey003,
-        blockingStubFull));
+    // Freeze amount to get bandwitch.
+    logger.info(
+        "toaddress balance is "
+            + PublicMethod.queryAccount(toAddress, blockingStubFull).getBalance());
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(toAddress, 10000000, 3, testKey003, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethod.participateAssetIssue(participateAccountAddress,
-        assetAccountId.toByteArray(),
-        100L, toAddress, testKey003, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.participateAssetIssue(
+            participateAccountAddress,
+            assetAccountId.toByteArray(),
+            100L,
+            toAddress,
+            testKey003,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //The amount is large than the total supply, participate failed.
-    Assert.assertFalse(PublicMethod.participateAssetIssue(participateAccountAddress,
-        assetAccountId.toByteArray(), 9100000000000000000L, toAddress, testKey003,
-        blockingStubFull));
-  //The amount is 0, participate asset issue failed.
-    Assert.assertFalse(PublicMethod.participateAssetIssue(participateAccountAddress,
-        assetAccountId.toByteArray(), 0L, toAddress, testKey003, blockingStubFull));
-  //The amount is -1, participate asset issue failed.
-    Assert.assertFalse(PublicMethod.participateAssetIssue(participateAccountAddress,
-        assetAccountId.toByteArray(), -1L, toAddress, testKey003, blockingStubFull));
-  //The asset issue owner address is not correct, participate asset issue failed.
-    Assert.assertFalse(PublicMethod.participateAssetIssue(foundationAddress,
-        assetAccountId.toByteArray(), 100L,
-        toAddress, testKey003, blockingStubFull));
+    // The amount is large than the total supply, participate failed.
+    Assert.assertFalse(
+        PublicMethod.participateAssetIssue(
+            participateAccountAddress,
+            assetAccountId.toByteArray(),
+            9100000000000000000L,
+            toAddress,
+            testKey003,
+            blockingStubFull));
+    // The amount is 0, participate asset issue failed.
+    Assert.assertFalse(
+        PublicMethod.participateAssetIssue(
+            participateAccountAddress,
+            assetAccountId.toByteArray(),
+            0L,
+            toAddress,
+            testKey003,
+            blockingStubFull));
+    // The amount is -1, participate asset issue failed.
+    Assert.assertFalse(
+        PublicMethod.participateAssetIssue(
+            participateAccountAddress,
+            assetAccountId.toByteArray(),
+            -1L,
+            toAddress,
+            testKey003,
+            blockingStubFull));
+    // The asset issue owner address is not correct, participate asset issue failed.
+    Assert.assertFalse(
+        PublicMethod.participateAssetIssue(
+            foundationAddress,
+            assetAccountId.toByteArray(),
+            100L,
+            toAddress,
+            testKey003,
+            blockingStubFull));
 
-    PublicMethod.freeResource(participateAccountAddress, participateAccountKey, foundationAddress,
-        blockingStubFull);
+    PublicMethod.freeResource(
+        participateAccountAddress, participateAccountKey, foundationAddress, blockingStubFull);
     PublicMethod.freeResource(toAddress, testKey003, foundationAddress, blockingStubFull);
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
-  public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
-      String priKey) {
+  /** constructor. */
+  public boolean participateAssetIssue(
+      byte[] to, byte[] assertName, long amount, byte[] from, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -130,8 +170,7 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
     }
     final ECKey ecKey = temKey;
 
-    ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract
-        .newBuilder();
+    ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(from);
@@ -152,12 +191,20 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, Long fronzenAmount, Long frozenDay,
+  /** constructor. */
+  public Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      Long fronzenAmount,
+      Long frozenDay,
       String priKey) {
     ECKey temKey = null;
     try {
@@ -204,12 +251,10 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -218,13 +263,13 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
     }
     ECKey ecKey = temKey;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -234,23 +279,18 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -262,11 +302,9 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -297,11 +335,8 @@ public class WalletTestAssetIssue002 extends TronBaseTest {
       logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
       return false;
     } else {
-      //Account search = queryAccount(ecKey, blockingStubFull);
+      // Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
-
   }
 }
-
-

@@ -16,33 +16,20 @@ import stest.tron.wallet.common.client.utils.zen.address.SpendingKey;
 @AllArgsConstructor
 public class ShieldedAddressInfo {
 
-  @Setter
-  @Getter
-  public byte[] sk;
-  @Setter
-  @Getter
-  public byte[] ivk; // 256
-  @Setter
-  @Getter
-  public byte[] ovk; // 256
-  @Setter
-  @Getter
-  DiversifierT d;
-  @Setter
-  @Getter
-  byte[] pkD; // 256
+  @Setter @Getter public byte[] sk;
+  @Setter @Getter public byte[] ivk; // 256
+  @Setter @Getter public byte[] ovk; // 256
+  @Setter @Getter DiversifierT d;
+  @Setter @Getter byte[] pkD; // 256
 
-  public ShieldedAddressInfo() {
-  }
+  public ShieldedAddressInfo() {}
 
   public FullViewingKey getFullViewingKey() throws ZksnarkException {
     SpendingKey spendingKey = new SpendingKey(sk);
     return spendingKey.fullViewingKey();
   }
 
-  /**
-   * check parameters
-   */
+  /** check parameters */
   public boolean validateCheck() {
     try {
       SpendingKey spendingKey = new SpendingKey(sk);
@@ -83,25 +70,21 @@ public class ShieldedAddressInfo {
     return "";
   }
 
-  /**
-   * format shielded address info to a string
-   */
+  /** format shielded address info to a string */
   public String encode(byte[] encryptKey) throws CipherException {
     byte[] text = new byte[sk.length + ivk.length + ovk.length + d.getData().length + pkD.length];
     System.arraycopy(sk, 0, text, 0, sk.length);
     System.arraycopy(ivk, 0, text, sk.length, ivk.length);
     System.arraycopy(ovk, 0, text, sk.length + ivk.length, ovk.length);
     System.arraycopy(d.getData(), 0, text, sk.length + ivk.length + ovk.length, d.getData().length);
-    System.arraycopy(pkD, 0, text, sk.length + ivk.length + ovk.length + d.getData().length,
-        pkD.length);
+    System.arraycopy(
+        pkD, 0, text, sk.length + ivk.length + ovk.length + d.getData().length, pkD.length);
 
     byte[] cipherText = ZenUtils.aesCtrEncrypt(text, encryptKey);
     return Base58.encode(cipherText);
   }
 
-  /**
-   * parse string to get a shielded address info
-   */
+  /** parse string to get a shielded address info */
   public boolean decode(final String data, byte[] encryptKey) throws CipherException {
     byte[] cipherText = Base58.decode(data);
     byte[] text = ZenUtils.aesCtrDecrypt(cipherText, encryptKey);

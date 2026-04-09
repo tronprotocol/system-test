@@ -8,7 +8,6 @@ import org.tron.common.zksnark.IncrementalMerkleTreeContainer;
 import org.tron.protos.contract.ShieldContract.IncrementalMerkleTree;
 import org.tron.protos.contract.ShieldContract.PedersenHash;
 
-
 @Slf4j
 public class IncrementalMerkleTreeCapsule implements ProtoCapsule<IncrementalMerkleTree> {
 

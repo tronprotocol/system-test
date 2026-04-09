@@ -11,9 +11,7 @@ import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 
 public class IncrementalMerkleVoucherContainer {
 
-  @Getter
-  @Setter
-  private static Integer DEPTH = IncrementalMerkleTreeContainer.getDEPTH();
+  @Getter @Setter private static Integer DEPTH = IncrementalMerkleTreeContainer.getDEPTH();
 
   private IncrementalMerkleVoucherCapsule voucherCapsule;
 
@@ -96,7 +94,7 @@ public class IncrementalMerkleVoucherContainer {
         + voucherCapsule.getCursor().toMerkleTreeContainer().size();
   }
 
-  //for test only
+  // for test only
   public void printSize() {
     System.out.println(
         "TreeSize:"

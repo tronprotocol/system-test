@@ -16,11 +16,11 @@ import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -29,11 +29,11 @@ public class CycleMultiSign extends TronBaseTest {
   private ManagedChannel searchChannelFull = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidityInFullnode = null;
   private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;
-  private String searchFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String searchFullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   private ManagedChannel channelSolidityInFullnode = null;
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
   private ECKey ecKey = new ECKey(Utils.getRandom());
   private byte[] test001Address = ecKey.getAddress();
   private String dev001Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -50,29 +50,24 @@ public class CycleMultiSign extends TronBaseTest {
   byte[] test005Address = ecKey5.getAddress();
   String sendAccountKey5 = ByteArray.toHexString(ecKey5.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode).usePlaintext().build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-
   }
 
-  //(use no id)
-  @Test(enabled = true, groups = {"stress"})
+  // (use no id)
+  @Test(
+      enabled = true,
+      groups = {"stress"})
   public void testMultiSignActiveAddress() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(test001Address, 10000000000000L, foundationAddress, testKey002,
-            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            test001Address, 10000000000000L, foundationAddress, testKey002, blockingStubFull));
 
     Account test001AddressAccount = PublicMethod.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
@@ -85,22 +80,28 @@ public class CycleMultiSign extends TronBaseTest {
 
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
-  String accountPermissionJson1 =
+    String accountPermissionJson1 =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\""
-            + "keys\":[{\"address\":\"" + PublicMethod.getAddressString(dev001Key)
+            + "keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(dev001Key)
             + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey2)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey2)
             + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
             + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey4)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey5)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey5)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
             + "\"threshold\":1,\"operations\":\""
             + "0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(dev001Key)
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(dev001Key)
             + "\",\"weight\":1}]}]} ";
 
     Account test001AddressAccount1 = PublicMethod.queryAccount(test001Address, blockingStubFull);
@@ -111,70 +112,92 @@ public class CycleMultiSign extends TronBaseTest {
     logger.info(PublicMethodForMultiSign.printPermission(ownerPermission1));
     logger.info(PublicMethodForMultiSign.printPermission(witnessPermission1));
     logger.info("1-----------------------");
-  String accountPermissionJson2 =
+    String accountPermissionJson2 =
         "{\"owner_permission\":{\"type\":0,\"permission_name\""
             + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethod.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+            + ":\""
+            + PublicMethod.getAddressString(dev001Key)
+            + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
             + "\"active0\",\"threshold\":1,\"operations\""
             + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey4)
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey4)
             + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
             + "\",\"weight\":1}]}]} ";
-  String accountPermissionJson3 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-        + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-        + ":\"" + PublicMethod.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-        + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-        + "\"active0\",\"threshold\":1,\"operations"
-        + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
-        + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(dev001Key)
-        + "\",\"weight\":1}]},"
-        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
-        + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
-        + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]}]}";
-  String accountPermissionJson4 = "{\"owner_permission\":{\"type\":0,\""
-        + "permission_name\":\"owner\",\"threshold\":1,\"keys\":"
-        + "[{\"address\":\"" + PublicMethod.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-        + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,"
-        + "\"operations\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-        + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]},"
-        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\":"
-        + "\"0200000000000000000000000000000000000000000000000000000000000000\",\"keys\":"
-        + "[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey4)
-        + "\",\"weight\":1}]},{\"type\":2,"
-        + "\"permission_name\":\"active0\",\"threshold\":1,\"operations\""
-        + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-        + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey2)
-        + "\",\"weight\":1}]},"
-        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\""
-        + ":\"0100000000000000000000000000000000000000000000000000000000000000\",\"keys\""
-        + ":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]},"
-        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\":"
-        + "\"0200000000000000000000000000000000000000000000000000000000000000\",\"keys\""
-        + ":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey2)
-        + "\",\"weight\":1}]},{\"type\":2,"
-        + "\"permission_name\":\"active0\",\"threshold\":1,\"operations\":\""
-        + "0200000000000000000000000000000000000000000000000000000000000000\",\"keys\":"
-        + "[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]},"
-        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\""
-        + ":\"0200000000000000000000000000000000000000000000000000000000000000\",\""
-        + "keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey5)
-        + "\",\"weight\":1}]},"
-        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\":"
-        + "\"0020000000000000000000000000000000000000000000000000000000000000\",\"keys\""
-        + ":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]}]}";
+    String accountPermissionJson3 =
+        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+            + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
+            + ":\""
+            + PublicMethod.getAddressString(dev001Key)
+            + "\",\"weight\":1}]},"
+            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
+            + "\"active0\",\"threshold\":1,\"operations"
+            + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(dev001Key)
+            + "\",\"weight\":1}]},"
+            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
+            + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]}]}";
+    String accountPermissionJson4 =
+        "{\"owner_permission\":{\"type\":0,\""
+            + "permission_name\":\"owner\",\"threshold\":1,\"keys\":"
+            + "[{\"address\":\""
+            + PublicMethod.getAddressString(dev001Key)
+            + "\",\"weight\":1}]},"
+            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,"
+            + "\"operations\":\"0200000000000000000000000000000000000000000000000000000000000000\","
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]},"
+            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\":"
+            + "\"0200000000000000000000000000000000000000000000000000000000000000\",\"keys\":"
+            + "[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey4)
+            + "\",\"weight\":1}]},{\"type\":2,"
+            + "\"permission_name\":\"active0\",\"threshold\":1,\"operations\""
+            + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey2)
+            + "\",\"weight\":1}]},"
+            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\""
+            + ":\"0100000000000000000000000000000000000000000000000000000000000000\",\"keys\""
+            + ":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]},"
+            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\":"
+            + "\"0200000000000000000000000000000000000000000000000000000000000000\",\"keys\""
+            + ":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey2)
+            + "\",\"weight\":1}]},{\"type\":2,"
+            + "\"permission_name\":\"active0\",\"threshold\":1,\"operations\":\""
+            + "0200000000000000000000000000000000000000000000000000000000000000\",\"keys\":"
+            + "[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]},"
+            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\""
+            + ":\"0200000000000000000000000000000000000000000000000000000000000000\",\""
+            + "keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey5)
+            + "\",\"weight\":1}]},"
+            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations\":"
+            + "\"0020000000000000000000000000000000000000000000000000000000000000\",\"keys\""
+            + ":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]}]}";
     while (true) {
-      PublicMethodForMultiSign
-          .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address,
-              dev001Key,
-              blockingStubFull, 0,
-              permissionKeyString);
+      PublicMethodForMultiSign.accountPermissionUpdateWithPermissionId(
+          accountPermissionJson1,
+          test001Address,
+          dev001Key,
+          blockingStubFull,
+          0,
+          permissionKeyString);
       addressPermission(dev001Key, accountPermissionJson2);
       addressPermission(dev001Key, accountPermissionJson3);
       addressPermission(dev001Key, accountPermissionJson4);
@@ -188,34 +211,30 @@ public class CycleMultiSign extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public void addressPermission(String addKey, String accountPermissionJson) {
-    PublicMethod.freezeBalanceForReceiver(test001Address,
-        10000000L, 0, 0,
-        com.google.protobuf.ByteString.copyFrom(foundationAddress), testKey002, blockingStubFull);
+    PublicMethod.freezeBalanceForReceiver(
+        test001Address,
+        10000000L,
+        0,
+        0,
+        com.google.protobuf.ByteString.copyFrom(foundationAddress),
+        testKey002,
+        blockingStubFull);
 
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = addKey;
-    PublicMethodForMultiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson, test001Address, dev001Key,
-            blockingStubFull, 0,
-            permissionKeyString);
-    PublicMethod.unFreezeBalance(foundationAddress, testKey002, 0,
-        test001Address, blockingStubFull);
+    PublicMethodForMultiSign.accountPermissionUpdateWithPermissionId(
+        accountPermissionJson, test001Address, dev001Key, blockingStubFull, 0, permissionKeyString);
+    PublicMethod.unFreezeBalance(
+        foundationAddress, testKey002, 0, test001Address, blockingStubFull);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {    if (searchChannelFull != null) {
+  public void shutdown() throws InterruptedException {
+    if (searchChannelFull != null) {
       searchChannelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

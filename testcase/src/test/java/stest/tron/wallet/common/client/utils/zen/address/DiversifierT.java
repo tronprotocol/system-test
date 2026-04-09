@@ -8,16 +8,12 @@ import org.tron.common.zksnark.JLibrustzcash;
 import stest.tron.wallet.common.client.utils.Constant;
 import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 
-
 @AllArgsConstructor
 public class DiversifierT {
 
-  @Setter
-  @Getter
-  private byte[] data = new byte[Constant.ZC_DIVERSIFIER_SIZE];
+  @Setter @Getter private byte[] data = new byte[Constant.ZC_DIVERSIFIER_SIZE];
 
-  public DiversifierT() {
-  }
+  public DiversifierT() {}
 
   public static DiversifierT random() throws ZksnarkException {
     byte[] d;

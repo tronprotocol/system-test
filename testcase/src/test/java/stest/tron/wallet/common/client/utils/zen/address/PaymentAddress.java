@@ -8,12 +8,8 @@ import lombok.Setter;
 public class PaymentAddress {
 
   // diversified payment address addrd = (d, pkd)
-  @Setter
-  @Getter
-  private DiversifierT d;
-  @Setter
-  @Getter
-  private byte[] pkD; // 256
+  @Setter @Getter private DiversifierT d;
+  @Setter @Getter private byte[] pkD; // 256
 
   public static PaymentAddress decode(byte[] data) {
     DiversifierT d = new DiversifierT();

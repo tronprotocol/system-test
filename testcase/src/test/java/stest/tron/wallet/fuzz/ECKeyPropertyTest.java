@@ -1,7 +1,13 @@
 package stest.tron.wallet.fuzz;
 
-import net.jqwik.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import net.jqwik.api.Assume;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
 
@@ -14,8 +20,7 @@ class ECKeyPropertyTest {
     ECKey key = new ECKey();
     ECKey.ECDSASignature sig = key.sign(messageHash);
 
-    byte[] recoveredPubKey = ECKey.recoverPubBytesFromSignature(
-        sig.v - 27, sig, messageHash);
+    byte[] recoveredPubKey = ECKey.recoverPubBytesFromSignature(sig.v - 27, sig, messageHash);
     assertNotNull(recoveredPubKey);
     assertArrayEquals(key.getPubKey(), recoveredPubKey);
   }

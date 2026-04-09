@@ -18,61 +18,74 @@ import stest.tron.wallet.common.client.utils.ZenTrc20Base;
 @Slf4j
 public class ShieldTrc20Token001 extends ZenTrc20Base {
 
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  @Test(enabled = true, description = "Check shield contract deploy success", groups = {"daily", "serial", "shield"})
+  @Test(
+      enabled = true,
+      description = "Check shield contract deploy success",
+      groups = {"daily", "serial", "shield"})
   public void test01checkShieldContractDeploySuccess() {
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(deployShieldTrc20Txid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(deployShieldTrc20Txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getReceipt().getResultValue() == 1);
-    infoById = PublicMethod
-        .getTransactionInfoById(deployShieldTxid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(deployShieldTxid, blockingStubFull);
     Assert.assertTrue(infoById.get().getReceipt().getResultValue() == 1);
 
-    //scalingFactor()
+    // scalingFactor()
   }
 
-  @Test(enabled = true, description = "View scaling factor test", groups = {"daily", "serial", "shield"})
+  @Test(
+      enabled = true,
+      description = "View scaling factor test",
+      groups = {"daily", "serial", "shield"})
   public void test02ViewScalingFactor() {
-    String txid = PublicMethod.triggerContract(shieldAddressByte,
-        "scalingFactor()", "", false,
-        0, maxFeeLimit, zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    String txid =
+        PublicMethod.triggerContract(
+            shieldAddressByte,
+            "scalingFactor()",
+            "",
+            false,
+            0,
+            maxFeeLimit,
+            zenTrc20TokenOwnerAddress,
+            zenTrc20TokenOwnerKey,
+            blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(txid);
     logger.info(Integer.toString(infoById.get().getResultValue()));
 
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(shieldAddressByte, "scalingFactor()",
-            "", false, 0, 0, "0", 0,
-            zenTrc20TokenOwnerAddress, zenTrc20TokenOwnerKey, blockingStubFull);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            shieldAddressByte,
+            "scalingFactor()",
+            "",
+            false,
+            0,
+            0,
+            "0",
+            0,
+            zenTrc20TokenOwnerAddress,
+            zenTrc20TokenOwnerKey,
+            blockingStubFull);
 
     logger.info("transactionExtention:" + transactionExtention);
-    String scalingFactor = PublicMethod
-        .bytes32ToString(transactionExtention.getConstantResult(0).toByteArray());
-    Assert.assertEquals("00000000000000000000000000000001",
-        scalingFactor);
-
+    String scalingFactor =
+        PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray());
+    Assert.assertEquals("00000000000000000000000000000001", scalingFactor);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -80,5 +93,3 @@ public class ShieldTrc20Token001 extends ZenTrc20Base {
     }
   }
 }
-
-

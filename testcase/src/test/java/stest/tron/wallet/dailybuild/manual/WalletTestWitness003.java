@@ -26,22 +26,24 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-  //import stest.tron.wallet.common.client.AccountComparator;
+import stest.tron.wallet.common.client.utils.Utils;
+
+// import stest.tron.wallet.common.client.AccountComparator;
 
 @Slf4j
 public class WalletTestWitness003 extends TronBaseTest {
 
-  private static final byte[] INVAILD_ADDRESS = Base58
-      .decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
+  private static final byte[] INVAILD_ADDRESS =
+      Base58.decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
   private static final Long costForCreateWitness = 9999000000L;
-  private static final String tooLongUrl = "qagwqaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqas"
-      + "wqaswqasw1qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazx"
-      + "swedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedc"
-      + "vqazxswedcvqazxswedcvqazxswedcvqazxswedcv";
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private static final String tooLongUrl =
+      "qagwqaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqas"
+          + "wqaswqasw1qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazx"
+          + "swedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedc"
+          + "vqazxswedcvqazxswedcvqazxswedcvqazxswedcv";
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   String createWitnessUrl = "http://www.createwitnessurl.com";
   String updateWitnessUrl = "http://www.updatewitnessurl.com";
@@ -51,90 +53,93 @@ public class WalletTestWitness003 extends TronBaseTest {
   byte[] updateUrl = updateWitnessUrl.getBytes();
   byte[] wrongUrl = nullUrl.getBytes();
   byte[] updateSpaceUrl = spaceUrl.getBytes();
-  //get account
+  // get account
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] lowBalAddress = ecKey.getAddress();
   String lowBalTest = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
   public void beforeClass() {
     logger.info(lowBalTest);
     logger.info(ByteArray.toHexString(PublicMethod.getFinalAddress(lowBalTest)));
-    logger.info(Base58.encode58Check(PublicMethod.getFinalAddress(lowBalTest)));  }
+    logger.info(Base58.encode58Check(PublicMethod.getFinalAddress(lowBalTest)));
+  }
 
-  @Test(enabled = true, description = "Invaild account to apply create witness", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Invaild account to apply create witness",
+      groups = {"daily"})
   public void testInvaildToApplyBecomeWitness() {
     Assert.assertFalse(createWitnessNotBroadcast(INVAILD_ADDRESS, createUrl, foundationKey));
   }
 
-  @Test(enabled = true, description = "Create witness", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Create witness",
+      groups = {"daily"})
   public void testCreateWitness() {
-    //If you are already is witness, apply failed
-    //createWitness(foundationAddress, createUrl, foundationKey);
-  //Assert.assertFalse(createWitness(foundationAddress, createUrl, foundationKey));
-  //No balance,try to create witness.
+    // If you are already is witness, apply failed
+    // createWitness(foundationAddress, createUrl, foundationKey);
+    // Assert.assertFalse(createWitness(foundationAddress, createUrl, foundationKey));
+    // No balance,try to create witness.
     Assert.assertFalse(createWitnessNotBroadcast(lowBalAddress, createUrl, lowBalTest));
-  //Send enough coin to the apply account to make that account
+    // Send enough coin to the apply account to make that account
     // has ability to apply become witness.
-    GrpcAPI.WitnessList witnesslist = blockingStubFull
-        .listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.WitnessList witnesslist =
+        blockingStubFull.listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<WitnessList> result = Optional.ofNullable(witnesslist);
     GrpcAPI.WitnessList witnessList = result.get();
     if (result.get().getWitnessesCount() < 6) {
-      Assert.assertTrue(PublicMethod
-          .sendcoin(lowBalAddress, costForCreateWitness, foundationAddress, foundationKey,
+      Assert.assertTrue(
+          PublicMethod.sendcoin(
+              lowBalAddress,
+              costForCreateWitness,
+              foundationAddress,
+              foundationKey,
               blockingStubFull));
-  //null url, update failed
+      // null url, update failed
       Assert.assertFalse(createWitnessNotBroadcast(lowBalAddress, wrongUrl, witnessKey));
-  //too long url, update failed
-      Assert.assertFalse(createWitnessNotBroadcast(lowBalAddress,
-          tooLongUrl.getBytes(), witnessKey));
+      // too long url, update failed
+      Assert.assertFalse(
+          createWitnessNotBroadcast(lowBalAddress, tooLongUrl.getBytes(), witnessKey));
       Assert.assertTrue(createWitnessNotBroadcast(lowBalAddress, createUrl, lowBalTest));
-
     }
   }
 
-  @Test(enabled = true, description = "Update witness", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Update witness",
+      groups = {"daily"})
   public void testUpdateWitness() {
-    GrpcAPI.WitnessList witnesslist = blockingStubFull
-        .listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.WitnessList witnesslist =
+        blockingStubFull.listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<WitnessList> result = Optional.ofNullable(witnesslist);
     GrpcAPI.WitnessList witnessList = result.get();
     if (result.get().getWitnessesCount() < 6) {
-      //null url, update failed
+      // null url, update failed
       Assert.assertFalse(updateWitness(witnessAddress, wrongUrl, witnessKey));
-  //too long url, update failed
+      // too long url, update failed
       Assert.assertFalse(updateWitness(witnessAddress, tooLongUrl.getBytes(), witnessKey));
-  //Content space and special char, update success
+      // Content space and special char, update success
       Assert.assertTrue(updateWitness(witnessAddress, updateSpaceUrl, witnessKey));
-  //update success
+      // update success
       Assert.assertTrue(updateWitness(witnessAddress, updateUrl, witnessKey));
     } else {
       logger.info("Update witness case had been test.This time skip it.");
     }
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Boolean createWitnessNotBroadcast(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
     try {
@@ -157,9 +162,7 @@ public class WalletTestWitness003 extends TronBaseTest {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Boolean updateWitness(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
     try {
@@ -188,16 +191,13 @@ public class WalletTestWitness003 extends TronBaseTest {
     } else {
       return true;
     }
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Boolean sendcoin(byte[] to, long amount, byte[] owner, String priKey) {
 
-    //String priKey = foundationKey;
-  ECKey temKey = null;
+    // String priKey = foundationKey;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -228,12 +228,10 @@ public class WalletTestWitness003 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -242,13 +240,13 @@ public class WalletTestWitness003 extends TronBaseTest {
     }
     ECKey ecKey = temKey;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -258,23 +256,18 @@ public class WalletTestWitness003 extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Protocol.Transaction signTransaction(ECKey ecKey, Protocol.Transaction transaction) {
@@ -286,4 +279,3 @@ public class WalletTestWitness003 extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 }
-

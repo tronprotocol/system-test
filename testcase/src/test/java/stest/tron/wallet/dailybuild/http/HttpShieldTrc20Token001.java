@@ -54,34 +54,37 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] zenTokenOwnerAddress = ecKey1.getAddress();
   String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String httpnode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(0);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
+  private String httpnode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
+  private String httpSolidityNode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    //Args.getInstance().setFullNodeAllowShieldedTransaction(true);
-    //PublicMethod.printAddress(foundationZenTokenKey);
-    //PublicMethod.printAddress(zenTokenOwnerKey);
+    // Args.getInstance().setFullNodeAllowShieldedTransaction(true);
+    // PublicMethod.printAddress(foundationZenTokenKey);
+    // PublicMethod.printAddress(zenTokenOwnerKey);
   }
 
-  @Test(enabled = true, description = "Get spending key by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get spending key by http",
+      groups = {"daily", "serial"})
   public void test01GetSpendingKey() {
     response = HttpMethod.getSpendingKey(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     sk = responseContent.getString("value");
     logger.info("sk: " + sk);
-
   }
 
-  @Test(enabled = true, description = "Get diversifier by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get diversifier by http",
+      groups = {"daily", "serial"})
   public void test02GetDiversifier() {
     response = HttpMethod.getDiversifier(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -102,7 +105,10 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
     logger.info("d3: " + d3);
   }
 
-  @Test(enabled = true, description = "Get expanded spending key by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get expanded spending key by http",
+      groups = {"daily", "serial"})
   public void test03GetExpandedSpendingKey() {
     response = HttpMethod.getExpandedSpendingKey(httpnode, sk);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -115,7 +121,10 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
     logger.info("ovk: " + ovk);
   }
 
-  @Test(enabled = true, description = "Get AK from ASK by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get AK from ASK by http",
+      groups = {"daily", "serial"})
   public void test04GetAkFromAsk() {
     response = HttpMethod.getAkFromAsk(httpnode, ask);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -124,7 +133,10 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
     logger.info("ak: " + ak);
   }
 
-  @Test(enabled = true, description = "Get Nk from Nsk by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get Nk from Nsk by http",
+      groups = {"daily", "serial"})
   public void test05GetNkFromNsk() {
     response = HttpMethod.getNkFromNsk(httpnode, nsk);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -133,7 +145,10 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
     logger.info("nk: " + nk);
   }
 
-  @Test(enabled = true, description = "Get incoming viewing Key by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get incoming viewing Key by http",
+      groups = {"daily", "serial"})
   public void test06GetIncomingViewingKey() {
     response = HttpMethod.getIncomingViewingKey(httpnode, ak, nk);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -142,7 +157,10 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
     logger.info("ivk: " + ivk);
   }
 
-  @Test(enabled = true, description = "Get Zen Payment Address by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get Zen Payment Address by http",
+      groups = {"daily", "serial"})
   public void test07GetZenPaymentAddress() {
     response = HttpMethod.getZenPaymentAddress(httpnode, ivk, d1);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -187,7 +205,10 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
     shieldAddressOptionalInfo3 = Optional.of(shieldAddressInfo3);
   }
 
-  @Test(enabled = true, description = "Get rcm by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get rcm by http",
+      groups = {"daily", "serial"})
   public void test08GetRcm() {
     response = HttpMethod.getRcm(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -196,10 +217,7 @@ public class HttpShieldTrc20Token001 extends ZenTrc20Base {
     logger.info("rcm: " + rcm);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {
-  }
+  public void shutdown() throws InterruptedException {}
 }

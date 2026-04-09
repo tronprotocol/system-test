@@ -11,63 +11,87 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class ContractScenario009 extends TronBaseTest {  ECKey ecKey1 = new ECKey(Utils.getRandom());
+public class ContractScenario009 extends TronBaseTest {
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contract009Address = ecKey1.getAddress();
   String contract009Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String compilerVersion = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.solidityCompilerVersion");
+  private String compilerVersion =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompilerVersion");
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(contract009Key);  }
+    PublicMethod.printAddress(contract009Key);
+  }
 
-  @Test(enabled = true, groups = {"contract", "smoke"})
+  @Test(
+      enabled = true,
+      groups = {"contract", "smoke"})
   public void deployContainLibraryContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(contract009Address, 20000000L, foundationAddress,
-        foundationKey, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(contract009Address, 1000000L,
-        3, 1, contract009Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract009Address,
-        blockingStubFull);
-  Long energyLimit = accountResource.getEnergyLimit();
-  Long energyUsage = accountResource.getEnergyUsed();
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contract009Address, 20000000L, foundationAddress, foundationKey, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            contract009Address, 1000000L, 3, 1, contract009Key, blockingStubFull));
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contract009Address, blockingStubFull);
+    Long energyLimit = accountResource.getEnergyLimit();
+    Long energyUsage = accountResource.getEnergyUsed();
 
     logger.info("before energy limit is " + Long.toString(energyLimit));
     logger.info("before energy usage is " + Long.toString(energyUsage));
-  String filePath = "./src/test/resources/soliditycode/contractScenario009.sol";
-  String contractName = "Set";
+    String filePath = "./src/test/resources/soliditycode/contractScenario009.sol";
+    String contractName = "Set";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  byte[] libraryContractAddress;
-    libraryContractAddress = PublicMethod
-        .deployContract(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, contract009Key, contract009Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    byte[] libraryContractAddress;
+    libraryContractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract009Key,
+            contract009Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     contractName = "C";
     retMap = PublicMethod.getBycodeAbiForLibrary(filePath, contractName);
     code = retMap.get("byteCode").toString();
     abi = retMap.get("abI").toString();
-  String library = retMap.get("library").toString();
-  //String libraryAddress =
+    String library = retMap.get("library").toString();
+    // String libraryAddress =
     //    "browser/TvmTest_p1_Grammar_002.sol:Set:" + Base58.encode58Check(libraryContractAddress);
-  String libraryAddress;
-    libraryAddress = library
-        + Base58.encode58Check(libraryContractAddress);
-  byte[] contractAddress = PublicMethod
-        .deployContractForLibrary(contractName, abi, code, "", maxFeeLimit, 0L, 100, libraryAddress,
-            contract009Key, contract009Address, compilerVersion, blockingStubFull);
+    String libraryAddress;
+    libraryAddress = library + Base58.encode58Check(libraryContractAddress);
+    byte[] contractAddress =
+        PublicMethod.deployContractForLibrary(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            libraryAddress,
+            contract009Key,
+            contract009Address,
+            compilerVersion,
+            blockingStubFull);
     SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
 
     Assert.assertFalse(smartContract.getAbi().toString().isEmpty());
@@ -84,12 +108,7 @@ public class ContractScenario009 extends TronBaseTest {  ECKey ecKey1 = new ECKe
     logger.info("after energy usage is " + Long.toString(energyUsage));
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

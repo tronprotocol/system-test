@@ -1,8 +1,8 @@
 package stest.tron.wallet.common.client.utils;
 
 /**
- * Common constants used across TRON system tests.
- * Eliminates magic numbers scattered throughout test classes.
+ * Common constants used across TRON system tests. Eliminates magic numbers scattered throughout
+ * test classes.
  */
 public final class TronConstants {
 

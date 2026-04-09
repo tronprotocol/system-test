@@ -4,15 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import stest.tron.wallet.common.client.WalletClient;
 
-
 public class Base58 {
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
+  public static final char[] ALPHABET =
+      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
 
-  public static final char[] ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-      .toCharArray();
   private static final int BASE58CHECK_ADDRESS_SIZE = 35;
   private static final int ADDRESS_SIZE = 21;
   private static final byte ADD_PRE_FIX_BYTE = (byte) 0xa0;
@@ -27,10 +24,7 @@ public class Base58 {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static String encode(byte[] input) {
     if (input.length == 0) {
       return "";
@@ -65,14 +59,11 @@ public class Base58 {
     try {
       return new String(output, "US-ASCII");
     } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);  // Cannot happen.
+      throw new RuntimeException(e); // Cannot happen.
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static byte[] decode(String input) throws IllegalArgumentException {
     if (input.length() == 0) {
       return new byte[0];
@@ -135,7 +126,6 @@ public class Base58 {
     return (byte) remainder;
   }
 
-
   private static byte divmod256(byte[] number58, int startAt) {
     int remainder = 0;
     for (int i = startAt; i < number58.length; i++) {
@@ -157,10 +147,7 @@ public class Base58 {
     return range;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static byte[] decodeFromBase58Check(String addressBase58) {
     if (addressBase58 == null || addressBase58.length() == 0) {
       System.out.println("Warning: Address is empty !!");
@@ -168,7 +155,9 @@ public class Base58 {
     }
     if (addressBase58.length() != BASE58CHECK_ADDRESS_SIZE) {
       System.out.println(
-          "Warning: Base58 address length need " + BASE58CHECK_ADDRESS_SIZE + " but "
+          "Warning: Base58 address length need "
+              + BASE58CHECK_ADDRESS_SIZE
+              + " but "
               + addressBase58.length()
               + " !!");
       return null;
@@ -180,10 +169,7 @@ public class Base58 {
     return address;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static boolean addressValid(byte[] address) {
     if (address == null || address.length == 0) {
       System.out.println("Warning: Address is empty !!");
@@ -191,29 +177,23 @@ public class Base58 {
     }
     if (address.length != ADDRESS_SIZE) {
       System.out.println(
-          "Warning: Address length need " + ADDRESS_SIZE + " but " + address.length
-              + " !!");
+          "Warning: Address length need " + ADDRESS_SIZE + " but " + address.length + " !!");
       return false;
     }
     byte preFixbyte = address[0];
     if (preFixbyte != ADD_PRE_FIX_BYTE) {
-      System.out.println("Warning: Address need prefix with " + ADD_PRE_FIX_BYTE + " but "
-          + preFixbyte + " !!");
+      System.out.println(
+          "Warning: Address need prefix with " + ADD_PRE_FIX_BYTE + " but " + preFixbyte + " !!");
       return false;
     }
-    //Other rule;
+    // Other rule;
     return true;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static String encode58Check(byte[] input) {
-    byte[] hash0 = Sha256Hash.hash(CommonParameter
-        .getInstance().isECKeyCryptoEngine(), input);
-    byte[] hash1 = Sha256Hash.hash(CommonParameter
-        .getInstance().isECKeyCryptoEngine(), hash0);
+    byte[] hash0 = Sha256Hash.hash(CommonParameter.getInstance().isECKeyCryptoEngine(), input);
+    byte[] hash1 = Sha256Hash.hash(CommonParameter.getInstance().isECKeyCryptoEngine(), hash0);
     byte[] inputCheck = new byte[input.length + 4];
     System.arraycopy(input, 0, inputCheck, 0, input.length);
     System.arraycopy(hash1, 0, inputCheck, input.length, 4);
@@ -237,6 +217,4 @@ public class Base58 {
     }
     return null;
   }
-
-
 }

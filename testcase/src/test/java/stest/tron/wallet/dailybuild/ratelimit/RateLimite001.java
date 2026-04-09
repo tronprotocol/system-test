@@ -15,43 +15,35 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
 
 @Slf4j
-public class RateLimite001 extends TronBaseTest {  private ManagedChannel channelRealSolidity = null;
+public class RateLimite001 extends TronBaseTest {
+  private ManagedChannel channelRealSolidity = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub realBlockingStubSolidity = null;
-  //soliditynode is SR-2 RPC solidity port
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(1);
-  private String realSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  // soliditynode is SR-2 RPC solidity port
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
+  private String realSoliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
   private ManagedChannel channelFull2 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull2 = null;
-  private String fullnode2 = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-          .get(1);
+  private String fullnode2 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
-    channelRealSolidity = ManagedChannelBuilder.forTarget(realSoliditynode)
-        .usePlaintext()
-        .build();
+    channelRealSolidity = ManagedChannelBuilder.forTarget(realSoliditynode).usePlaintext().build();
     realBlockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelRealSolidity);
-    channelFull2 = ManagedChannelBuilder.forTarget(fullnode2)
-            .usePlaintext()
-            .build();
+    channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
     blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
-
-
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for ListWitness interface", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "Rate limit IpQpsStrategy for ListWitness interface",
+      groups = {"daily", "serial"})
   public void test1QpsStrategyForListWitnessInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -63,10 +55,11 @@ public class RateLimite001 extends TronBaseTest {  private ManagedChannel channe
     Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for ListNodes interface", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "Rate limit IpQpsStrategy for ListNodes interface",
+      groups = {"daily", "serial"})
   public void test2IpQpsStrategyForListNodesInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -78,11 +71,13 @@ public class RateLimite001 extends TronBaseTest {  private ManagedChannel channe
     Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for getBlockByNum2 "
-      + "interface on fullnode's solidity service", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description =
+          "Rate limit IpQpsStrategy for getBlockByNum2 "
+              + "interface on fullnode's solidity service",
+      groups = {"daily", "serial"})
   public void test3IpQpsStrategyForgetBlockByNum2ResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -97,11 +92,12 @@ public class RateLimite001 extends TronBaseTest {  private ManagedChannel channe
     Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Rate limit QpsStrategy for getBlockByNum "
-      + "interface on fullnode's solidity service", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description =
+          "Rate limit QpsStrategy for getBlockByNum " + "interface on fullnode's solidity service",
+      groups = {"daily", "serial"})
   public void test4QpsStrategyForgetBlockByNumResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -115,11 +111,11 @@ public class RateLimite001 extends TronBaseTest {  private ManagedChannel channe
     Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for getBlockByNum2 "
-      + "interface on real solidity", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "Rate limit IpQpsStrategy for getBlockByNum2 " + "interface on real solidity",
+      groups = {"daily", "serial"})
   public void test5IpQpsStrategyForgetBlockByNum2ResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -134,11 +130,11 @@ public class RateLimite001 extends TronBaseTest {  private ManagedChannel channe
     Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "Rate limit QpsStrategy for getBlockByNum "
-      + "interface on real solidity", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "Rate limit QpsStrategy for getBlockByNum " + "interface on real solidity",
+      groups = {"daily", "serial"})
   public void test6QpsStrategyForgetBlockByNumResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -152,11 +148,7 @@ public class RateLimite001 extends TronBaseTest {  private ManagedChannel channe
     Assert.assertTrue(endTimesStap - startTimeStamp > 5000);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }

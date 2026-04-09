@@ -10,5 +10,4 @@ public class ZksnarkUtils {
       bytes[bytes.length - i - 1] = b;
     }
   }
-
 }

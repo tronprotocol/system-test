@@ -21,15 +21,12 @@ import java.io.Serializable;
 import java.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
 
-
 public class ByteArrayWrapper implements Comparable<ByteArrayWrapper>, Serializable {
 
   private final byte[] data;
   private int hashCode = 0;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public ByteArrayWrapper(byte[] data) {
     if (data == null) {
       throw new NullPointerException("Data must not be null");
@@ -38,18 +35,13 @@ public class ByteArrayWrapper implements Comparable<ByteArrayWrapper>, Serializa
     this.hashCode = Arrays.hashCode(data);
   }
 
-
-  /**
-   * equals Objects.
-   */
+  /** equals Objects. */
   public boolean equals(Object other) {
     if (other == null || this.getClass() != other.getClass()) {
       return false;
     }
     byte[] otherData = ((ByteArrayWrapper) other).getData();
-    return FastByteComparisons.compareTo(
-        data, 0, data.length,
-        otherData, 0, otherData.length) == 0;
+    return FastByteComparisons.compareTo(data, 0, data.length, otherData, 0, otherData.length) == 0;
   }
 
   @Override
@@ -59,9 +51,7 @@ public class ByteArrayWrapper implements Comparable<ByteArrayWrapper>, Serializa
 
   @Override
   public int compareTo(ByteArrayWrapper o) {
-    return FastByteComparisons.compareTo(
-        data, 0, data.length,
-        o.getData(), 0, o.getData().length);
+    return FastByteComparisons.compareTo(data, 0, data.length, o.getData(), 0, o.getData().length);
   }
 
   public byte[] getData() {

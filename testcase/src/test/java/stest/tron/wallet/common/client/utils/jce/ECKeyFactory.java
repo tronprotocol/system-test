@@ -27,18 +27,15 @@ public final class ECKeyFactory {
 
   public static final String ALGORITHM = "EC";
 
-  private static final String algorithmAssertionMsg =
-      "Assumed the JRE supports EC key factories";
+  private static final String algorithmAssertionMsg = "Assumed the JRE supports EC key factories";
 
-  private ECKeyFactory() {
-  }
+  private ECKeyFactory() {}
 
   public static KeyFactory getInstance() {
     return Holder.INSTANCE;
   }
 
-  public static KeyFactory getInstance(final String provider) throws
-      NoSuchProviderException {
+  public static KeyFactory getInstance(final String provider) throws NoSuchProviderException {
     try {
       return KeyFactory.getInstance(ALGORITHM, provider);
     } catch (NoSuchAlgorithmException ex) {

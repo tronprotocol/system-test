@@ -13,23 +13,22 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class MultiSignAccountPermissionUpdateTest002 extends TronBaseTest {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private static String name = "MultiSign001_" + Long.toString(now);
-  private final String testKey001 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey001 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress01 = PublicMethod.getFinalAddress(testKey001);
-  private final String operations = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.operations");
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
+  private final String operations =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.operations");
+  String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
+  String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
   ByteString assetAccountId1;
   String[] permissionKeyString = new String[2];
   String[] ownerKeyString = new String[2];
@@ -46,19 +45,18 @@ public class MultiSignAccountPermissionUpdateTest002 extends TronBaseTest {
   ECKey ecKey4 = new ECKey(Utils.getRandom());
   byte[] participateAddress = ecKey4.getAddress();
   String participateKey = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
-  private long multiSignFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.multiSignFee");
-  private long updateAccountPermissionFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.updateAccountPermissionFee");
+  private long multiSignFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.multiSignFee");
+  private long updateAccountPermissionFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.updateAccountPermissionFee");
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      groups = {"contract", "daily"})
   public void testMultiSign1UpdatePermission() {
     ecKey1 = new ECKey(Utils.getRandom());
     manager1Address = ecKey1.getAddress();
@@ -76,10 +74,10 @@ public class MultiSignAccountPermissionUpdateTest002 extends TronBaseTest {
     long needCoin = updateAccountPermissionFee * 2 + multiSignFee * 3;
 
     Assert.assertTrue(
-        PublicMethod.sendcoin(ownerAddress, needCoin, foundationAddress, foundationKey,
-            blockingStubFull));
+        PublicMethod.sendcoin(
+            ownerAddress, needCoin, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     permissionKeyString[0] = manager1Key;
@@ -90,24 +88,33 @@ public class MultiSignAccountPermissionUpdateTest002 extends TronBaseTest {
     permissionKeyString1[0] = ownerKey;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":2,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(ownerKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(ownerKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-            + "\"operations\":\"" + operations + "\","
+            + "\"operations\":\""
+            + operations
+            + "\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager2Key)
+            + "\",\"weight\":1}"
             + "]}]}";
 
     logger.info(accountPermissionJson);
-  String txid = PublicMethodForMultiSign
-        .accountPermissionUpdateForTransactionId(accountPermissionJson, ownerAddress, ownerKey,
-            blockingStubFull, ownerKeyString);
+    String txid =
+        PublicMethodForMultiSign.accountPermissionUpdateForTransactionId(
+            accountPermissionJson, ownerAddress, ownerKey, blockingStubFull, ownerKeyString);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
 
     long balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
@@ -123,26 +130,39 @@ public class MultiSignAccountPermissionUpdateTest002 extends TronBaseTest {
     Assert.assertEquals(fee, energyFee + netFee + updateAccountPermissionFee);
 
     balanceBefore = balanceAfter;
-  String accountPermissionJson1 =
+    String accountPermissionJson1 =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":2,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(ownerKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(ownerKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-            + "\"operations\":\"" + operations + "\","
+            + "\"operations\":\""
+            + operations
+            + "\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(ownerKey) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(ownerKey)
+            + "\",\"weight\":1}"
             + "]}]}";
-    txid = PublicMethodForMultiSign
-        .accountPermissionUpdateForTransactionId1(accountPermissionJson1, ownerAddress, ownerKey,
-            blockingStubFull, 2, permissionKeyString);
+    txid =
+        PublicMethodForMultiSign.accountPermissionUpdateForTransactionId1(
+            accountPermissionJson1,
+            ownerAddress,
+            ownerKey,
+            blockingStubFull,
+            2,
+            permissionKeyString);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertNotNull(txid);
 
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     balanceAfter = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     energyFee = infoById.get().getReceipt().getEnergyFee();
     netFee = infoById.get().getReceipt().getNetFee();
@@ -152,16 +172,9 @@ public class MultiSignAccountPermissionUpdateTest002 extends TronBaseTest {
     logger.info("energyFee: " + energyFee);
     logger.info("netFee: " + netFee);
     logger.info("fee: " + fee);
-
-
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

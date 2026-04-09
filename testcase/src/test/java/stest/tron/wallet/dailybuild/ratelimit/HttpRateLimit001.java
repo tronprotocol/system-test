@@ -31,52 +31,47 @@ public class HttpRateLimit001 extends JsonRpcBase {
   private String httpSoliditynode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(3);
   private String httpSoliditynode2 =
-          Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(5);
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(5);
 
   private String realHttpSoliditynode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
   private String httpPbftNode =
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
   private String httpPbftNode2 =
-          Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(6);
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(6);
 
-  //FullNode2 only rate.limiter.global.ip.qps=15
+  // FullNode2 only rate.limiter.global.ip.qps=15
   private ManagedChannel channelFull2 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull2 = null;
   private String fullnode2 =
-          Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-                  .get(1);
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   private ManagedChannel channelFull3 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull3 = null;
 
-  //just for case 010
+  // just for case 010
   private String fullnode3 =
-          Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-                  .get(1);
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   public static String jsonRpcNode2 =
-          Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(2);
-  private String httpnode2 = Configuration
-          .getByPath("testng.conf")
-          .getStringList("httpnode.ip.list")
-          .get(1);
+      Configuration.getByPath("testng.conf").getStringList("jsonRpcNode.ip.list").get(2);
+  private String httpnode2 =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(1);
 
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
-    channelFull2 = ManagedChannelBuilder.forTarget(fullnode2)
-            .usePlaintext()
-            .build();
+    channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
 
     blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
 
-    channelFull3 = ManagedChannelBuilder.forTarget(fullnode3)
-            .usePlaintext()
-            .build();
+    channelFull3 = ManagedChannelBuilder.forTarget(fullnode3).usePlaintext().build();
     blockingStubFull3 = WalletGrpc.newBlockingStub(channelFull3);
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit QpsStrategy for ListWitness interface", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Rate limit QpsStrategy for ListWitness interface",
+      groups = {"daily", "serial"})
   public void test01QpsStrategyForListWitnessInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -89,7 +84,10 @@ public class HttpRateLimit001 extends JsonRpcBase {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit IpQpsStrategy for ListNodes interface", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Rate limit IpQpsStrategy for ListNodes interface",
+      groups = {"daily", "serial"})
   public void test02IpQpsStrategyForListNodesInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -106,7 +104,8 @@ public class HttpRateLimit001 extends JsonRpcBase {
       enabled = true,
       description =
           "Rate limit IpQpsStrategy for GetBlockByLatestNumOnSolidity "
-              + "interface on fullnode's solidity service", groups = {"daily", "serial"})
+              + "interface on fullnode's solidity service",
+      groups = {"daily", "serial"})
   public void test03IpQpsStrategyForGetBlockByLatestNumOnSolidityInterface() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -123,7 +122,8 @@ public class HttpRateLimit001 extends JsonRpcBase {
   @Test(
       enabled = true,
       description =
-          "Rate limit QpsStrategy for getBlockByNum " + "interface on fullnode's solidity service", groups = {"daily", "serial"})
+          "Rate limit QpsStrategy for getBlockByNum " + "interface on fullnode's solidity service",
+      groups = {"daily", "serial"})
   public void test04QpsStrategyForgetBlockByNumResourceInterfaceOnFullnodeSolidityService() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -141,7 +141,8 @@ public class HttpRateLimit001 extends JsonRpcBase {
       description =
           "Rate limit QpsStrategy for "
               + "getTransactionsFromThisFromSolidity "
-              + "interface on real solidity", groups = {"daily", "serial"})
+              + "interface on real solidity",
+      groups = {"daily", "serial"})
   public void test06QpsStrategyForgetTransactionsToThisFromSolidity() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -154,7 +155,10 @@ public class HttpRateLimit001 extends JsonRpcBase {
     Assert.assertTrue(endTimesStap - startTimeStamp > 4000);
   }
 
-  @Test(enabled = true, description = "Verify getstatsinfo Interface has been disabled", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Verify getstatsinfo Interface has been disabled",
+      groups = {"daily", "serial"})
   public void test07GetStatsInfo() {
     response = HttpMethod.getStatsInfo(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -164,9 +168,11 @@ public class HttpRateLimit001 extends JsonRpcBase {
     Assert.assertEquals(resultForGetstatsinfo, "this API is unavailable due to config");
   }
 
-
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit global qps for all jsonrpc api", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Rate limit global qps for all jsonrpc api",
+      groups = {"daily", "serial"})
   public void test08GlobalQpsRate() {
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
@@ -185,33 +191,39 @@ public class HttpRateLimit001 extends JsonRpcBase {
     Assert.assertTrue(endTimesStamp - startTimeStamp > 28500);
   }
 
-
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit global qps for grpc api", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Rate limit global qps for grpc api",
+      groups = {"daily", "serial"})
   public void test09GlobalQpsRateForGrpc() {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes++ < 200) {
-      Assert.assertTrue(PublicMethod.getAccountResource(foundationAddress, blockingStubFull2)
-              .getTotalEnergyLimit() > 0);
+      Assert.assertTrue(
+          PublicMethod.getAccountResource(foundationAddress, blockingStubFull2)
+                  .getTotalEnergyLimit()
+              > 0);
     }
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     Assert.assertTrue(endTimesStamp - startTimeStamp > 7500);
-
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit global qps for mix api", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Rate limit global qps for mix api",
+      groups = {"daily", "serial"})
   public void test10GlobalQpsRateForMix() {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes < 200) {
 
-      Assert.assertTrue(PublicMethod.queryAccount(foundationAddress, blockingStubFull2)
-              .getBalance() > 0);
+      Assert.assertTrue(
+          PublicMethod.queryAccount(foundationAddress, blockingStubFull2).getBalance() > 0);
 
       response = HttpMethod.getAccount(httpnode2, foundationAddress);
       responseContent = HttpMethod.parseResponseContent(response);
@@ -232,21 +244,26 @@ public class HttpRateLimit001 extends JsonRpcBase {
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
     logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
     Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
-
   }
 
   /** constructor. */
-  @Test(enabled = true, description
-          = "Rate limit global qps with different blockingStubFull instance but same node", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Rate limit global qps with different blockingStubFull instance but same node",
+      groups = {"daily", "serial"})
   public void test11GlobalQpsRateForGrpcDifferentPort() {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes < 200) {
-      Assert.assertTrue(PublicMethod.getAccountResource(foundationAddress, blockingStubFull2)
-              .getTotalEnergyLimit() > 0);
-      Assert.assertTrue(PublicMethod.getAccountResource(foundationAddress, blockingStubFull3)
-              .getTotalEnergyLimit() > 0);
+      Assert.assertTrue(
+          PublicMethod.getAccountResource(foundationAddress, blockingStubFull2)
+                  .getTotalEnergyLimit()
+              > 0);
+      Assert.assertTrue(
+          PublicMethod.getAccountResource(foundationAddress, blockingStubFull3)
+                  .getTotalEnergyLimit()
+              > 0);
       repeatTimes += 2;
     }
     Long endTimesStamp = System.currentTimeMillis();
@@ -255,16 +272,21 @@ public class HttpRateLimit001 extends JsonRpcBase {
     Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
   }
 
-
   /** constructor. */
-  @Test(enabled = true, description = "Rate limit global ip qps for mix api", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Rate limit global ip qps for mix api",
+      groups = {"daily", "serial"})
   public void test12GlobalIpQpsRateForMix() {
 
     Long startTimeStamp = System.currentTimeMillis();
     Integer repeatTimes = 0;
     while (repeatTimes < 200) {
 
-      Assert.assertTrue(PublicMethod.getAccountResource(foundationAddress, blockingStubFull2).getTotalEnergyLimit() > 0);
+      Assert.assertTrue(
+          PublicMethod.getAccountResource(foundationAddress, blockingStubFull2)
+                  .getTotalEnergyLimit()
+              > 0);
 
       response = HttpMethod.getAccount(httpnode2, foundationAddress);
       responseContent = HttpMethod.parseResponseContent(response);
@@ -283,12 +305,9 @@ public class HttpRateLimit001 extends JsonRpcBase {
     }
     Long endTimesStamp = System.currentTimeMillis();
     logger.info("startTimeStamp - endTimesStap:" + (endTimesStamp - startTimeStamp));
-    logger.info("QPS:" + repeatTimes/((endTimesStamp - startTimeStamp) / 1000));
+    logger.info("QPS:" + repeatTimes / ((endTimesStamp - startTimeStamp) / 1000));
     Assert.assertTrue(endTimesStamp - startTimeStamp > 7000);
-
   }
-
-
 
   /** constructor. */
   @AfterClass

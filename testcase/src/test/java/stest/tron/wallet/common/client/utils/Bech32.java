@@ -1,6 +1,5 @@
 package stest.tron.wallet.common.client.utils;
 
-
 /*
  * Copyright 2018 Coinomi Ltd
  *
@@ -17,7 +16,6 @@ package stest.tron.wallet.common.client.utils;
  * limitations under the License.
  */
 
-
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Arrays;
@@ -25,28 +23,22 @@ import java.util.Locale;
 
 public class Bech32 {
 
-  /**
-   * The Bech32 character set for encoding.
-   */
+  /** The Bech32 character set for encoding. */
   private static final String CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
 
-  /**
-   * The Bech32 character set for decoding.
-   */
+  /** The Bech32 character set for decoding. */
   private static final byte[] CHARSET_REV = {
-      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      15, -1, 10, 17, 21, 20, 26, 30, 7, 5, -1, -1, -1, -1, -1, -1,
-      -1, 29, -1, 24, 13, 25, 9, 8, 23, -1, 18, 22, 31, 27, 19, -1,
-      1, 0, 3, 16, 11, 28, 12, 14, 6, 4, 2, -1, -1, -1, -1, -1,
-      -1, 29, -1, 24, 13, 25, 9, 8, 23, -1, 18, 22, 31, 27, 19, -1,
-      1, 0, 3, 16, 11, 28, 12, 14, 6, 4, 2, -1, -1, -1, -1, -1
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    15, -1, 10, 17, 21, 20, 26, 30, 7, 5, -1, -1, -1, -1, -1, -1,
+    -1, 29, -1, 24, 13, 25, 9, 8, 23, -1, 18, 22, 31, 27, 19, -1,
+    1, 0, 3, 16, 11, 28, 12, 14, 6, 4, 2, -1, -1, -1, -1, -1,
+    -1, 29, -1, 24, 13, 25, 9, 8, 23, -1, 18, 22, 31, 27, 19, -1,
+    1, 0, 3, 16, 11, 28, 12, 14, 6, 4, 2, -1, -1, -1, -1, -1
   };
 
-  /**
-   * Find the polynomial with value coefficients mod the generator as 30-bit.
-   */
+  /** Find the polynomial with value coefficients mod the generator as 30-bit. */
   private static int polymod(final byte[] values) {
     int c = 1;
     for (byte v_i : values) {
@@ -71,12 +63,10 @@ public class Bech32 {
     return c;
   }
 
-  /**
-   * Expand a HRP for use in checksum computation.
-   */
+  /** Expand a HRP for use in checksum computation. */
   private static byte[] expandHrp(final String hrp) {
     int hrpLength = hrp.length();
-    byte ret[] = new byte[hrpLength * 2 + 1];
+    byte[] ret = new byte[hrpLength * 2 + 1];
     for (int i = 0; i < hrpLength; ++i) {
       int c = hrp.charAt(i) & 0x7f; // Limit to standard 7-bit ASCII
       ret[i] = (byte) ((c >>> 5) & 0x07);
@@ -86,9 +76,7 @@ public class Bech32 {
     return ret;
   }
 
-  /**
-   * Verify a checksum.
-   */
+  /** Verify a checksum. */
   private static boolean verifyChecksum(final String hrp, final byte[] values) {
     byte[] hrpExpanded = expandHrp(hrp);
     byte[] combined = new byte[hrpExpanded.length + values.length];
@@ -97,9 +85,7 @@ public class Bech32 {
     return polymod(combined) == 1;
   }
 
-  /**
-   * Create a checksum.
-   */
+  /** Create a checksum. */
   private static byte[] createChecksum(final String hrp, final byte[] values) {
     byte[] hrpExpanded = expandHrp(hrp);
     byte[] enc = new byte[hrpExpanded.length + values.length + 6];
@@ -113,16 +99,12 @@ public class Bech32 {
     return ret;
   }
 
-  /**
-   * Encode a Bech32 string.
-   */
+  /** Encode a Bech32 string. */
   public static String encode(final Bech32Data bech32) {
     return encode(bech32.hrp, bech32.data);
   }
 
-  /**
-   * Encode a Bech32 string.
-   */
+  /** Encode a Bech32 string. */
   public static String encode(String hrp, final byte[] values) {
     checkArgument(hrp.length() >= 1, "Human-readable part is too short");
     checkArgument(hrp.length() <= 83, "Human-readable part is too long");
@@ -140,11 +122,10 @@ public class Bech32 {
     return sb.toString();
   }
 
-  /**
-   * Decode a Bech32 string.
-   */
+  /** Decode a Bech32 string. */
   public static Bech32Data decode(final String str) throws IllegalArgumentException {
-    boolean lower = false, upper = false;
+    boolean lower = false;
+    boolean upper = false;
     if (str.length() < 8) {
       throw new IllegalArgumentException("Input too short: " + str.length());
     }

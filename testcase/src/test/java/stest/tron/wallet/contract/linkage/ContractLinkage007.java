@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
@@ -14,46 +13,46 @@ import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray; import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.Utils;
 
-import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
 @Slf4j
 @MultiNode
-public class ContractLinkage007 extends TronBaseTest {  String contractName;
+public class ContractLinkage007 extends TronBaseTest {
+  String contractName;
   String code;
   String abi;
   byte[] contractAddress;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] linkage007Address = ecKey1.getAddress();
-  String linkage007Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());  private ManagedChannel channelFull1 = null;
+  String linkage007Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);  /**
-   * constructor.
-   */
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  /** constructor. */
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(linkage007Key);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(linkage007Key);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
-
   }
 
   @Test(enabled = true)
   public void testRangeOfFeeLimit() {
 
-    //Now the feelimit range is 0-1000000000,including 0 and 1000000000
-    Assert.assertTrue(PublicMethod.sendcoin(linkage007Address, 2000000000L, fromAddress,
-        foundationKey2, blockingStubFull));
-
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull);
+    // Now the feelimit range is 0-1000000000,including 0 and 1000000000
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            linkage007Address, 2000000000L, foundationAddress2, foundationKey2, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull);
     Account info;
     info = PublicMethod.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance = info.getBalance();
@@ -70,7 +69,7 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     logger.info("beforeNetLimit:" + beforeNetLimit);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-    //When the feelimit is large, the deploy will be failed,No used everything.
+    // When the feelimit is large, the deploy will be failed,No used everything.
 
     String filePath = "./src/test/resources/soliditycode/contractLinkage002.sol";
     String contractName = "divideIHaveArgsReturnStorage";
@@ -80,13 +79,23 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     String abi = retMap.get("abI").toString();
 
     String txid;
-    txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit + 1, 0L, 100, null, linkage007Key,
-        linkage007Address, blockingStubFull);
+    txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit + 1,
+            0L,
+            100,
+            null,
+            linkage007Key,
+            linkage007Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account infoafter = PublicMethod.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull1);
     Long afterBalance = infoafter.getBalance();
     Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
     Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -107,8 +116,8 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     Assert.assertTrue(afterFreeNetUsed == 0);
 
     Assert.assertTrue(txid == null);
-    AccountResourceMessage resourceInfo1 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo1 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull);
     Account info1 = PublicMethod.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance1 = info1.getBalance();
     Long beforeEnergyLimit1 = resourceInfo1.getEnergyLimit();
@@ -124,14 +133,24 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     logger.info("beforeNetLimit1:" + beforeNetLimit1);
     logger.info("beforeNetUsed1:" + beforeNetUsed1);
     logger.info("beforeFreeNetUsed1:" + beforeFreeNetUsed1);
-    //When the feelimit is 0, the deploy will be failed.Only use FreeNet,balance not change.
-    txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", 0L, 0L, 100, null, linkage007Key,
-        linkage007Address, blockingStubFull);
+    // When the feelimit is 0, the deploy will be failed.Only use FreeNet,balance not change.
+    txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            0L,
+            0L,
+            100,
+            null,
+            linkage007Key,
+            linkage007Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account infoafter1 = PublicMethod.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull1);
     Long afterBalance1 = infoafter1.getBalance();
     Long afterEnergyLimit1 = resourceInfoafter1.getEnergyLimit();
     Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
@@ -156,9 +175,9 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 1);
 
-    //Deploy the contract.success.use FreeNet,EnergyFee.balcne change
-    AccountResourceMessage resourceInfo2 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull);
+    // Deploy the contract.success.use FreeNet,EnergyFee.balcne change
+    AccountResourceMessage resourceInfo2 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull);
     Account info2 = PublicMethod.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance2 = info2.getBalance();
     Long beforeEnergyLimit2 = resourceInfo2.getEnergyLimit();
@@ -174,12 +193,22 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     logger.info("beforeNetLimit2:" + beforeNetLimit2);
     logger.info("beforeNetUsed2:" + beforeNetUsed2);
     logger.info("beforeFreeNetUsed2:" + beforeFreeNetUsed2);
-    txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit, 0L, 100, null, linkage007Key,
-        linkage007Address, blockingStubFull);
+    txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            linkage007Key,
+            linkage007Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById2 =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Long energyUsageTotal2 = infoById2.get().getReceipt().getEnergyUsageTotal();
     Long fee2 = infoById2.get().getFee();
     Long energyFee2 = infoById2.get().getReceipt().getEnergyFee();
@@ -193,8 +222,8 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     logger.info("energyUsed2:" + energyUsed2);
     logger.info("netFee2:" + netFee2);
     Account infoafter2 = PublicMethod.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter2 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter2 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull1);
     Long afterBalance2 = infoafter2.getBalance();
     Long afterEnergyLimit2 = resourceInfoafter2.getEnergyLimit();
     Long afterEnergyUsed2 = resourceInfoafter2.getEnergyUsed();
@@ -216,9 +245,10 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     Assert.assertTrue(infoById2.get().getResultValue() == 0);
     contractAddress = infoById2.get().getContractAddress().toByteArray();
 
-    //When the feelimit is large, the trigger will be failed.Only use FreeNetUsed,Balance not change
-    AccountResourceMessage resourceInfo3 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull);
+    // When the feelimit is large, the trigger will be failed.Only use FreeNetUsed,Balance not
+    // change
+    AccountResourceMessage resourceInfo3 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull);
     Account info3 = PublicMethod.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance3 = info3.getBalance();
     Long beforeEnergyLimit3 = resourceInfo3.getEnergyLimit();
@@ -234,15 +264,23 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     logger.info("beforeNetLimit3:" + beforeNetLimit3);
     logger.info("beforeNetUsed3:" + beforeNetUsed3);
     logger.info("beforeFreeNetUsed3:" + beforeFreeNetUsed3);
-    //String initParmes = "\"" + Base58.encode58Check(fromAddress) + "\",\"63\"";
+    // String initParmes = "\"" + Base58.encode58Check(fromAddress) + "\",\"63\"";
     String num = "4" + "," + "2";
-    txid = PublicMethod.triggerContract(contractAddress,
-        "divideIHaveArgsReturn(int256,int256)", num, false,
-        1000, maxFeeLimit + 1, linkage007Address, linkage007Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "divideIHaveArgsReturn(int256,int256)",
+            num,
+            false,
+            1000,
+            maxFeeLimit + 1,
+            linkage007Address,
+            linkage007Key,
+            blockingStubFull);
     Account infoafter3 = PublicMethod.queryAccount(linkage007Address, blockingStubFull1);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfoafter3 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter3 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull1);
     Long afterBalance3 = infoafter3.getBalance();
     Long afterEnergyLimit3 = resourceInfoafter3.getEnergyLimit();
     Long afterEnergyUsed3 = resourceInfoafter3.getEnergyUsed();
@@ -263,9 +301,9 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     Assert.assertTrue(afterFreeNetUsed3 > beforeNetUsed3);
     Assert.assertTrue(afterNetUsed3 == 0);
     Assert.assertTrue(afterEnergyUsed3 == 0);
-    //When the feelimit is 0, the trigger will be failed.Only use FreeNetUsed,Balance not change
-    AccountResourceMessage resourceInfo4 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull);
+    // When the feelimit is 0, the trigger will be failed.Only use FreeNetUsed,Balance not change
+    AccountResourceMessage resourceInfo4 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull);
     Account info4 = PublicMethod.queryAccount(linkage007Address, blockingStubFull);
     Long beforeBalance4 = info4.getBalance();
     Long beforeEnergyLimit4 = resourceInfo4.getEnergyLimit();
@@ -281,12 +319,21 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     logger.info("beforeNetLimit4:" + beforeNetLimit4);
     logger.info("beforeNetUsed4:" + beforeNetUsed4);
     logger.info("beforeFreeNetUsed4:" + beforeFreeNetUsed4);
-    txid = PublicMethod.triggerContract(contractAddress,
-        "divideIHaveArgsReturn(int256,int256)", num, false,
-        1000, maxFeeLimit + 1, linkage007Address, linkage007Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "divideIHaveArgsReturn(int256,int256)",
+            num,
+            false,
+            1000,
+            maxFeeLimit + 1,
+            linkage007Address,
+            linkage007Key,
+            blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account infoafter4 = PublicMethod.queryAccount(linkage007Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter4 = PublicMethod.getAccountResource(linkage007Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter4 =
+        PublicMethod.getAccountResource(linkage007Address, blockingStubFull1);
     Long afterBalance4 = infoafter4.getBalance();
     Long afterEnergyLimit4 = resourceInfoafter4.getEnergyLimit();
     Long afterEnergyUsed4 = resourceInfoafter4.getEnergyUsed();
@@ -311,4 +358,3 @@ public class ContractLinkage007 extends TronBaseTest {  String contractName;
     Assert.assertTrue(infoById.get().getFee() == 0);
   }
 }
-

@@ -183,10 +183,11 @@ public class TransactionHelper {
   /** Broadcast a signed transaction to the network, retrying on SERVER_BUSY. */
   public static GrpcAPI.Return broadcastTransaction(
       Transaction transaction, WalletGrpc.WalletBlockingStub blockingStubFull) {
-    String txid = ByteArray.toHexString(
-        Sha256Hash.hash(
-            CommonParameter.getInstance().isECKeyCryptoEngine(),
-            transaction.getRawData().toByteArray()));
+    String txid =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                transaction.getRawData().toByteArray()));
     logger.info("broadcastTransaction: " + txid);
     int i = 10;
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);

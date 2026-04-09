@@ -21,16 +21,16 @@ import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.Hash;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
 public class batchValidateSignContract003 extends TronBaseTest {
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethod.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -39,127 +39,200 @@ public class batchValidateSignContract003 extends TronBaseTest {
   String txid = "";
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    PublicMethod.printAddress(contractExcKey);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
+    PublicMethod.printAddress(contractExcKey);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
-    txid = PublicMethod
-        .sendcoinGetTransactionId(contractExcAddress, 1000000000L, testNetAccountAddress,
-            testNetAccountKey, blockingStubFull);
+    txid =
+        PublicMethod.sendcoinGetTransactionId(
+            contractExcAddress,
+            1000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "src/test/resources/soliditycode/batchvalidatesign001.sol";
-  String contractName = "Demo";
+    String filePath = "src/test/resources/soliditycode/batchvalidatesign001.sol";
+    String contractName = "Demo";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod
-        .deployContract(contractName, abi, code, "", maxFeeLimit, 0L, 100, null, contractExcKey,
-            contractExcAddress, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "13 signatures and 12 address test pure multivalidatesign", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "13 signatures and 12 address test pure multivalidatesign",
+      groups = {"contract", "daily"})
   public void test01With25SignaturesAnd24Address() {
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  byte[] hash = Hash.sha3(txid.getBytes());
+    byte[] hash = Hash.sha3(txid.getBytes());
     for (int i = 0; i < 12; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
       addresses.add(WalletClient.encode58Check(key.getAddress()));
     }
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.add(Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-  String input = parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
-            input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String input = parametersString(parameters);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "testPure(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
-          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
+      Assert.assertTrue(
+          transactionExtention
+              .getResult()
+              .getMessage()
+              .toStringUtf8()
+              .contains(
+                  "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
+      Assert.assertEquals(
+          "00000000000000000000000000000000",
           PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
-          transactionExtention.getTransaction().getRet(0).getRet().toString());
+      Assert.assertEquals(
+          "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
 
-  @Test(enabled = true, description = "7 signatures and 8 address test pure multivalidatesign", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "7 signatures and 8 address test pure multivalidatesign",
+      groups = {"contract", "daily"})
   public void test02With15SignaturesAnd16Address() {
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  byte[] hash = Hash.sha3(txid.getBytes());
+    byte[] hash = Hash.sha3(txid.getBytes());
     for (int i = 0; i < 7; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
       addresses.add(WalletClient.encode58Check(key.getAddress()));
     }
     addresses.add(WalletClient.encode58Check(new ECKey().getAddress()));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-  String input = parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
-            input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String input = parametersString(parameters);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "testPure(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
-          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
+      Assert.assertTrue(
+          transactionExtention
+              .getResult()
+              .getMessage()
+              .toStringUtf8()
+              .contains(
+                  "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
+      Assert.assertEquals(
+          "00000000000000000000000000000000",
           PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
-          transactionExtention.getTransaction().getRet(0).getRet().toString());
+      Assert.assertEquals(
+          "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
 
-  @Test(enabled = true, description = "150 signatures and 1 address test pure multivalidatesign", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "150 signatures and 1 address test pure multivalidatesign",
+      groups = {"contract", "daily"})
   public void test03With150SignaturesAnd1Address() {
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  byte[] hash = Hash.sha3(txid.getBytes());
+    byte[] hash = Hash.sha3(txid.getBytes());
     for (int i = 0; i < 150; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
     }
     addresses.add(WalletClient.encode58Check(new ECKey().getAddress()));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-  String input = parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
-            input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String input = parametersString(parameters);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "testPure(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
-          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
+      Assert.assertTrue(
+          transactionExtention
+              .getResult()
+              .getMessage()
+              .toStringUtf8()
+              .contains(
+                  "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
+      Assert.assertEquals(
+          "00000000000000000000000000000000",
           PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
-          transactionExtention.getTransaction().getRet(0).getRet().toString());
+      Assert.assertEquals(
+          "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
 
-  @Test(enabled = true, description = "1 signatures and 160 address test pure multivalidatesign", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "1 signatures and 160 address test pure multivalidatesign",
+      groups = {"contract", "daily"})
   public void test04With1SignaturesAnd160Address() {
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  byte[] hash = Hash.sha3(txid.getBytes());
+    byte[] hash = Hash.sha3(txid.getBytes());
     for (int i = 0; i < 160; i++) {
       ECKey key = new ECKey();
       addresses.add(WalletClient.encode58Check(key.getAddress()));
@@ -167,99 +240,152 @@ public class batchValidateSignContract003 extends TronBaseTest {
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.add(Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-  String input = parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
-            input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String input = parametersString(parameters);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "testPure(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
-          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
+      Assert.assertTrue(
+          transactionExtention
+              .getResult()
+              .getMessage()
+              .toStringUtf8()
+              .contains(
+                  "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
+      Assert.assertEquals(
+          "00000000000000000000000000000000",
           PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
-          transactionExtention.getTransaction().getRet(0).getRet().toString());
+      Assert.assertEquals(
+          "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
 
-  @Test(enabled = true, description = "16 signatures and 17 address test pure multivalidatesign", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "16 signatures and 17 address test pure multivalidatesign",
+      groups = {"contract", "daily"})
   public void test05With32SignaturesAnd33Address() {
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  byte[] hash = Hash.sha3(txid.getBytes());
+    byte[] hash = Hash.sha3(txid.getBytes());
     for (int i = 0; i < 16; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
       addresses.add(WalletClient.encode58Check(key.getAddress()));
     }
     addresses.add(WalletClient.encode58Check(new ECKey().getAddress()));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-  String input = parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
-            input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String input = parametersString(parameters);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "testPure(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
-          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
+      Assert.assertTrue(
+          transactionExtention
+              .getResult()
+              .getMessage()
+              .toStringUtf8()
+              .contains(
+                  "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
+      Assert.assertEquals(
+          "00000000000000000000000000000000",
           PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
-          transactionExtention.getTransaction().getRet(0).getRet().toString());
+      Assert.assertEquals(
+          "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
 
-  @Test(enabled = true, description = "17 signatures and 16 address test pure multivalidatesign", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "17 signatures and 16 address test pure multivalidatesign",
+      groups = {"contract", "daily"})
   public void test06With33SignaturesAnd32Address() {
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  byte[] hash = Hash.sha3(txid.getBytes());
+    byte[] hash = Hash.sha3(txid.getBytes());
     for (int i = 0; i < 16; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
       addresses.add(WalletClient.encode58Check(key.getAddress()));
     }
     byte[] sign = new ECKey().sign(Hash.sha3("sdifhsdfihyw888w7".getBytes())).toByteArray();
     signatures.add(Hex.toHexString(sign));
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
-  String input = parametersString(parameters);
-    TransactionExtention transactionExtention = PublicMethod
-        .triggerConstantContractForExtention(contractAddress, "testPure(bytes32,bytes[],address[])",
-            input, false, 0, 0, "0", 0, contractExcAddress, contractExcKey, blockingStubFull);
+    String input = parametersString(parameters);
+    TransactionExtention transactionExtention =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "testPure(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            0,
+            "0",
+            0,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     logger.info("transactionExtention:" + transactionExtention);
     if (transactionExtention.getResult().getCode().toString().equals("CONTRACT_EXE_ERROR")) {
-      Assert.assertTrue(transactionExtention.getResult().getMessage().toStringUtf8().contains(
-          "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
+      Assert.assertTrue(
+          transactionExtention
+              .getResult()
+              .getMessage()
+              .toStringUtf8()
+              .contains(
+                  "class org.tron.core.vm.program.Program$OutOfTimeException : CPU timeout for"));
     } else {
-      Assert.assertEquals("00000000000000000000000000000000",
+      Assert.assertEquals(
+          "00000000000000000000000000000000",
           PublicMethod.bytes32ToString(transactionExtention.getConstantResult(0).toByteArray()));
-      Assert.assertEquals("SUCESS",
-          transactionExtention.getTransaction().getRet(0).getRet().toString());
+      Assert.assertEquals(
+          "SUCESS", transactionExtention.getTransaction().getRet(0).getRet().toString());
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     long balance = PublicMethod.queryAccount(contractExcKey, blockingStubFull).getBalance();
-    PublicMethod.sendcoin(testNetAccountAddress, balance, contractExcAddress, contractExcKey,
-        blockingStubFull);    if (channelFull1 != null) {
+    PublicMethod.sendcoin(
+        testNetAccountAddress, balance, contractExcAddress, contractExcKey, blockingStubFull);
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
 
   private String parametersString(List<Object> parameters) {
     String[] inputArr = new String[parameters.size()];
-  int i = 0;
+    int i = 0;
     for (Object parameter : parameters) {
       if (parameter instanceof List) {
         StringBuilder sb = new StringBuilder();

@@ -8,24 +8,16 @@ import org.tron.common.zksnark.JLibrustzcash;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 
-
 @Slf4j(topic = "shieldTransaction")
 @AllArgsConstructor
 public class ExpandedSpendingKey {
 
-  @Setter
-  @Getter
-  private byte[] ask; // the spend authorizing key,256
-  @Setter
-  @Getter
-  private byte[] nsk; // the proof authorizing key (ak, nsk),256
+  @Setter @Getter private byte[] ask; // the spend authorizing key,256
+  @Setter @Getter private byte[] nsk; // the proof authorizing key (ak, nsk),256
   // Let ovk be an outgoing viewing key that is intended to be able to decrypt this payment
-  @Setter
-  @Getter
-  private byte[] ovk; // the outgoing viewing key,256
+  @Setter @Getter private byte[] ovk; // the outgoing viewing key,256
 
-  public ExpandedSpendingKey() {
-  }
+  public ExpandedSpendingKey() {}
 
   public static byte[] getAkFromAsk(byte[] ask) throws ZksnarkException {
     return JLibrustzcash.librustzcashAskToAk(ask); // 256

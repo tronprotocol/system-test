@@ -1,7 +1,6 @@
 package stest.tron.wallet.common.client.utils;
 
 public enum ProposalEnum {
-
   GetAllowTvmSelfdestructRestriction("getAllowTvmSelfdestructRestriction"),
   GetAllowNewResourceModel("getAllowNewResourceModel"),
   GetUnfreezeDelayDays("getUnfreezeDelayDays"),
@@ -28,5 +27,4 @@ public enum ProposalEnum {
   public String getProposalName() {
     return proposalName;
   }
-
 }

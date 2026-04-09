@@ -40,26 +40,26 @@ public class TestStorageAndCpu extends TronBaseTest {
   private String fullnode = "47.94.243.150:50051";
   private String fullnode1 = "47.94.243.150:50051";
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethod.printAddress(witnessKey5);
-    PublicMethod.printAddress(witnessKey4);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(witnessKey4);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
     currentBlock = blockingStubFull1.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
     beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     beforeTime = System.currentTimeMillis();
   }
 
-  @Test(enabled = true,threadPoolSize = 1, invocationCount = 1, groups = {"stress"})
+  @Test(
+      enabled = true,
+      threadPoolSize = 1,
+      invocationCount = 1,
+      groups = {"stress"})
   public void scanBlock() {
     Long startNum = 26165658L;
-  Long endNum = 26166320L;
+    Long endNum = 26166320L;
     Integer totalNum = 0;
     Integer successNum = 0;
     Integer failedNum = 0;
@@ -67,8 +67,8 @@ public class TestStorageAndCpu extends TronBaseTest {
     while (startNum <= endNum) {
       logger.info("scan block num:" + startNum);
       builder.setNum(startNum);
-      List<Transaction>  transactionList = blockingStubFull
-          .getBlockByNum(builder.build()).getTransactionsList();
+      List<Transaction> transactionList =
+          blockingStubFull.getBlockByNum(builder.build()).getTransactionsList();
       Integer transactionNumInThisBlock = transactionList.size();
       totalNum = totalNum + transactionNumInThisBlock;
       for (Transaction transaction : transactionList) {
@@ -84,119 +84,154 @@ public class TestStorageAndCpu extends TronBaseTest {
     logger.info("successNum:" + successNum);
     logger.info("failedNum:" + failedNum);
     logger.info("totalNum:" + totalNum);
-    logger.info("Success rate:" + (double)failedNum / (double)totalNum);
+    logger.info("Success rate:" + (double) failedNum / (double) totalNum);
   }
 
-  @Test(enabled = true, threadPoolSize = 1, invocationCount = 1, groups = {"stress"})
+  @Test(
+      enabled = true,
+      threadPoolSize = 1,
+      invocationCount = 1,
+      groups = {"stress"})
   public void storageAndCpu() {
     Random rand = new Random();
     Integer randNum = rand.nextInt(30) + 1;
     randNum = rand.nextInt(4000);
-  Long maxFeeLimit = 1000000000L;
-  String contractName = "StorageAndCpu" + Integer.toString(randNum);
-  String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_TestStorageAndCpu_storageAndCpu");
-  String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_TestStorageAndCpu_storageAndCpu");
-    PublicMethod
-        .freezeBalanceGetEnergy(foundationAddress, 1000000000000L, 3, 1, witnessKey5, blockingStubFull);
-  byte[] contractAddress = PublicMethod.deployContract(contractName, abi, code,
-        "", maxFeeLimit,
-        0L, 100, null, witnessKey5, foundationAddress, blockingStubFull);
+    Long maxFeeLimit = 1000000000L;
+    String contractName = "StorageAndCpu" + Integer.toString(randNum);
+    String code =
+        Configuration.getByPath("testng.conf")
+            .getString("code.code_TestStorageAndCpu_storageAndCpu");
+    String abi =
+        Configuration.getByPath("testng.conf").getString("abi.abi_TestStorageAndCpu_storageAndCpu");
+    PublicMethod.freezeBalanceGetEnergy(
+        foundationAddress, 1000000000000L, 3, 1, witnessKey5, blockingStubFull);
+    byte[] contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            witnessKey5,
+            foundationAddress,
+            blockingStubFull);
     try {
       Thread.sleep(30000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
     SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
-  String txid;
+    String txid;
 
-    ChainParameters chainParameters = blockingStubFull
-        .getChainParameters(EmptyMessage.newBuilder().build());
+    ChainParameters chainParameters =
+        blockingStubFull.getChainParameters(EmptyMessage.newBuilder().build());
     Optional<ChainParameters> getChainParameters = Optional.ofNullable(chainParameters);
 
     Integer i = 1;
     while (i++ < 8000) {
       String initParmes = "\"" + "930" + "\"";
-      txid = PublicMethod.triggerContract(contractAddress,
-          "testUseCpu(uint256)", "9100", false,
-          0, maxFeeLimit, foundationAddress, witnessKey5, blockingStubFull);
-      txid = PublicMethod.triggerContract(contractAddress,
-          "storage8Char()", "", false,
-          0, maxFeeLimit, foundationAddress, witnessKey5, blockingStubFull);
-  //storage 9 EnergyUsageTotal is  211533, 10 is 236674, 5 is 110969,21 is 500000
-      txid = PublicMethod.triggerContract(contractAddress,
-          "testUseStorage(uint256)", "21", false,
-          0, maxFeeLimit, foundationAddress, witnessKey5, blockingStubFull);
-  //logger.info("i is " +Integer.toString(i) + " " + txid);
-  //txidList.add(txid);
+      txid =
+          PublicMethod.triggerContract(
+              contractAddress,
+              "testUseCpu(uint256)",
+              "9100",
+              false,
+              0,
+              maxFeeLimit,
+              foundationAddress,
+              witnessKey5,
+              blockingStubFull);
+      txid =
+          PublicMethod.triggerContract(
+              contractAddress,
+              "storage8Char()",
+              "",
+              false,
+              0,
+              maxFeeLimit,
+              foundationAddress,
+              witnessKey5,
+              blockingStubFull);
+      // storage 9 EnergyUsageTotal is  211533, 10 is 236674, 5 is 110969,21 is 500000
+      txid =
+          PublicMethod.triggerContract(
+              contractAddress,
+              "testUseStorage(uint256)",
+              "21",
+              false,
+              0,
+              maxFeeLimit,
+              foundationAddress,
+              witnessKey5,
+              blockingStubFull);
+      // logger.info("i is " +Integer.toString(i) + " " + txid);
+      // txidList.add(txid);
       try {
         Thread.sleep(50);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
       if (i % 10 == 0) {
-        chainParameters = blockingStubFull
-            .getChainParameters(EmptyMessage.newBuilder().build());
+        chainParameters = blockingStubFull.getChainParameters(EmptyMessage.newBuilder().build());
         getChainParameters = Optional.ofNullable(chainParameters);
         logger.info(getChainParameters.get().getChainParameter(22).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(22).getValue()));
         logger.info(getChainParameters.get().getChainParameter(23).getKey());
         logger.info(Long.toString(getChainParameters.get().getChainParameter(23).getValue()));
-
       }
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     /*
-    afterTime = System.currentTimeMillis();
-    try {
-      Thread.sleep(10000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    currentBlock = blockingStubFull1.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-    afterBlockNum = currentBlock.getBlockHeader().getRawData().getNumber() + 2;
-  Long blockNum = beforeBlockNum;
-    Integer txsNum = 0;
-    Integer topNum = 0;
-    Integer totalNum = 0;
-  Long energyTotal = 0L;
-  String findOneTxid = "";
+        afterTime = System.currentTimeMillis();
+        try {
+          Thread.sleep(10000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        currentBlock = blockingStubFull1.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+        afterBlockNum = currentBlock.getBlockHeader().getRawData().getNumber() + 2;
+      Long blockNum = beforeBlockNum;
+        Integer txsNum = 0;
+        Integer topNum = 0;
+        Integer totalNum = 0;
+      Long energyTotal = 0L;
+      String findOneTxid = "";
 
-    NumberMessage.Builder builder = NumberMessage.newBuilder();
-    while (blockNum <= afterBlockNum) {
-      builder.setNum(blockNum);
-      txsNum = blockingStubFull1.getBlockByNum(builder.build()).getTransactionsCount();
-      totalNum = totalNum + txsNum;
-      if (topNum < txsNum) {
-        topNum = txsNum;
-        findOneTxid = ByteArray.toHexString(Sha256Hash.hash(blockingStubFull1
-            .getBlockByNum(builder.build()).getTransactionsList().get(2)
-            .getRawData().toByteArray()));
-  //logger.info("find one txid is " + findOneTxid);
-      }
+        NumberMessage.Builder builder = NumberMessage.newBuilder();
+        while (blockNum <= afterBlockNum) {
+          builder.setNum(blockNum);
+          txsNum = blockingStubFull1.getBlockByNum(builder.build()).getTransactionsCount();
+          totalNum = totalNum + txsNum;
+          if (topNum < txsNum) {
+            topNum = txsNum;
+            findOneTxid = ByteArray.toHexString(Sha256Hash.hash(blockingStubFull1
+                .getBlockByNum(builder.build()).getTransactionsList().get(2)
+                .getRawData().toByteArray()));
+      //logger.info("find one txid is " + findOneTxid);
+          }
 
-      blockNum++;
-    }
-    Long costTime = (afterTime - beforeTime - 31000) / 1000;
-    logger.info("Duration block num is  " + (afterBlockNum - beforeBlockNum - 11));
-    logger.info("Cost time are " + costTime);
-    logger.info("Top block txs num is " + topNum);
-    logger.info("Total transaction is " + (totalNum - 30));
-    logger.info("Average Tps is " + (totalNum / costTime));
+          blockNum++;
+        }
+        Long costTime = (afterTime - beforeTime - 31000) / 1000;
+        logger.info("Duration block num is  " + (afterBlockNum - beforeBlockNum - 11));
+        logger.info("Cost time are " + costTime);
+        logger.info("Top block txs num is " + topNum);
+        logger.info("Total transaction is " + (totalNum - 30));
+        logger.info("Average Tps is " + (totalNum / costTime));
 
-    infoById = PublicMethod.getTransactionInfoById(findOneTxid, blockingStubFull1);
-  Long oneEnergyTotal = infoById.get().getReceipt().getEnergyUsageTotal();
-    logger.info("EnergyTotal is " + oneEnergyTotal);
-    logger.info("Average energy is " + oneEnergyTotal * (totalNum / costTime));
-*/    if (channelFull1 != null) {
+        infoById = PublicMethod.getTransactionInfoById(findOneTxid, blockingStubFull1);
+      Long oneEnergyTotal = infoById.get().getReceipt().getEnergyUsageTotal();
+        logger.info("EnergyTotal is " + oneEnergyTotal);
+        logger.info("Average energy is " + oneEnergyTotal * (totalNum / costTime));
+    */
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }

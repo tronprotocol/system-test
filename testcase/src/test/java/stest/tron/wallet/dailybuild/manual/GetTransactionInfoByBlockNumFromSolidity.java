@@ -1,6 +1,5 @@
 package stest.tron.wallet.dailybuild.manual;
 
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.junit.Assert;
 import org.testng.annotations.Test;
@@ -10,13 +9,19 @@ import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-  public class GetTransactionInfoByBlockNumFromSolidity extends TronBaseTest {  public String fullNode =
+
+public class GetTransactionInfoByBlockNumFromSolidity extends TronBaseTest {
+  public String fullNode =
       Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(0);
   public String solidityNode =
       Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  @Test(enabled = true, description = "test getTransactionInfoByBlockNumFromSolidity", groups = {"daily"})
-  public void test01GetTransactionInfoByBlockNumFromSolidity() {    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
+  @Test(
+      enabled = true,
+      description = "test getTransactionInfoByBlockNumFromSolidity",
+      groups = {"daily"})
+  public void test01GetTransactionInfoByBlockNumFromSolidity() {
+    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
 
     Protocol.Block solidityCurrentBlock =

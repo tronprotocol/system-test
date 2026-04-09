@@ -37,46 +37,62 @@ public class HttpTestZenToken005 {
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] zenTokenOwnerAddress = ecKey1.getAddress();
   String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSolidityNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
-  private String foundationZenTokenKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenOwnerKey");
+  private String httpnode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
+  private String httpSolidityNode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
+  private String httpPbftNode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
+  private String foundationZenTokenKey =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenOwnerKey");
   byte[] foundationZenTokenAddress = PublicMethod.getFinalAddress(foundationZenTokenKey);
-  private String zenTokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenId");
-  private Long zenTokenFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.zenTokenFee");
+  private String zenTokenId =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenId");
+  private Long zenTokenFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.zenTokenFee");
   private Long sendTokenAmount = 7 * zenTokenFee;
   private JSONObject responseContent;
   private HttpResponse response;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethod.printAddress(foundationZenTokenKey);
     PublicMethod.printAddress(zenTokenOwnerKey);
-    response = HttpMethod
-        .transferAsset(httpnode, foundationZenTokenAddress, zenTokenOwnerAddress, zenTokenId,
-            sendTokenAmount, foundationZenTokenKey);
+    response =
+        HttpMethod.transferAsset(
+            httpnode,
+            foundationZenTokenAddress,
+            zenTokenOwnerAddress,
+            zenTokenId,
+            sendTokenAmount,
+            foundationZenTokenKey);
     org.junit.Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
-    //Args.setFullNodeAllowShieldedTransaction(true);
+    // Args.setFullNodeAllowShieldedTransaction(true);
     sendShieldAddressInfo = HttpMethod.generateShieldAddress(httpnode);
     sendShieldAddress = sendShieldAddressInfo.get().getAddress();
     logger.info("sendShieldAddress:" + sendShieldAddress);
     memo1 = "Shield memo1 in " + System.currentTimeMillis();
-    shieldOutList = HttpMethod.addShieldOutputList(httpnode, shieldOutList, sendShieldAddress,
-        "" + (sendTokenAmount - zenTokenFee), memo1);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            sendShieldAddress,
+            "" + (sendTokenAmount - zenTokenFee),
+            memo1);
 
-    response = HttpMethod
-        .sendShieldCoin(httpnode, zenTokenOwnerAddress, sendTokenAmount, null, null, shieldOutList,
-            null, 0, zenTokenOwnerKey);
+    response =
+        HttpMethod.sendShieldCoin(
+            httpnode,
+            zenTokenOwnerAddress,
+            sendTokenAmount,
+            null,
+            null,
+            shieldOutList,
+            null,
+            0,
+            zenTokenOwnerKey);
     org.junit.Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
@@ -86,20 +102,38 @@ public class HttpTestZenToken005 {
     sendNote = HttpMethod.scanNoteByIvk(httpnode, sendShieldAddressInfo.get()).get(0);
   }
 
-  @Test(enabled = false, description = "Shield to shield transaction without ask by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Shield to shield transaction without ask by http",
+      groups = {"daily", "serial"})
   public void test01ShieldToShieldWithoutAskTransaction() {
     receiverShieldAddressInfo = HttpMethod.generateShieldAddress(httpnode);
     receiverShieldAddress = receiverShieldAddressInfo.get().getAddress();
 
     shieldOutList.clear();
     memo2 = "Send shield to receiver shield memo in" + System.currentTimeMillis();
-    shieldOutList = HttpMethod.addShieldOutputList(httpnode, shieldOutList, receiverShieldAddress,
-        "" + (sendNote.getValue() - zenTokenFee), memo2);
+    shieldOutList =
+        HttpMethod.addShieldOutputList(
+            httpnode,
+            shieldOutList,
+            receiverShieldAddress,
+            "" + (sendNote.getValue() - zenTokenFee),
+            memo2);
 
     HttpMethod.waitToProduceOneBlockFromSolidity(httpnode, httpSolidityNode);
-    response = HttpMethod
-        .sendShieldCoinWithoutAsk(httpnode, httpSolidityNode, httpPbftNode, null, 0,
-            sendShieldAddressInfo.get(), sendNote, shieldOutList, null, 0, null);
+    response =
+        HttpMethod.sendShieldCoinWithoutAsk(
+            httpnode,
+            httpSolidityNode,
+            httpPbftNode,
+            null,
+            0,
+            sendShieldAddressInfo.get(),
+            sendNote,
+            shieldOutList,
+            null,
+            0,
+            null);
     org.junit.Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     logger.info("response:" + response);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -110,65 +144,82 @@ public class HttpTestZenToken005 {
     receiveNote = HttpMethod.scanNoteByIvk(httpnode, receiverShieldAddressInfo.get()).get(0);
 
     Assert.assertTrue(receiveNote.getValue() == sendNote.getValue() - zenTokenFee);
-    Assert.assertEquals(ByteArray.toHexString(memo2.getBytes()),
-        ByteArray.toHexString(receiveNote.getMemo()));
+    Assert.assertEquals(
+        ByteArray.toHexString(memo2.getBytes()), ByteArray.toHexString(receiveNote.getMemo()));
 
     Assert.assertTrue(HttpMethod.getSpendResult(httpnode, sendShieldAddressInfo.get(), sendNote));
   }
 
-  @Test(enabled = false, description = "Get merkle tree voucher info by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Get merkle tree voucher info by http",
+      groups = {"daily", "serial"})
   public void test02GetMerkleTreeVoucherInfo() {
     HttpMethod.waitToProduceOneBlock(httpnode);
-    response = HttpMethod
-        .getMerkleTreeVoucherInfo(httpnode, sendNote.getTrxId(), sendNote.getIndex(), 1);
+    response =
+        HttpMethod.getMerkleTreeVoucherInfo(httpnode, sendNote.getTrxId(), sendNote.getIndex(), 1);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.toJSONString().contains("tree"));
     Assert.assertTrue(responseContent.toJSONString().contains("rt"));
     Assert.assertTrue(responseContent.toJSONString().contains("paths"));
 
-    response = HttpMethod
-        .getMerkleTreeVoucherInfo(httpnode, receiveNote.getTrxId(), receiveNote.getIndex(), 1000);
+    response =
+        HttpMethod.getMerkleTreeVoucherInfo(
+            httpnode, receiveNote.getTrxId(), receiveNote.getIndex(), 1000);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
-    Assert.assertTrue(responseContent.toJSONString().contains(
-        "synBlockNum is too large, cmBlockNum plus synBlockNum must be <= latestBlockNumber"));
+    Assert.assertTrue(
+        responseContent
+            .toJSONString()
+            .contains(
+                "synBlockNum is too large, cmBlockNum plus synBlockNum"
+                    + " must be <= latestBlockNumber"));
   }
 
-  @Test(enabled = false, description = "Get merkle tree voucher info by http from solidity", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Get merkle tree voucher info by http from solidity",
+      groups = {"daily", "serial"})
   public void test03GetMerkleTreeVoucherInfoFromSolidity() {
     HttpMethod.waitToProduceOneBlock(httpnode);
-    response = HttpMethod
-        .getMerkleTreeVoucherInfoFromSolidity(httpSolidityNode, sendNote.getTrxId(),
-            sendNote.getIndex(), 1);
+    response =
+        HttpMethod.getMerkleTreeVoucherInfoFromSolidity(
+            httpSolidityNode, sendNote.getTrxId(), sendNote.getIndex(), 1);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.toJSONString().contains("tree"));
     Assert.assertTrue(responseContent.toJSONString().contains("rt"));
     Assert.assertTrue(responseContent.toJSONString().contains("paths"));
 
-    response = HttpMethod
-        .getMerkleTreeVoucherInfoFromSolidity(httpSolidityNode, receiveNote.getTrxId(),
-            receiveNote.getIndex(), 1000);
+    response =
+        HttpMethod.getMerkleTreeVoucherInfoFromSolidity(
+            httpSolidityNode, receiveNote.getTrxId(), receiveNote.getIndex(), 1000);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
-    Assert.assertTrue(responseContent.toJSONString().contains(
-        "synBlockNum is too large, cmBlockNum plus synBlockNum must be <= latestBlockNumber"));
+    Assert.assertTrue(
+        responseContent
+            .toJSONString()
+            .contains(
+                "synBlockNum is too large, cmBlockNum plus synBlockNum"
+                    + " must be <= latestBlockNumber"));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
     response = HttpMethod.getAccount(httpnode, foundationZenTokenAddress);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     assetIssueId = responseContent.getString("asset_issued_ID");
-    final Long assetBalance = HttpMethod
-        .getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
-    HttpMethod
-        .transferAsset(httpnode, zenTokenOwnerAddress, foundationZenTokenAddress, assetIssueId,
-            assetBalance, zenTokenOwnerKey);
+    final Long assetBalance =
+        HttpMethod.getAssetIssueValue(httpnode, zenTokenOwnerAddress, assetIssueId);
+    HttpMethod.transferAsset(
+        httpnode,
+        zenTokenOwnerAddress,
+        foundationZenTokenAddress,
+        assetIssueId,
+        assetBalance,
+        zenTokenOwnerKey);
   }
 }

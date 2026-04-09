@@ -2,7 +2,6 @@ package stest.tron.wallet.common.client.utils;
 
 import com.google.common.primitives.UnsignedBytes;
 
-
 /**
  * Utility code to do optimized byte-array comparison. This is borrowed and slightly modified from
  * Guava's {@link UnsignedBytes} class to be able to compare arrays that start at non-zero offsets.
@@ -26,8 +25,7 @@ public abstract class FastByteComparisons {
    * @return int
    */
   public static int compareTo(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-    return LexicographicalComparerHolder.BEST_COMPARER.compareTo(
-        b1, s1, l1, b2, s2, l2);
+    return LexicographicalComparerHolder.BEST_COMPARER.compareTo(b1, s1, l1, b2, s2, l2);
   }
 
   private static Comparer<byte[]> lexicographicalComparerJavaImpl() {
@@ -36,8 +34,7 @@ public abstract class FastByteComparisons {
 
   private interface Comparer<T> {
 
-    int compareTo(T buffer1, int offset1, int length1,
-        T buffer2, int offset2, int length2);
+    int compareTo(T buffer1, int offset1, int length1, T buffer2, int offset2, int length2);
   }
 
   /**
@@ -61,8 +58,7 @@ public abstract class FastByteComparisons {
 
         // yes, UnsafeComparer does implement Comparer<byte[]>
         @SuppressWarnings("unchecked")
-        Comparer<byte[]> comparer =
-            (Comparer<byte[]>) theClass.getEnumConstants()[0];
+        Comparer<byte[]> comparer = (Comparer<byte[]>) theClass.getEnumConstants()[0];
         return comparer;
       } catch (Throwable t) { // ensure we really catch *everything*
         return lexicographicalComparerJavaImpl();
@@ -73,12 +69,10 @@ public abstract class FastByteComparisons {
       INSTANCE;
 
       @Override
-      public int compareTo(byte[] buffer1, int offset1, int length1,
-          byte[] buffer2, int offset2, int length2) {
+      public int compareTo(
+          byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2, int length2) {
         // Short circuit equal case
-        if (buffer1 == buffer2
-            && offset1 == offset2
-            && length1 == length2) {
+        if (buffer1 == buffer2 && offset1 == offset2 && length1 == length2) {
           return 0;
         }
         int end1 = offset1 + length1;
@@ -93,7 +87,5 @@ public abstract class FastByteComparisons {
         return length1 - length2;
       }
     }
-
-
   }
 }

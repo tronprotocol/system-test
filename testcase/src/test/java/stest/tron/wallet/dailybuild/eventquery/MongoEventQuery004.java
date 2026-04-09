@@ -96,7 +96,10 @@ public class MongoEventQuery004 extends MongoBase {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "MongoDB log query for contract log", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "MongoDB log query for contract log",
+      groups = {"daily", "serial"})
   public void test01MongoDbEventQueryForContractEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -166,7 +169,10 @@ public class MongoEventQuery004 extends MongoBase {
     testLatestSolidifiedBlockNumber(jsonObject);
   }
 
-  @Test(enabled = true, description = "MongoDb log query for solidity contract log", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "MongoDb log query for solidity contract log",
+      groups = {"daily", "serial"})
   public void test02MongoDbEventQueryForContractEvent() {
     logger.info("event001Key:" + event001Key);
     ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -230,7 +236,8 @@ public class MongoEventQuery004 extends MongoBase {
     Assert.assertTrue(
         jsonObject.getLong("latestSolidifiedBlockNumber") < latestSolidifiedBlockNumber);
     logger.info("API latestSolidifiedBlockNumber: " + latestSolidifiedBlockNumber);
-    logger.info("Event latestSolidifiedBlockNumber: " + jsonObject.getLong("latestSolidifiedBlockNumber"));
+    logger.info(
+        "Event latestSolidifiedBlockNumber: " + jsonObject.getLong("latestSolidifiedBlockNumber"));
     Assert.assertTrue(
         (latestSolidifiedBlockNumber - jsonObject.getLong("latestSolidifiedBlockNumber")) < 10);
   }
@@ -307,5 +314,4 @@ public class MongoEventQuery004 extends MongoBase {
     responseContent = HttpMethod.parseResponseContent(response);
     Assert.assertEquals(responseContent.getString("blockID"), jsonObject.getString("blockHash"));
   }
-
 }

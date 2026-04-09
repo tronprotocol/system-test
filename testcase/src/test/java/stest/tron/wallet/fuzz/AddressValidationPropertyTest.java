@@ -1,8 +1,12 @@
 package stest.tron.wallet.fuzz;
 
-import net.jqwik.api.*;
-import net.jqwik.api.constraints.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import net.jqwik.api.Assume;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.constraints.Size;
 import stest.tron.wallet.common.client.utils.Base58;
 
 class AddressValidationPropertyTest {

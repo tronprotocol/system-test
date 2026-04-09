@@ -1,8 +1,11 @@
 package stest.tron.wallet.fuzz;
 
-import net.jqwik.api.*;
-import net.jqwik.api.constraints.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.constraints.LongRange;
+import net.jqwik.api.constraints.Size;
 import stest.tron.wallet.common.client.utils.ByteArray;
 
 class AmountBoundaryPropertyTest {
@@ -24,7 +27,8 @@ class AmountBoundaryPropertyTest {
   }
 
   @Property(tries = 1000)
-  void trxAmountsPreserved(@ForAll @LongRange(min = 0, max = 100_000_000_000_000_000L) long sunAmount) {
+  void trxAmountsPreserved(
+      @ForAll @LongRange(min = 0, max = 100_000_000_000_000_000L) long sunAmount) {
     byte[] bytes = ByteArray.fromLong(sunAmount);
     long recovered = ByteArray.toLong(bytes);
     assertEquals(sunAmount, recovered, "TRX amount in sun should roundtrip");
