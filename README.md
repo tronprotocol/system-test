@@ -1,6 +1,5 @@
 # TRON System-Test
 
-**English** | [中文](README_CN.md)
 
 [![CI](https://github.com/tronprotocol/system-test/actions/workflows/ci.yml/badge.svg)](https://github.com/tronprotocol/system-test/actions/workflows/ci.yml)
 [![Coverage](https://github.com/tronprotocol/system-test/actions/workflows/coverage.yml/badge.svg)](https://github.com/tronprotocol/system-test/actions/workflows/coverage.yml)
@@ -220,7 +219,6 @@ For java-tron CI integration, use `config-system-test.conf` with fast test param
 | Document | Description |
 |----------|-------------|
 | [Setup Guide](docs/SETUP.md) | 5-minute quick start, private network setup, tool installation |
-| [安装指南 (中文)](docs/SETUP_CN.md) | 中文版快速开始、工具安装、国内镜像 |
 | [Architecture](docs/ARCHITECTURE.md) | Test infrastructure, base classes, execution model |
 | [Network Topology](docs/NETWORK.md) | Single/multi-node setup, port mapping, Docker |
 | [Style Guide](docs/STYLE_GUIDE.md) | Code conventions, naming rules, assertion patterns |
