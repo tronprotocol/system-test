@@ -7,10 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Utility for retry/polling patterns commonly used in system tests.
  *
- * <p>Replaces the scattered {@code while (retryTimes-- > 0)} + {@code Thread.sleep()} patterns
- * with a reusable, configurable helper.
+ * <p>Replaces the scattered {@code while (retryTimes-- > 0)} + {@code Thread.sleep()} patterns with
+ * a reusable, configurable helper.
  *
  * <p>Example usage:
+ *
  * <pre>{@code
  * // Wait until a condition becomes true
  * boolean ok = RetryUtil.waitUntil(() -> getBalance(addr) > 0, 10, 3000);
@@ -50,6 +51,11 @@ public final class RetryUtil {
     return condition.getAsBoolean();
   }
 
+  /** Convenience: wait until condition is true, using block interval (3s) and 10 attempts. */
+  public static boolean waitUntil(BooleanSupplier condition) {
+    return waitUntil(condition, 10, 3000);
+  }
+
   /**
    * Polls the given supplier until it returns a non-null result.
    *
@@ -73,12 +79,5 @@ public final class RetryUtil {
       }
     }
     return supplier.get();
-  }
-
-  /**
-   * Convenience: wait until condition is true, using block interval (3s) and 10 attempts.
-   */
-  public static boolean waitUntil(BooleanSupplier condition) {
-    return waitUntil(condition, 10, 3000);
   }
 }

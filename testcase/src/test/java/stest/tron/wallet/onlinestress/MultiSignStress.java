@@ -9,11 +9,12 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class MultiSignStress extends TronBaseTest {  ByteString assetAccountId1;
+public class MultiSignStress extends TronBaseTest {
+  ByteString assetAccountId1;
   String[] permissionKeyString = new String[2];
   String[] ownerKeyString = new String[1];
   String accountPermissionJson = "";
@@ -30,14 +31,15 @@ public class MultiSignStress extends TronBaseTest {  ByteString assetAccountId1;
   byte[] newAddress = ecKey4.getAddress();
   String newKey = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, threadPoolSize = 20, invocationCount = 20, groups = {"stress"})
+  @Test(
+      enabled = true,
+      threadPoolSize = 20,
+      invocationCount = 20,
+      groups = {"stress"})
   public void testMultiSignForAccount() {
     Integer i = 0;
     while (i < 20) {
@@ -58,55 +60,52 @@ public class MultiSignStress extends TronBaseTest {  ByteString assetAccountId1;
       newAddress = ecKey4.getAddress();
       newKey = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
 
-      PublicMethod.sendcoin(ownerAddress, 4000000L, foundationAddress, foundationKey,
-          blockingStubFull);
-      PublicMethod.sendcoin(ownerAddress, 4000000L, foundationAddress, foundationKey,
-          blockingStubFull);
-      PublicMethod.sendcoin(ownerAddress, 4000000L, foundationAddress, foundationKey,
-          blockingStubFull);
+      PublicMethod.sendcoin(
+          ownerAddress, 4000000L, foundationAddress, foundationKey, blockingStubFull);
+      PublicMethod.sendcoin(
+          ownerAddress, 4000000L, foundationAddress, foundationKey, blockingStubFull);
+      PublicMethod.sendcoin(
+          ownerAddress, 4000000L, foundationAddress, foundationKey, blockingStubFull);
       permissionKeyString[0] = manager1Key;
       permissionKeyString[1] = manager2Key;
       ownerKeyString[0] = ownerKey;
-      accountPermissionJson = "[{\"keys\":[{\"address\":\""
-          + PublicMethod.getAddressString(ownerKey)
-          + "\",\"weight\":2}],\"name\":\"owner\",\"threshold\":2,\"parent\":\"owner\"},"
-          + "{\"parent\":\"owner\",\"keys\":[{\"address\":\""
-          + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},{\"address\":\""
-          + PublicMethod.getAddressString(manager2Key) + "\",\"weight\":1}],\"name\":\"active\","
-          + "\"threshold\":2}]";
-  //logger.info(accountPermissionJson);
-      PublicMethodForMultiSign.accountPermissionUpdate(accountPermissionJson, ownerAddress, ownerKey,
-          blockingStubFull, ownerKeyString);
-  String updateName = Long.toString(System.currentTimeMillis());
+      accountPermissionJson =
+          "[{\"keys\":[{\"address\":\""
+              + PublicMethod.getAddressString(ownerKey)
+              + "\",\"weight\":2}],\"name\":\"owner\",\"threshold\":2,\"parent\":\"owner\"},"
+              + "{\"parent\":\"owner\",\"keys\":[{\"address\":\""
+              + PublicMethod.getAddressString(manager1Key)
+              + "\",\"weight\":1},{\"address\":\""
+              + PublicMethod.getAddressString(manager2Key)
+              + "\",\"weight\":1}],\"name\":\"active\","
+              + "\"threshold\":2}]";
+      // logger.info(accountPermissionJson);
+      PublicMethodForMultiSign.accountPermissionUpdate(
+          accountPermissionJson, ownerAddress, ownerKey, blockingStubFull, ownerKeyString);
+      String updateName = Long.toString(System.currentTimeMillis());
 
-      PublicMethodForMultiSign.sendcoin(newAddress, 1000000L, ownerAddress, ownerKey,
-          blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.sendcoin(newAddress, 1000000L, ownerAddress, ownerKey,
-          blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.sendcoin(newAddress, 1000000L, ownerAddress, ownerKey,
-          blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.freezeBalance(ownerAddress, 1000000L, 0,
-          ownerKey, blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.freezeBalance(ownerAddress, 1000000L, 0,
-          ownerKey, blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.freezeBalance(ownerAddress, 1000000L, 0,
-          ownerKey, blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.unFreezeBalance(ownerAddress, ownerKey, 0, null,
-          blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.unFreezeBalance(ownerAddress, ownerKey, 0, null,
-          blockingStubFull, permissionKeyString);
-      PublicMethodForMultiSign.unFreezeBalance(ownerAddress, ownerKey, 0, null,
-          blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.sendcoin(
+          newAddress, 1000000L, ownerAddress, ownerKey, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.sendcoin(
+          newAddress, 1000000L, ownerAddress, ownerKey, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.sendcoin(
+          newAddress, 1000000L, ownerAddress, ownerKey, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.freezeBalance(
+          ownerAddress, 1000000L, 0, ownerKey, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.freezeBalance(
+          ownerAddress, 1000000L, 0, ownerKey, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.freezeBalance(
+          ownerAddress, 1000000L, 0, ownerKey, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.unFreezeBalance(
+          ownerAddress, ownerKey, 0, null, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.unFreezeBalance(
+          ownerAddress, ownerKey, 0, null, blockingStubFull, permissionKeyString);
+      PublicMethodForMultiSign.unFreezeBalance(
+          ownerAddress, ownerKey, 0, null, blockingStubFull, permissionKeyString);
     }
-
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

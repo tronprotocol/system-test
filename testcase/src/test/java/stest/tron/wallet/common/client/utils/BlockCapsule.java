@@ -27,14 +27,12 @@ public class BlockCapsule implements ProtoCapsule<Block> {
 
   public boolean generatedByMyself = false;
 
-
   private BlockId blockId = new BlockId(Sha256Hash.ZERO_HASH, 0);
 
   private Block block;
 
   private StringBuilder toStringBuff = new StringBuilder();
   private boolean isSwitch;
-
 
   public boolean isSwitch() {
     return isSwitch;
@@ -45,40 +43,49 @@ public class BlockCapsule implements ProtoCapsule<Block> {
     return this;
   }
 
-
-
-
-
-
-
   public BlockId getBlockId() {
     if (blockId.equals(Sha256Hash.ZERO_HASH)) {
       blockId =
-          new BlockId(Sha256Hash.of(CommonParameter.getInstance().isECKeyCryptoEngine(),
-              this.block.getBlockHeader().getRawData().toByteArray()), getNum());
+          new BlockId(
+              Sha256Hash.of(
+                  CommonParameter.getInstance().isECKeyCryptoEngine(),
+                  this.block.getBlockHeader().getRawData().toByteArray()),
+              getNum());
     }
     return blockId;
   }
 
-
-
   public void setAccountStateRoot(byte[] root) {
     BlockHeader.raw blockHeaderRaw =
-        this.block.getBlockHeader().getRawData().toBuilder()
-            .setAccountStateRoot(ByteString.copyFrom(root)).build();
+        this.block
+            .getBlockHeader()
+            .getRawData()
+            .toBuilder()
+            .setAccountStateRoot(ByteString.copyFrom(root))
+            .build();
 
-    this.block = this.block.toBuilder().setBlockHeader(
-        this.block.getBlockHeader().toBuilder().setRawData(blockHeaderRaw)).build();
+    this.block =
+        this.block
+            .toBuilder()
+            .setBlockHeader(this.block.getBlockHeader().toBuilder().setRawData(blockHeaderRaw))
+            .build();
   }
 
   /* only for genesis */
   public void setWitness(String witness) {
     BlockHeader.raw blockHeaderRaw =
-        this.block.getBlockHeader().getRawData().toBuilder().setWitnessAddress(
-            ByteString.copyFrom(witness.getBytes())).build();
+        this.block
+            .getBlockHeader()
+            .getRawData()
+            .toBuilder()
+            .setWitnessAddress(ByteString.copyFrom(witness.getBytes()))
+            .build();
 
-    this.block = this.block.toBuilder().setBlockHeader(
-        this.block.getBlockHeader().toBuilder().setRawData(blockHeaderRaw)).build();
+    this.block =
+        this.block
+            .toBuilder()
+            .setBlockHeader(this.block.getBlockHeader().toBuilder().setRawData(blockHeaderRaw))
+            .build();
   }
 
   public Sha256Hash getMerkleRoot() {
@@ -135,8 +142,6 @@ public class BlockCapsule implements ProtoCapsule<Block> {
     return !getInstance().getBlockHeader().getWitnessSignature().isEmpty();
   }
 
-
-
   public static class BlockId extends Sha256Hash {
 
     private long num;
@@ -153,9 +158,7 @@ public class BlockCapsule implements ProtoCapsule<Block> {
       num = Longs.fromByteArray(blockNum);
     }
 
-    /**
-     * Use {@link #wrap(byte[])} instead.
-     */
+    /** Use {@link #wrap(byte[])} instead. */
     public BlockId(Sha256Hash hash, long num) {
       super(num, hash);
       this.num = num;

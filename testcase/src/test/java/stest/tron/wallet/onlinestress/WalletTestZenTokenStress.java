@@ -28,15 +28,15 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.ShieldAddressInfo;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
-
 
 @Slf4j
 public class WalletTestZenTokenStress extends TronBaseTest {
 
-  private static ByteString assetAccountId = null;  Optional<ShieldAddressInfo> sendShieldAddressInfo;
+  private static ByteString assetAccountId = null;
+  Optional<ShieldAddressInfo> sendShieldAddressInfo;
   Optional<ShieldAddressInfo> receiverShieldAddressInfo;
   String sendShieldAddress;
   String receiverShieldAddress;
@@ -65,76 +65,96 @@ public class WalletTestZenTokenStress extends TronBaseTest {
   String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelSolidity1 = null;
   private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity1 = null;
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
-  private String soliditynode1 = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(1);
-  private String foundationZenTokenKey = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenOwnerKey");
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
+  private String soliditynode1 =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(1);
+  private String foundationZenTokenKey =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenOwnerKey");
   byte[] foundationZenTokenAddress = PublicMethod.getFinalAddress(foundationZenTokenKey);
-  private String zenTokenId = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.zenTokenId");
+  private String zenTokenId =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.zenTokenId");
   private byte[] tokenId = zenTokenId.getBytes();
-  private Long zenTokenFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.zenTokenFee");
+  private Long zenTokenFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.zenTokenFee");
   private Long costTokenAmount = 1 * zenTokenFee + 1;
   private Long sendTokenAmount = 1 * zenTokenFee;
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
     PublicMethod.printAddress(foundationZenTokenKey);
-    PublicMethod.printAddress(zenTokenOwnerKey);    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    channelSolidity1 = ManagedChannelBuilder.forTarget(soliditynode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(zenTokenOwnerKey);
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
+    channelSolidity1 = ManagedChannelBuilder.forTarget(soliditynode1).usePlaintext().build();
     blockingStubSolidity1 = WalletSolidityGrpc.newBlockingStub(channelSolidity1);
 
-    Assert.assertTrue(PublicMethod.transferAsset(zenTokenOwnerAddress, tokenId,
-        costTokenAmount, foundationZenTokenAddress, foundationZenTokenKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.transferAsset(
+            zenTokenOwnerAddress,
+            tokenId,
+            costTokenAmount,
+            foundationZenTokenAddress,
+            foundationZenTokenKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //Args.setFullNodeAllowShieldedTransaction(true);
-
+    // Args.setFullNodeAllowShieldedTransaction(true);
 
   }
 
-  @Test(enabled = true, threadPoolSize = 3, invocationCount = 3, groups = {"stress"})
+  @Test(
+      enabled = true,
+      threadPoolSize = 3,
+      invocationCount = 3,
+      groups = {"stress"})
   public void test1Shield2ShieldTransaction() throws InterruptedException {
     List<Note> shieldOutList = new ArrayList<>();
     Integer times = 0;
     Optional<ShieldAddressInfo> sendShieldAddressInfo = PublicMethod.generateShieldAddress();
-  String sendShieldAddress = sendShieldAddressInfo.get().getAddress();
-  String memo = "7";
-    shieldOutList = PublicMethod.addShieldOutputList(shieldOutList, sendShieldAddress,
-        "" + zenTokenFee, memo);
+    String sendShieldAddress = sendShieldAddressInfo.get().getAddress();
+    String memo = "7";
+    shieldOutList =
+        PublicMethod.addShieldOutputList(shieldOutList, sendShieldAddress, "" + zenTokenFee, memo);
     while (times++ < 10000) {
       ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] zenTokenOwnerAddress = ecKey1.getAddress();
+      byte[] zenTokenOwnerAddress = ecKey1.getAddress();
 
-      PublicMethod.transferAsset(zenTokenOwnerAddress, tokenId,
-          zenTokenFee * 2, foundationZenTokenAddress, foundationZenTokenKey, blockingStubFull);
+      PublicMethod.transferAsset(
+          zenTokenOwnerAddress,
+          tokenId,
+          zenTokenFee * 2,
+          foundationZenTokenAddress,
+          foundationZenTokenKey,
+          blockingStubFull);
       PublicMethod.waitProduceNextBlock(blockingStubFull);
 
       memo = times + ":shield note number";
       shieldOutList.clear();
-      shieldOutList = PublicMethod.addShieldOutputList(shieldOutList, sendShieldAddress,
-          "" + zenTokenFee, memo);
-  String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-      PublicMethod.sendShieldCoin(zenTokenOwnerAddress, 2 * zenTokenFee, null,
-          null, shieldOutList, null, 0, zenTokenOwnerKey, blockingStubFull);
+      shieldOutList =
+          PublicMethod.addShieldOutputList(
+              shieldOutList, sendShieldAddress, "" + zenTokenFee, memo);
+      String zenTokenOwnerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+      PublicMethod.sendShieldCoin(
+          zenTokenOwnerAddress,
+          2 * zenTokenFee,
+          null,
+          null,
+          shieldOutList,
+          null,
+          0,
+          zenTokenOwnerKey,
+          blockingStubFull);
       /*      logger.info("Note number:"
-          + PublicMethod.getShieldNotesCount(sendShieldAddressInfo,blockingStubFull));*/
+      + PublicMethod.getShieldNotesCount(sendShieldAddressInfo,blockingStubFull));*/
     }
-
-
   }
 
-  @Test(enabled = true, threadPoolSize = 30, invocationCount = 30, groups = {"stress"})
+  @Test(
+      enabled = true,
+      threadPoolSize = 30,
+      invocationCount = 30,
+      groups = {"stress"})
   public void test2Shield2ShieldTransaction() throws InterruptedException {
     BytesMessage ak;
     BytesMessage nk;
@@ -155,39 +175,39 @@ public class WalletTestZenTokenStress extends TronBaseTest {
     Integer times = 0;
     while (times++ < 10000) {
       sk = blockingStubFull.getSpendingKey(EmptyMessage.newBuilder().build());
-  //logger.info("sk: " + ByteArray.toHexString(sk.getValue().toByteArray()));
+      // logger.info("sk: " + ByteArray.toHexString(sk.getValue().toByteArray()));
 
       diversifierMessage1 = blockingStubFull.getDiversifier(EmptyMessage.newBuilder().build());
-  //logger.info("d1: " + ByteArray.toHexString(diversifierMessage1.getD().toByteArray()));
+      // logger.info("d1: " + ByteArray.toHexString(diversifierMessage1.getD().toByteArray()));
       diversifierMessage2 = blockingStubFull.getDiversifier(EmptyMessage.newBuilder().build());
-  //logger.info("d2: " + ByteArray.toHexString(diversifierMessage2.getD().toByteArray()));
+      // logger.info("d2: " + ByteArray.toHexString(diversifierMessage2.getD().toByteArray()));
       diversifierMessage3 = blockingStubFull.getDiversifier(EmptyMessage.newBuilder().build());
-  //logger.info("d3: " + ByteArray.toHexString(diversifierMessage3.getD().toByteArray()));
+      // logger.info("d3: " + ByteArray.toHexString(diversifierMessage3.getD().toByteArray()));
 
       expandedSpendingKeyMessage = blockingStubFull.getExpandedSpendingKey(sk);
 
       BytesMessage.Builder askBuilder = BytesMessage.newBuilder();
       askBuilder.setValue(expandedSpendingKeyMessage.getAsk());
       ak = blockingStubFull.getAkFromAsk(askBuilder.build());
-  //logger.info("ak: " + ByteArray.toHexString(ak.getValue().toByteArray()));
+      // logger.info("ak: " + ByteArray.toHexString(ak.getValue().toByteArray()));
 
       BytesMessage.Builder nskBuilder = BytesMessage.newBuilder();
       nskBuilder.setValue(expandedSpendingKeyMessage.getNsk());
       nk = blockingStubFull.getNkFromNsk(nskBuilder.build());
-  //logger.info("nk: " + ByteArray.toHexString(nk.getValue().toByteArray()));
+      // logger.info("nk: " + ByteArray.toHexString(nk.getValue().toByteArray()));
 
       ViewingKeyMessage.Builder viewBuilder = ViewingKeyMessage.newBuilder();
       viewBuilder.setAk(ak.getValue());
       viewBuilder.setNk(nk.getValue());
       ivk = blockingStubFull.getIncomingViewingKey(viewBuilder.build());
-  //logger.info("ivk: " + ByteArray.toHexString(ivk.getIvk().toByteArray()));
+      // logger.info("ivk: " + ByteArray.toHexString(ivk.getIvk().toByteArray()));
 
       IncomingViewingKeyDiversifierMessage.Builder builder =
           IncomingViewingKeyDiversifierMessage.newBuilder();
       builder.setD(diversifierMessage1);
       builder.setIvk(ivk);
       PaymentAddressMessage addressMessage = blockingStubFull.getZenPaymentAddress(builder.build());
-  //System.out.println("address1: " + addressMessage.getPaymentAddress());
+      // System.out.println("address1: " + addressMessage.getPaymentAddress());
       addressInfo1.setSk(sk.getValue().toByteArray());
       addressInfo1.setD(new DiversifierT(diversifierMessage1.getD().toByteArray()));
       addressInfo1.setIvk(ivk.getIvk().toByteArray());
@@ -200,7 +220,7 @@ public class WalletTestZenTokenStress extends TronBaseTest {
       builder.setD(diversifierMessage2);
       builder.setIvk(ivk);
       addressMessage = blockingStubFull.getZenPaymentAddress(builder.build());
-  //System.out.println("address2: " + addressMessage.getPaymentAddress());
+      // System.out.println("address2: " + addressMessage.getPaymentAddress());
       addressInfo2.setSk(sk.getValue().toByteArray());
       addressInfo2.setD(new DiversifierT(diversifierMessage2.getD().toByteArray()));
       addressInfo2.setIvk(ivk.getIvk().toByteArray());
@@ -213,7 +233,7 @@ public class WalletTestZenTokenStress extends TronBaseTest {
       builder.setD(diversifierMessage3);
       builder.setIvk(ivk);
       addressMessage = blockingStubFull.getZenPaymentAddress(builder.build());
-  //System.out.println("address3: " + addressMessage.getPaymentAddress());
+      // System.out.println("address3: " + addressMessage.getPaymentAddress());
       addressInfo3.setSk(sk.getValue().toByteArray());
       addressInfo3.setD(new DiversifierT(diversifierMessage3.getD().toByteArray()));
       addressInfo3.setIvk(ivk.getIvk().toByteArray());
@@ -221,18 +241,22 @@ public class WalletTestZenTokenStress extends TronBaseTest {
       addressInfo3.setPkD(addressMessage.getPkD().toByteArray());
       receiverAddressInfo3 = Optional.of(addressInfo3);
     }
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    PublicMethod.transferAsset(foundationZenTokenAddress, tokenId,
-        PublicMethod.getAssetIssueValue(zenTokenOwnerAddress,
+    PublicMethod.transferAsset(
+        foundationZenTokenAddress,
+        tokenId,
+        PublicMethod.getAssetIssueValue(
+            zenTokenOwnerAddress,
             PublicMethod.queryAccount(foundationZenTokenKey, blockingStubFull).getAssetIssuedID(),
-            blockingStubFull), zenTokenOwnerAddress, zenTokenOwnerKey, blockingStubFull);    if (channelSolidity1 != null) {
+            blockingStubFull),
+        zenTokenOwnerAddress,
+        zenTokenOwnerKey,
+        blockingStubFull);
+    if (channelSolidity1 != null) {
       channelSolidity1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }

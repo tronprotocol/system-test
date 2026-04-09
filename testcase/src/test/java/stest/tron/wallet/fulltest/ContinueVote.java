@@ -31,20 +31,19 @@ import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
 
 @Slf4j
 @MultiNode
 public class ContinueVote extends TronBaseTest {
 
-  //testng001、testng002、testng003、testng004 only for test, do not worry
+  // testng001、testng002、testng003、testng004 only for test, do not worry
 
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
-
 
   /*  //testng001、testng002、testng003、testng004
   private static final byte[] fromAddress = Base58
@@ -52,30 +51,29 @@ public class ContinueVote extends TronBaseTest {
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey002);
   private ManagedChannel searchChannelFull = null;
   private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;
-  private String searchFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String searchFullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
   public void beforeClass() {
 
     WalletClient.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-    logger.info("Pre fix byte =====  " + WalletClient.getAddressPreFixByte());    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode)
-        .usePlaintext()
-        .build();
+    logger.info("Pre fix byte =====  " + WalletClient.getAddressPreFixByte());
+    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode).usePlaintext().build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
   }
 
-  @Test(enabled = false, threadPoolSize = 30, invocationCount = 30, groups = {"full"})
+  @Test(
+      enabled = false,
+      threadPoolSize = 30,
+      invocationCount = 30,
+      groups = {"full"})
   public void testVoteWitness() {
     ByteString addressBs = ByteString.copyFrom(fromAddress);
     Account request = Account.newBuilder().setAddress(addressBs).build();
@@ -84,7 +82,7 @@ public class ContinueVote extends TronBaseTest {
     Integer randNum = rand.nextInt(30) + 1;
     Base58.encode58Check(fromAddress);
     logger.info(Base58.encode58Check(fromAddress));
-  String voteStr = "TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes";
+    String voteStr = "TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes";
     HashMap<String, String> smallVoteMap = new HashMap<String, String>();
     smallVoteMap.put(voteStr, "1");
     Account fromInfo = PublicMethod.queryAccount(testKey002, blockingStubFull);
@@ -102,31 +100,25 @@ public class ContinueVote extends TronBaseTest {
       ret = voteWitness(smallVoteMap, fromAddress, testKey002);
       if (ret) {
         logger.info("This vote num is " + Integer.toString(randNum));
-        logger.info("Now the fromaddress vote is " + Long.toString(fromInfo
-            .getVotes(0).getVoteCount()));
+        logger.info(
+            "Now the fromaddress vote is " + Long.toString(fromInfo.getVotes(0).getVoteCount()));
         logger.info(Integer.toString(i++));
       }
       fromInfo = PublicMethod.queryAccount(testKey002, blockingStubFull);
       accountNetMessage = blockingStubFull.getAccountNet(request);
       logger.info("Now the from net used is " + Long.toString(accountNetMessage.getNetUsed()));
-
     }
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {    if (searchChannelFull != null) {
+  public void shutdown() throws InterruptedException {
+    if (searchChannelFull != null) {
       searchChannelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Boolean voteWitness(HashMap<String, String> witness, byte[] addRess, String priKey) {
 
     ECKey temKey = null;
@@ -138,21 +130,20 @@ public class ContinueVote extends TronBaseTest {
     }
     ECKey ecKey = temKey;
     Account beforeVote = queryAccount(ecKey, blockingStubFull);
-  Long beforeVoteNum = 0L;
+    Long beforeVoteNum = 0L;
     if (beforeVote.getVotesCount() != 0) {
       beforeVoteNum = beforeVote.getVotes(0).getVoteCount();
     }
 
-    WitnessContract.VoteWitnessContract.Builder builder = WitnessContract.VoteWitnessContract
-        .newBuilder();
+    WitnessContract.VoteWitnessContract.Builder builder =
+        WitnessContract.VoteWitnessContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(addRess));
     for (String addressBase58 : witness.keySet()) {
       String value = witness.get(addressBase58);
-  final long count = Long.parseLong(value);
+      final long count = Long.parseLong(value);
       WitnessContract.VoteWitnessContract.Vote.Builder voteBuilder =
-          WitnessContract.VoteWitnessContract.Vote
-              .newBuilder();
-  byte[] address = WalletClient.decodeFromBase58Check(addressBase58);
+          WitnessContract.VoteWitnessContract.Vote.newBuilder();
+      byte[] address = WalletClient.decodeFromBase58Check(addressBase58);
       logger.info("address ====== " + ByteArray.toHexString(address));
       if (address == null) {
         continue;
@@ -181,7 +172,7 @@ public class ContinueVote extends TronBaseTest {
       e.printStackTrace();
     }
     Account afterVote = queryAccount(ecKey, searchBlockingStubFull);
-  //Long afterVoteNum = afterVote.getVotes(0).getVoteCount();
+    // Long afterVoteNum = afterVote.getVotes(0).getVoteCount();
     for (String key : witness.keySet()) {
       for (int j = 0; j < afterVote.getVotesCount(); j++) {
         logger.info(Long.toString(Long.parseLong(witness.get(key))));
@@ -190,25 +181,22 @@ public class ContinueVote extends TronBaseTest {
           logger.info("catch it");
           logger.info(Long.toString(afterVote.getVotes(j).getVoteCount()));
           logger.info(Long.toString(Long.parseLong(witness.get(key))));
-  //Assert.assertTrue(afterVote.getVotes(j).getVoteCount() == Long
+          // Assert.assertTrue(afterVote.getVotes(j).getVoteCount() == Long
           // .parseLong(witness.get(key)));
         }
-
       }
     }
     return true;
   }
 
-  /**
-   * constructor.
-   */
-  public Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
-      String priKey) {
+  /** constructor. */
+  public Boolean freezeBalance(
+      byte[] addRess, long freezeBalance, long freezeDuration, String priKey) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
-  //String priKey = testKey002;
-  ECKey temKey = null;
+    // String priKey = testKey002;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -217,19 +205,21 @@ public class ContinueVote extends TronBaseTest {
     }
     ECKey ecKey = temKey;
     Account beforeFronzen = queryAccount(ecKey, blockingStubFull);
-  Long beforeFrozenBalance = 0L;
-  //Long beforeBandwidth     = beforeFronzen.getBandwidth();
+    Long beforeFrozenBalance = 0L;
+    // Long beforeBandwidth     = beforeFronzen.getBandwidth();
     if (beforeFronzen.getFrozenCount() != 0) {
       beforeFrozenBalance = beforeFronzen.getFrozen(0).getFrozenBalance();
-  //beforeBandwidth     = beforeFronzen.getBandwidth();
-  //logger.info(Long.toString(beforeFronzen.getBandwidth()));
+      // beforeBandwidth     = beforeFronzen.getBandwidth();
+      // logger.info(Long.toString(beforeFronzen.getBandwidth()));
       logger.info(Long.toString(beforeFronzen.getFrozen(0).getFrozenBalance()));
     }
 
     FreezeBalanceContract.Builder builder = FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
-    builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
+    builder
+        .setOwnerAddress(byteAddreess)
+        .setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
     FreezeBalanceContract contract = builder.build();
@@ -248,19 +238,20 @@ public class ContinueVote extends TronBaseTest {
     }
 
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-    Block searchCurrentBlock = searchBlockingStubFull.getNowBlock(GrpcAPI
-        .EmptyMessage.newBuilder().build());
+    Block searchCurrentBlock =
+        searchBlockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
     Integer wait = 0;
     while (searchCurrentBlock.getBlockHeader().getRawData().getNumber()
-        < currentBlock.getBlockHeader().getRawData().getNumber() + 1 && wait < 30) {
+            < currentBlock.getBlockHeader().getRawData().getNumber() + 1
+        && wait < 30) {
       try {
         Thread.sleep(3000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
       logger.info("Another fullnode didn't syn the first fullnode data");
-      searchCurrentBlock = searchBlockingStubFull.getNowBlock(GrpcAPI
-          .EmptyMessage.newBuilder().build());
+      searchCurrentBlock =
+          searchBlockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
       wait++;
       if (wait == 9) {
         logger.info("Didn't syn,skip to next case.");
@@ -268,34 +259,34 @@ public class ContinueVote extends TronBaseTest {
     }
 
     Account afterFronzen = queryAccount(ecKey, searchBlockingStubFull);
-  Long afterFrozenBalance = afterFronzen.getFrozen(0).getFrozenBalance();
-  //Long afterBandwidth     = afterFronzen.getBandwidth();
-  //logger.info(Long.toString(afterFronzen.getBandwidth()));
-  //logger.info(Long.toString(afterFronzen.getFrozen(0).getFrozenBalance()));
-  //logger.info(Integer.toString(search.getFrozenCount()));
+    Long afterFrozenBalance = afterFronzen.getFrozen(0).getFrozenBalance();
+    // Long afterBandwidth     = afterFronzen.getBandwidth();
+    // logger.info(Long.toString(afterFronzen.getBandwidth()));
+    // logger.info(Long.toString(afterFronzen.getFrozen(0).getFrozenBalance()));
+    // logger.info(Integer.toString(search.getFrozenCount()));
     logger.info(
-        "afterfrozenbalance =" + Long.toString(afterFrozenBalance) + "beforefrozenbalance =  "
-            + beforeFrozenBalance + "freezebalance = " + Long.toString(freezeBalance));
-  //logger.info("afterbandwidth = " + Long.toString(afterBandwidth) + " beforebandwidth =
+        "afterfrozenbalance ="
+            + Long.toString(afterFrozenBalance)
+            + "beforefrozenbalance =  "
+            + beforeFrozenBalance
+            + "freezebalance = "
+            + Long.toString(freezeBalance));
+    // logger.info("afterbandwidth = " + Long.toString(afterBandwidth) + " beforebandwidth =
     // " + Long.toString(beforeBandwidth));
-  //if ((afterFrozenBalance - beforeFrozenBalance != freezeBalance) ||
+    // if ((afterFrozenBalance - beforeFrozenBalance != freezeBalance) ||
     //       (freezeBalance * frozen_duration -(afterBandwidth - beforeBandwidth) !=0)){
     //  logger.info("After 20 second, two node still not synchronous");
-  // }
+    // }
     Assert.assertTrue(afterFrozenBalance - beforeFrozenBalance == freezeBalance);
-  //Assert.assertTrue(freezeBalance * frozen_duration - (afterBandwidth -
+    // Assert.assertTrue(freezeBalance * frozen_duration - (afterBandwidth -
     // beforeBandwidth) <= 1000000);
     return true;
-
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean unFreezeBalance(byte[] addRess, String priKey) {
     byte[] address = addRess;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -305,8 +296,7 @@ public class ContinueVote extends TronBaseTest {
     ECKey ecKey = temKey;
     Account search = queryAccount(ecKey, blockingStubFull);
 
-    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract
-        .newBuilder();
+    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
@@ -328,19 +318,17 @@ public class ContinueVote extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -350,23 +338,18 @@ public class ContinueVote extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -378,5 +361,3 @@ public class ContinueVote extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 }
-
-

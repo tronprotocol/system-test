@@ -26,11 +26,11 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
+
 @Slf4j
 @MultiNode
 public class WithdrawBalance2Test extends TronBaseTest {
@@ -38,47 +38,47 @@ public class WithdrawBalance2Test extends TronBaseTest {
   {
     fullnode = config.getStringList("fullnode.ip.list").get(1);
   }
-  //key is only for test
+  // key is only for test
+
   private final String notWitnessTestKey =
-      "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";  private final byte[] notWitness = PublicMethod.getFinalAddress(notWitnessTestKey);  private ManagedChannel searchChannelFull = null;  private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;  private String searchFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+      "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
+  private final byte[] notWitness = PublicMethod.getFinalAddress(notWitnessTestKey);
+  private ManagedChannel searchChannelFull = null;
+  private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;
+  private String searchFullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode).usePlaintext().build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
-
   }
 
   @Test
   public void testWithdrawBalance2() {
-    //Withdraw failed when you are not witness
+    // Withdraw failed when you are not witness
     Return ret1 = withdrawBalance2(notWitness, notWitnessTestKey);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(), "Contract validate error : "
-        + "Account[41688b08971e740d7cecfa5d768f2787c1bb4c1268] is not a witnessAccount");
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
+        "Contract validate error : "
+            + "Account[41688b08971e740d7cecfa5d768f2787c1bb4c1268] is not a witnessAccount");
 
-    //Withdraw failed when the latest time to withdraw within 1 day.
+    // Withdraw failed when the latest time to withdraw within 1 day.
     ret1 = withdrawBalance2(fromAddress, foundationKey2);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         " Contract validate error : witnessAccount does not have any allowance");
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
@@ -89,10 +89,7 @@ public class WithdrawBalance2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public boolean withdrawBalance(byte[] address, String priKey) {
     ECKey temKey = null;
     try {
@@ -103,8 +100,7 @@ public class WithdrawBalance2Test extends TronBaseTest {
     }
     ECKey ecKey = temKey;
 
-    WithdrawBalanceContract.Builder builder = WithdrawBalanceContract
-        .newBuilder();
+    WithdrawBalanceContract.Builder builder = WithdrawBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess);
     WithdrawBalanceContract contract = builder.build();
@@ -123,10 +119,7 @@ public class WithdrawBalance2Test extends TronBaseTest {
     return true;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Return withdrawBalance2(byte[] address, String priKey) {
     ECKey temKey = null;
     try {
@@ -136,8 +129,7 @@ public class WithdrawBalance2Test extends TronBaseTest {
       ex.printStackTrace();
     }
 
-    WithdrawBalanceContract.Builder builder = WithdrawBalanceContract
-        .newBuilder();
+    WithdrawBalanceContract.Builder builder = WithdrawBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess);
     WithdrawBalanceContract contract = builder.build();
@@ -170,10 +162,7 @@ public class WithdrawBalance2Test extends TronBaseTest {
     return ret;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Boolean voteWitness(HashMap<String, String> witness, byte[] address, String priKey) {
 
     ECKey temKey = null;
@@ -195,8 +184,7 @@ public class WithdrawBalance2Test extends TronBaseTest {
     for (String addressBase58 : witness.keySet()) {
       String value = witness.get(addressBase58);
       long count = Long.parseLong(value);
-      VoteWitnessContract.Vote.Builder voteBuilder = VoteWitnessContract.Vote
-          .newBuilder();
+      VoteWitnessContract.Vote.Builder voteBuilder = VoteWitnessContract.Vote.newBuilder();
       byte[] addRess = WalletClient.decodeFromBase58Check(addressBase58);
       if (addRess == null) {
         continue;
@@ -219,7 +207,7 @@ public class WithdrawBalance2Test extends TronBaseTest {
       return false;
     }
     Account afterVote = queryAccount(ecKey, searchBlockingStubFull);
-    //Long afterVoteNum = afterVote.getVotes(0).getVoteCount();
+    // Long afterVoteNum = afterVote.getVotes(0).getVoteCount();
     for (String key : witness.keySet()) {
       for (int j = 0; j < afterVote.getVotesCount(); j++) {
         if (key.equals(afterVote.getVotes(j).getVoteAddress())) {
@@ -232,14 +220,11 @@ public class WithdrawBalance2Test extends TronBaseTest {
     return true;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -255,25 +240,18 @@ public class WithdrawBalance2Test extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -285,4 +263,3 @@ public class WithdrawBalance2Test extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 }
-

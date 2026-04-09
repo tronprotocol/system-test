@@ -9,11 +9,11 @@ import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -27,13 +27,9 @@ public class ContractScenario008 extends TronBaseTest {
   byte[] contract008Address = ecKey1.getAddress();
   String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {
-  }
+  public void beforeClass() {}
 
   @Test(enabled = true)
   public void deployErc721CryptoKitties() {
@@ -41,12 +37,16 @@ public class ContractScenario008 extends TronBaseTest {
     contract008Address = ecKey1.getAddress();
     contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     PublicMethod.printAddress(contract008Key);
-    Assert.assertTrue(PublicMethod.sendcoin(contract008Address, 5000000000L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(contract008Address, 1000000L,
-        3, 1, contract008Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract008Address,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contract008Address, 5000000000L, fromAddress, testKey002, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            contract008Address, 10000000L, 3, 1, contract008Key, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contract008Address, blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
     Account account = PublicMethod.queryAccount(contract008Key, blockingStubFull);
@@ -61,11 +61,34 @@ public class ContractScenario008 extends TronBaseTest {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    byte[] contractAddress = PublicMethod.deployContract(contractName, abi, code, "", shortFeeLimit,
-        0L, 100, null, contract008Key, contract008Address, blockingStubFull);
+    byte[] contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            shortFeeLimit,
+            0L,
+            100,
+            null,
+            contract008Key,
+            contract008Address,
+            blockingStubFull);
 
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contract008Key, contract008Address, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract008Key,
+            contract008Address,
+            blockingStubFull);
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     final SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     accountResource = PublicMethod.getAccountResource(contract008Address, blockingStubFull);

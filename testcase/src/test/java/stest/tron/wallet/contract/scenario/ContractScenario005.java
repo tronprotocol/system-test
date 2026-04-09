@@ -9,50 +9,63 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.protos.Protocol.TransactionInfo;
-import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class ContractScenario005 extends TronBaseTest {
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contract005Address = ecKey1.getAddress();
-  String contract005Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());  /**
-   * constructor.
-   */
+  String contract005Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  /** constructor. */
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(contract005Key);  }
+    PublicMethod.printAddress(contract005Key);
+  }
 
-  @Test(enabled = false, groups = {"contract", "smoke"})
+  @Test(
+      enabled = false,
+      groups = {"contract", "smoke"})
   public void deployIcoContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(contract005Address, 200000000L, foundationAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(contract005Address, 10000000L,
-        3, 1, contract005Key, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract005Address,
-        blockingStubFull);
-  Long energyLimit = accountResource.getEnergyLimit();
-  Long energyUsage = accountResource.getEnergyUsed();
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contract005Address, 200000000L, foundationAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            contract005Address, 10000000L, 3, 1, contract005Key, blockingStubFull));
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contract005Address, blockingStubFull);
+    Long energyLimit = accountResource.getEnergyLimit();
+    Long energyUsage = accountResource.getEnergyUsed();
 
     logger.info("before energy limit is " + Long.toString(energyLimit));
     logger.info("before energy usage is " + Long.toString(energyUsage));
-  String filePath = "./src/test/resources/soliditycode/contractScenario005.sol";
-  String contractName = "Crowdsale";
+    String filePath = "./src/test/resources/soliditycode/contractScenario005.sol";
+    String contractName = "Crowdsale";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  String txid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, contract005Key, contract005Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract005Key,
+            contract005Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Txid is " + txid);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     Assert.assertEquals(1, infoById.get().getResultValue());
@@ -65,12 +78,7 @@ public class ContractScenario005 extends TronBaseTest {
     logger.info("after energy usage is " + Long.toString(energyUsage));
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

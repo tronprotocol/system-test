@@ -17,9 +17,7 @@ import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 @Slf4j
 public class IncrementalMerkleTreeContainer {
 
-  @Getter
-  @Setter
-  private static Integer DEPTH = 32;
+  @Getter @Setter private static Integer DEPTH = 32;
 
   private IncrementalMerkleTreeCapsule treeCapsule;
 
@@ -53,8 +51,7 @@ public class IncrementalMerkleTreeContainer {
     }
 
     if ((!leftIsPresent()) && treeCapsule.getParents().size() > 0) {
-      throw new ZksnarkException(
-          "tree has non-canonical representation; parents should be empty");
+      throw new ZksnarkException("tree has non-canonical representation; parents should be empty");
     }
   }
 
@@ -86,9 +83,7 @@ public class IncrementalMerkleTreeContainer {
     return ret;
   }
 
-  /**
-   * append PedersenHash to the merkletree.
-   */
+  /** append PedersenHash to the merkletree. */
   public void append(PedersenHash obj) throws ZksnarkException {
     if (isComplete(DEPTH)) {
       throw new ZksnarkException("tree is full");
@@ -143,9 +138,7 @@ public class IncrementalMerkleTreeContainer {
     return true;
   }
 
-  /**
-   * get the depth of the skip exist element.
-   */
+  /** get the depth of the skip exist element. */
   public int nextDepth(int skip) {
     if (!leftIsPresent()) {
       if (skip != 0) {
@@ -314,9 +307,9 @@ public class IncrementalMerkleTreeContainer {
 
   public static class EmptyMerkleRoots {
 
-    @Setter
-    @Getter
+    @Setter @Getter
     private static EmptyMerkleRoots emptyMerkleRootsInstance = new EmptyMerkleRoots();
+
     private List<PedersenHashCapsule> emptyRoots = new ArrayList<>();
 
     public EmptyMerkleRoots() {

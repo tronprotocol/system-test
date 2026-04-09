@@ -17,74 +17,65 @@ import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
 
 @Slf4j
 @MultiNode
-public class WalletTestAccount002 extends TronBaseTest {  private ManagedChannel searchChannelFull = null;
+public class WalletTestAccount002 extends TronBaseTest {
+  private ManagedChannel searchChannelFull = null;
   private WalletGrpc.WalletBlockingStub searchBlockingStubFull = null;
-  private String searchFullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String searchFullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  
-
   /*    @Test(enabled = true, groups = {"daily"})
-    public void TestGetAllAccount(){
-        GrpcAPI.AccountList accountlist =
-        blockingStubFull.listAccounts(GrpcAPI.EmptyMessage.newBuilder().build());
-        Optional<GrpcAPI.AccountList> result = Optional.ofNullable(accountlist);
-        if (result.isPresent()) {
-            GrpcAPI.AccountList accountList = result.get();
-            List<Account> list = accountList.getAccountsList();
-            List<Account> newList = new ArrayList();
-            newList.addAll(list);
-            newList.sort(new AccountComparator());
-            GrpcAPI.AccountList.Builder builder = GrpcAPI.AccountList.newBuilder();
-            newList.forEach(account -> builder.addAccounts(account));
-            result = Optional.of(builder.build());
-        }
-        Assert.assertTrue(result.get().getAccountsCount() > 0);
-        logger.info(Integer.toString(result.get().getAccountsCount()));
-        for (int j = 0; j < result.get().getAccountsCount(); j++){
-            Assert.assertFalse(result.get().getAccounts(j).getAddress().isEmpty());
-        }
+  public void TestGetAllAccount(){
+      GrpcAPI.AccountList accountlist =
+      blockingStubFull.listAccounts(GrpcAPI.EmptyMessage.newBuilder().build());
+      Optional<GrpcAPI.AccountList> result = Optional.ofNullable(accountlist);
+      if (result.isPresent()) {
+          GrpcAPI.AccountList accountList = result.get();
+          List<Account> list = accountList.getAccountsList();
+          List<Account> newList = new ArrayList();
+          newList.addAll(list);
+          newList.sort(new AccountComparator());
+          GrpcAPI.AccountList.Builder builder = GrpcAPI.AccountList.newBuilder();
+          newList.forEach(account -> builder.addAccounts(account));
+          result = Optional.of(builder.build());
+      }
+      Assert.assertTrue(result.get().getAccountsCount() > 0);
+      logger.info(Integer.toString(result.get().getAccountsCount()));
+      for (int j = 0; j < result.get().getAccountsCount(); j++){
+          Assert.assertFalse(result.get().getAccounts(j).getAddress().isEmpty());
+      }
 
 
-    }*/
+  }*/
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    searchChannelFull = ManagedChannelBuilder.forTarget(searchFullnode).usePlaintext().build();
     searchBlockingStubFull = WalletGrpc.newBlockingStub(searchChannelFull);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {    if (searchChannelFull != null) {
+  public void shutdown() throws InterruptedException {
+    if (searchChannelFull != null) {
       searchChannelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -93,13 +84,13 @@ public class WalletTestAccount002 extends TronBaseTest {  private ManagedChannel
     }
     ECKey ecKey = temKey;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -109,23 +100,18 @@ public class WalletTestAccount002 extends TronBaseTest {  private ManagedChannel
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   class AccountComparator implements Comparator {
@@ -135,5 +121,3 @@ public class WalletTestAccount002 extends TronBaseTest {  private ManagedChannel
     }
   }
 }
-
-

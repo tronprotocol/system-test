@@ -9,183 +9,180 @@ public class HttpSelfFormatFieldName {
   private static Map<String, Integer> NameFieldNameMap = new HashMap<>();
 
   static {
-    //***** api.proto *****
-    //DelegatedResourceMessage
+    // ***** api.proto *****
+    // DelegatedResourceMessage
     AddressFieldNameMap.put("protocol.DelegatedResourceMessage.fromAddress", 1);
     AddressFieldNameMap.put("protocol.DelegatedResourceMessage.toAddress", 1);
-    //TransactionSignWeight
+    // TransactionSignWeight
     AddressFieldNameMap.put("protocol.TransactionSignWeight.approved_list", 1);
-    //TransactionApprovedList
+    // TransactionApprovedList
     AddressFieldNameMap.put("protocol.TransactionApprovedList.approved_list", 1);
-    //PrivateParameters
+    // PrivateParameters
     AddressFieldNameMap.put("protocol.PrivateParameters.transparent_from_address", 1);
     AddressFieldNameMap.put("protocol.PrivateParameters.transparent_to_address", 1);
-    //PrivateParametersWithoutAsk
+    // PrivateParametersWithoutAsk
     AddressFieldNameMap.put("protocol.PrivateParametersWithoutAsk.transparent_from_address", 1);
     AddressFieldNameMap.put("protocol.PrivateParametersWithoutAsk.transparent_to_address", 1);
-    //PrivateShieldedTRC20Parameters
-    AddressFieldNameMap.put(
-        "protocol.PrivateShieldedTRC20Parameters.transparent_to_address", 1);
+    // PrivateShieldedTRC20Parameters
+    AddressFieldNameMap.put("protocol.PrivateShieldedTRC20Parameters.transparent_to_address", 1);
     AddressFieldNameMap.put(
         "protocol.PrivateShieldedTRC20Parameters.shielded_TRC20_contract_address", 1);
-    //PrivateShieldedTRC20ParametersWithoutAsk
+    // PrivateShieldedTRC20ParametersWithoutAsk
     AddressFieldNameMap.put(
         "protocol.PrivateShieldedTRC20ParametersWithoutAsk.transparent_to_address", 1);
     AddressFieldNameMap.put(
         "protocol.PrivateShieldedTRC20ParametersWithoutAsk.shielded_TRC20_contract_address", 1);
-    //IvkDecryptTRC20Parameters
+    // IvkDecryptTRC20Parameters
     AddressFieldNameMap.put(
         "protocol.IvkDecryptTRC20Parameters.shielded_TRC20_contract_address", 1);
-    //OvkDecryptTRC20Parameters
+    // OvkDecryptTRC20Parameters
     AddressFieldNameMap.put(
         "protocol.OvkDecryptTRC20Parameters.shielded_TRC20_contract_address", 1);
-    //NfTRC20Parameters
-    AddressFieldNameMap.put(
-        "protocol.NfTRC20Parameters.shielded_TRC20_contract_address", 1);
-    //ShieldedTRC20TriggerContractParameters
+    // NfTRC20Parameters
+    AddressFieldNameMap.put("protocol.NfTRC20Parameters.shielded_TRC20_contract_address", 1);
+    // ShieldedTRC20TriggerContractParameters
     AddressFieldNameMap.put(
         "protocol.ShieldedTRC20TriggerContractParameters.transparent_to_address", 1);
-    AddressFieldNameMap.put(
-        "protocol.DecryptNotesTRC20.NoteTx.transparent_to_address", 1);
+    AddressFieldNameMap.put("protocol.DecryptNotesTRC20.NoteTx.transparent_to_address", 1);
 
-    //***** Contract.proto *****
-    //AccountCreateContract
+    // ***** Contract.proto *****
+    // AccountCreateContract
     AddressFieldNameMap.put("protocol.AccountCreateContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.AccountCreateContract.account_address", 1);
-    //AccountUpdateContract
+    // AccountUpdateContract
     AddressFieldNameMap.put("protocol.AccountUpdateContract.owner_address", 1);
-    //SetAccountIdContract
+    // SetAccountIdContract
     AddressFieldNameMap.put("protocol.SetAccountIdContract.owner_address", 1);
-    //TransferContract
+    // TransferContract
     AddressFieldNameMap.put("protocol.TransferContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.TransferContract.to_address", 1);
-    //CancelDeferredTransactionContract
+    // CancelDeferredTransactionContract
     AddressFieldNameMap.put("protocol.CancelDeferredTransactionContract.ownerAddress", 1);
-    //TransferAssetContract
+    // TransferAssetContract
     AddressFieldNameMap.put("protocol.TransferAssetContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.TransferAssetContract.to_address", 1);
-    //VoteAssetContract
+    // VoteAssetContract
     AddressFieldNameMap.put("protocol.VoteAssetContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.VoteAssetContract.vote_address", 1);
-    //VoteWitnessContract
+    // VoteWitnessContract
     AddressFieldNameMap.put("protocol.VoteWitnessContract.Vote.vote_address", 1);
     AddressFieldNameMap.put("protocol.VoteWitnessContract.owner_address", 1);
-    //UpdateSettingContract
+    // UpdateSettingContract
     AddressFieldNameMap.put("protocol.UpdateSettingContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.UpdateSettingContract.contract_address", 1);
-    //UpdateEnergyLimitContract
+    // UpdateEnergyLimitContract
     AddressFieldNameMap.put("protocol.UpdateEnergyLimitContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.UpdateEnergyLimitContract.contract_address", 1);
-    //ClearABIContract
+    // ClearABIContract
     AddressFieldNameMap.put("protocol.ClearABIContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.ClearABIContract.contract_address", 1);
-    //WitnessCreateContract
+    // WitnessCreateContract
     AddressFieldNameMap.put("protocol.WitnessCreateContract.owner_address", 1);
-    //WitnessUpdateContract
+    // WitnessUpdateContract
     AddressFieldNameMap.put("protocol.WitnessUpdateContract.owner_address", 1);
-    //AssetIssueContract
+    // AssetIssueContract
     AddressFieldNameMap.put("protocol.AssetIssueContract.owner_address", 1);
-    //ParticipateAssetIssueContract
+    // ParticipateAssetIssueContract
     AddressFieldNameMap.put("protocol.ParticipateAssetIssueContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.ParticipateAssetIssueContract.to_address", 1);
-    //FreezeBalanceContract
+    // FreezeBalanceContract
     AddressFieldNameMap.put("protocol.FreezeBalanceContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.FreezeBalanceContract.receiver_address", 1);
-    //UnfreezeBalanceContract
+    // UnfreezeBalanceContract
     AddressFieldNameMap.put("protocol.UnfreezeBalanceContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.UnfreezeBalanceContract.receiver_address", 1);
-    //UnfreezeAssetContract
+    // UnfreezeAssetContract
     AddressFieldNameMap.put("protocol.UnfreezeAssetContract.owner_address", 1);
-    //WithdrawBalanceContract
+    // WithdrawBalanceContract
     AddressFieldNameMap.put("protocol.WithdrawBalanceContract.owner_address", 1);
-    //UpdateAssetContract
+    // UpdateAssetContract
     AddressFieldNameMap.put("protocol.UpdateAssetContract.owner_address", 1);
-    //ProposalCreateContract
+    // ProposalCreateContract
     AddressFieldNameMap.put("protocol.ProposalCreateContract.owner_address", 1);
-    //ProposalApproveContract
+    // ProposalApproveContract
     AddressFieldNameMap.put("protocol.ProposalApproveContract.owner_address", 1);
-    //ProposalDeleteContract
+    // ProposalDeleteContract
     AddressFieldNameMap.put("protocol.ProposalDeleteContract.owner_address", 1);
-    //CreateSmartContract
+    // CreateSmartContract
     AddressFieldNameMap.put("protocol.CreateSmartContract.owner_address", 1);
-    //TriggerSmartContract
+    // TriggerSmartContract
     AddressFieldNameMap.put("protocol.TriggerSmartContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.TriggerSmartContract.contract_address", 1);
-    //BuyStorageContract
+    // BuyStorageContract
     AddressFieldNameMap.put("protocol.BuyStorageContract.owner_address", 1);
-    //BuyStorageBytesContract
+    // BuyStorageBytesContract
     AddressFieldNameMap.put("protocol.BuyStorageBytesContract.owner_address", 1);
-    //SellStorageContract
+    // SellStorageContract
     AddressFieldNameMap.put("protocol.SellStorageContract.owner_address", 1);
-    //ExchangeCreateContract
+    // ExchangeCreateContract
     AddressFieldNameMap.put("protocol.ExchangeCreateContract.owner_address", 1);
-    //ExchangeInjectContract
+    // ExchangeInjectContract
     AddressFieldNameMap.put("protocol.ExchangeInjectContract.owner_address", 1);
-    //ExchangeWithdrawContract
+    // ExchangeWithdrawContract
     AddressFieldNameMap.put("protocol.ExchangeWithdrawContract.owner_address", 1);
-    //ExchangeTransactionContract
+    // ExchangeTransactionContract
     AddressFieldNameMap.put("protocol.ExchangeTransactionContract.owner_address", 1);
-    //AccountPermissionUpdateContract
+    // AccountPermissionUpdateContract
     AddressFieldNameMap.put("protocol.AccountPermissionUpdateContract.owner_address", 1);
-    //UpdateBrokerageContract
+    // UpdateBrokerageContract
     AddressFieldNameMap.put("protocol.UpdateBrokerageContract.owner_address", 1);
-    //ShieldedTransferContract
+    // ShieldedTransferContract
     AddressFieldNameMap.put("protocol.ShieldedTransferContract.transparent_from_address", 1);
     AddressFieldNameMap.put("protocol.ShieldedTransferContract.transparent_to_address", 1);
-    //FreezeBalanceV2Contract
+    // FreezeBalanceV2Contract
     AddressFieldNameMap.put("protocol.FreezeBalanceV2Contract.owner_address", 1);
-    //UnfreezeBalanceV2Contract
+    // UnfreezeBalanceV2Contract
     AddressFieldNameMap.put("protocol.UnfreezeBalanceV2Contract.owner_address", 1);
-    //WithdrawExpireUnfreezeContract
+    // WithdrawExpireUnfreezeContract
     AddressFieldNameMap.put("protocol.WithdrawExpireUnfreezeContract.owner_address", 1);
-    //DelegateResourceContract
+    // DelegateResourceContract
     AddressFieldNameMap.put("protocol.DelegateResourceContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.DelegateResourceContract.receiver_address", 1);
-    //UnDelegateResourceContract
+    // UnDelegateResourceContract
     AddressFieldNameMap.put("protocol.UnDelegateResourceContract.owner_address", 1);
     AddressFieldNameMap.put("protocol.UnDelegateResourceContract.receiver_address", 1);
-    //CancelAllUnfreezeV2Contract
+    // CancelAllUnfreezeV2Contract
     AddressFieldNameMap.put("protocol.CancelAllUnfreezeV2Contract.owner_address", 1);
     AddressFieldNameMap.put("protocol.CanDelegatedMaxSizeRequestMessage.owner_address", 1);
     AddressFieldNameMap.put("protocol.GetAvailableUnfreezeCountRequestMessage.owner_address", 1);
     AddressFieldNameMap.put("protocol.CanWithdrawUnfreezeAmountRequestMessage.owner_address", 1);
 
-    //***** Tron.proto *****
-    //AccountId
+    // ***** Tron.proto *****
+    // AccountId
     AddressFieldNameMap.put("protocol.AccountId.address", 1);
-    //Vote
+    // Vote
     AddressFieldNameMap.put("protocol.Vote.vote_address", 1);
-    //Proposal
+    // Proposal
     AddressFieldNameMap.put("protocol.Proposal.proposer_address", 1);
     AddressFieldNameMap.put("protocol.Proposal.approvals", 1);
-    //Exchange
+    // Exchange
     AddressFieldNameMap.put("protocol.Exchange.creator_address", 1);
-    //Account
+    // Account
     AddressFieldNameMap.put("protocol.Account.address", 1);
-    //Key
+    // Key
     AddressFieldNameMap.put("protocol.Key.address", 1);
-    //DelegatedResource
+    // DelegatedResource
     AddressFieldNameMap.put("protocol.DelegatedResource.from", 1);
     AddressFieldNameMap.put("protocol.DelegatedResource.to", 1);
-    //Witness
+    // Witness
     AddressFieldNameMap.put("protocol.Witness.address", 1);
-    //Votes
+    // Votes
     AddressFieldNameMap.put("protocol.Votes.address", 1);
-    //TransactionInfo
+    // TransactionInfo
     AddressFieldNameMap.put("protocol.TransactionInfo.Log.address", 1);
     AddressFieldNameMap.put("protocol.TransactionInfo.contract_address", 1);
-    //DeferredTransaction
+    // DeferredTransaction
     AddressFieldNameMap.put("protocol.DeferredTransaction.senderAddress", 1);
     AddressFieldNameMap.put("protocol.DeferredTransaction.receiverAddress", 1);
-    //BlockHeader
+    // BlockHeader
     AddressFieldNameMap.put("protocol.BlockHeader.raw.witness_address", 1);
-    //SmartContract
+    // SmartContract
     AddressFieldNameMap.put("protocol.SmartContract.origin_address", 1);
     AddressFieldNameMap.put("protocol.SmartContract.contract_address", 1);
-    //InternalTransaction
+    // InternalTransaction
     AddressFieldNameMap.put("protocol.InternalTransaction.caller_address", 1);
     AddressFieldNameMap.put("protocol.InternalTransaction.transferTo_address", 1);
-    //DelegatedResourceAccountIndex
+    // DelegatedResourceAccountIndex
     AddressFieldNameMap.put("protocol.DelegatedResourceAccountIndex.account", 1);
     AddressFieldNameMap.put("protocol.DelegatedResourceAccountIndex.fromAccounts", 1);
     AddressFieldNameMap.put("protocol.DelegatedResourceAccountIndex.toAccounts", 1);
@@ -193,64 +190,64 @@ public class HttpSelfFormatFieldName {
     AddressFieldNameMap.put("protocol.AccountIdentifier.address", 1);
     AddressFieldNameMap.put("protocol.TransactionBalanceTrace.Operation.address", 1);
 
-    //***** api.proto *****
-    //Return
+    // ***** api.proto *****
+    // Return
     NameFieldNameMap.put("protocol.Return.message", 1);
-    //Address
+    // Address
     NameFieldNameMap.put("protocol.Address.host", 1);
-    //Note
+    // Note
     NameFieldNameMap.put("protocol.Note.memo", 1);
 
-    //***** Contract.proto *****
-    //AccountUpdateContract
+    // ***** Contract.proto *****
+    // AccountUpdateContract
     NameFieldNameMap.put("protocol.AccountUpdateContract.account_name", 1);
-    //SetAccountIdContract
+    // SetAccountIdContract
     NameFieldNameMap.put("protocol.SetAccountIdContract.account_id", 1);
-    //TransferAssetContract
+    // TransferAssetContract
     NameFieldNameMap.put("protocol.TransferAssetContract.asset_name", 1);
-    //WitnessCreateContract
+    // WitnessCreateContract
     NameFieldNameMap.put("protocol.WitnessCreateContract.url", 1);
-    //WitnessUpdateContract
+    // WitnessUpdateContract
     NameFieldNameMap.put("protocol.WitnessUpdateContract.update_url", 1);
-    //AssetIssueContract
+    // AssetIssueContract
     NameFieldNameMap.put("protocol.AssetIssueContract.name", 1);
     NameFieldNameMap.put("protocol.AssetIssueContract.abbr", 1);
     NameFieldNameMap.put("protocol.AssetIssueContract.description", 1);
     NameFieldNameMap.put("protocol.AssetIssueContract.url", 1);
-    //ParticipateAssetIssueContract
+    // ParticipateAssetIssueContract
     NameFieldNameMap.put("protocol.ParticipateAssetIssueContract.asset_name", 1);
-    //UpdateAssetContract
+    // UpdateAssetContract
     NameFieldNameMap.put("protocol.UpdateAssetContract.description", 1);
     NameFieldNameMap.put("protocol.UpdateAssetContract.url", 1);
-    //ExchangeCreateContract
+    // ExchangeCreateContract
     NameFieldNameMap.put("protocol.ExchangeCreateContract.first_token_id", 1);
     NameFieldNameMap.put("protocol.ExchangeCreateContract.second_token_id", 1);
-    //ExchangeInjectContract
+    // ExchangeInjectContract
     NameFieldNameMap.put("protocol.ExchangeInjectContract.token_id", 1);
-    //ExchangeWithdrawContract
+    // ExchangeWithdrawContract
     NameFieldNameMap.put("protocol.ExchangeWithdrawContract.token_id", 1);
-    //ExchangeTransactionContract
+    // ExchangeTransactionContract
     NameFieldNameMap.put("protocol.ExchangeTransactionContract.token_id", 1);
 
-    //***** Tron.proto *****
-    //AccountId
+    // ***** Tron.proto *****
+    // AccountId
     NameFieldNameMap.put("protocol.AccountId.name", 1);
-    //Exchange
+    // Exchange
     NameFieldNameMap.put("protocol.Exchange.first_token_id", 1);
     NameFieldNameMap.put("protocol.Exchange.second_token_id", 1);
-    //Account
+    // Account
     NameFieldNameMap.put("protocol.Account.account_name", 1);
     NameFieldNameMap.put("protocol.Account.asset_issued_name", 1);
     NameFieldNameMap.put("protocol.Account.asset_issued_ID", 1);
     NameFieldNameMap.put("protocol.Account.account_id", 1);
-    //authority
+    // authority
     NameFieldNameMap.put("protocol.authority.permission_name", 1);
-    //Transaction
+    // Transaction
     NameFieldNameMap.put("protocol.Transaction.Contract.ContractName", 1);
-    //TransactionInfo
+    // TransactionInfo
     NameFieldNameMap.put("protocol.TransactionInfo.resMessage", 1);
 
-    //***** market.proto *****
+    // ***** market.proto *****
     // MarketSellAssetContract
     AddressFieldNameMap.put("protocol.MarketSellAssetContract.owner_address", 1);
     NameFieldNameMap.put("protocol.MarketSellAssetContract.sell_token_id", 1);

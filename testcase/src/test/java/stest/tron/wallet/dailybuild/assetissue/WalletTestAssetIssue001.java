@@ -24,8 +24,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestAssetIssue001 extends TronBaseTest {
@@ -33,77 +33,96 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private static String name = "testAssetIssue001_" + Long.toString(now);
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
+  String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
+  String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] noBandwitchAddress = ecKey.getAddress();
   String noBandwitch = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, description = "Transfer asset use Bandwitch", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Transfer asset use Bandwitch",
+      groups = {"daily"})
   public void testTransferAssetBandwitchDecreaseWithin10Second() {
-    //get account
+    // get account
     ecKey = new ECKey(Utils.getRandom());
     noBandwitchAddress = ecKey.getAddress();
     noBandwitch = ByteArray.toHexString(ecKey.getPrivKeyBytes());
 
     PublicMethod.printAddress(noBandwitch);
 
-    Assert.assertTrue(PublicMethod.sendcoin(noBandwitchAddress, 2048000000, foundationAddress,
-        foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            noBandwitchAddress, 2048000000, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long start = System.currentTimeMillis() + 5000;
-  Long end = System.currentTimeMillis() + 1000000000;
-  //Create a new AssetIssue success.
-    Assert.assertTrue(PublicMethod.createAssetIssue(noBandwitchAddress, name, totalSupply, 1,
-        100, start, end, 1, description, url, 10000L, 10000L,
-        1L, 1L, noBandwitch, blockingStubFull));
+    Long start = System.currentTimeMillis() + 5000;
+    Long end = System.currentTimeMillis() + 1000000000;
+    // Create a new AssetIssue success.
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            noBandwitchAddress,
+            name,
+            totalSupply,
+            1,
+            100,
+            start,
+            end,
+            1,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            1L,
+            noBandwitch,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethod.queryAccount(noBandwitch, blockingStubFull);
     ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
 
-    Assert.assertTrue(transferAsset(toAddress, assetAccountId.toByteArray(), 100L,
-        noBandwitchAddress, noBandwitch));
+    Assert.assertTrue(
+        transferAsset(
+            toAddress, assetAccountId.toByteArray(), 100L, noBandwitchAddress, noBandwitch));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //Transfer Asset failed when transfer to yourself
-    Assert.assertFalse(transferAsset(toAddress, assetAccountId.toByteArray(), 100L,
-        toAddress, testKey003));
-  //Transfer Asset failed when the transfer amount is large than the asset balance you have.
+    // Transfer Asset failed when transfer to yourself
     Assert.assertFalse(
-        transferAsset(foundationAddress, assetAccountId.toByteArray(), 9100000000000000000L,
-            toAddress, testKey003));
-  //Transfer Asset failed when the transfer amount is 0
-    Assert.assertFalse(transferAsset(foundationAddress, assetAccountId.toByteArray(), 0L,
-        toAddress, testKey003));
-  //Transfer Asset failed when the transfer amount is -1
-    Assert.assertFalse(transferAsset(foundationAddress, assetAccountId.toByteArray(), -1L,
-        toAddress, testKey003));
-  //Transfer success.
-    Assert.assertTrue(transferAsset(foundationAddress, assetAccountId.toByteArray(), 1L,
-        toAddress, testKey003));
-  //No freeze asset, try to unfreeze asset failed.
+        transferAsset(toAddress, assetAccountId.toByteArray(), 100L, toAddress, testKey003));
+    // Transfer Asset failed when the transfer amount is large than the asset balance you have.
+    Assert.assertFalse(
+        transferAsset(
+            foundationAddress,
+            assetAccountId.toByteArray(),
+            9100000000000000000L,
+            toAddress,
+            testKey003));
+    // Transfer Asset failed when the transfer amount is 0
+    Assert.assertFalse(
+        transferAsset(foundationAddress, assetAccountId.toByteArray(), 0L, toAddress, testKey003));
+    // Transfer Asset failed when the transfer amount is -1
+    Assert.assertFalse(
+        transferAsset(foundationAddress, assetAccountId.toByteArray(), -1L, toAddress, testKey003));
+    // Transfer success.
+    Assert.assertTrue(
+        transferAsset(foundationAddress, assetAccountId.toByteArray(), 1L, toAddress, testKey003));
+    // No freeze asset, try to unfreeze asset failed.
     Assert.assertFalse(unFreezeAsset(noBandwitchAddress, noBandwitch));
-  //Not create asset, try to unfreeze asset failed.No exception.
+    // Not create asset, try to unfreeze asset failed.No exception.
     Assert.assertFalse(unFreezeAsset(toAddress, testKey003));
-
-
   }
 
   @AfterMethod
@@ -111,19 +130,23 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
     PublicMethod.freeResource(noBandwitchAddress, noBandwitch, foundationAddress, blockingStubFull);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, String priKey) {
+  /** constructor. */
+  public Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -167,19 +190,17 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -189,23 +210,18 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -217,11 +233,9 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -255,15 +269,12 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
       Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -272,8 +283,7 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
     }
     final ECKey ecKey = temKey;
 
-    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
-        .newBuilder();
+    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddress);
@@ -294,5 +304,3 @@ public class WalletTestAssetIssue001 extends TronBaseTest {
     return response.getResult();
   }
 }
-
-

@@ -13,48 +13,60 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
-public class TronDice extends TronBaseTest {  byte[] contractAddress;
+public class TronDice extends TronBaseTest {
+  byte[] contractAddress;
   Long maxFeeLimit = 1000000000L;
   Optional<TransactionInfo> infoById = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contract008Address = ecKey1.getAddress();
   String contract008Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   ArrayList<String> txidList = new ArrayList<String>();
-  private String fullnodeLocal = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnodeLocal =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(contract008Key);    PublicMethod.printAddress(foundationKey);
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract008Address,
-        blockingStubFull);
+    PublicMethod.printAddress(contract008Key);
+    PublicMethod.printAddress(foundationKey);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contract008Address, blockingStubFull);
   }
 
-  @Test(enabled = true, threadPoolSize = 30, invocationCount = 30, groups = {"full"})
+  @Test(
+      enabled = true,
+      threadPoolSize = 30,
+      invocationCount = 30,
+      groups = {"full"})
   public void tronDice() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] tronDiceAddress = ecKey1.getAddress();
-  String tronDiceKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    PublicMethod
-        .sendcoin(tronDiceAddress, 100000000000L, foundationAddress, foundationKey, blockingStubFull);
-  String contractName = "TronDice";
-  String code = Configuration.getByPath("testng.conf")
-        .getString("code.code_TronDice_tronDice");
-  String abi = Configuration.getByPath("testng.conf")
-        .getString("abi.abi_TronDice_tronDice");
-  byte[] contractAddress = PublicMethod.deployContract(contractName, abi, code, "",
-        maxFeeLimit, 1000000000L, 100, null, tronDiceKey, tronDiceAddress, blockingStubFull);
+    byte[] tronDiceAddress = ecKey1.getAddress();
+    String tronDiceKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    PublicMethod.sendcoin(
+        tronDiceAddress, 100000000000L, foundationAddress, foundationKey, blockingStubFull);
+    String contractName = "TronDice";
+    String code = Configuration.getByPath("testng.conf").getString("code.code_TronDice_tronDice");
+    String abi = Configuration.getByPath("testng.conf").getString("abi.abi_TronDice_tronDice");
+    byte[] contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            1000000000L,
+            100,
+            null,
+            tronDiceKey,
+            tronDiceAddress,
+            blockingStubFull);
     SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     try {
       Thread.sleep(10000);
@@ -63,13 +75,21 @@ public class TronDice extends TronBaseTest {  byte[] contractAddress;
     }
 
     Assert.assertTrue(smartContract.getAbi() != null);
-  String txid;
+    String txid;
 
     for (Integer i = 0; i < 100; i++) {
       String initParmes = "\"" + "10" + "\"";
-      txid = PublicMethod.triggerContract(contractAddress,
-          "rollDice(uint256)", initParmes, false,
-          1000000, maxFeeLimit, tronDiceAddress, tronDiceKey, blockingStubFull);
+      txid =
+          PublicMethod.triggerContract(
+              contractAddress,
+              "rollDice(uint256)",
+              initParmes,
+              false,
+              1000000,
+              maxFeeLimit,
+              tronDiceAddress,
+              tronDiceKey,
+              blockingStubFull);
       logger.info(txid);
       txidList.add(txid);
 
@@ -78,15 +98,10 @@ public class TronDice extends TronBaseTest {  byte[] contractAddress;
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-
     }
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     try {
@@ -110,7 +125,6 @@ public class TronDice extends TronBaseTest {  byte[] contractAddress;
     logger.info("Total times is " + totalTimes.toString());
     logger.info("success times is " + successTimes.toString());
     logger.info("failed times is " + failedTimes.toString());
-    logger.info("success percent is " + successTimes / totalTimes);  }
+    logger.info("success percent is " + successTimes / totalTimes);
+  }
 }
-
-

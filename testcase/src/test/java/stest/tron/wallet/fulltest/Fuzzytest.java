@@ -1,7 +1,6 @@
 package stest.tron.wallet.fulltest;
 
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class Fuzzytest extends TronBaseTest {
@@ -34,7 +33,7 @@ public class Fuzzytest extends TronBaseTest {
   private static long now = System.currentTimeMillis();
   private static String name = "AssetIssue016_" + Long.toString(now);
   private static long totalSupply = now;
-  //testng001、testng002、testng003、testng004  all keys are for test
+  // testng001、testng002、testng003、testng004  all keys are for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final String testKey003 =
@@ -44,21 +43,31 @@ public class Fuzzytest extends TronBaseTest {
   Long publicFreeAssetNetLimit = 30000L;
   String description = "for case assetissue016";
   String url = "https://stest.assetissue016.url";
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] asset017Address = ecKey1.getAddress();
   String testKeyForAssetIssue017 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private WalletExtensionGrpc.WalletExtensionBlockingStub blockingStubExtension = null;
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-  public static Boolean createAssetIssue(byte[] address, String name, Long totalSupply,
-      Integer trxNum, Integer icoNum, Long startTime, Long endTime, Integer voteScore,
-      String description, String url, Long freeAssetNetLimit, Long publicFreeAssetNetLimit,
-      Long fronzenAmount, Long frozenDay, String priKey,
+  /** constructor. */
+  public static Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      Long freeAssetNetLimit,
+      Long publicFreeAssetNetLimit,
+      Long fronzenAmount,
+      Long frozenDay,
+      String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
@@ -68,11 +77,10 @@ public class Fuzzytest extends TronBaseTest {
       ex.printStackTrace();
     }
     ECKey ecKey = temKey;
-  //Protocol.Account search = queryAccount(ecKey, blockingStubFull);
+    // Protocol.Account search = queryAccount(ecKey, blockingStubFull);
     try {
       AssetIssueContractOuterClass.AssetIssueContract.Builder builder =
-          AssetIssueContractOuterClass.AssetIssueContract
-              .newBuilder();
+          AssetIssueContractOuterClass.AssetIssueContract.newBuilder();
       builder.setOwnerAddress(ByteString.copyFrom(address));
       builder.setName(ByteString.copyFrom(name.getBytes()));
       builder.setTotalSupply(totalSupply);
@@ -111,50 +119,59 @@ public class Fuzzytest extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-  public static Protocol.Transaction signTransaction(ECKey ecKey,
-      Protocol.Transaction transaction) {
+  /** constructor. */
+  public static Protocol.Transaction signTransaction(
+      ECKey ecKey, Protocol.Transaction transaction) {
     if (ecKey == null || ecKey.getPrivKey() == null) {
-      //logger.warn("Warning: Can't sign,there is no private key !!");
+      // logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = false)
-  public void beforeClass() {    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
     blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
 
-    AssetIssueList assetIssueList = blockingStubFull
-        .getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
-    Assert.assertTrue(PublicMethod.freezeBalance(foundationAddress, 10000000, 3, testKey002,
-        blockingStubFull));
+    AssetIssueList assetIssueList =
+        blockingStubFull.getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(foundationAddress, 10000000, 3, testKey002, blockingStubFull));
     while (assetIssueList.getAssetIssueCount() <= 1) {
-      //Sendcoin to this account
-      Assert.assertTrue(PublicMethod
-          .sendcoin(asset017Address, sendAmount, foundationAddress, testKey002, blockingStubFull));
+      // Sendcoin to this account
+      Assert.assertTrue(
+          PublicMethod.sendcoin(
+              asset017Address, sendAmount, foundationAddress, testKey002, blockingStubFull));
       start = System.currentTimeMillis() + 2000;
       end = System.currentTimeMillis() + 1000000000;
       now = System.currentTimeMillis();
       name = "AssetIssue017_" + Long.toString(now);
       totalSupply = now;
-      Assert.assertTrue(createAssetIssue(asset017Address, name, totalSupply, 1, 1,
-          start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L,
-          1L, testKeyForAssetIssue017, blockingStubFull));
+      Assert.assertTrue(
+          createAssetIssue(
+              asset017Address,
+              name,
+              totalSupply,
+              1,
+              1,
+              start,
+              end,
+              1,
+              description,
+              url,
+              freeAssetNetLimit,
+              publicFreeAssetNetLimit,
+              1L,
+              1L,
+              testKeyForAssetIssue017,
+              blockingStubFull));
 
-      assetIssueList = blockingStubFull
-          .getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
+      assetIssueList =
+          blockingStubFull.getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
 
       ecKey1 = new ECKey(Utils.getRandom());
       asset017Address = ecKey1.getAddress();
@@ -162,24 +179,23 @@ public class Fuzzytest extends TronBaseTest {
     }
   }
 
-  @Test(enabled = false, threadPoolSize = 5, invocationCount = 5, groups = {"full"})
+  @Test(
+      enabled = false,
+      threadPoolSize = 5,
+      invocationCount = 5,
+      groups = {"full"})
   public void tooManyChannelFull() {
     Integer i = 0;
-    while (i++ < 20000) {      GrpcAPI.NodeList nodeList = blockingStubFull
-          .listNodes(GrpcAPI.EmptyMessage.newBuilder().build());
+    while (i++ < 20000) {
+      GrpcAPI.NodeList nodeList =
+          blockingStubFull.listNodes(GrpcAPI.EmptyMessage.newBuilder().build());
       if (i % 100 == 0) {
         logger.info(Integer.toString(i));
       }
-
     }
-
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
     /*    if (channelSolidity != null) {
@@ -187,5 +203,3 @@ public class Fuzzytest extends TronBaseTest {
     }*/
   }
 }
-
-

@@ -16,10 +16,10 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -33,85 +33,100 @@ public class RequireException extends TronBaseTest {
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
   private ManagedChannel channelFull2 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull2 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    PublicMethod.printAddress(testKeyForAssetIssue016);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(testKeyForAssetIssue016);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    }
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
+  }
 
-  @Test(enabled = true, description = "Require Exception", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Require Exception",
+      groups = {"daily"})
   public void test1TestRequireContract() {
     ecKey1 = new ECKey(Utils.getRandom());
     asset016Address = ecKey1.getAddress();
     testKeyForAssetIssue016 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    logger.info(Long.toString(PublicMethod.queryAccount(foundationKey, blockingStubFull)
-        .getBalance()));
+    logger.info(
+        Long.toString(PublicMethod.queryAccount(foundationKey, blockingStubFull).getBalance()));
 
-    Assert.assertTrue(PublicMethod
-        .sendcoin(asset016Address, 1000000000L, foundationAddress, foundationKey,
-            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            asset016Address, 1000000000L, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath =
+    String filePath =
         "src/test/resources/soliditycode/requireExceptiontest1TestRequireContract.sol";
-  String contractName = "TestThrowsContract";
+    String contractName = "TestThrowsContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  final String txid = PublicMethod.triggerContract(contractAddress,
-        "testRequire()", "#", false,
-        0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testRequire()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -123,55 +138,74 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
-  @Test(enabled = true, description = "Throw Exception", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Throw Exception",
+      groups = {"daily"})
   public void test2TestThrowsContract() {
-    String filePath =
-        "src/test/resources/soliditycode/requireExceptiontest2TestThrowsContract.sol";
-  String contractName = "TestThrowsContract";
+    String filePath = "src/test/resources/soliditycode/requireExceptiontest2TestThrowsContract.sol";
+    String contractName = "TestThrowsContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  final String txid = PublicMethod.triggerContract(contractAddress,
-        "testThrow()", "#", false,
-        0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testThrow()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -186,54 +220,73 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
   }
 
-
-  @Test(enabled = true, description = "Call Revert ", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Call Revert ",
+      groups = {"daily"})
   public void test3TestRevertContract() {
-    String filePath =
-        "src/test/resources/soliditycode/requireExceptiontest3TestRevertContract.sol";
-  String contractName = "TestThrowsContract";
+    String filePath = "src/test/resources/soliditycode/requireExceptiontest3TestRevertContract.sol";
+    String contractName = "TestThrowsContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  final String txid = PublicMethod.triggerContract(contractAddress,
-        "testRevert()", "#", false,
-        0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testRevert()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -245,55 +298,75 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
-  @Test(enabled = false, description = "No payable function call value", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "No payable function call value",
+      groups = {"daily"})
   public void test4noPayableContract() {
     String filePath =
         "src/test/resources/soliditycode/requireExceptiontest4noPayableContract_1.sol";
-  String contractName = "noPayableContract";
+    String contractName = "noPayableContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  final String txid = PublicMethod.triggerContract(contractAddress,
-        "noPayable()", "#", false,
-        22, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "noPayable()",
+            "#",
+            false,
+            22,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -305,53 +378,64 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
-  @Test(enabled = false, description = "No payable Constructor", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "No payable Constructor",
+      groups = {"daily"})
   public void test5noPayableConstructor() {
 
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String filePath =
+    String filePath =
         "src/test/resources/soliditycode/requireExceptiontest5noPayableConstructor_1.sol";
-  String contractName = "MyContract";
+    String contractName = "MyContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  final String txid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            22L, 100, null,
-            testKeyForAssetIssue016, asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    final String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            22L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -363,59 +447,77 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
-
   }
 
-  @Test(enabled = true, description = "Transfer failed", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Transfer failed",
+      groups = {"daily"})
   public void test6transferTestContract() {
     String filePath =
         "src/test/resources/soliditycode/requireExceptiontest6transferTestContract.sol";
-  String contractName = "transferTestContract";
+    String contractName = "transferTestContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
-  final Account info;
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
+    final Account info;
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String newCxoAddress = "\"" + Base58.encode58Check(foundationAddress)
-        + "\"";
-  final String txid = PublicMethod.triggerContract(contractAddress,
-        "tranferTest(address) ", newCxoAddress, false,
-        5, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    String newCxoAddress = "\"" + Base58.encode58Check(foundationAddress) + "\"";
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "tranferTest(address) ",
+            newCxoAddress,
+            false,
+            5,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull1);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull1);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -428,67 +530,96 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
-  @Test(enabled = true, description = "No payable fallback call value", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "No payable fallback call value",
+      groups = {"daily"})
   public void test7payableFallbakContract() {
     String filePath =
         "src/test/resources/soliditycode/requireExceptiontest7payableFallbakContract.sol";
-  String contractName = "Caller";
+    String contractName = "Caller";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Integer times = 0;
-  String contractName1 = "Test";
+    String contractName1 = "Test";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  byte[] contractAddress1;
-    contractAddress1 = PublicMethod
-        .deployContract(contractName1, abi1, code1, "", maxFeeLimit, 0L,
-            100, null, testKeyForAssetIssue016,
-            asset016Address, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    byte[] contractAddress1;
+    contractAddress1 =
+        PublicMethod.deployContract(
+            contractName1,
+            abi1,
+            code1,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     Account info;
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
-  final String txid = PublicMethod.triggerContract(contractAddress1,
-        "callTest(address)", saleContractString, false,
-        5, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress1,
+            "callTest(address)",
+            saleContractString,
+            false,
+            5,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -500,64 +631,93 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
-  @Test(enabled = true, description = "New contract gas not enough", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "New contract gas not enough",
+      groups = {"daily"})
   public void test8newContractGasNoenough() {
     String filePath =
         "src/test/resources/soliditycode/requireExceptiontest8newContractGasNoenough.sol";
-  String contractName = "Account";
+    String contractName = "Account";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String contractName1 = "Initialize";
+    String contractName1 = "Initialize";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  final byte[] contractAddress1 = PublicMethod
-        .deployContract(contractName1, abi1, code1, "", maxFeeLimit,
-            0L, 100, null,
-            testKeyForAssetIssue016, asset016Address, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    final byte[] contractAddress1 =
+        PublicMethod.deployContract(
+            contractName1,
+            abi1,
+            code1,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  final String txid = PublicMethod.triggerContract(contractAddress1,
-        "newAccount()", "#", false,
-        0, 5226000, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress1,
+            "newAccount()",
+            "#",
+            false,
+            0,
+            5226000,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -568,66 +728,94 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
-
   }
 
-  @Test(enabled = true, description = "Message used error", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Message used error",
+      groups = {"daily"})
   public void test9MessageUsedErrorFeed() {
     String filePath =
         "src/test/resources/soliditycode/requireExceptiontest9MessageUsedErrorFeed.sol";
-  String contractName = "MathedFeed";
+    String contractName = "MathedFeed";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  final String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
-  String contractName1 = "MathedUseContract";
+    final String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
+    String contractName1 = "MathedUseContract";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  final byte[] contractAddress1 = PublicMethod
-        .deployContract(contractName1, abi1, code1, "", maxFeeLimit,
-            0L, 100, null,
-            testKeyForAssetIssue016, asset016Address, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    final byte[] contractAddress1 =
+        PublicMethod.deployContract(
+            contractName1,
+            abi1,
+            code1,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  final String txid = PublicMethod.triggerContract(contractAddress1,
-        "messageUse(address)", saleContractString, false,
-        0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress1,
+            "messageUse(address)",
+            saleContractString,
+            false,
+            0,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull1);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull1);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -638,66 +826,95 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-
   }
 
-  @Test(enabled = true, description = "Function used error", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Function used error",
+      groups = {"daily"})
   public void testFunctionUsedErrorFeed() {
     String filePath =
         "src/test/resources/soliditycode/requireExceptiontestFunctionUsedErrorFeed.sol";
-  String contractName = "MessageFeed";
+    String contractName = "MessageFeed";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, testKeyForAssetIssue016,
-        asset016Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  final String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
-  String contractName1 = "MessageUseContract";
+    final String saleContractString = "\"" + Base58.encode58Check(contractAddress) + "\"";
+    String contractName1 = "MessageUseContract";
     HashMap retMap1 = PublicMethod.getBycodeAbi(filePath, contractName1);
-  String code1 = retMap1.get("byteCode").toString();
-  String abi1 = retMap1.get("abI").toString();
-  final byte[] contractAddress1 = PublicMethod
-        .deployContract(contractName1, abi1, code1, "", maxFeeLimit, 0L,
-            100, null, testKeyForAssetIssue016,
-            asset016Address, blockingStubFull);
+    String code1 = retMap1.get("byteCode").toString();
+    String abi1 = retMap1.get("abI").toString();
+    final byte[] contractAddress1 =
+        PublicMethod.deployContract(
+            contractName1,
+            abi1,
+            code1,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKeyForAssetIssue016,
+            asset016Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull);
     info = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
 
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  final String txid = PublicMethod.triggerContract(contractAddress1,
-        "messageUse(address)", saleContractString, false,
-        0, maxFeeLimit, asset016Address, testKeyForAssetIssue016, blockingStubFull);
+    final String txid =
+        PublicMethod.triggerContract(
+            contractAddress1,
+            "messageUse(address)",
+            saleContractString,
+            false,
+            0,
+            maxFeeLimit,
+            asset016Address,
+            testKeyForAssetIssue016,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
 
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
 
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
     logger.info("energyUsed:" + energyUsed);
 
     Account infoafter = PublicMethod.queryAccount(testKeyForAssetIssue016, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(asset016Address,
-        blockingStubFull1);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(asset016Address, blockingStubFull1);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
 
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -709,7 +926,7 @@ public class RequireException extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    PublicMethod.freeResource(asset016Address, testKeyForAssetIssue016, foundationAddress,
-        blockingStubFull);
+    PublicMethod.freeResource(
+        asset016Address, testKeyForAssetIssue016, foundationAddress, blockingStubFull);
   }
 }

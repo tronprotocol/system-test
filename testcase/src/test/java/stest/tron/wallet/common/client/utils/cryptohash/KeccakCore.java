@@ -21,18 +21,18 @@ package stest.tron.wallet.common.client.utils.cryptohash;
 abstract class KeccakCore extends DigestEngine {
 
   private static final long[] RC = {
-      0x0000000000000001L, 0x0000000000008082L,
-      0x800000000000808AL, 0x8000000080008000L,
-      0x000000000000808BL, 0x0000000080000001L,
-      0x8000000080008081L, 0x8000000000008009L,
-      0x000000000000008AL, 0x0000000000000088L,
-      0x0000000080008009L, 0x000000008000000AL,
-      0x000000008000808BL, 0x800000000000008BL,
-      0x8000000000008089L, 0x8000000000008003L,
-      0x8000000000008002L, 0x8000000000000080L,
-      0x000000000000800AL, 0x800000008000000AL,
-      0x8000000080008081L, 0x8000000000008080L,
-      0x0000000080000001L, 0x8000000080008008L
+    0x0000000000000001L, 0x0000000000008082L,
+    0x800000000000808AL, 0x8000000080008000L,
+    0x000000000000808BL, 0x0000000080000001L,
+    0x8000000080008081L, 0x8000000000008009L,
+    0x000000000000008AL, 0x0000000000000088L,
+    0x0000000080008009L, 0x000000008000000AL,
+    0x000000008000808BL, 0x800000000000008BL,
+    0x8000000000008089L, 0x8000000000008003L,
+    0x8000000000008002L, 0x8000000000000080L,
+    0x000000000000800AL, 0x800000008000000AL,
+    0x8000000080008081L, 0x8000000000008080L,
+    0x0000000080000001L, 0x8000000080008008L
   };
   private long[] A;
   private byte[] tmpOut;
@@ -88,10 +88,24 @@ abstract class KeccakCore extends DigestEngine {
       A[i >>> 3] ^= decodeLELong(data, i);
     }
 
-    long t0, t1, t2, t3, t4;
-    long tt0, tt1, tt2, tt3, tt4;
-    long t, kt;
-    long c0, c1, c2, c3, c4, bnn;
+    long t0;
+    long t1;
+    long t2;
+    long t3;
+    long t4;
+    long tt0;
+    long tt1;
+    long tt2;
+    long tt3;
+    long tt4;
+    long t;
+    long kt;
+    long c0;
+    long c1;
+    long c2;
+    long c3;
+    long c4;
+    long bnn;
 
     /*
      * Unrolling four rounds kills performance big time

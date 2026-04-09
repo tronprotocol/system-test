@@ -17,10 +17,10 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -47,44 +47,46 @@ public class ContractLinkage005 extends TronBaseTest {
   String linkage005Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(linkage005Key);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(linkage005Key);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-  @Test(enabled = true, description = "Every same trigger use same energy and net", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Every same trigger use same energy and net",
+      groups = {"daily"})
   public void testEnergyCostDetail() {
     PublicMethod.waitProduceNextBlock(blockingStubFull1);
-    Assert.assertTrue(PublicMethod.sendcoin(linkage005Address, 5000000000000L, foundationAddress,
-        foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            linkage005Address, 5000000000000L, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethod.freezeBalance(linkage005Address, 250000000000L,
-        0, linkage005Key, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(linkage005Address, 250000000000L,
-        0, 1, linkage005Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(
+            linkage005Address, 250000000000L, 0, linkage005Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            linkage005Address, 250000000000L, 0, 1, linkage005Key, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(linkage005Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(linkage005Address, blockingStubFull);
     Account info;
     info = PublicMethod.queryAccount(linkage005Address, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyLimit = resourceInfo.getEnergyLimit();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeFreeNetLimit = resourceInfo.getFreeNetLimit();
-  Long beforeNetLimit = resourceInfo.getNetLimit();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyLimit = resourceInfo.getEnergyLimit();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeFreeNetLimit = resourceInfo.getFreeNetLimit();
+    Long beforeNetLimit = resourceInfo.getNetLimit();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyLimit:" + beforeEnergyLimit);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
@@ -92,14 +94,24 @@ public class ContractLinkage005 extends TronBaseTest {
     logger.info("beforeNetLimit:" + beforeNetLimit);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String filePath = "./src/test/resources/soliditycode/contractLinkage005.sol";
-  String contractName = "timeoutTest";
+    String filePath = "./src/test/resources/soliditycode/contractLinkage005.sol";
+    String contractName = "timeoutTest";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  String txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit, 0L, 100, null, linkage005Key,
-        linkage005Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            linkage005Key,
+            linkage005Address,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -108,15 +120,15 @@ public class ContractLinkage005 extends TronBaseTest {
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
     Account infoafter = PublicMethod.queryAccount(linkage005Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(linkage005Address,
-        blockingStubFull1);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterFreeNetLimit = resourceInfoafter.getFreeNetLimit();
-  Long afterNetLimit = resourceInfoafter.getNetLimit();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(linkage005Address, blockingStubFull1);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyLimit = resourceInfoafter.getEnergyLimit();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterFreeNetLimit = resourceInfoafter.getFreeNetLimit();
+    Long afterNetLimit = resourceInfoafter.getNetLimit();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyLimit:" + afterEnergyLimit);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
@@ -128,22 +140,22 @@ public class ContractLinkage005 extends TronBaseTest {
     long fee = infoById.get().getFee();
 
     Assert.assertTrue(beforeBalance - fee == afterBalance);
-  //Assert.assertTrue(afterEnergyUsed > 0);
-  //Assert.assertTrue(afterFreeNetUsed > 0);
+    // Assert.assertTrue(afterEnergyUsed > 0);
+    // Assert.assertTrue(afterFreeNetUsed > 0);
     firstForCycleTimes = 1000L;
     secondForCycleTimes = 1002L;
     thirdForCycleTimes = 1004L;
 
-    AccountResourceMessage resourceInfo1 = PublicMethod.getAccountResource(linkage005Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo1 =
+        PublicMethod.getAccountResource(linkage005Address, blockingStubFull);
     Account info1 = PublicMethod.queryAccount(linkage005Address, blockingStubFull);
-  Long beforeBalance1 = info1.getBalance();
-  Long beforeEnergyLimit1 = resourceInfo1.getEnergyLimit();
-  Long beforeEnergyUsed1 = resourceInfo1.getEnergyUsed();
-  Long beforeFreeNetLimit1 = resourceInfo1.getFreeNetLimit();
-  Long beforeNetLimit1 = resourceInfo1.getNetLimit();
-  Long beforeNetUsed1 = resourceInfo1.getNetUsed();
-  Long beforeFreeNetUsed1 = resourceInfo1.getFreeNetUsed();
+    Long beforeBalance1 = info1.getBalance();
+    Long beforeEnergyLimit1 = resourceInfo1.getEnergyLimit();
+    Long beforeEnergyUsed1 = resourceInfo1.getEnergyUsed();
+    Long beforeFreeNetLimit1 = resourceInfo1.getFreeNetLimit();
+    Long beforeNetLimit1 = resourceInfo1.getNetLimit();
+    Long beforeNetUsed1 = resourceInfo1.getNetUsed();
+    Long beforeFreeNetUsed1 = resourceInfo1.getFreeNetUsed();
     logger.info("beforeBalance1:" + beforeBalance1);
     logger.info("beforeEnergyLimit1:" + beforeEnergyLimit1);
     logger.info("beforeEnergyUsed1:" + beforeEnergyUsed1);
@@ -151,22 +163,30 @@ public class ContractLinkage005 extends TronBaseTest {
     logger.info("beforeNetLimit1:" + beforeNetLimit1);
     logger.info("beforeNetUsed1:" + beforeNetUsed1);
     logger.info("beforeFreeNetUsed1:" + beforeFreeNetUsed1);
-  byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
-    txid = PublicMethod.triggerContract(contractAddress,
-        "testUseCpu(uint256)", firstForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
+    byte[] contractAddress = infoById.get().getContractAddress().toByteArray();
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseCpu(uint256)",
+            firstForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull1);
     Account infoafter1 = PublicMethod.queryAccount(linkage005Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(linkage005Address,
-        blockingStubFull1);
-  Long afterBalance1 = infoafter1.getBalance();
-  Long afterEnergyLimit1 = resourceInfoafter1.getEnergyLimit();
-  Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
-  Long afterFreeNetLimit1 = resourceInfoafter1.getFreeNetLimit();
-  Long afterNetLimit1 = resourceInfoafter1.getNetLimit();
-  Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
-  Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(linkage005Address, blockingStubFull1);
+    Long afterBalance1 = infoafter1.getBalance();
+    Long afterEnergyLimit1 = resourceInfoafter1.getEnergyLimit();
+    Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
+    Long afterFreeNetLimit1 = resourceInfoafter1.getFreeNetLimit();
+    Long afterNetLimit1 = resourceInfoafter1.getNetLimit();
+    Long afterNetUsed1 = resourceInfoafter1.getNetUsed();
+    Long afterFreeNetUsed1 = resourceInfoafter1.getFreeNetUsed();
     logger.info("afterBalance1:" + afterBalance1);
     logger.info("afterEnergyLimit1:" + afterEnergyLimit1);
     logger.info("afterEnergyUsed1:" + afterEnergyUsed1);
@@ -181,14 +201,30 @@ public class ContractLinkage005 extends TronBaseTest {
     Assert.assertTrue((beforeBalance1 - fee) == afterBalance1);
     Assert.assertTrue(afterEnergyUsed1 > beforeEnergyUsed1);
     Assert.assertTrue(afterNetUsed1 > beforeNetUsed1);
-  //use EnergyUsed and NetUsed.balance not change
+    // use EnergyUsed and NetUsed.balance not change
 
-    String txid6 = PublicMethod.triggerContract(contractAddress,
-        "testUseCpu(uint256)", secondForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-  final String txid7 = PublicMethod.triggerContract(contractAddress,
-        "testUseCpu(uint256)", thirdForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
+    String txid6 =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseCpu(uint256)",
+            secondForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
+    final String txid7 =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseCpu(uint256)",
+            thirdForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -198,8 +234,8 @@ public class ContractLinkage005 extends TronBaseTest {
     infoById = PublicMethod.getTransactionInfoById(txid7, blockingStubFull);
     thirdForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    Assert.assertTrue(thirdForCycleCost - secondForCycleCost
-        == secondForCycleCost - firstForCycleCost);
+    Assert.assertTrue(
+        thirdForCycleCost - secondForCycleCost == secondForCycleCost - firstForCycleCost);
 
     zeroForCycleTimes = 498L;
     firstForCycleTimes = 500L;
@@ -207,16 +243,16 @@ public class ContractLinkage005 extends TronBaseTest {
     thirdForCycleTimes = 504L;
     forthForCycleTimes = 506L;
     fifthForCycleTimes = 508L;
-    AccountResourceMessage resourceInfo4 = PublicMethod.getAccountResource(linkage005Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo4 =
+        PublicMethod.getAccountResource(linkage005Address, blockingStubFull);
     Account info4 = PublicMethod.queryAccount(linkage005Address, blockingStubFull);
-  Long beforeBalance4 = info4.getBalance();
-  Long beforeEnergyLimit4 = resourceInfo4.getEnergyLimit();
-  Long beforeEnergyUsed4 = resourceInfo4.getEnergyUsed();
-  Long beforeFreeNetLimit4 = resourceInfo4.getFreeNetLimit();
-  Long beforeNetLimit4 = resourceInfo4.getNetLimit();
-  Long beforeNetUsed4 = resourceInfo4.getNetUsed();
-  Long beforeFreeNetUsed4 = resourceInfo4.getFreeNetUsed();
+    Long beforeBalance4 = info4.getBalance();
+    Long beforeEnergyLimit4 = resourceInfo4.getEnergyLimit();
+    Long beforeEnergyUsed4 = resourceInfo4.getEnergyUsed();
+    Long beforeFreeNetLimit4 = resourceInfo4.getFreeNetLimit();
+    Long beforeNetLimit4 = resourceInfo4.getNetLimit();
+    Long beforeNetUsed4 = resourceInfo4.getNetUsed();
+    Long beforeFreeNetUsed4 = resourceInfo4.getFreeNetUsed();
     logger.info("beforeBalance4:" + beforeBalance4);
     logger.info("beforeEnergyLimit4:" + beforeEnergyLimit4);
     logger.info("beforeEnergyUsed4:" + beforeEnergyUsed4);
@@ -224,24 +260,32 @@ public class ContractLinkage005 extends TronBaseTest {
     logger.info("beforeNetLimit4:" + beforeNetLimit4);
     logger.info("beforeNetUsed4:" + beforeNetUsed4);
     logger.info("beforeFreeNetUsed4:" + beforeFreeNetUsed4);
-    txid = PublicMethod.triggerContract(contractAddress,
-        "testUseStorage(uint256)", zeroForCycleTimes.toString(), false,
-        0, 1000000000L, linkage005Address, linkage005Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseStorage(uint256)",
+            zeroForCycleTimes.toString(),
+            false,
+            0,
+            1000000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull1);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     fee = infoById.get().getFee();
 
     Account infoAfter4 = PublicMethod.queryAccount(linkage005Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoAfter4 = PublicMethod.getAccountResource(linkage005Address,
-        blockingStubFull1);
-  Long afterBalance4 = infoAfter4.getBalance();
-  Long afterEnergyLimit4 = resourceInfoAfter4.getEnergyLimit();
-  Long afterEnergyUsed4 = resourceInfoAfter4.getEnergyUsed();
-  Long afterFreeNetLimit4 = resourceInfoAfter4.getFreeNetLimit();
-  Long afterNetLimit4 = resourceInfoAfter4.getNetLimit();
-  Long afterNetUsed4 = resourceInfoAfter4.getNetUsed();
-  Long afterFreeNetUsed4 = resourceInfoAfter4.getFreeNetUsed();
+    AccountResourceMessage resourceInfoAfter4 =
+        PublicMethod.getAccountResource(linkage005Address, blockingStubFull1);
+    Long afterBalance4 = infoAfter4.getBalance();
+    Long afterEnergyLimit4 = resourceInfoAfter4.getEnergyLimit();
+    Long afterEnergyUsed4 = resourceInfoAfter4.getEnergyUsed();
+    Long afterFreeNetLimit4 = resourceInfoAfter4.getFreeNetLimit();
+    Long afterNetLimit4 = resourceInfoAfter4.getNetLimit();
+    Long afterNetUsed4 = resourceInfoAfter4.getNetUsed();
+    Long afterFreeNetUsed4 = resourceInfoAfter4.getFreeNetUsed();
     logger.info("afterBalance4:" + afterBalance4);
     logger.info("afterEnergyLimit4:" + afterEnergyLimit4);
     logger.info("afterEnergyUsed4:" + afterEnergyUsed4);
@@ -256,21 +300,61 @@ public class ContractLinkage005 extends TronBaseTest {
 
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     zeroForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
-  String txid1 = PublicMethod.triggerContract(contractAddress,
-        "testUseStorage(uint256)", firstForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-  final String txid2 = PublicMethod.triggerContract(contractAddress,
-        "testUseStorage(uint256)", secondForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-  final String txid3 = PublicMethod.triggerContract(contractAddress,
-        "testUseStorage(uint256)", thirdForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-  final String txid4 = PublicMethod.triggerContract(contractAddress,
-        "testUseStorage(uint256)", forthForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
-  final String txid5 = PublicMethod.triggerContract(contractAddress,
-        "testUseStorage(uint256)", fifthForCycleTimes.toString(), false,
-        0, 100000000L, linkage005Address, linkage005Key, blockingStubFull);
+    String txid1 =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseStorage(uint256)",
+            firstForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
+    final String txid2 =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseStorage(uint256)",
+            secondForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
+    final String txid3 =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseStorage(uint256)",
+            thirdForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
+    final String txid4 =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseStorage(uint256)",
+            forthForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
+    final String txid5 =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "testUseStorage(uint256)",
+            fifthForCycleTimes.toString(),
+            false,
+            0,
+            100000000L,
+            linkage005Address,
+            linkage005Key,
+            blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
@@ -289,30 +373,23 @@ public class ContractLinkage005 extends TronBaseTest {
     infoById = PublicMethod.getTransactionInfoById(txid5, blockingStubFull);
     fifthForCycleCost = infoById.get().getReceipt().getEnergyUsageTotal();
 
-    Assert.assertTrue(thirdForCycleCost - secondForCycleCost
-        == secondForCycleCost - firstForCycleCost);
-    Assert.assertTrue(fifthForCycleCost - forthForCycleCost
-        == forthForCycleCost - thirdForCycleCost);
-
-
+    Assert.assertTrue(
+        thirdForCycleCost - secondForCycleCost == secondForCycleCost - firstForCycleCost);
+    Assert.assertTrue(
+        fifthForCycleCost - forthForCycleCost == forthForCycleCost - thirdForCycleCost);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod.unFreezeBalance(linkage005Address, linkage005Key, 1,
-        linkage005Address, blockingStubFull);
-    PublicMethod.unFreezeBalance(linkage005Address, linkage005Key, 0,
-        linkage005Address, blockingStubFull);
-    PublicMethod.freeResource(linkage005Address, linkage005Key, foundationAddress, blockingStubFull);    if (channelFull1 != null) {
+    PublicMethod.unFreezeBalance(
+        linkage005Address, linkage005Key, 1, linkage005Address, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        linkage005Address, linkage005Key, 0, linkage005Address, blockingStubFull);
+    PublicMethod.freeResource(
+        linkage005Address, linkage005Key, foundationAddress, blockingStubFull);
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }
-
-

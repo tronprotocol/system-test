@@ -16,52 +16,48 @@ import java.util.List;
 
 public class FileUtil {
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static List<String> recursiveList(String path) throws IOException {
 
     final List<String> files = new ArrayList<>();
 
-    Files.walkFileTree(Paths.get(path), new FileVisitor<Path>() {
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        return FileVisitResult.CONTINUE;
-      }
+    Files.walkFileTree(
+        Paths.get(path),
+        new FileVisitor<Path>() {
+          @Override
+          public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+            return FileVisitResult.CONTINUE;
+          }
 
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-        files.add(file.toString());
-        return FileVisitResult.CONTINUE;
-      }
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            files.add(file.toString());
+            return FileVisitResult.CONTINUE;
+          }
 
-      @Override
-      public FileVisitResult visitFileFailed(Path file, IOException exc) {
-        return FileVisitResult.CONTINUE;
-      }
+          @Override
+          public FileVisitResult visitFileFailed(Path file, IOException exc) {
+            return FileVisitResult.CONTINUE;
+          }
 
-      @Override
-      public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-        return FileVisitResult.CONTINUE;
-      }
-    });
+          @Override
+          public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+            return FileVisitResult.CONTINUE;
+          }
+        });
 
     return files;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static boolean recursiveDelete(String fileName) {
     File file = new File(fileName);
     if (file.exists()) {
-      //check if the file is a directory
+      // check if the file is a directory
       if (file.isDirectory()) {
         if ((file.list()).length > 0) {
           for (String s : file.list()) {
-            //call deletion of file individually
+            // call deletion of file individually
             recursiveDelete(fileName + System.getProperty("file.separator") + s);
           }
         }
@@ -75,10 +71,7 @@ public class FileUtil {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static void saveData(String filePath, byte[] data) {
     FileOutputStream fos = null;
     try {
@@ -99,10 +92,7 @@ public class FileUtil {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static byte[] readData(String filePath) {
     FileInputStream fi = null;
     try {

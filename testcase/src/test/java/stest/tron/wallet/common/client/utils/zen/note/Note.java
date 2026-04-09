@@ -1,6 +1,5 @@
 package stest.tron.wallet.common.client.utils.zen.note;
 
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Optional;
@@ -19,23 +18,13 @@ import stest.tron.wallet.common.client.utils.zen.address.FullViewingKey;
 import stest.tron.wallet.common.client.utils.zen.address.IncomingViewingKey;
 import stest.tron.wallet.common.client.utils.zen.address.PaymentAddress;
 
-
 public class Note {
 
-  @Getter
-  @Setter
-  private DiversifierT d;
-  @Getter
-  @Setter
-  private byte[] pkD; // 256
-  @Getter
-  @Setter
-  private long value = 0;
-  @Getter
-  @Setter
-  private byte[] rcm; // 256
-  @Getter
-  private byte[] memo = new byte[ZenChainParams.ZC_MEMO_SIZE];
+  @Getter @Setter private DiversifierT d;
+  @Getter @Setter private byte[] pkD; // 256
+  @Getter @Setter private long value = 0;
+  @Getter @Setter private byte[] rcm; // 256
+  @Getter private byte[] memo = new byte[ZenChainParams.ZC_MEMO_SIZE];
 
   public Note() {
     d = new DiversifierT();
@@ -71,9 +60,7 @@ public class Note {
     return r;
   }
 
-  /**
-   * decode plain_enc to note
-   */
+  /** decode plain_enc to note */
   public static Note decode(NoteEncryption.Encryption.EncPlaintext encPlaintext)
       throws ZksnarkException {
     byte[] data = encPlaintext.getData();
@@ -85,11 +72,21 @@ public class Note {
 
     Note ret = new Note();
     byte[] noteD = new byte[ZenChainParams.ZC_DIVERSIFIER_SIZE];
-    System.arraycopy(data, ZenChainParams.ZC_NOTEPLAINTEXT_LEADING, noteD, 0, ZenChainParams.ZC_DIVERSIFIER_SIZE);
+    System.arraycopy(
+        data,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING,
+        noteD,
+        0,
+        ZenChainParams.ZC_DIVERSIFIER_SIZE);
     ret.d.setData(noteD);
 
     byte[] valueLong = new byte[ZenChainParams.ZC_V_SIZE];
-    System.arraycopy(data, ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE, valueLong, 0, ZenChainParams.ZC_V_SIZE);
+    System.arraycopy(
+        data,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE,
+        valueLong,
+        0,
+        ZenChainParams.ZC_V_SIZE);
     for (int i = 0; i < valueLong.length / 2; i++) {
       byte temp = valueLong[i];
       valueLong[i] = valueLong[valueLong.length - 1 - i];
@@ -101,13 +98,22 @@ public class Note {
 
     byte[] noteRcm = new byte[ZenChainParams.ZC_R_SIZE];
     System.arraycopy(
-        data, ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE + ZenChainParams.ZC_V_SIZE, noteRcm, 0, ZenChainParams.ZC_R_SIZE);
+        data,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING
+            + ZenChainParams.ZC_DIVERSIFIER_SIZE
+            + ZenChainParams.ZC_V_SIZE,
+        noteRcm,
+        0,
+        ZenChainParams.ZC_R_SIZE);
     ret.rcm = noteRcm;
 
     byte[] noteMemo = new byte[ZenChainParams.ZC_MEMO_SIZE];
     System.arraycopy(
         data,
-        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE + ZenChainParams.ZC_V_SIZE + ZenChainParams.ZC_R_SIZE,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING
+            + ZenChainParams.ZC_DIVERSIFIER_SIZE
+            + ZenChainParams.ZC_V_SIZE
+            + ZenChainParams.ZC_R_SIZE,
         noteMemo,
         0,
         ZenChainParams.ZC_MEMO_SIZE);
@@ -116,11 +122,9 @@ public class Note {
     return ret;
   }
 
-  /**
-   * decrypt c_enc with ivk to plain_enc
-   */
-  public static Optional<Note> decrypt(
-      byte[] ciphertext, byte[] ivk, byte[] epk, byte[] cmu) throws ZksnarkException {
+  /** decrypt c_enc with ivk to plain_enc */
+  public static Optional<Note> decrypt(byte[] ciphertext, byte[] ivk, byte[] epk, byte[] cmu)
+      throws ZksnarkException {
     Optional<NoteEncryption.Encryption.EncPlaintext> pt =
         NoteEncryption.Encryption.attemptEncDecryption(ciphertext, ivk, epk);
     if (!pt.isPresent()) {
@@ -128,8 +132,7 @@ public class Note {
     }
     Note ret = decode(pt.get());
     byte[] pkD = new byte[32];
-    if (!JLibrustzcash
-        .librustzcashIvkToPkd(new IvkToPkdParams(ivk, ret.d.getData(), pkD))) {
+    if (!JLibrustzcash.librustzcashIvkToPkd(new IvkToPkdParams(ivk, ret.d.getData(), pkD))) {
       return Optional.empty();
     }
     byte[] cmuExpected = new byte[32];
@@ -143,11 +146,12 @@ public class Note {
     return Optional.of(ret);
   }
 
-  /**
-   * decrypt c_enc with ovk to plain_enc
-   */
+  /** decrypt c_enc with ovk to plain_enc */
   public static Optional<Note> decrypt(
-      NoteEncryption.Encryption.EncCiphertext ciphertext, byte[] epk, byte[] esk, byte[] pkD,
+      NoteEncryption.Encryption.EncCiphertext ciphertext,
+      byte[] epk,
+      byte[] esk,
+      byte[] pkD,
       byte[] cmu)
       throws ZksnarkException {
     Optional<NoteEncryption.Encryption.EncPlaintext> pt =
@@ -167,14 +171,13 @@ public class Note {
     return Optional.of(ret);
   }
 
-  /**
-   * add the judgement of memo size
-   */
+  /** add the judgement of memo size */
   public void setMemo(byte[] memo) {
     if (ByteArray.isEmpty(memo)) {
       return;
     }
-    int memoSize = memo.length < ZenChainParams.ZC_MEMO_SIZE ? memo.length : ZenChainParams.ZC_MEMO_SIZE;
+    int memoSize =
+        memo.length < ZenChainParams.ZC_MEMO_SIZE ? memo.length : ZenChainParams.ZC_MEMO_SIZE;
     System.arraycopy(memo, 0, this.memo, 0, memoSize);
   }
 
@@ -208,9 +211,7 @@ public class Note {
     return result;
   }
 
-  /**
-   * filling pkD generated by ivk
-   */
+  /** filling pkD generated by ivk */
   public Optional<Note> note(IncomingViewingKey ivk) throws ZksnarkException {
     Optional<PaymentAddress> addr = ivk.address(d);
     if (addr.isPresent()) {
@@ -220,9 +221,7 @@ public class Note {
     }
   }
 
-  /**
-   * encrypt plain_enc to c_enc with by k_enc
-   */
+  /** encrypt plain_enc to c_enc with by k_enc */
   public Optional<NotePlaintextEncryptionResult> encrypt(byte[] pkD) throws ZksnarkException {
     // Get the encryptor
     Optional<NoteEncryption> sne = NoteEncryption.fromDiversifier(d);
@@ -233,17 +232,15 @@ public class Note {
     // Create the plaintext
     NoteEncryption.Encryption.EncPlaintext pt = this.encode();
     // Encrypt the plaintext
-    Optional<NoteEncryption.Encryption.EncCiphertext> encciphertext = enc
-        .encryptToRecipient(pkD, pt);
+    Optional<NoteEncryption.Encryption.EncCiphertext> encciphertext =
+        enc.encryptToRecipient(pkD, pt);
     if (!encciphertext.isPresent()) {
       return Optional.empty();
     }
     return Optional.of(new NotePlaintextEncryptionResult(encciphertext.get().getData(), enc));
   }
 
-  /**
-   * construct plain_enc with columns of note
-   */
+  /** construct plain_enc with columns of note */
   public NoteEncryption.Encryption.EncPlaintext encode() {
     ByteBuffer buffer = ByteBuffer.allocate(ZenChainParams.ZC_V_SIZE);
     buffer.putLong(0, value);
@@ -256,15 +253,34 @@ public class Note {
 
     byte[] data = new byte[ZenChainParams.ZC_ENCPLAINTEXT_SIZE];
     data[0] = 0x01;
-    System.arraycopy(d.getData(), 0, data, ZenChainParams.ZC_NOTEPLAINTEXT_LEADING, ZenChainParams.ZC_DIVERSIFIER_SIZE);
-    System.arraycopy(valueLong, 0, data, ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE, ZenChainParams.ZC_V_SIZE);
-    System.arraycopy(rcm, 0, data, ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE + ZenChainParams.ZC_V_SIZE,
+    System.arraycopy(
+        d.getData(),
+        0,
+        data,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING,
+        ZenChainParams.ZC_DIVERSIFIER_SIZE);
+    System.arraycopy(
+        valueLong,
+        0,
+        data,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE,
+        ZenChainParams.ZC_V_SIZE);
+    System.arraycopy(
+        rcm,
+        0,
+        data,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING
+            + ZenChainParams.ZC_DIVERSIFIER_SIZE
+            + ZenChainParams.ZC_V_SIZE,
         ZenChainParams.ZC_R_SIZE);
     System.arraycopy(
         memo,
         0,
         data,
-        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING + ZenChainParams.ZC_DIVERSIFIER_SIZE + ZenChainParams.ZC_V_SIZE + ZenChainParams.ZC_R_SIZE,
+        ZenChainParams.ZC_NOTEPLAINTEXT_LEADING
+            + ZenChainParams.ZC_DIVERSIFIER_SIZE
+            + ZenChainParams.ZC_V_SIZE
+            + ZenChainParams.ZC_R_SIZE,
         ZenChainParams.ZC_MEMO_SIZE);
 
     NoteEncryption.Encryption.EncPlaintext ret = new NoteEncryption.Encryption.EncPlaintext();
@@ -275,11 +291,7 @@ public class Note {
   @AllArgsConstructor
   public class NotePlaintextEncryptionResult {
 
-    @Getter
-    @Setter
-    private byte[] encCiphertext;
-    @Getter
-    @Setter
-    private NoteEncryption noteEncryption;
+    @Getter @Setter private byte[] encCiphertext;
+    @Getter @Setter private NoteEncryption noteEncryption;
   }
 }

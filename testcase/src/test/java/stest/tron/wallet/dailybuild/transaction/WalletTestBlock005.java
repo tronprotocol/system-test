@@ -1,7 +1,6 @@
 package stest.tron.wallet.dailybuild.transaction;
 
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.math.BigInteger;
 import java.util.Optional;
@@ -20,16 +19,17 @@ import org.tron.protos.Protocol.Block;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-public class WalletTestBlock005 extends TronBaseTest {  private String solidityNode =
+public class WalletTestBlock005 extends TronBaseTest {
+  private String solidityNode =
       Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] testAddress = ecKey1.getAddress();
   private String txId = null;
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
@@ -38,14 +38,18 @@ public class WalletTestBlock005 extends TronBaseTest {  private String solidityN
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
-    initSolidityChannel();    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
-    }
+    initSolidityChannel();
+    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
+  }
 
-  @Test(enabled = true, description = "Get block by latest num.", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Get block by latest num.",
+      groups = {"daily"})
   public void testGetBlockByLatestNum() {
     //
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Assert.assertFalse(currentBlockNum < 0);
     while (currentBlockNum <= 5) {
       logger.info("Now the block num is " + Long.toString(currentBlockNum) + " Please wait");
@@ -72,18 +76,21 @@ public class WalletTestBlock005 extends TronBaseTest {  private String solidityN
     logger.info("TestGetBlockByLatestNum ok!!!");
   }
 
-  @Test(enabled = false, description = "Get block by latest num with type is zero.", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "Get block by latest num with type is zero.",
+      groups = {"daily"})
   public void testGetBlockByLatestNumWithTypeIsZero() throws InterruptedException {
     txId =
         PublicMethod.sendcoinGetTransactionId(
             testAddress, 10000L, foundationAddress, foundationKey, blockingStubFull);
     logger.info("txId:" + txId);
     Thread.sleep(2000);
-  Long blockNumber =
+    Long blockNumber =
         PublicMethod.getTransactionInfoById(txId, blockingStubFull).get().getBlockNumber();
     logger.info("blockNumber:" + blockNumber);
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long nowBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long nowBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     logger.info("nowBlockNum:" + nowBlockNum);
     long numDiff = nowBlockNum - nowBlockNum + 3;
     logger.info("numDiff:" + numDiff);
@@ -104,18 +111,21 @@ public class WalletTestBlock005 extends TronBaseTest {  private String solidityN
     Assert.assertTrue(flag);
   }
 
-  @Test(enabled = false, description = "Get block by latest num with type is one.", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "Get block by latest num with type is one.",
+      groups = {"daily"})
   public void testGetBlockByLatestNumWithTypeIsOne() throws InterruptedException {
     txId =
         PublicMethod.sendcoinGetTransactionId(
             testAddress, 10000L, foundationAddress, foundationKey, blockingStubFull);
     logger.info("txId:" + txId);
     Thread.sleep(2000);
-  Long blockNumber =
+    Long blockNumber =
         PublicMethod.getTransactionInfoById(txId, blockingStubFull).get().getBlockNumber();
     logger.info("blockNumber:" + blockNumber);
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long nowBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long nowBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     logger.info("nowBlockNum:" + nowBlockNum);
     long numDiff = nowBlockNum - nowBlockNum + 3;
     logger.info("numDiff:" + numDiff);
@@ -135,10 +145,13 @@ public class WalletTestBlock005 extends TronBaseTest {  private String solidityN
     Assert.assertTrue(flag);
   }
 
-  @Test(enabled = true, description = "Get block by exception num", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Get block by exception num",
+      groups = {"daily"})
   public void testGetBlockByExceptionNum() {
     Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Assert.assertFalse(currentBlockNum < 0);
     while (currentBlockNum <= 5) {
       logger.info("Now the block num is " + Long.toString(currentBlockNum) + " Please wait");
@@ -163,12 +176,12 @@ public class WalletTestBlock005 extends TronBaseTest {  private String solidityN
 
   /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
   /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -183,7 +196,7 @@ public class WalletTestBlock005 extends TronBaseTest {  private String solidityN
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);

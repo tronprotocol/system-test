@@ -16,11 +16,12 @@ import stest.tron.wallet.common.client.Configuration;
 /**
  * Abstract base class for TRON system tests.
  *
- * <p>Provides common infrastructure: gRPC channel management, foundation/witness account
- * loading, and node endpoint configuration. Subclasses get {@code channelFull} and
- * {@code blockingStubFull} initialized automatically before each test class runs.
+ * <p>Provides common infrastructure: gRPC channel management, foundation/witness account loading,
+ * and node endpoint configuration. Subclasses get {@code channelFull} and {@code blockingStubFull}
+ * initialized automatically before each test class runs.
  *
  * <p>Usage:
+ *
  * <pre>{@code
  * public class MyTest extends TronBaseTest {
  *   @BeforeClass
@@ -31,8 +32,8 @@ import stest.tron.wallet.common.client.Configuration;
  * }
  * }</pre>
  *
- * <p>For tests needing solidity/PBFT channels, call {@link #initSolidityChannel()}
- * or {@link #initPbftChannel()} in a subclass {@code @BeforeClass} method.
+ * <p>For tests needing solidity/PBFT channels, call {@link #initSolidityChannel()} or {@link
+ * #initPbftChannel()} in a subclass {@code @BeforeClass} method.
  */
 @Slf4j
 public abstract class TronBaseTest {
@@ -50,8 +51,8 @@ public abstract class TronBaseTest {
   protected final String foundationKey2 = config.getString("foundationAccount.key2");
   protected final byte[] foundationAddress2 = PublicMethod.getFinalAddress(foundationKey2);
   /**
-   * Backward-compatible alias. Despite the name suggesting key2, the original code
-   * in most classes mapped testKey002 to foundationAccount.key1.
+   * Backward-compatible alias. Despite the name suggesting key2, the original code in most classes
+   * mapped testKey002 to foundationAccount.key1.
    */
   protected final String testKey002 = foundationKey;
 
@@ -86,21 +87,16 @@ public abstract class TronBaseTest {
   protected long maxFeeLimit = config.getLong("defaultParameter.maxFeeLimit");
 
   /**
-   * Initializes the fullnode gRPC channel and stub.
-   * Runs before any subclass {@code @BeforeClass} method.
+   * Initializes the fullnode gRPC channel and stub. Runs before any subclass {@code @BeforeClass}
+   * method.
    */
   @BeforeClass(alwaysRun = true)
   public void initChannels() {
-    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-        .usePlaintext()
-        .build();
+    channelFull = ManagedChannelBuilder.forTarget(fullnode).usePlaintext().build();
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  /**
-   * Shuts down all open gRPC channels.
-   * Runs after any subclass {@code @AfterClass} method.
-   */
+  /** Shuts down all open gRPC channels. Runs after any subclass {@code @AfterClass} method. */
   @AfterClass(alwaysRun = true)
   public void closeChannels() throws InterruptedException {
     shutdownChannel(channelFull);
@@ -109,33 +105,28 @@ public abstract class TronBaseTest {
   }
 
   /**
-   * Initializes the solidity node channel and stub.
-   * Call this in a subclass {@code @BeforeClass} if solidity access is needed.
+   * Initializes the solidity node channel and stub. Call this in a subclass {@code @BeforeClass} if
+   * solidity access is needed.
    */
   protected void initSolidityChannel() {
     String solidityNode = config.getStringList("solidityNode.ip.list").get(0);
-    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode)
-        .usePlaintext()
-        .build();
+    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
   }
 
   /**
-   * Initializes the PBFT node channel and stub.
-   * Call this in a subclass {@code @BeforeClass} if PBFT access is needed.
+   * Initializes the PBFT node channel and stub. Call this in a subclass {@code @BeforeClass} if
+   * PBFT access is needed.
    */
   protected void initPbftChannel() {
     String pbftNode = config.getStringList("solidityNode.ip.list").get(2);
-    channelPbft = ManagedChannelBuilder.forTarget(pbftNode)
-        .usePlaintext()
-        .build();
+    channelPbft = ManagedChannelBuilder.forTarget(pbftNode).usePlaintext().build();
     blockingStubPbft = WalletSolidityGrpc.newBlockingStub(channelPbft);
   }
 
   /**
-   * Returns the second fullnode endpoint if available, or throws SkipException.
-   * Call this in {@code @BeforeClass} of multi-node tests to safely skip
-   * when only a single node is running.
+   * Returns the second fullnode endpoint if available, or throws SkipException. Call this in
+   * {@code @BeforeClass} of multi-node tests to safely skip when only a single node is running.
    *
    * @return the second fullnode endpoint string (e.g. "127.0.0.1:50052")
    * @throws SkipException if no second node is configured or it equals the first
@@ -161,12 +152,10 @@ public abstract class TronBaseTest {
     ECKey ecKey = new ECKey(Utils.getRandom());
     String key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
     byte[] address = ecKey.getAddress();
-    return new Object[]{key, address};
+    return new Object[] {key, address};
   }
 
-  /**
-   * Safely shuts down a gRPC channel with a 5-second timeout.
-   */
+  /** Safely shuts down a gRPC channel with a 5-second timeout. */
   protected static void shutdownChannel(ManagedChannel channel) throws InterruptedException {
     if (channel != null) {
       channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);

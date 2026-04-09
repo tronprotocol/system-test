@@ -15,13 +15,10 @@ import stest.tron.wallet.common.client.utils.Constant;
 import stest.tron.wallet.common.client.utils.exception.BadItemException;
 import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 
-
 @AllArgsConstructor
 public class SpendingKey {
 
-  @Setter
-  @Getter
-  public byte[] value;
+  @Setter @Getter public byte[] value;
   private static SecureRandom random = new SecureRandom();
 
   public static SpendingKey random() throws ZksnarkException {
@@ -72,7 +69,7 @@ public class SpendingKey {
   public DiversifierT defaultDiversifier() throws BadItemException, ZksnarkException {
     byte[] res = new byte[Constant.ZC_DIVERSIFIER_SIZE];
     byte[] blob = new byte[34];
-    //ZksnarkUtils.sort(this.value);
+    // ZksnarkUtils.sort(this.value);
     System.arraycopy(this.value, 0, blob, 0, 32);
     blob[32] = 3;
     blob[33] = 0;
@@ -80,8 +77,8 @@ public class SpendingKey {
       long state = JLibsodium.initState();
       try {
         JLibsodium.cryptoGenerichashBlake2bInitSaltPersonal(
-            new Blake2bInitSaltPersonalParams(state, null, 0, 64, null,
-                Constant.ZTRON_EXPANDSEED_PERSONALIZATION));
+            new Blake2bInitSaltPersonalParams(
+                state, null, 0, 64, null, Constant.ZTRON_EXPANDSEED_PERSONALIZATION));
         JLibsodium.cryptoGenerichashBlake2bUpdate(new Blake2bUpdateParams(state, blob, 34));
         JLibsodium.cryptoGenerichashBlake2bFinal(new Blake2bFinalParams(state, res, 11));
         if (JLibrustzcash.librustzcashCheckDiversifier(res)) {
@@ -133,9 +130,9 @@ public class SpendingKey {
       blob[32] = t;
       long state = JLibsodium.initState();
       try {
-        JLibsodium.cryptoGenerichashBlake2bInitSaltPersonal(new Blake2bInitSaltPersonalParams(
-            state, null, 0, 64, null,
-            Constant.ZTRON_EXPANDSEED_PERSONALIZATION));
+        JLibsodium.cryptoGenerichashBlake2bInitSaltPersonal(
+            new Blake2bInitSaltPersonalParams(
+                state, null, 0, 64, null, Constant.ZTRON_EXPANDSEED_PERSONALIZATION));
         JLibsodium.cryptoGenerichashBlake2bUpdate(new Blake2bUpdateParams(state, blob, 33));
         JLibsodium.cryptoGenerichashBlake2bFinal(new Blake2bFinalParams(state, res, 64));
       } finally {

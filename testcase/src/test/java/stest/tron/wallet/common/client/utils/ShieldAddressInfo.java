@@ -13,28 +13,16 @@ import stest.tron.wallet.common.client.utils.zen.address.KeyIo;
 import stest.tron.wallet.common.client.utils.zen.address.PaymentAddress;
 import stest.tron.wallet.common.client.utils.zen.address.SpendingKey;
 
-
 @AllArgsConstructor
 public class ShieldAddressInfo {
 
-  @Setter
-  @Getter
-  public byte[] sk;
-  @Setter
-  @Getter
-  public byte[] ivk; // 256
-  @Setter
-  @Getter
-  public byte[] ovk; // 256
-  @Setter
-  @Getter
-  DiversifierT d;
-  @Setter
-  @Getter
-  byte[] pkD; // 256
+  @Setter @Getter public byte[] sk;
+  @Setter @Getter public byte[] ivk; // 256
+  @Setter @Getter public byte[] ovk; // 256
+  @Setter @Getter DiversifierT d;
+  @Setter @Getter byte[] pkD; // 256
 
-  public ShieldAddressInfo() {
-  }
+  public ShieldAddressInfo() {}
 
   public static String getShieldAddress(DiversifierT d, byte[] pkD) {
     try {
@@ -51,9 +39,7 @@ public class ShieldAddressInfo {
     return spendingKey.fullViewingKey();
   }
 
-  /**
-   * check parameters.
-   */
+  /** check parameters. */
   public boolean validateCheck() {
     try {
       SpendingKey spendingKey = new SpendingKey(sk);
@@ -104,9 +90,7 @@ public class ShieldAddressInfo {
   //    return paymentAddress;
   //  }
 
-  /**
-   * format shield address info to a string.
-   */
+  /** format shield address info to a string. */
   public String encode() {
     String encodeString = ByteArray.toHexString(sk) + ";";
     encodeString += ByteArray.toHexString(ivk);
@@ -119,9 +103,7 @@ public class ShieldAddressInfo {
     return encodeString;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean decode(final String data) {
     String[] sourceStrArray = data.split(";");
     if (sourceStrArray.length != 5) {

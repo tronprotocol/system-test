@@ -11,16 +11,12 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class Configuration {
 
   private static final Logger logger = LoggerFactory.getLogger("Configuration");
   private static Config config;
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static Config getByPath(final String configurationPath) {
     if (isBlank(configurationPath)) {
       throw new IllegalArgumentException("Configuration path is required!");
@@ -30,8 +26,9 @@ public class Configuration {
       File configFile = new File(System.getProperty("user.dir") + '/' + configurationPath);
       if (configFile.exists()) {
         try {
-          config = ConfigFactory
-              .parseReader(new InputStreamReader(new FileInputStream(configurationPath)));
+          config =
+              ConfigFactory.parseReader(
+                  new InputStreamReader(new FileInputStream(configurationPath)));
           logger.info("use user defined config file in current dir");
         } catch (FileNotFoundException e) {
           logger.error("load user defined config file exception: " + e.getMessage());

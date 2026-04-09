@@ -14,8 +14,8 @@ import stest.tron.wallet.common.client.utils.TronBaseTest;
 /**
  * API response latency measurement.
  *
- * <p>Measures gRPC API call latencies for common operations.
- * This is a smoke benchmark to ensure API response times are reasonable.
+ * <p>Measures gRPC API call latencies for common operations. This is a smoke benchmark to ensure
+ * API response times are reasonable.
  */
 @Slf4j
 public class ApiLatencyTest extends TronBaseTest {
@@ -23,7 +23,9 @@ public class ApiLatencyTest extends TronBaseTest {
   private static final int ITERATIONS = 20;
   private static final long MAX_AVG_LATENCY_MS = 5000; // 5 seconds max avg
 
-  @Test(enabled = true, description = "GetNowBlock API latency",
+  @Test(
+      enabled = true,
+      description = "GetNowBlock API latency",
       groups = {"daily"})
   public void test01GetNowBlockLatency() {
     long totalMs = 0;
@@ -36,11 +38,14 @@ public class ApiLatencyTest extends TronBaseTest {
     }
     double avgMs = (double) totalMs / ITERATIONS;
     logger.info("GetNowBlock avg latency: {:.1f} ms over {} calls", avgMs, ITERATIONS);
-    Assert.assertTrue(avgMs < MAX_AVG_LATENCY_MS,
+    Assert.assertTrue(
+        avgMs < MAX_AVG_LATENCY_MS,
         "GetNowBlock avg latency should be < " + MAX_AVG_LATENCY_MS + " ms, got " + avgMs);
   }
 
-  @Test(enabled = true, description = "ListWitnesses API latency",
+  @Test(
+      enabled = true,
+      description = "ListWitnesses API latency",
       groups = {"daily"})
   public void test02ListWitnessesLatency() {
     long totalMs = 0;
@@ -53,11 +58,14 @@ public class ApiLatencyTest extends TronBaseTest {
     }
     double avgMs = (double) totalMs / ITERATIONS;
     logger.info("ListWitnesses avg latency: {:.1f} ms over {} calls", avgMs, ITERATIONS);
-    Assert.assertTrue(avgMs < MAX_AVG_LATENCY_MS,
+    Assert.assertTrue(
+        avgMs < MAX_AVG_LATENCY_MS,
         "ListWitnesses avg latency should be < " + MAX_AVG_LATENCY_MS + " ms, got " + avgMs);
   }
 
-  @Test(enabled = true, description = "GetBlockByNum API latency",
+  @Test(
+      enabled = true,
+      description = "GetBlockByNum API latency",
       groups = {"daily"})
   public void test03GetBlockByNumLatency() {
     Block latest = PublicMethod.getBlock(-1, blockingStubFull);
@@ -73,11 +81,14 @@ public class ApiLatencyTest extends TronBaseTest {
     }
     double avgMs = (double) totalMs / ITERATIONS;
     logger.info("GetBlockByNum avg latency: {:.1f} ms over {} calls", avgMs, ITERATIONS);
-    Assert.assertTrue(avgMs < MAX_AVG_LATENCY_MS,
+    Assert.assertTrue(
+        avgMs < MAX_AVG_LATENCY_MS,
         "GetBlockByNum avg latency should be < " + MAX_AVG_LATENCY_MS + " ms, got " + avgMs);
   }
 
-  @Test(enabled = true, description = "QueryAccount API latency",
+  @Test(
+      enabled = true,
+      description = "QueryAccount API latency",
       groups = {"daily"})
   public void test04QueryAccountLatency() {
     long totalMs = 0;
@@ -89,25 +100,29 @@ public class ApiLatencyTest extends TronBaseTest {
     }
     double avgMs = (double) totalMs / ITERATIONS;
     logger.info("QueryAccount avg latency: {:.1f} ms over {} calls", avgMs, ITERATIONS);
-    Assert.assertTrue(avgMs < MAX_AVG_LATENCY_MS,
+    Assert.assertTrue(
+        avgMs < MAX_AVG_LATENCY_MS,
         "QueryAccount avg latency should be < " + MAX_AVG_LATENCY_MS + " ms, got " + avgMs);
   }
 
-  @Test(enabled = true, description = "GetNextMaintenanceTime API latency",
+  @Test(
+      enabled = true,
+      description = "GetNextMaintenanceTime API latency",
       groups = {"daily"})
   public void test05GetNextMaintenanceTimeLatency() {
     long totalMs = 0;
     for (int i = 0; i < ITERATIONS; i++) {
       long start = System.currentTimeMillis();
-      NumberMessage result = blockingStubFull.getNextMaintenanceTime(
-          EmptyMessage.newBuilder().build());
+      NumberMessage result =
+          blockingStubFull.getNextMaintenanceTime(EmptyMessage.newBuilder().build());
       long elapsed = System.currentTimeMillis() - start;
       totalMs += elapsed;
       Assert.assertTrue(result.getNum() > 0);
     }
     double avgMs = (double) totalMs / ITERATIONS;
     logger.info("GetNextMaintenanceTime avg latency: {:.1f} ms over {} calls", avgMs, ITERATIONS);
-    Assert.assertTrue(avgMs < MAX_AVG_LATENCY_MS,
+    Assert.assertTrue(
+        avgMs < MAX_AVG_LATENCY_MS,
         "GetNextMaintenanceTime avg latency should be < " + MAX_AVG_LATENCY_MS + " ms");
   }
 }

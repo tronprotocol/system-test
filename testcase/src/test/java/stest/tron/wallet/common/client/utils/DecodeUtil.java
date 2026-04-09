@@ -18,17 +18,15 @@ public class DecodeUtil {
     }
     if (address.length != ADDRESS_SIZE / 2) {
       logger.warn(
-          "Warning: Address length need " + ADDRESS_SIZE + " but " + address.length
-              + " !!");
+          "Warning: Address length need " + ADDRESS_SIZE + " but " + address.length + " !!");
       return false;
     }
 
     if (address[0] != addressPreFixByte) {
-      logger.warn("Warning: Address need prefix with " + addressPreFixByte + " but "
-          + address[0] + " !!");
+      logger.warn(
+          "Warning: Address need prefix with " + addressPreFixByte + " but " + address[0] + " !!");
       return false;
     }
     return true;
   }
-
 }

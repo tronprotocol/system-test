@@ -25,8 +25,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestAssetIssue003 extends TronBaseTest {
@@ -48,139 +48,505 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
           + "vqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqaz"
           + "xswedcvqazxswedcvqazxswedcvqazxswedcv";
   private static final long totalSupply = now;
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
-  //get account
+  String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
+  String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
+  // get account
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] asset003Address = ecKey.getAddress();
   String asset003Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, description = "Create token with exception condition", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Create token with exception condition",
+      groups = {"daily"})
   public void testExceptionOfAssetIssuew() {
-    PublicMethod.sendcoin(asset003Address, 2048000000L, foundationAddress, foundationKey, blockingStubFull);
+    PublicMethod.sendcoin(
+        asset003Address, 2048000000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long start = System.currentTimeMillis() + 100000;
-  Long end = System.currentTimeMillis() + 1000000000;
-  //Freeze amount is large than total supply, create asset issue failed.
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset003Address, name, totalSupply, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        9000000000000000000L, 1L, asset003Key, blockingStubFull));
-  //Freeze day is 0, create failed
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset003Address, name, totalSupply, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        100L, 0L, asset003Key, blockingStubFull));
-  //Freeze amount is 0, create failed
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset003Address, name, totalSupply, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        0L, 1L, asset003Key, blockingStubFull));
-  //Freeze day is -1, create failed
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset003Address, name, totalSupply, 1, 10,
-        start, end, 2, description, url, 1000L, 1000L,
-        1000L, -1L, asset003Key, blockingStubFull));
-  //Freeze amount is -1, create failed
-    Assert.assertFalse(PublicMethod.createAssetIssue(asset003Address, name, totalSupply, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        -1L, 1L, asset003Key, blockingStubFull));
-  //Freeze day is 3653(10 years + 1 day), create failed
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3653L, asset003Key, blockingStubFull));
-  //Start time is late than end time.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 1, 10,
-        end, start, 2, description, url, 10000L, 10000L,
-        1L, 2L, asset003Key, blockingStubFull));
-  //Start time is early than currently time.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 1, 10,
-        start - 1000000L, end, 2, description, url, 10000L,
-        10000L, 1L, 2L, asset003Key, blockingStubFull));
-  //totalSupply is zero.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, 0L, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //Total supply is -1.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, -1L, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //TrxNum is zero.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 0, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //TrxNum is -1.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, -1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //IcoNum is 0.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 1, 0,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //IcoNum is -1.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 1, -1,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //The asset issue name is null.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, "", totalSupply, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //The asset issue name is large than 33 char.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, tooLongName, totalSupply, 1, 10,
-        start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //The asset issue name is chinese name.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, chineseAssetIssuename,
-        totalSupply, 1, 10, start, end, 2, description, url, 10000L,
-        10000L, 1L, 3652L, asset003Key, blockingStubFull));
-  //The abbreviation is null.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, "", totalSupply,
-        1, 10, start, end, 2, description, url, 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //The abbreviation is large than 33 char.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, tooLongAbbreviation,
-        totalSupply, 1, 10, start, end, 2, description, url, 10000L,
-        10000L, 1L, 3652L, asset003Key, blockingStubFull));
-  //The abbreviation is chinese name.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, chineseAbbreviation,
-        totalSupply, 1, 10, start, end, 2, description, url, 10000L,
-        10000L, 1L, 3652L, asset003Key, blockingStubFull));
-  //The URL is null.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 1, 10,
-        start, end, 2, description, "", 10000L, 10000L,
-        1L, 3652L, asset003Key, blockingStubFull));
-  //The URL is too long.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply,
-        1, 10, start, end, 2, description, tooLongUrl, 10000L,
-        10000L, 1L, 3652L, asset003Key, blockingStubFull));
-  //The description is null.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply,
-        1, 10, start, end, 2, "", url, 10000L,
-        10000L, 1L, 3652L, asset003Key, blockingStubFull));
-  //The description is too long, create failed.
-    Assert.assertFalse(PublicMethod.createAssetIssue(foundationAddress, name, totalSupply, 1, 10,
-        start, end, 2, tooLongDescription, url, 10000L,
-        10000L, 1L, 3652L, asset003Key, blockingStubFull));
+    Long start = System.currentTimeMillis() + 100000;
+    Long end = System.currentTimeMillis() + 1000000000;
+    // Freeze amount is large than total supply, create asset issue failed.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset003Address,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            9000000000000000000L,
+            1L,
+            asset003Key,
+            blockingStubFull));
+    // Freeze day is 0, create failed
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset003Address,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            100L,
+            0L,
+            asset003Key,
+            blockingStubFull));
+    // Freeze amount is 0, create failed
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset003Address,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            0L,
+            1L,
+            asset003Key,
+            blockingStubFull));
+    // Freeze day is -1, create failed
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset003Address,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            1000L,
+            1000L,
+            1000L,
+            -1L,
+            asset003Key,
+            blockingStubFull));
+    // Freeze amount is -1, create failed
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            asset003Address,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            -1L,
+            1L,
+            asset003Key,
+            blockingStubFull));
+    // Freeze day is 3653(10 years + 1 day), create failed
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3653L,
+            asset003Key,
+            blockingStubFull));
+    // Start time is late than end time.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            10,
+            end,
+            start,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            2L,
+            asset003Key,
+            blockingStubFull));
+    // Start time is early than currently time.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            10,
+            start - 1000000L,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            2L,
+            asset003Key,
+            blockingStubFull));
+    // totalSupply is zero.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            0L,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // Total supply is -1.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            -1L,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // TrxNum is zero.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            0,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // TrxNum is -1.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            -1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // IcoNum is 0.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            0,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // IcoNum is -1.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            -1,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The asset issue name is null.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            "",
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The asset issue name is large than 33 char.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            tooLongName,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The asset issue name is chinese name.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            chineseAssetIssuename,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The abbreviation is null.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            "",
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The abbreviation is large than 33 char.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            tooLongAbbreviation,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The abbreviation is chinese name.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            chineseAbbreviation,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The URL is null.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            "",
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The URL is too long.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            description,
+            tooLongUrl,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The description is null.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            "",
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
+    // The description is too long, create failed.
+    Assert.assertFalse(
+        PublicMethod.createAssetIssue(
+            foundationAddress,
+            name,
+            totalSupply,
+            1,
+            10,
+            start,
+            end,
+            2,
+            tooLongDescription,
+            url,
+            10000L,
+            10000L,
+            1L,
+            3652L,
+            asset003Key,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Get asset issue list", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Get asset issue list",
+      groups = {"daily"})
   public void testGetAllAssetIssue() {
-    GrpcAPI.AssetIssueList assetIssueList = blockingStubFull
-        .getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.AssetIssueList assetIssueList =
+        blockingStubFull.getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
     Assert.assertTrue(assetIssueList.getAssetIssueCount() >= 1);
     Integer times = assetIssueList.getAssetIssueCount();
     if (assetIssueList.getAssetIssueCount() >= 10) {
@@ -194,15 +560,14 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
       logger.info("test get all assetissue");
     }
 
-    //Improve coverage.
+    // Improve coverage.
     assetIssueList.equals(assetIssueList);
     assetIssueList.equals(null);
-    GrpcAPI.AssetIssueList newAssetIssueList = blockingStubFull
-        .getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.AssetIssueList newAssetIssueList =
+        blockingStubFull.getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
     assetIssueList.equals(newAssetIssueList);
     assetIssueList.hashCode();
     assetIssueList.getSerializedSize();
-
   }
 
   @AfterMethod
@@ -210,26 +575,21 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
     PublicMethod.freeResource(asset003Address, asset003Key, foundationAddress, blockingStubFull);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -239,23 +599,18 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -267,11 +622,9 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -303,15 +656,12 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
       Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -320,8 +670,7 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
     }
     final ECKey ecKey = temKey;
 
-    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
-        .newBuilder();
+    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
@@ -344,11 +693,9 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-  public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
-      String priKey) {
+  /** constructor. */
+  public boolean participateAssetIssue(
+      byte[] to, byte[] assertName, long amount, byte[] from, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -358,8 +705,7 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
     }
     final ECKey ecKey = temKey;
 
-    ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract
-        .newBuilder();
+    ParticipateAssetIssueContract.Builder builder = ParticipateAssetIssueContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(from);
@@ -379,7 +725,4 @@ public class WalletTestAssetIssue003 extends TronBaseTest {
       return true;
     }
   }
-
 }
-
-

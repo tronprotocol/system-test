@@ -384,7 +384,10 @@ public class AccountHelper {
     return permissionBuilder.build();
   }
 
-  /** Update account permissions (owner, witness, actives) using a JSON descriptor and multi-sig keys. */
+  /**
+   * Update account permissions (owner, witness, actives) using a JSON descriptor and multi-sig
+   * keys.
+   */
   public static boolean accountPermissionUpdate(
       String permissionJson,
       byte[] owner,
@@ -793,17 +796,18 @@ public class AccountHelper {
     return ret;
   }
 
-  /** Transfer TRX and return the transaction ID string, delegating to sendcoinWithMemoGetTransactionId. */
+  /**
+   * Transfer TRX and return the transaction ID string, delegating to
+   * sendcoinWithMemoGetTransactionId.
+   */
   public static String sendcoinGetTransactionId(
       byte[] to,
       long amount,
       byte[] owner,
       String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull
-  ) {
-    return sendcoinWithMemoGetTransactionId(to,amount,null,owner,
-        priKey,blockingStubFull);
-}
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return sendcoinWithMemoGetTransactionId(to, amount, null, owner, priKey, blockingStubFull);
+  }
 
   /** Transfer TRX with an optional memo and return the transaction ID string. */
   public static String sendcoinWithMemoGetTransactionId(
@@ -838,14 +842,13 @@ public class AccountHelper {
       return null;
     }
     // Test raw data
-    if(null != memo) {
+    if (null != memo) {
       Protocol.Transaction.raw.Builder builder1 = transaction.getRawData().toBuilder();
       builder1.setData(ByteString.copyFromUtf8(memo));
       Transaction.Builder builder2 = transaction.toBuilder();
       builder2.setRawData(builder1);
       transaction = builder2.build();
     }
-
 
     transaction = PublicMethod.signTransaction(ecKey, transaction);
     GrpcAPI.Return response = PublicMethod.broadcastTransaction(transaction, blockingStubFull);

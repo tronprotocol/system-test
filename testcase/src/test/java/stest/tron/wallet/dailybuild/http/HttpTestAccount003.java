@@ -4,9 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import java.util.HashMap;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.junit.Assert;
@@ -56,7 +53,10 @@ public class HttpTestAccount003 {
       Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
 
   /** constructor. */
-  @Test(enabled = true, description = "Update account by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Update account by http",
+      groups = {"daily", "serial"})
   public void test01UpdateAccount() {
     response = HttpMethod.sendCoin(httpnode, fromAddress, updateAccountAddress, amount, testKey002);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -82,12 +82,20 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Vote witness account by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Vote witness account by http",
+      groups = {"daily", "serial"})
   public void test02VoteWitnessAccount() {
     // Freeze balance
     response =
-        HttpMethod.freezeBalance(httpnode, updateAccountAddress, frozenBalance, 0,
-            HttpMethod.proposalTronPowerIsOpen(httpnode) ? 2 : 0, updateAccountKey);
+        HttpMethod.freezeBalance(
+            httpnode,
+            updateAccountAddress,
+            frozenBalance,
+            0,
+            HttpMethod.proposalTronPowerIsOpen(httpnode) ? 2 : 0,
+            updateAccountKey);
     responseContent = HttpMethod.parseResponseContent(response);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.printJsonContent(responseContent);
@@ -113,7 +121,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "List witnesses by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "List witnesses by http",
+      groups = {"daily", "serial"})
   public void test03ListWitness() {
     response = HttpMethod.listwitnesses(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -125,7 +136,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "List witnesses by http with visible is true", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "List witnesses by http with visible is true",
+      groups = {"daily", "serial"})
   public void test04ListWitness() {
     response = HttpMethod.listwitnesses(httpnode, true);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -137,7 +151,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "List witnesses from solidity by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "List witnesses from solidity by http",
+      groups = {"daily", "serial"})
   public void test05ListWitnessFromSolidity() {
     HttpMethod.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethod.listwitnessesFromSolidity(httpSoliditynode);
@@ -148,7 +165,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "List witnesses from PBFT by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "List witnesses from PBFT by http",
+      groups = {"daily", "serial"})
   public void test06ListWitnessFromPbft() {
     HttpMethod.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethod.listwitnessesFromPbft(httpPbftNode);
@@ -159,7 +179,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Update witness by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Update witness by http",
+      groups = {"daily", "serial"})
   public void test07UpdateWitness() {
     response = HttpMethod.updateWitness(httpnode, witness2Address, updateUrl, witnessKey002);
     Assert.assertTrue(HttpMethod.verificationResult(response));
@@ -173,7 +196,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Create account by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Create account by http",
+      groups = {"daily", "serial"})
   public void test08CreateAccount() {
     PublicMethod.printAddress(newAccountKey);
     response = HttpMethod.createAccount(httpnode, fromAddress, newAccountAddress, testKey002);
@@ -186,7 +212,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Create witness by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Create witness by http",
+      groups = {"daily", "serial"})
   public void test09CreateWitness() {
     response =
         HttpMethod.sendCoin(
@@ -202,7 +231,10 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Withdraw by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Withdraw by http",
+      groups = {"daily", "serial"})
   public void test10Withdraw() {
     response = HttpMethod.withdrawBalance(httpnode, witness1Address);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -212,19 +244,26 @@ public class HttpTestAccount003 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Unfreeze balance for tron power by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Unfreeze balance for tron power by http",
+      groups = {"daily", "serial"})
   public void test11UnfreezeTronPower() {
-    response = HttpMethod.unFreezeBalance(httpnode, updateAccountAddress, frozenBalance,2, updateAccountKey);
+    response =
+        HttpMethod.unFreezeBalance(
+            httpnode, updateAccountAddress, frozenBalance, 2, updateAccountKey);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
   }
-
 
   // TODO: Enable when HttpMethod supports getPaginatedNowWitnessList (v4.8.1+ API)
   // This test calls methods that don't exist yet in HttpMethod.
   // Commented out to allow compilation. Uncomment when the API is available.
   /*
-  @Test(enabled = false, description = "List witness realTime vote data", groups = {"daily", "serial"})
+  @Test(enabled = false,
+      description = "List witness realTime vote data",
+      groups = {"daily",
+      "serial"})
   public void test12CheckVoteChangesRealtimeAfterVote(){
     // Uses HttpMethod.getPaginatedNowWitnessList / getPaginatedNowWitnessListSolidity
     // which are not yet implemented.

@@ -110,7 +110,6 @@ public class ZenUtils {
     return new String(inputCheck, Charset.forName("UTF-8"));
   }
 
-
   public static byte[] aesCtrEncrypt(byte[] text, byte[] encryptKey) throws CipherException {
     try {
       byte[] iv = new byte[16];
@@ -125,9 +124,12 @@ public class ZenUtils {
       System.arraycopy(iv, 0, result, 0, iv.length);
       System.arraycopy(cipherText, 0, result, iv.length, cipherText.length);
       return result;
-    } catch (NoSuchPaddingException | NoSuchAlgorithmException
-        | InvalidAlgorithmParameterException | InvalidKeyException
-        | BadPaddingException | IllegalBlockSizeException e) {
+    } catch (NoSuchPaddingException
+        | NoSuchAlgorithmException
+        | InvalidAlgorithmParameterException
+        | InvalidKeyException
+        | BadPaddingException
+        | IllegalBlockSizeException e) {
       throw new CipherException("Error performing cipher operation", e);
     }
   }
@@ -143,12 +145,13 @@ public class ZenUtils {
       SecretKeySpec secretKeySpec = new SecretKeySpec(encryptKey, "AES");
       cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
       return cipher.doFinal(cipherText);
-    } catch (NoSuchPaddingException | NoSuchAlgorithmException
-        | InvalidAlgorithmParameterException | InvalidKeyException
-        | BadPaddingException | IllegalBlockSizeException e) {
+    } catch (NoSuchPaddingException
+        | NoSuchAlgorithmException
+        | InvalidAlgorithmParameterException
+        | InvalidKeyException
+        | BadPaddingException
+        | IllegalBlockSizeException e) {
       throw new CipherException("Error performing cipher operation", e);
     }
   }
-
-
 }

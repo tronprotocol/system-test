@@ -29,8 +29,8 @@ public class HttpTestExchange001 {
   private static Long afterWithdrawBalance;
   private static Long beforeTransactionBalance;
   private static Long afterTransactionBalance;
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey002 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey002);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] exchangeOwnerAddress = ecKey1.getAddress();
@@ -39,41 +39,71 @@ public class HttpTestExchange001 {
   byte[] asset2Address = ecKey2.getAddress();
   String asset2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   Long amount = 2048000000L;
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
+  String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
   String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(1);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
+  private String httpnode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(1);
+  private String httpSoliditynode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
+  private String httpPbftNode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
 
-
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "Create asset issue by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "Create asset issue by http",
+      groups = {"daily", "serial"})
   public void test01CreateExchange() {
-    response = HttpMethod
-        .sendCoin(httpnode, fromAddress, exchangeOwnerAddress, 2048000000L, testKey002);
+    response =
+        HttpMethod.sendCoin(httpnode, fromAddress, exchangeOwnerAddress, 2048000000L, testKey002);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
     response = HttpMethod.sendCoin(httpnode, fromAddress, asset2Address, amount, testKey002);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
 
-    //Create an asset issue
-    response = HttpMethod.assetIssue(httpnode, exchangeOwnerAddress, name, name, totalSupply, 1, 1,
-        System.currentTimeMillis() + 5000, System.currentTimeMillis() + 50000000, 2, 3, description,
-        url, 1000L, 1000L, exchangeOwnerKey);
+    // Create an asset issue
+    response =
+        HttpMethod.assetIssue(
+            httpnode,
+            exchangeOwnerAddress,
+            name,
+            name,
+            totalSupply,
+            1,
+            1,
+            System.currentTimeMillis() + 5000,
+            System.currentTimeMillis() + 50000000,
+            2,
+            3,
+            description,
+            url,
+            1000L,
+            1000L,
+            exchangeOwnerKey);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
-    response = HttpMethod.assetIssue(httpnode, asset2Address, name, name, totalSupply, 1, 1,
-        System.currentTimeMillis() + 5000, System.currentTimeMillis() + 50000000, 2, 3, description,
-        url, 1000L, 1000L, asset2Key);
+    response =
+        HttpMethod.assetIssue(
+            httpnode,
+            asset2Address,
+            name,
+            name,
+            totalSupply,
+            1,
+            1,
+            System.currentTimeMillis() + 5000,
+            System.currentTimeMillis() + 50000000,
+            2,
+            3,
+            description,
+            url,
+            1000L,
+            1000L,
+            asset2Key);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
 
@@ -87,24 +117,31 @@ public class HttpTestExchange001 {
     assetIssueId2 = responseContent.getString("asset_issued_ID");
     Assert.assertTrue(Integer.parseInt(assetIssueId2) > 1000000);
 
-    response = HttpMethod
-        .transferAsset(httpnode, asset2Address, exchangeOwnerAddress, assetIssueId2, 10000000000L,
-            asset2Key);
+    response =
+        HttpMethod.transferAsset(
+            httpnode, asset2Address, exchangeOwnerAddress, assetIssueId2, 10000000000L, asset2Key);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
 
-    //Create exchange.
-    response = HttpMethod
-        .exchangeCreate(httpnode, exchangeOwnerAddress, assetIssueId1, 1000000L, assetIssueId2,
-            1000000L, exchangeOwnerKey);
+    // Create exchange.
+    response =
+        HttpMethod.exchangeCreate(
+            httpnode,
+            exchangeOwnerAddress,
+            assetIssueId1,
+            1000000L,
+            assetIssueId2,
+            1000000L,
+            exchangeOwnerKey);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "List exchanges by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "List exchanges by http",
+      groups = {"daily", "serial"})
   public void test02ListExchange() {
     response = HttpMethod.listExchanges(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -114,10 +151,11 @@ public class HttpTestExchange001 {
     exchangeId = jsonArray.size();
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "List exchanges from solidity by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "List exchanges from solidity by http",
+      groups = {"daily", "serial"})
   public void test03ListExchangeFromSolidity() {
     HttpMethod.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethod.listExchangesFromSolidity(httpSoliditynode);
@@ -128,10 +166,11 @@ public class HttpTestExchange001 {
     exchangeId = jsonArray.size();
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "List exchanges from PBFT by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "List exchanges from PBFT by http",
+      groups = {"daily", "serial"})
   public void test04ListExchangeFromPbft() {
     HttpMethod.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethod.listExchangesFromPbft(httpPbftNode);
@@ -142,65 +181,67 @@ public class HttpTestExchange001 {
     exchangeId = jsonArray.size();
   }
 
-
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "GetExchangeById by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "GetExchangeById by http",
+      groups = {"daily", "serial"})
   public void test05GetExchangeById() {
     response = HttpMethod.getExchangeById(httpnode, exchangeId);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.getInteger("exchange_id").equals(exchangeId));
-    Assert.assertEquals(responseContent.getString("creator_address"),
-        ByteArray.toHexString(exchangeOwnerAddress));
+    Assert.assertEquals(
+        responseContent.getString("creator_address"), ByteArray.toHexString(exchangeOwnerAddress));
     beforeInjectBalance = responseContent.getLong("first_token_balance");
 
     logger.info("beforeInjectBalance" + beforeInjectBalance);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "GetExchangeById from solidity by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "GetExchangeById from solidity by http",
+      groups = {"daily", "serial"})
   public void test06GetExchangeByIdFromSolidity() {
     response = HttpMethod.getExchangeByIdFromSolidity(httpSoliditynode, exchangeId);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.getInteger("exchange_id").equals(exchangeId));
-    Assert.assertEquals(responseContent.getString("creator_address"),
-        ByteArray.toHexString(exchangeOwnerAddress));
+    Assert.assertEquals(
+        responseContent.getString("creator_address"), ByteArray.toHexString(exchangeOwnerAddress));
     beforeInjectBalance = responseContent.getLong("first_token_balance");
 
     logger.info("beforeInjectBalance" + beforeInjectBalance);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "GetExchangeById from Pbft by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "GetExchangeById from Pbft by http",
+      groups = {"daily", "serial"})
   public void test07GetExchangeByIdFromPbft() {
     response = HttpMethod.getExchangeByIdFromPbft(httpPbftNode, exchangeId);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     Assert.assertTrue(responseContent.getInteger("exchange_id").equals(exchangeId));
-    Assert.assertEquals(responseContent.getString("creator_address"),
-        ByteArray.toHexString(exchangeOwnerAddress));
+    Assert.assertEquals(
+        responseContent.getString("creator_address"), ByteArray.toHexString(exchangeOwnerAddress));
     beforeInjectBalance = responseContent.getLong("first_token_balance");
 
     logger.info("beforeInjectBalance" + beforeInjectBalance);
   }
 
-
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "Inject exchange by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "Inject exchange by http",
+      groups = {"daily", "serial"})
   public void test08InjectExchange() {
-    //Inject exchange.
-    response = HttpMethod
-        .exchangeInject(httpnode, exchangeOwnerAddress, exchangeId, assetIssueId1, 300L,
-            exchangeOwnerKey);
+    // Inject exchange.
+    response =
+        HttpMethod.exchangeInject(
+            httpnode, exchangeOwnerAddress, exchangeId, assetIssueId1, 300L, exchangeOwnerKey);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
     response = HttpMethod.getExchangeById(httpnode, exchangeId);
@@ -214,15 +255,16 @@ public class HttpTestExchange001 {
     beforeWithdrawBalance = afterInjectBalance;
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "Withdraw exchange by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "Withdraw exchange by http",
+      groups = {"daily", "serial"})
   public void test09WithdrawExchange() {
-    //Withdraw exchange.
-    response = HttpMethod
-        .exchangeWithdraw(httpnode, exchangeOwnerAddress, exchangeId, assetIssueId1, 170L,
-            exchangeOwnerKey);
+    // Withdraw exchange.
+    response =
+        HttpMethod.exchangeWithdraw(
+            httpnode, exchangeOwnerAddress, exchangeId, assetIssueId1, 170L, exchangeOwnerKey);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
     response = HttpMethod.getExchangeById(httpnode, exchangeId);
@@ -235,15 +277,16 @@ public class HttpTestExchange001 {
     beforeTransactionBalance = afterWithdrawBalance;
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "Transaction exchange by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "Transaction exchange by http",
+      groups = {"daily", "serial"})
   public void test10TransactionExchange() {
-    //Transaction exchange.
-    response = HttpMethod
-        .exchangeTransaction(httpnode, exchangeOwnerAddress, exchangeId, assetIssueId1, 100L, 1L,
-            exchangeOwnerKey);
+    // Transaction exchange.
+    response =
+        HttpMethod.exchangeTransaction(
+            httpnode, exchangeOwnerAddress, exchangeId, assetIssueId1, 100L, 1L, exchangeOwnerKey);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
     response = HttpMethod.getExchangeById(httpnode, exchangeId);
@@ -255,11 +298,11 @@ public class HttpTestExchange001 {
     Assert.assertTrue(afterTransactionBalance - beforeTransactionBalance >= 1);
   }
 
-
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "Get asset issue list by name by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "Get asset issue list by name by http",
+      groups = {"daily", "serial"})
   public void test11GetAssetIssueListByName() {
     response = HttpMethod.getAssetIssueListByName(httpnode, name);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -268,10 +311,11 @@ public class HttpTestExchange001 {
     Assert.assertTrue(jsonArray.size() >= 2);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = false, description = "Get asset issue list by name from solidity and pbft by http", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = false,
+      description = "Get asset issue list by name from solidity and pbft by http",
+      groups = {"daily", "serial"})
   public void test12GetAssetIssueListByNameFromSolidityAndPbft() {
     HttpMethod.waitToProduceOneBlockFromSolidity(httpnode, httpSoliditynode);
     response = HttpMethod.getAssetIssueListByNameFromSolidity(httpSoliditynode, name);
@@ -287,10 +331,11 @@ public class HttpTestExchange001 {
     Assert.assertTrue(jsonArray.size() >= 2);
   }
 
-  /**
-   * * constructor. *
-   */
-  @Test(enabled = false, description = "Get paginated exchange list by http", groups = {"daily", "serial"})
+  /** * constructor. * */
+  @Test(
+      enabled = false,
+      description = "Get paginated exchange list by http",
+      groups = {"daily", "serial"})
   public void test13GetPaginatedExchangeList() {
 
     response = HttpMethod.getPaginatedExchangeList(httpnode, 0, 1);
@@ -302,10 +347,7 @@ public class HttpTestExchange001 {
     Assert.assertTrue(jsonArray.size() == 1);
   }
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     HttpMethod.freeResource(httpnode, asset2Address, fromAddress, asset2Key);

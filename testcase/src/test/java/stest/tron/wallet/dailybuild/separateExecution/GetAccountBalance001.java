@@ -14,12 +14,12 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
-
-public class GetAccountBalance001 extends TronBaseTest {  private final byte[] foundationAddress = PublicMethod.getFinalAddress(foundationKey);
+public class GetAccountBalance001 extends TronBaseTest {
+  private final byte[] foundationAddress = PublicMethod.getFinalAddress(foundationKey);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] testAddress = ecKey1.getAddress();
   final String testKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -31,63 +31,68 @@ public class GetAccountBalance001 extends TronBaseTest {  private final byte[] f
   Long beforeToBalance;
   Long afterFromBalance;
   Long afterToBalance;
-  private final String blackHoleAdd = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.blackHoleAddress");
+  private final String blackHoleAdd =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.blackHoleAddress");
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    PublicMethod.sendcoin(sendAddress,100000000L,foundationAddress,foundationKey,
-        blockingStubFull);
+  public void beforeClass() {
+    PublicMethod.sendcoin(
+        sendAddress, 100000000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, priority=1,description = "Test get account balance", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 1,
+      description = "Test get account balance",
+      groups = {"daily", "serial"})
   public void test01GetAccountBalance() {
-    Protocol.Block currentBlock = blockingStubFull
-        .getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+    Protocol.Block currentBlock =
+        blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
 
     beforeFromBalance = PublicMethod.getAccountBalance(currentBlock, sendAddress, blockingStubFull);
     beforeToBalance = PublicMethod.getAccountBalance(currentBlock, testAddress, blockingStubFull);
-
-
   }
 
-  @Test(enabled = true, priority=1,description = "Test get block balance", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 1,
+      description = "Test get block balance",
+      groups = {"daily", "serial"})
   public void test02GetBlockBalance() {
-    String txid = PublicMethod.sendcoinGetTransactionId(testAddress, sendAmount, sendAddress,
-        sendKey, blockingStubFull);
+    String txid =
+        PublicMethod.sendcoinGetTransactionId(
+            testAddress, sendAmount, sendAddress, sendKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    Optional<Protocol.TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
-  Long blockNum = infoById.get().getBlockNumber();
+    Optional<Protocol.TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
+    Long blockNum = infoById.get().getBlockNumber();
 
     Protocol.Block currentBlock = PublicMethod.getBlock(blockNum, blockingStubFull);
 
-    BlockBalanceTrace blockBalanceTrace
-        = PublicMethod.getBlockBalance(currentBlock, blockingStubFull);
+    BlockBalanceTrace blockBalanceTrace =
+        PublicMethod.getBlockBalance(currentBlock, blockingStubFull);
 
+    Assert.assertEquals(
+        ByteString.copyFrom(sendAddress),
+        blockBalanceTrace.getTransactionBalanceTrace(0).getOperation(0).getAddress());
+    Assert.assertEquals(
+        -100000L, blockBalanceTrace.getTransactionBalanceTrace(0).getOperation(0).getAmount());
 
-    Assert.assertEquals(ByteString.copyFrom(sendAddress), blockBalanceTrace
-        .getTransactionBalanceTrace(0).getOperation(0).getAddress());
-    Assert.assertEquals(-100000L, blockBalanceTrace.getTransactionBalanceTrace(0)
-        .getOperation(0).getAmount());
+    Assert.assertEquals(
+        ByteString.copyFrom(sendAddress),
+        blockBalanceTrace.getTransactionBalanceTrace(0).getOperation(1).getAddress());
+    Assert.assertEquals(
+        -sendAmount - 1000000,
+        blockBalanceTrace.getTransactionBalanceTrace(0).getOperation(1).getAmount());
 
-
-    Assert.assertEquals(ByteString.copyFrom(sendAddress), blockBalanceTrace
-        .getTransactionBalanceTrace(0).getOperation(1).getAddress());
-    Assert.assertEquals(-sendAmount - 1000000, blockBalanceTrace.getTransactionBalanceTrace(0)
-        .getOperation(1).getAmount());
-
-
-    Assert.assertEquals(ByteString.copyFrom(testAddress), blockBalanceTrace
-        .getTransactionBalanceTrace(0).getOperation(2).getAddress());
-    Assert.assertEquals(-sendAmount, -blockBalanceTrace.getTransactionBalanceTrace(0)
-        .getOperation(2).getAmount());
-
+    Assert.assertEquals(
+        ByteString.copyFrom(testAddress),
+        blockBalanceTrace.getTransactionBalanceTrace(0).getOperation(2).getAddress());
+    Assert.assertEquals(
+        -sendAmount, -blockBalanceTrace.getTransactionBalanceTrace(0).getOperation(2).getAmount());
 
     afterFromBalance = PublicMethod.getAccountBalance(currentBlock, sendAddress, blockingStubFull);
     afterToBalance = PublicMethod.getAccountBalance(currentBlock, testAddress, blockingStubFull);
@@ -96,12 +101,9 @@ public class GetAccountBalance001 extends TronBaseTest {  private final byte[] f
     Assert.assertTrue(beforeFromBalance - afterFromBalance >= sendAmount + 100000L);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod.freeResource(testAddress, testKey, sendAddress, blockingStubFull);  }
-
+    PublicMethod.freeResource(testAddress, testKey, sendAddress, blockingStubFull);
+  }
 }

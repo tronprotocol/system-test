@@ -43,9 +43,9 @@ public class BlockHelper {
         blockingStubSolidity.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
     Integer wait = 0;
     long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
-    logger.info("start sync soliditynode, SR number: " + PublicMethod.getWitnessNum(blockingStubFull));
-    while (solidityCurrentBlock.getBlockHeader().getRawData().getNumber()
-            <= currentBlockNum + 1
+    logger.info(
+        "start sync soliditynode, SR number: " + PublicMethod.getWitnessNum(blockingStubFull));
+    while (solidityCurrentBlock.getBlockHeader().getRawData().getNumber() <= currentBlockNum + 1
         && wait
             < ((PublicMethod.getWitnessNum(blockingStubFull) >= 27)
                 ? 27
@@ -63,8 +63,11 @@ public class BlockHelper {
       }
       wait++;
     }
-    logger.info("Fullnode number: " + currentBlockNum
-    + ", solidity node number: " + solidityCurrentBlock.getBlockHeader().getRawData().getNumber());
+    logger.info(
+        "Fullnode number: "
+            + currentBlockNum
+            + ", solidity node number: "
+            + solidityCurrentBlock.getBlockHeader().getRawData().getNumber());
 
     return true;
   }
@@ -82,7 +85,9 @@ public class BlockHelper {
     Long nextNum = nextBlock.getBlockHeader().getRawData().getNumber();
 
     Integer wait = 0;
-    logger.info("start wait produce block, current num: " + currentBlock.getBlockHeader().getRawData().getNumber());
+    logger.info(
+        "start wait produce block, current num: "
+            + currentBlock.getBlockHeader().getRawData().getNumber());
     while (nextNum <= currentNum + 1 && wait <= 45) {
       try {
         Thread.sleep(1000);
@@ -102,7 +107,8 @@ public class BlockHelper {
   }
 
   /** Wait until transaction info is found by txId, or timeout. */
-  public static void waitUntilTransactionInfoFound(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
+  public static void waitUntilTransactionInfoFound(
+      WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
     Integer wait = 0;
     while (wait++ <= timeout) {
       try {
@@ -111,14 +117,14 @@ public class BlockHelper {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      Optional<TransactionInfo> infoById = PublicMethod.getTransactionInfoById(txId, blockingStubFull);
-      if(infoById.get().getBlockTimeStamp() > 0){
+      Optional<TransactionInfo> infoById =
+          PublicMethod.getTransactionInfoById(txId, blockingStubFull);
+      if (infoById.get().getBlockTimeStamp() > 0) {
         logger.info("quit normally, wait tx by id: " + txId + " times: " + wait);
         return;
       }
     }
     logger.info("quit timeout, wait tx by id: " + txId + " times: " + wait);
-
   }
 
   /** Get transaction info list by block number from the full node. */

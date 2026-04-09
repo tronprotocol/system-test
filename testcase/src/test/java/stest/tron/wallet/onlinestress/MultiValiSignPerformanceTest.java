@@ -25,18 +25,17 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
-
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
 public class MultiValiSignPerformanceTest extends TronBaseTest {
 
-  private final String fromKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String fromKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] fromAddress = PublicMethod.getFinalAddress(fromKey);
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contractDepAddress = ecKey1.getAddress();
@@ -45,52 +44,68 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
   byte[] nonexistentAddress = ecKey2.getAddress();
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   private byte[] ecrecoverContractAddress = null;
   private byte[] multiValiSignContractAddress = null;
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    PublicMethod.printAddress(contractDepKey);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(contractDepKey);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
-
-  @Test(enabled = true, description = "deploy ecrecover contract", groups = {"stress"})
+  @Test(
+      enabled = true,
+      description = "deploy ecrecover contract",
+      groups = {"stress"})
   public void test01DeployEcrecoverContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(contractDepAddress, 1000_000_000L, fromAddress,
-        fromKey, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(contractDepAddress, contractDepKey, 170000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(contractDepAddress), fromKey, blockingStubFull));
-  //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contractDepAddress,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contractDepAddress, 1000_000_000L, fromAddress, fromKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            PublicMethod.getFreezeBalanceCount(
+                contractDepAddress, contractDepKey, 170000L, blockingStubFull),
+            0,
+            1,
+            ByteString.copyFrom(contractDepAddress),
+            fromKey,
+            blockingStubFull));
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contractDepAddress, blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
     long balanceBefore = PublicMethod.queryAccount(contractDepKey, blockingStubFull).getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
-  String filePath = "src/test/resources/soliditycode/multiValiSignPerformance01.sol";
-  String contractName = "ecrecoverValidateSign";
+    String filePath = "src/test/resources/soliditycode/multiValiSignPerformance01.sol";
+    String contractName = "ecrecoverValidateSign";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  final String transferTokenTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, contractDepKey,
-            contractDepAddress, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    final String transferTokenTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            contractDepKey,
+            contractDepAddress,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethod.getAccountResource(contractDepAddress, blockingStubFull);
@@ -102,8 +117,8 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
@@ -115,38 +130,59 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
 
     ecrecoverContractAddress = infoById.get().getContractAddress().toByteArray();
     logger.info("ecrecoverContractAddress:" + infoById.get().getContractAddress());
-    SmartContract smartContract = PublicMethod.getContract(ecrecoverContractAddress,
-        blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(ecrecoverContractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
   }
 
-  @Test(enabled = true, description = "deploy multvalisign contract", groups = {"stress"})
+  @Test(
+      enabled = true,
+      description = "deploy multvalisign contract",
+      groups = {"stress"})
   public void test02DeployMultvalisignContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(contractDepAddress, 1000_000_000L, fromAddress,
-        fromKey, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress,
-        PublicMethod.getFreezeBalanceCount(contractDepAddress, contractDepKey, 170000L,
-            blockingStubFull), 0, 1,
-        ByteString.copyFrom(contractDepAddress), fromKey, blockingStubFull));
-  //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contractDepAddress,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contractDepAddress, 1000_000_000L, fromAddress, fromKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            PublicMethod.getFreezeBalanceCount(
+                contractDepAddress, contractDepKey, 170000L, blockingStubFull),
+            0,
+            1,
+            ByteString.copyFrom(contractDepAddress),
+            fromKey,
+            blockingStubFull));
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contractDepAddress, blockingStubFull);
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
     long balanceBefore = PublicMethod.queryAccount(contractDepKey, blockingStubFull).getBalance();
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
-  String filePath = "src/test/resources/soliditycode/multiValiSignPerformance02.sol";
-  String contractName = "multiValidateSignContract";
+    String filePath = "src/test/resources/soliditycode/multiValiSignPerformance02.sol";
+    String contractName = "multiValidateSignContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  final String transferTokenTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, contractDepKey,
-            contractDepAddress, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    final String transferTokenTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            contractDepKey,
+            contractDepAddress,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethod.getAccountResource(contractDepAddress, blockingStubFull);
@@ -158,8 +194,8 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
     logger.info("after energyUsage is " + Long.toString(energyUsage));
     logger.info("after balanceAfter is " + Long.toString(balanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
@@ -171,12 +207,15 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
 
     multiValiSignContractAddress = infoById.get().getContractAddress().toByteArray();
     logger.info("multiValiSignContractAddress:" + infoById.get().getContractAddress());
-    SmartContract smartContract = PublicMethod.getContract(multiValiSignContractAddress,
-        blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(multiValiSignContractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
   }
 
-  @Test(enabled = true, description = "trigger ecrecover contract test", groups = {"stress"})
+  @Test(
+      enabled = true,
+      description = "trigger ecrecover contract test",
+      groups = {"stress"})
   public void test03triggerEcrecoverContract() {
     /*Assert.assertTrue(PublicMethod.sendcoin(contractDepAddress, 1000_000_000L, fromAddress,
         fromKey, blockingStubFull));
@@ -187,20 +226,20 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
     }*/
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  //test key
-    byte[] hash = ByteArray
-        .fromHexString("7d889f42b4a56ebe78264631a3b4daf21019e1170cce71929fb396761cdf532e");
+    // test key
+    byte[] hash =
+        ByteArray.fromHexString("7d889f42b4a56ebe78264631a3b4daf21019e1170cce71929fb396761cdf532e");
     logger.info("hash:" + Hex.toHexString(hash));
-  int cnt = 15;
+    int cnt = 15;
     for (int i = 0; i < cnt; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
       addresses.add(WalletClient.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String[] inputArr = new String[parameters.size()];
-  int i = 0;
+    int i = 0;
     for (Object parameter : parameters) {
       if (parameter instanceof List) {
         StringBuilder sb = new StringBuilder();
@@ -217,12 +256,19 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
       }
     }
     String input = StringUtils.join(inputArr, ',');
-  String txid = "";
+    String txid = "";
     long start = System.currentTimeMillis();
-    txid = PublicMethod
-        .triggerContract(PublicMethod.decode58Check("TDgdUs1gmn1JoeGMqQGkkxE1pcMNSo8kFj"),
-            "validateSign(bytes32,bytes[],address[])", input,
-            false, 0, maxFeeLimit, contractDepAddress, contractDepKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            PublicMethod.decode58Check("TDgdUs1gmn1JoeGMqQGkkxE1pcMNSo8kFj"),
+            "validateSign(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            maxFeeLimit,
+            contractDepAddress,
+            contractDepKey,
+            blockingStubFull);
     long timeCosts = System.currentTimeMillis() - start;
     logger.info(
         "Ecrecover--cnt:" + cnt + ",timeCost:" + timeCosts + ",ms:" + (timeCosts * 1.0 / cnt));
@@ -233,8 +279,10 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
   }
 
-
-  @Test(enabled = true, description = "trigger mulivalisign contract test", groups = {"stress"})
+  @Test(
+      enabled = true,
+      description = "trigger mulivalisign contract test",
+      groups = {"stress"})
   public void test04triggerMuliValiSignContract() {
     /*Assert.assertTrue(PublicMethod.sendcoin(contractDepAddress, 1000_000_000L, fromAddress,
         fromKey, blockingStubFull));
@@ -245,20 +293,20 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
     }*/
     List<Object> signatures = new ArrayList<>();
     List<Object> addresses = new ArrayList<>();
-  //just test key
-    byte[] hash = ByteArray
-        .fromHexString("7d889f42b4a56ebe78264631a3b4daf21019e1170cce71929fb396761cdf532e");
+    // just test key
+    byte[] hash =
+        ByteArray.fromHexString("7d889f42b4a56ebe78264631a3b4daf21019e1170cce71929fb396761cdf532e");
     logger.info("hash:" + Hex.toHexString(hash));
-  int cnt = 15;
+    int cnt = 15;
     for (int i = 0; i < cnt; i++) {
       ECKey key = new ECKey();
-  byte[] sign = key.sign(hash).toByteArray();
+      byte[] sign = key.sign(hash).toByteArray();
       signatures.add(Hex.toHexString(sign));
       addresses.add(WalletClient.encode58Check(key.getAddress()));
     }
     List<Object> parameters = Arrays.asList("0x" + Hex.toHexString(hash), signatures, addresses);
     String[] inputArr = new String[parameters.size()];
-  int i = 0;
+    int i = 0;
     for (Object parameter : parameters) {
       if (parameter instanceof List) {
         StringBuilder sb = new StringBuilder();
@@ -275,12 +323,19 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
       }
     }
     String input = StringUtils.join(inputArr, ',');
-  String txid = "";
+    String txid = "";
     long start = System.currentTimeMillis();
-    txid = PublicMethod
-        .triggerContract(PublicMethod.decode58Check("TVpTLZbBbP82aufo7p3qmb4ELiowH3mjQW"),
-            "testArray(bytes32,bytes[],address[])", input, false,
-            0, maxFeeLimit, contractDepAddress, contractDepKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            PublicMethod.decode58Check("TVpTLZbBbP82aufo7p3qmb4ELiowH3mjQW"),
+            "testArray(bytes32,bytes[],address[])",
+            input,
+            false,
+            0,
+            maxFeeLimit,
+            contractDepAddress,
+            contractDepKey,
+            blockingStubFull);
     long timeCosts = System.currentTimeMillis() - start;
     logger.info(
         "MuliValiSign--cnt:" + cnt + ",timeCost:" + timeCosts + ",ms:" + (timeCosts * 1.0 / cnt));
@@ -291,14 +346,11 @@ public class MultiValiSignPerformanceTest extends TronBaseTest {
     Assert.assertTrue(infoById.get().getResultValue() == 0);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {    if (channelFull1 != null) {
+  public void shutdown() throws InterruptedException {
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
-
-
 }

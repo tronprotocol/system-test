@@ -13,5 +13,4 @@ public class TronException extends Exception {
   public TronException(String message, Throwable cause) {
     super(message, cause);
   }
-
 }

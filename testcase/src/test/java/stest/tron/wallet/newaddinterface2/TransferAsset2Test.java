@@ -1,14 +1,12 @@
 package stest.tron.wallet.newaddinterface2;
 
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import java.math.BigInteger;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
@@ -23,10 +21,10 @@ import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContra
 import org.tron.protos.contract.AssetIssueContractOuterClass.UnfreezeAssetContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
@@ -35,100 +33,120 @@ public class TransferAsset2Test extends TronBaseTest {
   private static final long now = System.currentTimeMillis();
   private static final long totalSupply = now;
   private static String name = "testAssetIssue001_" + Long.toString(now);
-  //testng001、testng002、testng003、testng004
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  // testng001、testng002、testng003、testng004
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   String description = "just-test-assetissue-001";
   String url = "https://github.com/tronprotocol/wallet-cli/assetissue001";
-  //get account
+  // get account
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] noBandwitchAddress = ecKey.getAddress();
   String noBandwitch = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    logger.info(ByteArray.toHexString(ecKey.getPrivKeyBytes()));  }
+    logger.info(ByteArray.toHexString(ecKey.getPrivKeyBytes()));
+  }
 
   @Test()
   public void testTransferAssetBandwitchDecreaseWithin10Second2() {
     ByteString addressBS1 = ByteString.copyFrom(noBandwitchAddress);
     Account request1 = Account.newBuilder().setAddress(addressBS1).build();
-    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull
-        .getAssetIssueByAccount(request1);
+    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull.getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
     if (queryAssetByAccount.get().getAssetIssueCount() == 0) {
-      Assert.assertTrue(PublicMethod.sendcoin(noBandwitchAddress, 2048000000,
-          fromAddress, foundationKey, blockingStubFull));
+      Assert.assertTrue(
+          PublicMethod.sendcoin(
+              noBandwitchAddress, 2048000000, fromAddress, foundationKey, blockingStubFull));
       Long start = System.currentTimeMillis() + 2000;
       Long end = System.currentTimeMillis() + 1000000000;
 
-      Return ret1 = PublicMethod.createAssetIssue2(noBandwitchAddress, name, totalSupply, 1,
-          100, start, end, 1, description, url, 10000L, 10000L,
-          1L, 1L, noBandwitch, blockingStubFull);
+      Return ret1 =
+          PublicMethod.createAssetIssue2(
+              noBandwitchAddress,
+              name,
+              totalSupply,
+              1,
+              100,
+              start,
+              end,
+              1,
+              description,
+              url,
+              10000L,
+              10000L,
+              1L,
+              1L,
+              noBandwitch,
+              blockingStubFull);
     } else {
       logger.info("This account already create an assetisue");
       Optional<GrpcAPI.AssetIssueList> queryAssetByAccount1 = Optional.ofNullable(assetIssueList1);
       name = ByteArray.toStr(queryAssetByAccount1.get().getAssetIssue(0).getName().toByteArray());
-
     }
 
     Return ret1 = transferAsset2(toAddress, name.getBytes(), 100L, noBandwitchAddress, noBandwitch);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
-    //Transfer Asset failed when transfer to yourself
+    // Transfer Asset failed when transfer to yourself
     ret1 = transferAsset2(toAddress, name.getBytes(), 100L, toAddress, testKey003);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : Cannot transfer asset to yourself.");
-    //Transfer Asset failed when the transfer amount is large than the asset balance you have.
+    // Transfer Asset failed when the transfer amount is large than the asset balance you have.
     ret1 =
         transferAsset2(fromAddress, name.getBytes(), 9100000000000000000L, toAddress, testKey003);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : assetBalance is not sufficient.");
-    //Transfer Asset failed when the transfer amount is 0
+    // Transfer Asset failed when the transfer amount is 0
     ret1 = transferAsset2(fromAddress, name.getBytes(), 0L, toAddress, testKey003);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : Amount must greater than 0.");
-    //Transfer Asset failed when the transfer amount is -1
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : Amount must greater than 0.");
+    // Transfer Asset failed when the transfer amount is -1
     ret1 = transferAsset2(fromAddress, name.getBytes(), -1L, toAddress, testKey003);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : Amount must greater than 0.");
-    ret1 =
-        transferAsset2(fromAddress, (name + "wrong").getBytes(), 1L, toAddress, testKey003);
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : Amount must greater than 0.");
+    ret1 = transferAsset2(fromAddress, (name + "wrong").getBytes(), 1L, toAddress, testKey003);
     Assert.assertEquals(ret1.getCode(), Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "Contract validate error : No asset !");
-    //Transfer success.
+    // Transfer success.
     ret1 = transferAsset2(fromAddress, name.getBytes(), 1L, toAddress, testKey003);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
 
-    //No freeze asset, try to unfreeze asset failed.
+    // No freeze asset, try to unfreeze asset failed.
     Assert.assertFalse(unFreezeAsset(noBandwitchAddress, noBandwitch));
     logger.info("Test no asset frozen balance, try to unfreeze asset, no exception. Test OK!!!");
-    //Not create asset, try to unfreeze asset failed.No exception.
+    // Not create asset, try to unfreeze asset failed.No exception.
     Assert.assertFalse(unFreezeAsset(toAddress, testKey003));
     logger.info("Test not create asset issue, try to unfreeze asset, no exception. Test OK!!!");
   }
 
-    /**
-   * constructor.
-   */
-
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, String priKey) {
+  /** constructor. */
+  public Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -172,14 +190,11 @@ public class TransferAsset2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -195,25 +210,18 @@ public class TransferAsset2Test extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -225,12 +233,9 @@ public class TransferAsset2Test extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -264,15 +269,11 @@ public class TransferAsset2Test extends TronBaseTest {
       Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
-
   }
 
-  /**
-   * constructor.
-   */
-
-  public Return transferAsset2(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public Return transferAsset2(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -325,10 +326,7 @@ public class TransferAsset2Test extends TronBaseTest {
     return ret;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
 
@@ -341,8 +339,7 @@ public class TransferAsset2Test extends TronBaseTest {
     }
     final ECKey ecKey = temKey;
 
-    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract
-        .newBuilder();
+    UnfreezeAssetContract.Builder builder = UnfreezeAssetContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
@@ -366,4 +363,3 @@ public class TransferAsset2Test extends TronBaseTest {
     }
   }
 }
-

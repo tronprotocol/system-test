@@ -28,26 +28,26 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
 
   private static final long now = System.currentTimeMillis();
   private static String name = "mainNetAsset_" + Long.toString(now);
-  //testng001、testng002、testng003、testng004
-  //Devaccount just for test
+  // testng001、testng002、testng003、testng004
+  // Devaccount just for test
   private final String testKey001 =
       "2514B1DD2942FF07F68C2DDC0EE791BC7FBE96FDD95E89B7B9BB3B4C4770FFAC";
-  //Zion just for test
+  // Zion just for test
   private final String testKey002 =
       "56244EE6B33C14C46704DFB67ED5D2BBCBED952EE46F1FD88A50C32C8C5C64CE";
-  //Default
+  // Default
   private final String defaultKey =
-      //Mainet just for test
-      //"8DFBB4513AECF779A0803C7CEBF2CDCC51585121FAB1E086465C4E0B40724AF1";
-  //Beta Env just for test
+      // Mainet just for test
+      // "8DFBB4513AECF779A0803C7CEBF2CDCC51585121FAB1E086465C4E0B40724AF1";
+      // Beta Env just for test
       "6815B367FDDE637E53E9ADC8E69424E07724333C9A2B973CFA469975E20753FC";
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey001);
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey002);
@@ -68,20 +68,23 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
   private Long end;
   private Long beforeToBalance;
   private Long afterToBalance;
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  /**
-   * constructor.
-   */
-  public static Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
-      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /** constructor. */
+  public static Boolean freezeBalance(
+      byte[] addRess,
+      long freezeBalance,
+      long freezeDuration,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -89,14 +92,16 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    Protocol.Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI
-        .EmptyMessage.newBuilder().build());
-  final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
-    BalanceContract.FreezeBalanceContract.Builder builder = BalanceContract.FreezeBalanceContract
-        .newBuilder();
+    Protocol.Block currentBlock =
+        blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+    final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    BalanceContract.FreezeBalanceContract.Builder builder =
+        BalanceContract.FreezeBalanceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
 
-    builder.setOwnerAddress(byteAddress).setFrozenBalance(frozenBalance)
+    builder
+        .setOwnerAddress(byteAddress)
+        .setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
     BalanceContract.FreezeBalanceContract contract = builder.build();
@@ -118,17 +123,18 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     return true;
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = false)
-  public void beforeClass() {    startTime = System.currentTimeMillis();
+  public void beforeClass() {
+    startTime = System.currentTimeMillis();
   }
 
-  //@Test(enabled = false, groups = {"stress"})
-  @Test(enabled = false, threadPoolSize = 2, invocationCount = 2, groups = {"stress"})
+  // @Test(enabled = false, groups = {"stress"})
+  @Test(
+      enabled = false,
+      threadPoolSize = 2,
+      invocationCount = 2,
+      groups = {"stress"})
   public void freezeAndSendcoin() throws InterruptedException {
     Random rand = new Random();
     Integer randNum = 0;
@@ -138,23 +144,24 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    GrpcAPI.WitnessList witnesslist = blockingStubFull
-        .listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.WitnessList witnesslist =
+        blockingStubFull.listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<WitnessList> result = Optional.ofNullable(witnesslist);
     Integer i = 0;
     while (i++ < 3) {
       ret = false;
       Integer waitTime = 10;
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] accountAddress = ecKey1.getAddress();
-  String testKeyAccount = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+      ECKey ecKey1 = new ECKey(Utils.getRandom());
+      byte[] accountAddress = ecKey1.getAddress();
+      String testKeyAccount = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
       logger.info(Base58.encode58Check(accountAddress));
       logger.info(testKeyAccount);
       Integer tryTimes = 0;
 
       while (!ret) {
-        ret = PublicMethod
-            .createAccount(defaultAddress, accountAddress, defaultKey, blockingStubFull);
+        ret =
+            PublicMethod.createAccount(
+                defaultAddress, accountAddress, defaultKey, blockingStubFull);
         logger.info("createAccount");
 
         if (tryTimes++ == 10) {
@@ -164,8 +171,9 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
 
       ret = false;
       while (!ret) {
-        ret = PublicMethod
-            .sendcoin(accountAddress, sendAmount, defaultAddress, defaultKey, blockingStubFull);
+        ret =
+            PublicMethod.sendcoin(
+                accountAddress, sendAmount, defaultAddress, defaultKey, blockingStubFull);
         logger.info("sendcoin");
       }
       ret = false;
@@ -174,15 +182,29 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
         totalSupply = System.currentTimeMillis();
         start = System.currentTimeMillis() + 2000;
         end = System.currentTimeMillis() + 1000000000;
-        ret = PublicMethod.createAssetIssue(accountAddress, name, totalSupply, 1, 1, start, end,
-            1, description, url, 3000L, 3000L, 1L, 1L,
-            testKeyAccount, blockingStubFull);
+        ret =
+            PublicMethod.createAssetIssue(
+                accountAddress,
+                name,
+                totalSupply,
+                1,
+                1,
+                start,
+                end,
+                1,
+                description,
+                url,
+                3000L,
+                3000L,
+                1L,
+                1L,
+                testKeyAccount,
+                blockingStubFull);
         logger.info("createAssetIssue");
       }
       ret = false;
       while (!ret) {
-        ret = freezeBalance(accountAddress, 1000000L, 3, testKeyAccount,
-            blockingStubFull);
+        ret = freezeBalance(accountAddress, 1000000L, 3, testKeyAccount, blockingStubFull);
         logger.info("freezeBalance");
       }
       /*      ret = false;
@@ -194,8 +216,8 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
       }*/
       ret = false;
       while (!ret) {
-        String voteStr = Base58
-            .encode58Check(result.get().getWitnesses(i % 5).getAddress().toByteArray());
+        String voteStr =
+            Base58.encode58Check(result.get().getWitnesses(i % 5).getAddress().toByteArray());
         HashMap<String, String> smallVoteMap = new HashMap<String, String>();
         smallVoteMap.put(voteStr, "1");
         ret = voteWitness(smallVoteMap, accountAddress, testKeyAccount);
@@ -204,20 +226,16 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
     endTime = System.currentTimeMillis();
     logger.info("Time is " + Long.toString(endTime - startTime));
     Account fromAccount = PublicMethod.queryAccount(testKey001, blockingStubFull);
-    Account toAccount = PublicMethod.queryAccount(testKey002, blockingStubFull);  }
+    Account toAccount = PublicMethod.queryAccount(testKey002, blockingStubFull);
+  }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Boolean voteWitness(HashMap<String, String> witness, byte[] addRess, String priKey) {
 
     ECKey temKey = null;
@@ -229,21 +247,20 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     }
     ECKey ecKey = temKey;
     Account beforeVote = queryAccount(ecKey, blockingStubFull);
-  Long beforeVoteNum = 0L;
+    Long beforeVoteNum = 0L;
     if (beforeVote.getVotesCount() != 0) {
       beforeVoteNum = beforeVote.getVotes(0).getVoteCount();
     }
 
-    WitnessContract.VoteWitnessContract.Builder builder = WitnessContract.VoteWitnessContract
-        .newBuilder();
+    WitnessContract.VoteWitnessContract.Builder builder =
+        WitnessContract.VoteWitnessContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(addRess));
     for (String addressBase58 : witness.keySet()) {
       String value = witness.get(addressBase58);
-  final long count = Long.parseLong(value);
-      WitnessContract.VoteWitnessContract.Vote.Builder voteBuilder = WitnessContract
-          .VoteWitnessContract.Vote
-          .newBuilder();
-  byte[] address = WalletClient.decodeFromBase58Check(addressBase58);
+      final long count = Long.parseLong(value);
+      WitnessContract.VoteWitnessContract.Vote.Builder voteBuilder =
+          WitnessContract.VoteWitnessContract.Vote.newBuilder();
+      byte[] address = WalletClient.decodeFromBase58Check(addressBase58);
       logger.info("address = " + ByteArray.toHexString(address));
       if (address == null) {
         continue;
@@ -256,7 +273,7 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     WitnessContract.VoteWitnessContract contract = builder.build();
     Transaction transaction = blockingStubFull.voteWitnessAccount(contract);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
-      //logger.info("transaction == null,\n contract:{},\n transaction:{}" , contract.toString(),
+      // logger.info("transaction == null,\n contract:{},\n transaction:{}" , contract.toString(),
       // transaction.toString());
       logger.info("transaction == null");
       return false;
@@ -266,7 +283,7 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
 
     if (response.getResult() == false) {
       logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
-  //logger.info(response.getCode().toString());
+      // logger.info(response.getCode().toString());
       return false;
     }
     /*    try {
@@ -277,19 +294,17 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     return true;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -299,23 +314,18 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -327,4 +337,3 @@ public class MainNetVoteOrFreezeOrCreate extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 }
-

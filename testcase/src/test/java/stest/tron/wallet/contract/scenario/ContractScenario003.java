@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
@@ -16,28 +15,29 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.Utils;
 
-import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
 @Slf4j
 @MultiNode
-public class ContractScenario003 extends TronBaseTest {  ECKey ecKey1 = new ECKey(Utils.getRandom());
+public class ContractScenario003 extends TronBaseTest {
+  ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contract003Address = ecKey1.getAddress();
-  String contract003Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());  private ManagedChannel channelFull1 = null;
-  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);  /**
-   * constructor.
-   */
+  String contract003Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  private ManagedChannel channelFull1 = null;
+  private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  /** constructor. */
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(contract003Key);    logger.info(Long.toString(PublicMethod.queryAccount(contract003Key, blockingStubFull)
-        .getBalance()));
-    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(contract003Key);
+    logger.info(
+        Long.toString(PublicMethod.queryAccount(contract003Key, blockingStubFull).getBalance()));
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
@@ -47,11 +47,12 @@ public class ContractScenario003 extends TronBaseTest {  ECKey ecKey1 = new ECKe
     contract003Address = ecKey1.getAddress();
     contract003Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethod.sendcoin(contract003Address, 500000000L, foundationAddress2,
-        foundationKey2, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contract003Address, 500000000L, foundationAddress2, foundationKey2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract003Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contract003Address, blockingStubFull);
     Long energyLimit = accountResource.getEnergyLimit();
     Long energyUsage = accountResource.getEnergyUsed();
     Long balanceBefore = PublicMethod.queryAccount(contract003Key, blockingStubFull).getBalance();
@@ -67,17 +68,28 @@ public class ContractScenario003 extends TronBaseTest {  ECKey ecKey1 = new ECKe
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-        maxFeeLimit, 0L, 100, null, contract003Key, contract003Address, blockingStubFull);
+    String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract003Key,
+            contract003Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull1);
     logger.info(txid);
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
 
     com.google.protobuf.ByteString contractAddress = infoById.get().getContractAddress();
-    SmartContract smartContract = PublicMethod
-        .getContract(contractAddress.toByteArray(), blockingStubFull);
+    SmartContract smartContract =
+        PublicMethod.getContract(contractAddress.toByteArray(), blockingStubFull);
     Assert.assertTrue(smartContract.getAbi() != null);
     Assert.assertTrue(smartContract.getName().equalsIgnoreCase(contractName));
     Assert.assertFalse(smartContract.getBytecode().toString().isEmpty());
@@ -86,8 +98,8 @@ public class ContractScenario003 extends TronBaseTest {  ECKey ecKey1 = new ECKe
     accountResource = PublicMethod.getAccountResource(contract003Address, blockingStubFull1);
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
-    Long balanceAfter = PublicMethod.queryAccount(contract003Address, blockingStubFull1)
-        .getBalance();
+    Long balanceAfter =
+        PublicMethod.queryAccount(contract003Address, blockingStubFull1).getBalance();
 
     logger.info("after energy limit is " + Long.toString(energyLimit));
     logger.info("after energy usage is " + Long.toString(energyUsage));
@@ -99,4 +111,3 @@ public class ContractScenario003 extends TronBaseTest {  ECKey ecKey1 = new ECKe
     Assert.assertTrue(balanceBefore == balanceAfter + infoById.get().getFee());
   }
 }
-

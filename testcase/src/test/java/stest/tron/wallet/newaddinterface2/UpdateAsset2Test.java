@@ -22,8 +22,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class UpdateAsset2Test extends TronBaseTest {
@@ -35,10 +35,11 @@ public class UpdateAsset2Test extends TronBaseTest {
       "1qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcv"
           + "qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswe"
           + "dcvqazxswedcvqazxswedcvqazxswedcvqazxswedcv";
-  private static final String tooLongUrl = "qaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqas"
-      + "wqaswqasw1qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazx"
-      + "swedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedc"
-      + "vqazxswedcvqazxswedcvqazxswedcvqazxswedcv";
+  private static final String tooLongUrl =
+      "qaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqaswqas"
+          + "wqaswqasw1qazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazx"
+          + "swedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedcvqazxswedc"
+          + "vqazxswedcvqazxswedcvqazxswedcvqazxswedcv";
   private static String name = "testAssetIssue010_" + Long.toString(now);
   String description = "just-test";
   String url = "https://github.com/tronprotocol/wallet-cli/";
@@ -48,72 +49,97 @@ public class UpdateAsset2Test extends TronBaseTest {
   Long publicFreeAssetNetLimit = 1000L;
   Long updateFreeAssetNetLimit = 10001L;
   Long updatePublicFreeAssetNetLimit = 10001L;
-  //get account
+  // get account
   ECKey ecKey = new ECKey(Utils.getRandom());
   byte[] asset010Address = ecKey.getAddress();
   String testKeyForAssetIssue010 = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void testUpdateAssetIssue2() {
-    //Sendcoin to this account
+    // Sendcoin to this account
     ByteString addressBS1 = ByteString.copyFrom(asset010Address);
     Account request1 = Account.newBuilder().setAddress(addressBS1).build();
-    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull
-        .getAssetIssueByAccount(request1);
+    GrpcAPI.AssetIssueList assetIssueList1 = blockingStubFull.getAssetIssueByAccount(request1);
     Optional<GrpcAPI.AssetIssueList> queryAssetByAccount = Optional.ofNullable(assetIssueList1);
     if (queryAssetByAccount.get().getAssetIssueCount() == 0) {
-      //Assert.assertTrue(PublicMethod.freezeBalance(foundationAddress,10000000L,3,
+      // Assert.assertTrue(PublicMethod.freezeBalance(foundationAddress,10000000L,3,
       //    foundationKey,blockingStubFull));
-      Assert.assertTrue(PublicMethod
-          .sendcoin(asset010Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
-      Assert.assertTrue(PublicMethod
-          .freezeBalance(asset010Address, 200000000L, 3, testKeyForAssetIssue010,
+      Assert.assertTrue(
+          PublicMethod.sendcoin(
+              asset010Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
+      Assert.assertTrue(
+          PublicMethod.freezeBalance(
+              asset010Address, 200000000L, 3, testKeyForAssetIssue010, blockingStubFull));
+      Long start = System.currentTimeMillis() + 2000;
+      Long end = System.currentTimeMillis() + 1000000000;
+      Assert.assertTrue(
+          PublicMethod.createAssetIssue(
+              asset010Address,
+              name,
+              totalSupply,
+              1,
+              1,
+              start,
+              end,
+              1,
+              description,
+              url,
+              freeAssetNetLimit,
+              publicFreeAssetNetLimit,
+              1L,
+              1L,
+              testKeyForAssetIssue010,
               blockingStubFull));
-  Long start = System.currentTimeMillis() + 2000;
-  Long end = System.currentTimeMillis() + 1000000000;
-      Assert.assertTrue(PublicMethod.createAssetIssue(asset010Address, name, totalSupply, 1, 1,
-          start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
-          1L, 1L, testKeyForAssetIssue010, blockingStubFull));
     } else {
       logger.info("This account already create an assetisue");
       Optional<GrpcAPI.AssetIssueList> queryAssetByAccount1 = Optional.ofNullable(assetIssueList1);
       name = ByteArray.toStr(queryAssetByAccount1.get().getAssetIssue(0).getName().toByteArray());
-      Assert.assertTrue(PublicMethod
-          .updateAsset(asset010Address, description.getBytes(), url.getBytes(), freeAssetNetLimit,
-              publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull));
+      Assert.assertTrue(
+          PublicMethod.updateAsset(
+              asset010Address,
+              description.getBytes(),
+              url.getBytes(),
+              freeAssetNetLimit,
+              publicFreeAssetNetLimit,
+              testKeyForAssetIssue010,
+              blockingStubFull));
     }
 
-    //Query the description and url,freeAssetNetLimit and publicFreeAssetNetLimit
+    // Query the description and url,freeAssetNetLimit and publicFreeAssetNetLimit
     ByteString assetNameBs = ByteString.copyFrom(name.getBytes());
     GrpcAPI.BytesMessage request = GrpcAPI.BytesMessage.newBuilder().setValue(assetNameBs).build();
-    AssetIssueContractOuterClass.AssetIssueContract assetIssueByName = blockingStubFull
-        .getAssetIssueByName(request);
+    AssetIssueContractOuterClass.AssetIssueContract assetIssueByName =
+        blockingStubFull.getAssetIssueByName(request);
 
     Assert.assertTrue(
         ByteArray.toStr(assetIssueByName.getDescription().toByteArray()).equals(description));
     Assert.assertTrue(ByteArray.toStr(assetIssueByName.getUrl().toByteArray()).equals(url));
     Assert.assertTrue(assetIssueByName.getFreeAssetNetLimit() == freeAssetNetLimit);
     Assert.assertTrue(assetIssueByName.getPublicFreeAssetNetLimit() == publicFreeAssetNetLimit);
-  //Test update asset issue
-    Return ret1 = PublicMethod
-        .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
+    // Test update asset issue
+    Return ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            updateDescription.getBytes(),
+            updateUrl.getBytes(),
             updateFreeAssetNetLimit,
-            updatePublicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
+            updatePublicFreeAssetNetLimit,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
-  //After update asset issue ,query the description and url,
+    // After update asset issue ,query the description and url,
     // freeAssetNetLimit and publicFreeAssetNetLimit
     assetNameBs = ByteString.copyFrom(name.getBytes());
     request = GrpcAPI.BytesMessage.newBuilder().setValue(assetNameBs).build();
@@ -123,88 +149,147 @@ public class UpdateAsset2Test extends TronBaseTest {
         ByteArray.toStr(assetIssueByName.getDescription().toByteArray()).equals(updateDescription));
     Assert.assertTrue(ByteArray.toStr(assetIssueByName.getUrl().toByteArray()).equals(updateUrl));
     Assert.assertTrue(assetIssueByName.getFreeAssetNetLimit() == updateFreeAssetNetLimit);
-    Assert
-        .assertTrue(assetIssueByName.getPublicFreeAssetNetLimit() == updatePublicFreeAssetNetLimit);
+    Assert.assertTrue(
+        assetIssueByName.getPublicFreeAssetNetLimit() == updatePublicFreeAssetNetLimit);
   }
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void testUpdateAssetIssueExcption2() {
-    //Test update asset issue for wrong parameter
-    //publicFreeAssetNetLimit is -1
-    Return ret1 = PublicMethod
-        .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
+    // Test update asset issue for wrong parameter
+    // publicFreeAssetNetLimit is -1
+    Return ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            updateDescription.getBytes(),
+            updateUrl.getBytes(),
             updateFreeAssetNetLimit,
-            -1L, testKeyForAssetIssue010, blockingStubFull);
+            -1L,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(),
         "Contract validate error : Invalid PublicFreeAssetNetLimit");
-  //publicFreeAssetNetLimit is 0
-    ret1 = PublicMethod
-        .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
+    // publicFreeAssetNetLimit is 0
+    ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            updateDescription.getBytes(),
+            updateUrl.getBytes(),
             updateFreeAssetNetLimit,
-            0, testKeyForAssetIssue010, blockingStubFull);
+            0,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
-  //FreeAssetNetLimit is -1
-    ret1 = PublicMethod
-        .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(), -1,
-            publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
+    // FreeAssetNetLimit is -1
+    ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            updateDescription.getBytes(),
+            updateUrl.getBytes(),
+            -1,
+            publicFreeAssetNetLimit,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : Invalid FreeAssetNetLimit");
-  //FreeAssetNetLimit is 0
-    ret1 = PublicMethod
-        .updateAsset2(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(), 0,
-            publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : Invalid FreeAssetNetLimit");
+    // FreeAssetNetLimit is 0
+    ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            updateDescription.getBytes(),
+            updateUrl.getBytes(),
+            0,
+            publicFreeAssetNetLimit,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
-  //Description is null
-    ret1 = PublicMethod
-        .updateAsset2(asset010Address, "".getBytes(), updateUrl.getBytes(), freeAssetNetLimit,
-            publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
+    // Description is null
+    ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            "".getBytes(),
+            updateUrl.getBytes(),
+            freeAssetNetLimit,
+            publicFreeAssetNetLimit,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
-  //Url is null
-    ret1 = PublicMethod
-        .updateAsset2(asset010Address, description.getBytes(), "".getBytes(), freeAssetNetLimit,
-            publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
+    // Url is null
+    ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            description.getBytes(),
+            "".getBytes(),
+            freeAssetNetLimit,
+            publicFreeAssetNetLimit,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "Contract validate error : Invalid url");
-  //Too long discription
-    ret1 = PublicMethod
-        .updateAsset2(asset010Address, tooLongDescription.getBytes(), url.getBytes(),
+    // Too long discription
+    ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            tooLongDescription.getBytes(),
+            url.getBytes(),
             freeAssetNetLimit,
-            publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
+            publicFreeAssetNetLimit,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(),
-        "Contract validate error : Invalid description");
-  //Too long URL
-    ret1 = PublicMethod
-        .updateAsset2(asset010Address, description.getBytes(), tooLongUrl.getBytes(),
+    Assert.assertEquals(
+        ret1.getMessage().toStringUtf8(), "Contract validate error : Invalid description");
+    // Too long URL
+    ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            description.getBytes(),
+            tooLongUrl.getBytes(),
             freeAssetNetLimit,
-            publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull);
+            publicFreeAssetNetLimit,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR);
     Assert.assertEquals(ret1.getMessage().toStringUtf8(), "Contract validate error : Invalid url");
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    Return ret1 = PublicMethod
-        .updateAsset2(asset010Address, description.getBytes(), url.getBytes(), 1999999999,
-            199, testKeyForAssetIssue010, blockingStubFull);
+    Return ret1 =
+        PublicMethod.updateAsset2(
+            asset010Address,
+            description.getBytes(),
+            url.getBytes(),
+            1999999999,
+            199,
+            testKeyForAssetIssue010,
+            blockingStubFull);
     Assert.assertEquals(ret1.getCode(), Return.response_code.SUCCESS);
-    Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");  }
+    Assert.assertEquals(ret1.getMessage().toStringUtf8(), "");
+  }
 
-  /**
-   * constructor.
-   */
-  public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
-      Integer icoNum, Long startTime, Long endTime,
-      Integer voteScore, String description, String url, Long fronzenAmount, Long frozenDay,
+  /** constructor. */
+  public Boolean createAssetIssue(
+      byte[] address,
+      String name,
+      Long totalSupply,
+      Integer trxNum,
+      Integer icoNum,
+      Long startTime,
+      Long endTime,
+      Integer voteScore,
+      String description,
+      String url,
+      Long fronzenAmount,
+      Long frozenDay,
       String priKey) {
     ECKey temKey = null;
     try {
@@ -218,8 +303,7 @@ public class UpdateAsset2Test extends TronBaseTest {
 
     try {
       AssetIssueContractOuterClass.AssetIssueContract.Builder builder =
-          AssetIssueContractOuterClass.AssetIssueContract
-              .newBuilder();
+          AssetIssueContractOuterClass.AssetIssueContract.newBuilder();
       builder.setOwnerAddress(ByteString.copyFrom(address));
       builder.setName(ByteString.copyFrom(name.getBytes()));
       builder.setTotalSupply(totalSupply);
@@ -231,8 +315,7 @@ public class UpdateAsset2Test extends TronBaseTest {
       builder.setDescription(ByteString.copyFrom(description.getBytes()));
       builder.setUrl(ByteString.copyFrom(url.getBytes()));
       AssetIssueContractOuterClass.AssetIssueContract.FrozenSupply.Builder frozenBuilder =
-          AssetIssueContractOuterClass.AssetIssueContract.FrozenSupply
-              .newBuilder();
+          AssetIssueContractOuterClass.AssetIssueContract.FrozenSupply.newBuilder();
       frozenBuilder.setFrozenAmount(fronzenAmount);
       frozenBuilder.setFrozenDays(frozenDay);
       builder.addFrozenSupply(0, frozenBuilder);
@@ -257,19 +340,17 @@ public class UpdateAsset2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -279,23 +360,18 @@ public class UpdateAsset2Test extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -307,11 +383,9 @@ public class UpdateAsset2Test extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey) {
+  /** constructor. */
+  public boolean transferAsset(
+      byte[] to, byte[] assertName, long amount, byte[] address, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -322,8 +396,7 @@ public class UpdateAsset2Test extends TronBaseTest {
     final ECKey ecKey = temKey;
 
     AssetIssueContractOuterClass.TransferAssetContract.Builder builder =
-        AssetIssueContractOuterClass.TransferAssetContract
-            .newBuilder();
+        AssetIssueContractOuterClass.TransferAssetContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(address);
@@ -345,15 +418,12 @@ public class UpdateAsset2Test extends TronBaseTest {
       Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -363,8 +433,7 @@ public class UpdateAsset2Test extends TronBaseTest {
     final ECKey ecKey = temKey;
 
     AssetIssueContractOuterClass.UnfreezeAssetContract.Builder builder =
-        AssetIssueContractOuterClass.UnfreezeAssetContract
-            .newBuilder();
+        AssetIssueContractOuterClass.UnfreezeAssetContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
@@ -387,11 +456,9 @@ public class UpdateAsset2Test extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-  public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
-      String priKey) {
+  /** constructor. */
+  public boolean participateAssetIssue(
+      byte[] to, byte[] assertName, long amount, byte[] from, String priKey) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -402,8 +469,7 @@ public class UpdateAsset2Test extends TronBaseTest {
     final ECKey ecKey = temKey;
 
     AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder =
-        AssetIssueContractOuterClass.ParticipateAssetIssueContract
-            .newBuilder();
+        AssetIssueContractOuterClass.ParticipateAssetIssueContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(from);
@@ -423,7 +489,4 @@ public class UpdateAsset2Test extends TronBaseTest {
       return true;
     }
   }
-
 }
-
-

@@ -6,6 +6,7 @@ import org.tron.api.WalletGrpc;
  * Factory for creating funded test accounts.
  *
  * <p>Reduces boilerplate in test {@code @BeforeClass} methods. Instead of:
+ *
  * <pre>{@code
  * ECKey ecKey = new ECKey(Utils.getRandom());
  * byte[] addr = ecKey.getAddress();
@@ -15,6 +16,7 @@ import org.tron.api.WalletGrpc;
  * }</pre>
  *
  * <p>Use:
+ *
  * <pre>{@code
  * TestAccount test = TestAccountFactory.funded(amount, foundation, foundationKey, stub);
  * // test.address, test.privateKey, test.ecKey are all available
@@ -29,15 +31,14 @@ public final class TestAccountFactory {
   /**
    * Creates a new random account funded with the specified TRX amount.
    *
-   * @param amountSun  TRX amount in sun to transfer from foundation
+   * @param amountSun TRX amount in sun to transfer from foundation
    * @param foundation foundation account address (source of funds)
    * @param foundationKey foundation account private key
-   * @param stub       gRPC blocking stub
+   * @param stub gRPC blocking stub
    * @return a funded TestAccount ready for use in tests
    */
-  public static TestAccount funded(long amountSun,
-      byte[] foundation, String foundationKey,
-      WalletGrpc.WalletBlockingStub stub) {
+  public static TestAccount funded(
+      long amountSun, byte[] foundation, String foundationKey, WalletGrpc.WalletBlockingStub stub) {
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] address = ecKey.getAddress();
     String privateKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -47,8 +48,8 @@ public final class TestAccountFactory {
   }
 
   /**
-   * Creates a new random account without funding.
-   * Useful for negative tests or when funding is done separately.
+   * Creates a new random account without funding. Useful for negative tests or when funding is done
+   * separately.
    */
   public static TestAccount unfunded() {
     ECKey ecKey = new ECKey(Utils.getRandom());
@@ -57,9 +58,7 @@ public final class TestAccountFactory {
     return new TestAccount(ecKey, address, privateKey);
   }
 
-  /**
-   * Holds a test account's key material.
-   */
+  /** Holds a test account's key material. */
   public static class TestAccount {
     public final ECKey ecKey;
     public final byte[] address;

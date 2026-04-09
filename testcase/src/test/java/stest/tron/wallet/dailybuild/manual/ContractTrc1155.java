@@ -20,15 +20,17 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
-public class ContractTrc1155 extends TronBaseTest {  private final String fullnode =
-      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);  Optional<Protocol.TransactionInfo> infoById = null;
+public class ContractTrc1155 extends TronBaseTest {
+  private final String fullnode =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  Optional<Protocol.TransactionInfo> infoById = null;
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] ownerAddressByte = ecKey2.getAddress();
   String ownerKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
@@ -39,25 +41,27 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
   byte[] trc1155AddressByte = null;
 
   /** constructor. */
-
   @BeforeSuite
-  public void beforeSuite() {  }
+  public void beforeSuite() {}
 
   /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() throws Exception {
-    //Wallet.setAddressPreFixByte(Parameter.CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    // Wallet.setAddressPreFixByte(Parameter.CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     deployTrc1155();
 
     deployHolder();
     deployNoHolder();
   }
 
-  @Test(enabled = true, description = "Trigger Trc1155 balanceOf method", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger Trc1155 balanceOf method",
+      groups = {"daily"})
   public void test01triggerTrc1155BalanceOfMethod() {
     int coinType = 3;
     List<Object> parameters = Arrays.asList(ownerAddressString, coinType);
-  String data = PublicMethod.parametersString(parameters);
+    String data = PublicMethod.parametersString(parameters);
 
     logger.info("data:" + data);
     GrpcAPI.TransactionExtention transactionExtention =
@@ -73,12 +77,15 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             ownerAddressByte,
             ownerKey,
             blockingStubFull);
-  String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
     long result = Long.parseLong(hexBalance, 16);
     Assert.assertEquals((long) Math.pow(10, 4), result);
   }
 
-  @Test(enabled = true, description = "Trigger Trc1155 balanceOfBatch method", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger Trc1155 balanceOfBatch method",
+      groups = {"daily"})
   public void test02triggerTrc1155BalanceOfBatchMethod() {
     List<Object> address =
         Stream.of(
@@ -91,7 +98,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             .collect(Collectors.toList());
     List<Integer> coinType = Stream.of(0, 1, 2, 3, 4, 5).collect(Collectors.toList());
     List<Object> parameters = Arrays.asList(address, coinType);
-  String data = PublicMethod.parametersString(parameters);
+    String data = PublicMethod.parametersString(parameters);
     logger.info("data:" + data);
     GrpcAPI.TransactionExtention transactionExtention1 =
         PublicMethod.triggerConstantContractForExtention(
@@ -106,14 +113,14 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             ownerAddressByte,
             ownerKey,
             blockingStubFull);
-  String hexBalance = Hex.toHexString(transactionExtention1.getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention1.getConstantResult(0).toByteArray());
     logger.info("hexBalance:" + hexBalance);
-  final long trxAmount = (long) Math.pow(10, 3);
-  final long bttAmount = (long) Math.pow(10, 2);
-  final long winAmount = (long) Math.pow(10, 5);
-  final long sunAmount = (long) Math.pow(10, 4);
-  final long apenftAmount = 1L;
-  final long apenft1Amount = 1L;
+    final long trxAmount = (long) Math.pow(10, 3);
+    final long bttAmount = (long) Math.pow(10, 2);
+    final long winAmount = (long) Math.pow(10, 5);
+    final long sunAmount = (long) Math.pow(10, 4);
+    final long apenftAmount = 1L;
+    final long apenft1Amount = 1L;
     Assert.assertEquals(trxAmount, Long.parseLong(hexBalance.substring(128, 192), 16));
     Assert.assertEquals(bttAmount, Long.parseLong(hexBalance.substring(192, 256), 16));
     Assert.assertEquals(winAmount, Long.parseLong(hexBalance.substring(256, 320), 16));
@@ -122,16 +129,19 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     Assert.assertEquals(apenft1Amount, Long.parseLong(hexBalance.substring(448, 512), 16));
   }
 
-  @Test(enabled = true, description = "Trigger Trc1155  safeTransferFrom function", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger Trc1155  safeTransferFrom function",
+      groups = {"daily"})
   public void test03triggerTrc1155SafeTransferFromFunction() {
     ECKey ecKey3 = new ECKey(Utils.getRandom());
-  byte[] contract003Address = ecKey3.getAddress();
-  String sendAddress = WalletClient.encode58Check(contract003Address);
+    byte[] contract003Address = ecKey3.getAddress();
+    String sendAddress = WalletClient.encode58Check(contract003Address);
     logger.info(sendAddress);
-  int coinType = 3;
-  final int coinAmount = 2;
+    int coinType = 3;
+    final int coinAmount = 2;
     List<Object> parameters1 = Arrays.asList(ownerAddressString, coinType);
-  String data = PublicMethod.parametersString(parameters1);
+    String data = PublicMethod.parametersString(parameters1);
     logger.info("data1:" + data);
     GrpcAPI.TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtention(
@@ -146,15 +156,15 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             ownerAddressByte,
             ownerKey,
             blockingStubFull);
-  String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
     long result = Long.parseLong(hexBalance, 16);
     Assert.assertEquals((long) Math.pow(10, 4), result);
-  String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
+    String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
     List<Object> parameters =
         Arrays.asList(ownerAddressString, sendAddress, coinType, coinAmount, bytes);
     data = PublicMethod.parametersString(parameters);
     logger.info("data2:" + data);
-  String txid =
+    String txid =
         PublicMethod.triggerContract(
             trc1155AddressByte,
             "safeTransferFrom(address,address,uint256,uint256,bytes)",
@@ -170,7 +180,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
     Optional<Protocol.Transaction> byId = PublicMethod.getTransactionById(txid, blockingStubFull);
-  String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
+    String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
     Assert.assertTrue(s.contains(bytes));
 
     List<Object> parameters3 = Arrays.asList(ownerAddressString, coinType);
@@ -215,20 +225,23 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     Assert.assertEquals(coinAmount, result);
   }
 
-  @Test(enabled = true, description = "trigger Trc1155 SafeBatchTransferFrom function", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "trigger Trc1155 SafeBatchTransferFrom function",
+      groups = {"daily"})
   public void test04triggerTrc1155SafeBatchTransferFromFunction() {
 
     ECKey ecKey4 = new ECKey(Utils.getRandom());
-  byte[] receiverAddress = ecKey4.getAddress();
-  String sendAddress = WalletClient.encode58Check(receiverAddress);
+    byte[] receiverAddress = ecKey4.getAddress();
+    String sendAddress = WalletClient.encode58Check(receiverAddress);
     List<Object> coinType = Stream.of(0, 1, 5).collect(Collectors.toList());
     List<Object> coinAccount = Stream.of(50, 10, 1).collect(Collectors.toList());
-  String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
+    String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
     List<Object> parameters =
         Arrays.asList(ownerAddressString, sendAddress, coinType, coinAccount, bytes);
-  String input = PublicMethod.parametersString(parameters);
+    String input = PublicMethod.parametersString(parameters);
     logger.info("input:" + input);
-  String txid =
+    String txid =
         PublicMethod.triggerContract(
             trc1155AddressByte,
             "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)",
@@ -244,7 +257,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
     Optional<Protocol.Transaction> byId = PublicMethod.getTransactionById(txid, blockingStubFull);
-  String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
+    String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
     Assert.assertTrue(s.contains(bytes));
     List<Object> address =
         Stream.of(
@@ -257,7 +270,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             .collect(Collectors.toList());
     List<Integer> coinType1 = Stream.of(0, 1, 2, 3, 4, 5).collect(Collectors.toList());
     List<Object> parameters1 = Arrays.asList(address, coinType1);
-  String data = PublicMethod.parametersString(parameters1);
+    String data = PublicMethod.parametersString(parameters1);
 
     logger.info("data2:" + data);
     GrpcAPI.TransactionExtention transactionExtention =
@@ -273,7 +286,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             ownerAddressByte,
             ownerKey,
             blockingStubFull);
-  String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
     logger.info("hexBalance:" + hexBalance);
     Assert.assertEquals(
         (long) Math.pow(10, 3) - 50, Long.parseLong(hexBalance.substring(128, 192), 16));
@@ -322,10 +335,13 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     Assert.assertEquals(1, Long.parseLong(hexBalance.substring(448, 512), 16));
   }
 
-  @Test(enabled = true, description = "Trc1155Holder can receive trc1155", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Trc1155Holder can receive trc1155",
+      groups = {"daily"})
   public void test05Trc1155HolderCanReceiveTrc1155() {
     List<Object> parameters = Arrays.asList(holderAddressString, true);
-  String data = PublicMethod.parametersString(parameters);
+    String data = PublicMethod.parametersString(parameters);
     logger.info("data:" + data);
     txid =
         PublicMethod.triggerContract(
@@ -343,9 +359,9 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     logger.info("setApprovalForAll_txid:" + txid);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
-  int coinType = 0;
-  int coinAmount = 10;
-  String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
+    int coinType = 0;
+    int coinAmount = 10;
+    String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
     parameters =
         Arrays.asList(ownerAddressString, holderAddressString, coinType, coinAmount, bytes);
     data = PublicMethod.parametersString(parameters);
@@ -365,7 +381,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     logger.info("safeTransferFrom_txid:" + txid);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Optional<Protocol.Transaction> byId = PublicMethod.getTransactionById(txid, blockingStubFull);
-  String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
+    String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
     Assert.assertTrue(s.contains(bytes));
     logger.info("infobyid1 : --- " + byId);
 
@@ -387,16 +403,19 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             ownerAddressByte,
             ownerKey,
             blockingStubFull);
-  String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
     long result = Long.parseLong(hexBalance, 16);
     Assert.assertEquals(coinAmount, result);
   }
 
-  @Test(enabled = true, description = "Trc1155Holder can receive trc1155[]", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Trc1155Holder can receive trc1155[]",
+      groups = {"daily"})
   public void test06Trc1155HolderCanReceiveTrc1155_01() {
 
     List<Object> parameters = Arrays.asList(holderAddressString, true);
-  String data = PublicMethod.parametersString(parameters);
+    String data = PublicMethod.parametersString(parameters);
     logger.info("data:" + data);
     txid =
         PublicMethod.triggerContract(
@@ -414,16 +433,16 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     logger.info("setApprovalForAll_txid:" + txid);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
-  int trxAmount = 50;
-  int bttAmount = 30;
-  int winAmount = 25;
-  int sunAmount = 10;
-  int apenftAmount = 1;
+    int trxAmount = 50;
+    int bttAmount = 30;
+    int winAmount = 25;
+    int sunAmount = 10;
+    int apenftAmount = 1;
     List<Object> coinType = Stream.of(0, 1, 2, 3, 4).collect(Collectors.toList());
     List<Object> coinAmount =
         Stream.of(trxAmount, bttAmount, winAmount, sunAmount, apenftAmount)
             .collect(Collectors.toList());
-  String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
+    String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
     parameters =
         Arrays.asList(ownerAddressString, holderAddressString, coinType, coinAmount, bytes);
     data = PublicMethod.parametersString(parameters);
@@ -444,7 +463,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid1 : --- " + infoById);
     Optional<Protocol.Transaction> byId = PublicMethod.getTransactionById(txid, blockingStubFull);
-  String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
+    String s = ByteArray.toHexString(byId.get().getRawData().getContract(0).toByteArray());
     Assert.assertTrue(s.contains(bytes));
     List<Object> address =
         Stream.of(
@@ -472,7 +491,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             ownerAddressByte,
             ownerKey,
             blockingStubFull);
-  String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention.getConstantResult(0).toByteArray());
     Assert.assertEquals(trxAmount + 10, Long.parseLong(hexBalance.substring(128, 192), 16));
     Assert.assertEquals(bttAmount, Long.parseLong(hexBalance.substring(192, 256), 16));
     Assert.assertEquals(winAmount, Long.parseLong(hexBalance.substring(256, 320), 16));
@@ -481,10 +500,13 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     Assert.assertEquals(0, Long.parseLong(hexBalance.substring(448, 512), 16));
   }
 
-  @Test(enabled = true, description = "Non-trc1155Holder can not receive trc1155", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Non-trc1155Holder can not receive trc1155",
+      groups = {"daily"})
   public void test07NonTrc1155HolderCanNotReceiveTrc1155() {
     List<Object> parameters = Arrays.asList(noHolderAddress, true);
-  String data = PublicMethod.parametersString(parameters);
+    String data = PublicMethod.parametersString(parameters);
     logger.info("data:" + data);
     txid =
         PublicMethod.triggerContract(
@@ -502,9 +524,9 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
     logger.info("setApprovalForAll_txid:" + txid);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info("infobyid : --- " + infoById);
-  String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
+    String bytes = "0000000000000000000000000000000000e6b58be8af95e5ad97e7aca6e4b8b2";
     List<Object> parameters1 = Arrays.asList(ownerAddressString, noHolderAddress, 1, 1, bytes);
-  String data1 = PublicMethod.parametersString(parameters1);
+    String data1 = PublicMethod.parametersString(parameters1);
     logger.info("data:" + data1);
     txid =
         PublicMethod.triggerContract(
@@ -537,7 +559,7 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
             ownerAddressByte,
             ownerKey,
             blockingStubFull);
-  String hexBalance = Hex.toHexString(transactionExtention1.getConstantResult(0).toByteArray());
+    String hexBalance = Hex.toHexString(transactionExtention1.getConstantResult(0).toByteArray());
     long result = Long.parseLong(hexBalance, 16);
     Assert.assertEquals(0, result);
   }
@@ -548,12 +570,12 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
         PublicMethod.sendcoin(
             ownerAddressByte, 500000000000L, fromAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String contractName = "TronCoins";
-  String filePath = "./src/test/resources/soliditycode/contractTrc1155.sol";
+    String contractName = "TronCoins";
+    String filePath = "./src/test/resources/soliditycode/contractTrc1155.sol";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  int deploySuccessFlag = 1;
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    int deploySuccessFlag = 1;
     Integer retryTimes = 5;
 
     while (retryTimes-- > 0 && deploySuccessFlag != 0) {
@@ -593,11 +615,11 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
   /** constructor. */
   public void deployHolder() throws Exception {
     String contractName = "MyContractCanReceiver";
-  String filePath = "./src/test/resources/soliditycode/contractTrc1155.sol";
+    String filePath = "./src/test/resources/soliditycode/contractTrc1155.sol";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  String txid =
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    String txid =
         PublicMethod.deployContractAndGetTransactionInfoById(
             contractName,
             abi,
@@ -629,11 +651,11 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
   /** constructor. */
   public void deployNoHolder() throws Exception {
     String contractName = "MyContractCanNotReceiver";
-  String filePath = "./src/test/resources/soliditycode/contractTrc1155.sol";
+    String filePath = "./src/test/resources/soliditycode/contractTrc1155.sol";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  String txid =
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    String txid =
         PublicMethod.deployContractAndGetTransactionInfoById(
             contractName,
             abi,
@@ -664,5 +686,6 @@ public class ContractTrc1155 extends TronBaseTest {  private final String fullno
   /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod.freeResource(fromAddress, ownerKey, ownerAddressByte, blockingStubFull);  }
+    PublicMethod.freeResource(fromAddress, ownerKey, ownerAddressByte, blockingStubFull);
+  }
 }

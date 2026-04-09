@@ -114,8 +114,8 @@ public class SpendDescriptionCapsule implements ProtoCapsule<SpendDescription> {
   }
 
   public void setSpendAuthoritySignature(ByteString bytes) {
-    this.spendDescription = this.spendDescription.toBuilder().setSpendAuthoritySignature(bytes)
-        .build();
+    this.spendDescription =
+        this.spendDescription.toBuilder().setSpendAuthoritySignature(bytes).build();
   }
 
   @Override

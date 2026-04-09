@@ -19,25 +19,23 @@
 package stest.tron.wallet.common.client.utils.cryptohash;
 
 /**
- * Copyright (c) 2007-2010  Projet RNRT SAPHIR
+ * Copyright (c) 2007-2010 Projet RNRT SAPHIR
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge, publish, distribute,
  * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or
+ * <p>The above copyright notice and this permission notice shall be included in all copies or
  * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-
 public interface Digest {
 
   /**
@@ -115,22 +113,25 @@ public interface Digest {
   Digest copy();
 
   /**
-   * <p>Return the "block length" for the hash function. This value is naturally defined for
-   * iterated hash functions (Merkle-Damgard). It is used in HMAC (that's what the <a
+   * Return the "block length" for the hash function. This value is naturally defined for iterated
+   * hash functions (Merkle-Damgard). It is used in HMAC (that's what the <a
    * href="http://tools.ietf.org/html/rfc2104">HMAC specification</a> names the "{@code B}"
-   * parameter).</p> <p> <p>If the function is "block-less" then this function may return {@code -n}
-   * where {@code n} is an integer such that the block length for HMAC ("{@code B}") will be
-   * inferred from the key length, by selecting the smallest multiple of {@code n} which is no
-   * smaller than the key length. For instance, for the Fugue-xxx hash functions, this function
-   * returns -4: the virtual block length B is the HMAC key length, rounded up to the next multiple
-   * of 4.</p>
+   * parameter).
+   *
+   * <p>
+   *
+   * <p>If the function is "block-less" then this function may return {@code -n} where {@code n} is
+   * an integer such that the block length for HMAC ("{@code B}") will be inferred from the key
+   * length, by selecting the smallest multiple of {@code n} which is no smaller than the key
+   * length. For instance, for the Fugue-xxx hash functions, this function returns -4: the virtual
+   * block length B is the HMAC key length, rounded up to the next multiple of 4.
    *
    * @return the internal block length (in bytes), or {@code -n}
    */
   int getBlockLength();
 
   /**
-   * <p>Get the display name for this function (e.g. {@code "SHA-1"} for SHA-1).</p>
+   * Get the display name for this function (e.g. {@code "SHA-1"} for SHA-1).
    *
    * @see Object
    */

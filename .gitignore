@@ -55,3 +55,7 @@ nodeId.properties
 
 # vm_trace
 /vm_trace/
+
+#test dependence
+solcDIR
+gRPCurl

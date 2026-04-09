@@ -19,25 +19,24 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
 
 @Slf4j
-public class GetBlockByLatestNum2Test extends TronBaseTest {  public static String loadPubKey() {
+public class GetBlockByLatestNum2Test extends TronBaseTest {
+  public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void testGetBlockByLatestNum2() {
     //
-    GrpcAPI.BlockExtention currentBlock = blockingStubFull
-        .getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    GrpcAPI.BlockExtention currentBlock =
+        blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
+    Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Assert.assertFalse(currentBlockNum < 0);
     while (currentBlockNum <= 5) {
       logger.info("Now the block num is " + Long.toString(currentBlockNum) + " Please wait");
@@ -53,7 +52,12 @@ public class GetBlockByLatestNum2Test extends TronBaseTest {  public static Stri
     Assert.assertTrue(
         getBlockByLatestNum.get().getBlock(1).getBlockHeader().getRawData().getNumber() > 0);
     Assert.assertFalse(
-        getBlockByLatestNum.get().getBlock(2).getBlockHeader().getRawData().getParentHash()
+        getBlockByLatestNum
+            .get()
+            .getBlock(2)
+            .getBlockHeader()
+            .getRawData()
+            .getParentHash()
             .isEmpty());
     logger.info("TestGetBlockByLatestNum ok!!!");
     Assert.assertFalse(getBlockByLatestNum.get().getBlock(0).getBlockid().isEmpty());
@@ -61,11 +65,13 @@ public class GetBlockByLatestNum2Test extends TronBaseTest {  public static Stri
     Assert.assertFalse(getBlockByLatestNum.get().getBlock(2).getBlockid().isEmpty());
   }
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void testGetBlockByExceptionNum2() {
-    GrpcAPI.BlockExtention currentBlock = blockingStubFull
-        .getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    GrpcAPI.BlockExtention currentBlock =
+        blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build());
+    Long currentBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
     Assert.assertFalse(currentBlockNum < 0);
     while (currentBlockNum <= 5) {
       logger.info("Now the block num is " + Long.toString(currentBlockNum) + " Please wait");
@@ -76,35 +82,30 @@ public class GetBlockByLatestNum2Test extends TronBaseTest {  public static Stri
     GrpcAPI.BlockListExtention blockList = blockingStubFull.getBlockByLatestNum2(numberMessage);
     Optional<GrpcAPI.BlockListExtention> getBlockByLatestNum = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLatestNum.get().getBlockCount() == 0);
-  //Assert.assertTrue(getBlockByLatestNum.get().getBlock(1).getBlockid().isEmpty());
+    // Assert.assertTrue(getBlockByLatestNum.get().getBlock(1).getBlockid().isEmpty());
 
     numberMessage = NumberMessage.newBuilder().setNum(0).build();
     blockList = blockingStubFull.getBlockByLatestNum2(numberMessage);
     getBlockByLatestNum = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLatestNum.get().getBlockCount() == 0);
-  //Assert.assertTrue(getBlockByLatestNum.get().getBlock(1).getBlockid().isEmpty());
+    // Assert.assertTrue(getBlockByLatestNum.get().getBlock(1).getBlockid().isEmpty());
 
     numberMessage = NumberMessage.newBuilder().setNum(100).build();
     blockList = blockingStubFull.getBlockByLatestNum2(numberMessage);
     getBlockByLatestNum = Optional.ofNullable(blockList);
     Assert.assertTrue(getBlockByLatestNum.get().getBlockCount() == 0);
-  //Assert.assertTrue(getBlockByLatestNum.get().getBlock(10).getBlockid().isEmpty());
+    // Assert.assertTrue(getBlockByLatestNum.get().getBlock(10).getBlockid().isEmpty());
 
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -113,13 +114,13 @@ public class GetBlockByLatestNum2Test extends TronBaseTest {  public static Stri
     }
     ECKey ecKey = temKey;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -129,24 +130,17 @@ public class GetBlockByLatestNum2Test extends TronBaseTest {  public static Stri
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 }
-
-

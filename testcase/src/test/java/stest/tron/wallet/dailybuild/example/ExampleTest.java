@@ -18,13 +18,14 @@ import stest.tron.wallet.common.client.utils.Utils;
  * Example test class demonstrating best practices for TRON system tests.
  *
  * <p>Key patterns shown:
+ *
  * <ul>
  *   <li>Extend {@link TronBaseTest} - provides channelFull, blockingStubFull,
- *       foundationKey/Address, witnessKey/Address, maxFeeLimit</li>
- *   <li>Use {@link TronConstants} - eliminates magic numbers</li>
- *   <li>Use {@link RetryUtil} - replaces manual retry loops</li>
- *   <li>Use Helper classes - AccountHelper, ContractHelper, etc.</li>
- *   <li>Use TestNG groups - for selective test execution</li>
+ *       foundationKey/Address, witnessKey/Address, maxFeeLimit
+ *   <li>Use {@link TronConstants} - eliminates magic numbers
+ *   <li>Use {@link RetryUtil} - replaces manual retry loops
+ *   <li>Use Helper classes - AccountHelper, ContractHelper, etc.
+ *   <li>Use TestNG groups - for selective test execution
  * </ul>
  */
 @Slf4j
@@ -36,47 +37,59 @@ public class ExampleTest extends TronBaseTest {
   private String testKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   /**
-   * Setup: fund the test account from foundation.
-   * Note: channelFull and blockingStubFull are already initialized by TronBaseTest.
+   * Setup: fund the test account from foundation. Note: channelFull and blockingStubFull are
+   * already initialized by TronBaseTest.
    */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethod.printAddress(testKey);
-    Assert.assertTrue(PublicMethod.sendcoin(testAddress, TronConstants.TEN_TRX,
-        foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            testAddress,
+            TronConstants.TEN_TRX,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Verify test account received funds",
+  @Test(
+      enabled = true,
+      description = "Verify test account received funds",
       groups = {"daily", "smoke"})
   public void test01AccountBalance() {
     Account account = PublicMethod.queryAccount(testAddress, blockingStubFull);
-    Assert.assertTrue(account.getBalance() > 0,
-        "Test account should have positive balance after funding");
+    Assert.assertTrue(
+        account.getBalance() > 0, "Test account should have positive balance after funding");
     logger.info("Test account balance: {} sun", account.getBalance());
   }
 
-  @Test(enabled = true, description = "Transfer TRX and verify with RetryUtil",
+  @Test(
+      enabled = true,
+      description = "Transfer TRX and verify with RetryUtil",
       groups = {"daily"})
   public void test02TransferWithRetry() {
     ECKey receiver = new ECKey(Utils.getRandom());
     long amount = TronConstants.ONE_TRX;
 
-    Assert.assertTrue(PublicMethod.sendcoin(receiver.getAddress(), amount,
-        testAddress, testKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            receiver.getAddress(), amount, testAddress, testKey, blockingStubFull));
 
     // Use RetryUtil instead of manual while + Thread.sleep loops
-    boolean confirmed = RetryUtil.waitUntil(() -> {
-      Account account = PublicMethod.queryAccount(receiver.getAddress(), blockingStubFull);
-      return account.getBalance() >= amount;
-    });
+    boolean confirmed =
+        RetryUtil.waitUntil(
+            () -> {
+              Account account = PublicMethod.queryAccount(receiver.getAddress(), blockingStubFull);
+              return account.getBalance() >= amount;
+            });
 
     Assert.assertTrue(confirmed, "Receiver should have received TRX within retry window");
   }
 
   /**
-   * Cleanup: return remaining funds to foundation.
-   * Note: channel shutdown is handled automatically by TronBaseTest.closeChannels().
+   * Cleanup: return remaining funds to foundation. Note: channel shutdown is handled automatically
+   * by TronBaseTest.closeChannels().
    */
   @AfterClass(enabled = true)
   public void afterClass() {

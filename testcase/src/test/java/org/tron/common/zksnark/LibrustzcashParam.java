@@ -2,7 +2,7 @@ package org.tron.common.zksnark;
 
 import lombok.Getter;
 import lombok.Setter;
-import stest.tron.wallet.common.client.utils.ByteArray; import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ByteUtil;
 import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 
@@ -68,21 +68,14 @@ public class LibrustzcashParam {
 
   public static class InitZksnarkParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private String spend_path;
-    @Setter
-    @Getter
-    private String spend_hash;
-    @Setter
-    @Getter
-    private String output_path;
-    @Setter
-    @Getter
-    private String output_hash;
+    @Setter @Getter private String spend_path;
+    @Setter @Getter private String spend_hash;
+    @Setter @Getter private String output_path;
+    @Setter @Getter private String output_hash;
 
-    public InitZksnarkParams(String spend_path, String spend_hash, String output_path,
-        String output_hash) throws ZksnarkException {
+    public InitZksnarkParams(
+        String spend_path, String spend_hash, String output_path, String output_hash)
+        throws ZksnarkException {
       this.spend_path = spend_path;
       this.spend_hash = spend_hash;
       this.output_path = output_path;
@@ -91,22 +84,14 @@ public class LibrustzcashParam {
     }
 
     @Override
-    public void valid() throws ZksnarkException {
-
-    }
+    public void valid() throws ZksnarkException {}
   }
 
   public static class Zip32XskMasterParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] data;
-    @Setter
-    @Getter
-    private int size;
-    @Setter
-    @Getter
-    private byte[] m_bytes;
+    @Setter @Getter private byte[] data;
+    @Setter @Getter private int size;
+    @Setter @Getter private byte[] m_bytes;
 
     public Zip32XskMasterParams(byte[] data, int size, byte[] m_bytes) throws ZksnarkException {
       this.data = data;
@@ -128,25 +113,15 @@ public class LibrustzcashParam {
     }
 
     @Override
-    public void valid() throws ZksnarkException {
-
-    }
+    public void valid() throws ZksnarkException {}
   }
 
   public static class Zip32XfvkAddressParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] xfvk;
-    @Setter
-    @Getter
-    private byte[] j;
-    @Setter
-    @Getter
-    private byte[] j_ret;
-    @Setter
-    @Getter
-    private byte[] addr_ret;
+    @Setter @Getter private byte[] xfvk;
+    @Setter @Getter private byte[] j;
+    @Setter @Getter private byte[] j_ret;
+    @Setter @Getter private byte[] addr_ret;
 
     public Zip32XfvkAddressParams(byte[] xfvk, byte[] j, byte[] j_ret, byte[] addr_ret)
         throws ZksnarkException {
@@ -158,9 +133,7 @@ public class LibrustzcashParam {
     }
 
     @Override
-    public void valid() throws ZksnarkException {
-
-    }
+    public void valid() throws ZksnarkException {}
   }
 
   /**
@@ -169,15 +142,9 @@ public class LibrustzcashParam {
    */
   public static class CrhIvkParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] ak;
-    @Setter
-    @Getter
-    private byte[] nk;
-    @Setter
-    @Getter
-    private byte[] ivk;
+    @Setter @Getter private byte[] ak;
+    @Setter @Getter private byte[] nk;
+    @Setter @Getter private byte[] ivk;
 
     public CrhIvkParams(byte[] ak, byte[] nk, byte[] ivk) throws ZksnarkException {
       this.ak = ak;
@@ -194,20 +161,12 @@ public class LibrustzcashParam {
     }
   }
 
-  /**
-   * KaAgree(sk,p)=[h_J*sk]p p: point, 32 bytes sk: 32 bytes result: 32 bytes
-   */
+  /** KaAgree(sk,p)=[h_J*sk]p p: point, 32 bytes sk: 32 bytes result: 32 bytes */
   public static class KaAgreeParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] p;
-    @Setter
-    @Getter
-    private byte[] sk;
-    @Setter
-    @Getter
-    private byte[] result;
+    @Setter @Getter private byte[] p;
+    @Setter @Getter private byte[] sk;
+    @Setter @Getter private byte[] result;
 
     public KaAgreeParams(byte[] p, byte[] sk, byte[] result) throws ZksnarkException {
       this.p = p;
@@ -225,26 +184,16 @@ public class LibrustzcashParam {
   }
 
   /**
-   * Compute note commitment d: diversifier, 11 bytes pkD: 32 bytes r: rcm,  32 bytes cm: note
+   * Compute note commitment d: diversifier, 11 bytes pkD: 32 bytes r: rcm, 32 bytes cm: note
    * commitment, 32 bytes, value >= 0
    */
   public static class ComputeCmParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] d;
-    @Setter
-    @Getter
-    private byte[] pkD;
-    @Setter
-    @Getter
-    private long value;
-    @Setter
-    @Getter
-    private byte[] r;
-    @Setter
-    @Getter
-    private byte[] cm;
+    @Setter @Getter private byte[] d;
+    @Setter @Getter private byte[] pkD;
+    @Setter @Getter private long value;
+    @Setter @Getter private byte[] r;
+    @Setter @Getter private byte[] cm;
 
     public ComputeCmParams(byte[] d, byte[] pkD, long value, byte[] r, byte[] cm)
         throws ZksnarkException {
@@ -267,39 +216,31 @@ public class LibrustzcashParam {
   }
 
   /**
-   * compute nullifier d: diversifier, 11 bytes pkD, 32 bytes r: rcm,  32 bytes ak:
+   * compute nullifier d: diversifier, 11 bytes pkD, 32 bytes r: rcm, 32 bytes ak:
    * spendAuthSig.PulicKey, 32 bytes nk: to genarate nullifier, 32 bytes result: nullifier, 32
    * bytes, value >= 0, position >= 0
    */
   public static class ComputeNfParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] d;
-    @Setter
-    @Getter
-    private byte[] pkD;
-    @Setter
-    @Getter
-    private long value;
-    @Setter
-    @Getter
-    private byte[] r;
-    @Setter
-    @Getter
-    private byte[] ak;
-    @Setter
-    @Getter
-    private byte[] nk;
-    @Setter
-    @Getter
-    private long position;
-    @Setter
-    @Getter
-    private byte[] result;
+    @Setter @Getter private byte[] d;
+    @Setter @Getter private byte[] pkD;
+    @Setter @Getter private long value;
+    @Setter @Getter private byte[] r;
+    @Setter @Getter private byte[] ak;
+    @Setter @Getter private byte[] nk;
+    @Setter @Getter private long position;
+    @Setter @Getter private byte[] result;
 
-    public ComputeNfParams(byte[] d, byte[] pkD, long value, byte[] r, byte[] ak, byte[] nk,
-        long position, byte[] result) throws ZksnarkException {
+    public ComputeNfParams(
+        byte[] d,
+        byte[] pkD,
+        long value,
+        byte[] r,
+        byte[] ak,
+        byte[] nk,
+        long position,
+        byte[] result)
+        throws ZksnarkException {
       this.d = d;
       this.pkD = pkD;
       this.value = value;
@@ -324,20 +265,12 @@ public class LibrustzcashParam {
     }
   }
 
-  /**
-   * diversifier: d, 11 bytes esk: 32 bytes result: return 32 bytes
-   */
+  /** diversifier: d, 11 bytes esk: 32 bytes result: return 32 bytes */
   public static class KaDerivepublicParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] diversifier;
-    @Setter
-    @Getter
-    private byte[] esk;
-    @Setter
-    @Getter
-    private byte[] result;
+    @Setter @Getter private byte[] diversifier;
+    @Setter @Getter private byte[] esk;
+    @Setter @Getter private byte[] result;
 
     public KaDerivepublicParams(byte[] diversifier, byte[] esk, byte[] result)
         throws ZksnarkException {
@@ -363,46 +296,33 @@ public class LibrustzcashParam {
    */
   public static class SpendProofParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long ctx;
-    @Setter
-    @Getter
-    private byte[] ak;
-    @Setter
-    @Getter
-    private byte[] nsk;
-    @Setter
-    @Getter
-    private byte[] d;
-    @Setter
-    @Getter
-    private byte[] r;
-    @Setter
-    @Getter
-    private byte[] alpha;
-    @Setter
-    @Getter
-    private long value;
-    @Setter
-    @Getter
-    private byte[] anchor;
-    @Setter
-    @Getter
-    private byte[] voucherPath;
-    @Setter
-    @Getter
-    private byte[] cv;
-    @Setter
-    @Getter
-    private byte[] rk;
-    @Setter
-    @Getter
-    private byte[] zkproof;
+    @Setter @Getter private long ctx;
+    @Setter @Getter private byte[] ak;
+    @Setter @Getter private byte[] nsk;
+    @Setter @Getter private byte[] d;
+    @Setter @Getter private byte[] r;
+    @Setter @Getter private byte[] alpha;
+    @Setter @Getter private long value;
+    @Setter @Getter private byte[] anchor;
+    @Setter @Getter private byte[] voucherPath;
+    @Setter @Getter private byte[] cv;
+    @Setter @Getter private byte[] rk;
+    @Setter @Getter private byte[] zkproof;
 
-    public SpendProofParams(long ctx, byte[] ak, byte[] nsk, byte[] d, byte[] r,
-        byte[] alpha, long value, byte[] anchor, byte[] voucherPath, byte[] cv, byte[] rk,
-        byte[] zkproof) throws ZksnarkException {
+    public SpendProofParams(
+        long ctx,
+        byte[] ak,
+        byte[] nsk,
+        byte[] d,
+        byte[] r,
+        byte[] alpha,
+        long value,
+        byte[] anchor,
+        byte[] voucherPath,
+        byte[] cv,
+        byte[] rk,
+        byte[] zkproof)
+        throws ZksnarkException {
       this.ctx = ctx;
       this.ak = ak;
       this.nsk = nsk;
@@ -418,8 +338,7 @@ public class LibrustzcashParam {
       valid();
     }
 
-    public static SpendProofParams decode(long ctx, byte[] data)
-        throws ZksnarkException {
+    public static SpendProofParams decode(long ctx, byte[] data) throws ZksnarkException {
       byte[] ak = new byte[32];
       byte[] nsk = new byte[32];
       byte[] d = new byte[11];
@@ -444,8 +363,19 @@ public class LibrustzcashParam {
       System.arraycopy(data, 211 + 1065, rk, 0, 192);
       System.arraycopy(data, 243 + 1065, zkproof, 0, 64);
 
-      return new SpendProofParams(ctx, ak, nsk, d, r, alpha, ByteArray.toLong(valueByte),
-          anchor, voucherPath, cv, rk, zkproof);
+      return new SpendProofParams(
+          ctx,
+          ak,
+          nsk,
+          d,
+          r,
+          alpha,
+          ByteArray.toLong(valueByte),
+          anchor,
+          voucherPath,
+          cv,
+          rk,
+          zkproof);
     }
 
     @Override
@@ -488,33 +418,18 @@ public class LibrustzcashParam {
    */
   public static class OutputProofParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long ctx;
-    @Setter
-    @Getter
-    private byte[] esk;
-    @Setter
-    @Getter
-    private byte[] d;
-    @Setter
-    @Getter
-    private byte[] pkD;
-    @Setter
-    @Getter
-    private byte[] r;
-    @Setter
-    @Getter
-    private long value;
-    @Setter
-    @Getter
-    private byte[] cv;
-    @Setter
-    @Getter
-    private byte[] zkproof;
+    @Setter @Getter private long ctx;
+    @Setter @Getter private byte[] esk;
+    @Setter @Getter private byte[] d;
+    @Setter @Getter private byte[] pkD;
+    @Setter @Getter private byte[] r;
+    @Setter @Getter private long value;
+    @Setter @Getter private byte[] cv;
+    @Setter @Getter private byte[] zkproof;
 
-    public OutputProofParams(long ctx, byte[] esk, byte[] d, byte[] pkD, byte[] r,
-        long value, byte[] cv, byte[] zkproof) throws ZksnarkException {
+    public OutputProofParams(
+        long ctx, byte[] esk, byte[] d, byte[] pkD, byte[] r, long value, byte[] cv, byte[] zkproof)
+        throws ZksnarkException {
       this.ctx = ctx;
       this.esk = esk;
       this.d = d;
@@ -544,18 +459,10 @@ public class LibrustzcashParam {
    */
   public static class SpendSigParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] ask;
-    @Setter
-    @Getter
-    private byte[] alpha;
-    @Setter
-    @Getter
-    private byte[] sigHash;
-    @Setter
-    @Getter
-    private byte[] result;
+    @Setter @Getter private byte[] ask;
+    @Setter @Getter private byte[] alpha;
+    @Setter @Getter private byte[] sigHash;
+    @Setter @Getter private byte[] result;
 
     public SpendSigParams(byte[] ask, byte[] alpha, byte[] sigHash, byte[] result)
         throws ZksnarkException {
@@ -581,18 +488,10 @@ public class LibrustzcashParam {
    */
   public static class BindingSigParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long ctx;
-    @Setter
-    @Getter
-    private long valueBalance;
-    @Setter
-    @Getter
-    private byte[] sighash;
-    @Setter
-    @Getter
-    private byte[] result;
+    @Setter @Getter private long ctx;
+    @Setter @Getter private long valueBalance;
+    @Setter @Getter private byte[] sighash;
+    @Setter @Getter private byte[] result;
 
     public BindingSigParams(long ctx, long valueBalance, byte[] sighash, byte[] result)
         throws ZksnarkException {
@@ -617,33 +516,24 @@ public class LibrustzcashParam {
    */
   public static class CheckSpendParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long ctx;
-    @Setter
-    @Getter
-    private byte[] cv;
-    @Setter
-    @Getter
-    private byte[] anchor;
-    @Setter
-    @Getter
-    private byte[] nullifier;
-    @Setter
-    @Getter
-    private byte[] rk;
-    @Setter
-    @Getter
-    private byte[] zkproof;
-    @Setter
-    @Getter
-    private byte[] spendAuthSig;
-    @Setter
-    @Getter
-    private byte[] sighashValue;
+    @Setter @Getter private long ctx;
+    @Setter @Getter private byte[] cv;
+    @Setter @Getter private byte[] anchor;
+    @Setter @Getter private byte[] nullifier;
+    @Setter @Getter private byte[] rk;
+    @Setter @Getter private byte[] zkproof;
+    @Setter @Getter private byte[] spendAuthSig;
+    @Setter @Getter private byte[] sighashValue;
 
-    public CheckSpendParams(long ctx, byte[] cv, byte[] anchor, byte[] nullifier,
-        byte[] rk, byte[] zkproof, byte[] spendAuthSig, byte[] sighashValue)
+    public CheckSpendParams(
+        long ctx,
+        byte[] cv,
+        byte[] anchor,
+        byte[] nullifier,
+        byte[] rk,
+        byte[] zkproof,
+        byte[] spendAuthSig,
+        byte[] sighashValue)
         throws ZksnarkException {
       this.ctx = ctx;
       this.cv = cv;
@@ -672,8 +562,8 @@ public class LibrustzcashParam {
       System.arraycopy(data, 128, zkproof, 0, 192);
       System.arraycopy(data, 320, spendAuthSig, 0, 64);
 
-      return new CheckSpendParams(ctx, cv, anchor, nullifier, rk, zkproof, spendAuthSig,
-          sigHashValue);
+      return new CheckSpendParams(
+          ctx, cv, anchor, nullifier, rk, zkproof, spendAuthSig, sigHashValue);
     }
 
     @Override
@@ -694,24 +584,14 @@ public class LibrustzcashParam {
    */
   public static class CheckOutputParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long ctx;
-    @Setter
-    @Getter
-    private byte[] cv;
-    @Setter
-    @Getter
-    private byte[] cm;
-    @Setter
-    @Getter
-    private byte[] ephemeralKey;
-    @Setter
-    @Getter
-    private byte[] zkproof;
+    @Setter @Getter private long ctx;
+    @Setter @Getter private byte[] cv;
+    @Setter @Getter private byte[] cm;
+    @Setter @Getter private byte[] ephemeralKey;
+    @Setter @Getter private byte[] zkproof;
 
-    public CheckOutputParams(long ctx, byte[] cv, byte[] cm, byte[] ephemeralKey,
-        byte[] zkproof) throws ZksnarkException {
+    public CheckOutputParams(long ctx, byte[] cv, byte[] cm, byte[] ephemeralKey, byte[] zkproof)
+        throws ZksnarkException {
       this.ctx = ctx;
       this.cv = cv;
       this.cm = cm;
@@ -720,8 +600,7 @@ public class LibrustzcashParam {
       valid();
     }
 
-    public static CheckOutputParams decode(long ctx, byte[] data)
-        throws ZksnarkException {
+    public static CheckOutputParams decode(long ctx, byte[] data) throws ZksnarkException {
       byte[] cv = new byte[32];
       byte[] cm = new byte[32];
       byte[] ephemeralKey = new byte[32];
@@ -735,8 +614,7 @@ public class LibrustzcashParam {
       return new CheckOutputParams(ctx, cv, cm, ephemeralKey, zkproof);
     }
 
-    public static CheckOutputParams decodeZ(long ctx, byte[] data)
-        throws ZksnarkException {
+    public static CheckOutputParams decodeZ(long ctx, byte[] data) throws ZksnarkException {
       byte[] cv = new byte[32];
       byte[] cm = new byte[32];
       byte[] ephemeralKey = new byte[32];
@@ -768,26 +646,16 @@ public class LibrustzcashParam {
     }
   }
 
-  /**
-   * bindingSig: 64 bytes sighashValue: sha256 of transaction,32 bytes
-   */
+  /** bindingSig: 64 bytes sighashValue: sha256 of transaction,32 bytes */
   public static class FinalCheckParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long ctx;
-    @Setter
-    @Getter
-    private long valueBalance;
-    @Setter
-    @Getter
-    private byte[] bindingSig;
-    @Setter
-    @Getter
-    private byte[] sighashValue;
+    @Setter @Getter private long ctx;
+    @Setter @Getter private long valueBalance;
+    @Setter @Getter private byte[] bindingSig;
+    @Setter @Getter private byte[] sighashValue;
 
-    public FinalCheckParams(long ctx, long valueBalance, byte[] bindingSig,
-        byte[] sighashValue) throws ZksnarkException {
+    public FinalCheckParams(long ctx, long valueBalance, byte[] bindingSig, byte[] sighashValue)
+        throws ZksnarkException {
       this.ctx = ctx;
       this.valueBalance = valueBalance;
       this.bindingSig = bindingSig;
@@ -809,30 +677,22 @@ public class LibrustzcashParam {
    */
   public static class CheckSpendNewParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] cv;
-    @Setter
-    @Getter
-    private byte[] anchor;
-    @Setter
-    @Getter
-    private byte[] nullifier;
-    @Setter
-    @Getter
-    private byte[] rk;
-    @Setter
-    @Getter
-    private byte[] zkproof;
-    @Setter
-    @Getter
-    private byte[] spendAuthSig;
-    @Setter
-    @Getter
-    private byte[] sighashValue;
+    @Setter @Getter private byte[] cv;
+    @Setter @Getter private byte[] anchor;
+    @Setter @Getter private byte[] nullifier;
+    @Setter @Getter private byte[] rk;
+    @Setter @Getter private byte[] zkproof;
+    @Setter @Getter private byte[] spendAuthSig;
+    @Setter @Getter private byte[] sighashValue;
 
-    public CheckSpendNewParams(byte[] cv, byte[] anchor, byte[] nullifier,
-        byte[] rk, byte[] zkproof, byte[] spendAuthSig, byte[] sighashValue)
+    public CheckSpendNewParams(
+        byte[] cv,
+        byte[] anchor,
+        byte[] nullifier,
+        byte[] rk,
+        byte[] zkproof,
+        byte[] spendAuthSig,
+        byte[] sighashValue)
         throws ZksnarkException {
       this.cv = cv;
       this.anchor = anchor;
@@ -862,18 +722,10 @@ public class LibrustzcashParam {
    */
   public static class CheckOutputNewParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] cv;
-    @Setter
-    @Getter
-    private byte[] cm;
-    @Setter
-    @Getter
-    private byte[] ephemeralKey;
-    @Setter
-    @Getter
-    private byte[] zkproof;
+    @Setter @Getter private byte[] cv;
+    @Setter @Getter private byte[] cm;
+    @Setter @Getter private byte[] ephemeralKey;
+    @Setter @Getter private byte[] zkproof;
 
     public CheckOutputNewParams(byte[] cv, byte[] cm, byte[] ephemeralKey, byte[] zkproof)
         throws ZksnarkException {
@@ -893,35 +745,26 @@ public class LibrustzcashParam {
     }
   }
 
-  /**
-   * bindingSig: 64 bytes sighashValue: sha256 of transaction,32 bytes,
-   */
+  /** bindingSig: 64 bytes sighashValue: sha256 of transaction,32 bytes, */
   public static class FinalCheckNewParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long valueBalance;
-    @Setter
-    @Getter
-    private byte[] bindingSig;
-    @Setter
-    @Getter
-    private byte[] sighashValue;
-    @Setter
-    @Getter
-    private byte[] spendCv;
-    @Setter
-    @Getter
-    private int spendCvLen;
-    @Setter
-    @Getter
-    private byte[] outputCv;
-    @Setter
-    @Getter
-    private int outputCvLen;
+    @Setter @Getter private long valueBalance;
+    @Setter @Getter private byte[] bindingSig;
+    @Setter @Getter private byte[] sighashValue;
+    @Setter @Getter private byte[] spendCv;
+    @Setter @Getter private int spendCvLen;
+    @Setter @Getter private byte[] outputCv;
+    @Setter @Getter private int outputCvLen;
 
-    public FinalCheckNewParams(long valueBalance, byte[] bindingSig, byte[] sighashValue,
-        byte[] spendCv, int spendCvLen, byte[] outputCv, int outputCvLen) throws ZksnarkException {
+    public FinalCheckNewParams(
+        long valueBalance,
+        byte[] bindingSig,
+        byte[] sighashValue,
+        byte[] spendCv,
+        int spendCvLen,
+        byte[] outputCv,
+        int outputCvLen)
+        throws ZksnarkException {
       this.valueBalance = valueBalance;
       this.bindingSig = bindingSig;
       this.sighashValue = sighashValue;
@@ -949,20 +792,13 @@ public class LibrustzcashParam {
   }
 
   /**
-   * ivk: incoming viewing key, 32 bytes, should be 251bits , not checked; d: 11 bytes pkD: 32
-   * bytes
+   * ivk: incoming viewing key, 32 bytes, should be 251bits , not checked; d: 11 bytes pkD: 32 bytes
    */
   public static class IvkToPkdParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] ivk;
-    @Setter
-    @Getter
-    private byte[] d;
-    @Setter
-    @Getter
-    private byte[] pkD;
+    @Setter @Getter private byte[] ivk;
+    @Setter @Getter private byte[] d;
+    @Setter @Getter private byte[] pkD;
 
     public IvkToPkdParams(byte[] ivk, byte[] d, byte[] pkD) throws ZksnarkException {
       this.ivk = ivk;
@@ -982,23 +818,13 @@ public class LibrustzcashParam {
     }
   }
 
-  /**
-   * 0 <= depth < 63 a: 32 bytes b: 32 bytes result: 32 bytes
-   */
+  /** 0 <= depth < 63 a: 32 bytes b: 32 bytes result: 32 bytes */
   public static class MerkleHashParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private int depth;
-    @Setter
-    @Getter
-    private byte[] a;
-    @Setter
-    @Getter
-    private byte[] b;
-    @Setter
-    @Getter
-    private byte[] result;
+    @Setter @Getter private int depth;
+    @Setter @Getter private byte[] a;
+    @Setter @Getter private byte[] b;
+    @Setter @Getter private byte[] result;
 
     public MerkleHashParams(int depth, byte[] a, byte[] b, byte[] result) throws ZksnarkException {
       this.depth = depth;

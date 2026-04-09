@@ -12,8 +12,8 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestAssetIssue012 extends TronBaseTest {
@@ -23,14 +23,14 @@ public class WalletTestAssetIssue012 extends TronBaseTest {
   private static final long sendAmount = 10000000000L;
   private static final long netCostMeasure = 200L;
   private static String name = "AssetIssue012_" + Long.toString(now);
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   Long freeAssetNetLimit = 10000L;
   Long publicFreeAssetNetLimit = 10000L;
   String description = "for case assetissue012";
   String url = "https://stest.assetissue012.url";
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] asset012Address = ecKey1.getAddress();
   String testKeyForAssetIssue012 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -38,18 +38,19 @@ public class WalletTestAssetIssue012 extends TronBaseTest {
   byte[] transferAssetAddress = ecKey2.getAddress();
   String transferAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     logger.info(testKeyForAssetIssue012);
-    logger.info(transferAssetCreateKey);  }
+    logger.info(transferAssetCreateKey);
+  }
 
-  @Test(enabled = true, description = "Transfer asset use token owner net", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Transfer asset use token owner net",
+      groups = {"daily"})
   public void testTransferAssetUseCreatorNet() {
-    //get account
+    // get account
     ecKey1 = new ECKey(Utils.getRandom());
     asset012Address = ecKey1.getAddress();
     testKeyForAssetIssue012 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -61,67 +62,86 @@ public class WalletTestAssetIssue012 extends TronBaseTest {
     PublicMethod.printAddress(testKeyForAssetIssue012);
     PublicMethod.printAddress(transferAssetCreateKey);
 
-    Assert.assertTrue(PublicMethod
-        .sendcoin(asset012Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            asset012Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethod
-        .freezeBalance(asset012Address, 100000000L, 3, testKeyForAssetIssue012,
-            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(
+            asset012Address, 100000000L, 3, testKeyForAssetIssue012, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long start = System.currentTimeMillis() + 2000;
-  Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethod
-        .createAssetIssue(asset012Address, name, totalSupply, 1, 1, start, end, 1, description,
-            url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L, 1L, testKeyForAssetIssue012,
+    Long start = System.currentTimeMillis() + 2000;
+    Long end = System.currentTimeMillis() + 1000000000;
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            asset012Address,
+            name,
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            freeAssetNetLimit,
+            publicFreeAssetNetLimit,
+            1L,
+            1L,
+            testKeyForAssetIssue012,
             blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethod.queryAccount(asset012Address, blockingStubFull);
     ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
-  //Transfer asset to an account.
-    Assert.assertTrue(PublicMethod.transferAsset(
-        transferAssetAddress, assetAccountId.toByteArray(), 10000000L, asset012Address,
-        testKeyForAssetIssue012, blockingStubFull));
+    // Transfer asset to an account.
+    Assert.assertTrue(
+        PublicMethod.transferAsset(
+            transferAssetAddress,
+            assetAccountId.toByteArray(),
+            10000000L,
+            asset012Address,
+            testKeyForAssetIssue012,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //Before transfer asset issue, query the net used from creator and transfer.
-    AccountNetMessage assetCreatorNet = PublicMethod
-        .getAccountNet(asset012Address, blockingStubFull);
-    AccountNetMessage assetTransferNet = PublicMethod
-        .getAccountNet(transferAssetAddress, blockingStubFull);
-  Long creatorBeforeNetUsed = assetCreatorNet.getNetUsed();
-  Long transferBeforeFreeNetUsed = assetTransferNet.getFreeNetUsed();
+    // Before transfer asset issue, query the net used from creator and transfer.
+    AccountNetMessage assetCreatorNet =
+        PublicMethod.getAccountNet(asset012Address, blockingStubFull);
+    AccountNetMessage assetTransferNet =
+        PublicMethod.getAccountNet(transferAssetAddress, blockingStubFull);
+    Long creatorBeforeNetUsed = assetCreatorNet.getNetUsed();
+    Long transferBeforeFreeNetUsed = assetTransferNet.getFreeNetUsed();
     logger.info(Long.toString(creatorBeforeNetUsed));
     logger.info(Long.toString(transferBeforeFreeNetUsed));
-  //Transfer send some asset issue to default account, to test if this
+    // Transfer send some asset issue to default account, to test if this
     // transaction use the creator net.
-    Assert.assertTrue(PublicMethod.transferAsset(toAddress, assetAccountId.toByteArray(), 1L,
-        transferAssetAddress, transferAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.transferAsset(
+            toAddress,
+            assetAccountId.toByteArray(),
+            1L,
+            transferAssetAddress,
+            transferAssetCreateKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    assetCreatorNet = PublicMethod
-        .getAccountNet(asset012Address, blockingStubFull);
-    assetTransferNet = PublicMethod
-        .getAccountNet(transferAssetAddress, blockingStubFull);
-  Long creatorAfterNetUsed = assetCreatorNet.getNetUsed();
-  Long transferAfterFreeNetUsed = assetTransferNet.getFreeNetUsed();
+    assetCreatorNet = PublicMethod.getAccountNet(asset012Address, blockingStubFull);
+    assetTransferNet = PublicMethod.getAccountNet(transferAssetAddress, blockingStubFull);
+    Long creatorAfterNetUsed = assetCreatorNet.getNetUsed();
+    Long transferAfterFreeNetUsed = assetTransferNet.getFreeNetUsed();
     logger.info(Long.toString(creatorAfterNetUsed));
     logger.info(Long.toString(transferAfterFreeNetUsed));
 
     Assert.assertTrue(creatorAfterNetUsed - creatorBeforeNetUsed > netCostMeasure);
     Assert.assertTrue(transferAfterFreeNetUsed - transferBeforeFreeNetUsed < netCostMeasure);
 
-    PublicMethod
-        .freeResource(asset012Address, testKeyForAssetIssue012, foundationAddress, blockingStubFull);
-    PublicMethod.unFreezeBalance(asset012Address, testKeyForAssetIssue012, 0, asset012Address,
-        blockingStubFull);
+    PublicMethod.freeResource(
+        asset012Address, testKeyForAssetIssue012, foundationAddress, blockingStubFull);
+    PublicMethod.unFreezeBalance(
+        asset012Address, testKeyForAssetIssue012, 0, asset012Address, blockingStubFull);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

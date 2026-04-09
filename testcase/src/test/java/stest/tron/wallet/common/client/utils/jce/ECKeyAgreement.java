@@ -27,11 +27,9 @@ public final class ECKeyAgreement {
 
   public static final String ALGORITHM = "ECDH";
 
-  private static final String algorithmAssertionMsg =
-      "Assumed the JRE supports EC key agreement";
+  private static final String algorithmAssertionMsg = "Assumed the JRE supports EC key agreement";
 
-  private ECKeyAgreement() {
-  }
+  private ECKeyAgreement() {}
 
   public static KeyAgreement getInstance() {
     try {
@@ -41,8 +39,7 @@ public final class ECKeyAgreement {
     }
   }
 
-  public static KeyAgreement getInstance(final String provider) throws
-      NoSuchProviderException {
+  public static KeyAgreement getInstance(final String provider) throws NoSuchProviderException {
     try {
       return KeyAgreement.getInstance(ALGORITHM, provider);
     } catch (NoSuchAlgorithmException ex) {

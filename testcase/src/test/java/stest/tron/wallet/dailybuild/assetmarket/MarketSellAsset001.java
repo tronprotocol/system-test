@@ -1,6 +1,5 @@
 package stest.tron.wallet.dailybuild.assetmarket;
 
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +17,8 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class MarketSellAsset001 extends TronBaseTest {
@@ -50,27 +49,20 @@ public class MarketSellAsset001 extends TronBaseTest {
   /** constructor. */
   @BeforeClass
   public void beforeClass() {
-    initSolidityChannel();    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
+    initSolidityChannel();
+    channelSolidity = ManagedChannelBuilder.forTarget(solidityNode).usePlaintext().build();
     PublicMethod.printAddress(testKey001);
     PublicMethod.printAddress(testKey002);
 
     Assert.assertTrue(
         PublicMethod.sendcoin(
-            testAddress001,
-            20000_000000L,
-            foundationAddress,
-            foundationKey,
-            blockingStubFull));
+            testAddress001, 20000_000000L, foundationAddress, foundationKey, blockingStubFull));
     Assert.assertTrue(
         PublicMethod.sendcoin(
-            testAddress002,
-            20000_000000L,
-            foundationAddress,
-            foundationKey,
-            blockingStubFull));
+            testAddress002, 20000_000000L, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long start = System.currentTimeMillis() + 5000;
-  Long end = System.currentTimeMillis() + 1000000000;
+    Long start = System.currentTimeMillis() + 5000;
+    Long end = System.currentTimeMillis() + 1000000000;
     Assert.assertTrue(
         PublicMethod.createAssetIssue(
             testAddress001,
@@ -123,7 +115,10 @@ public class MarketSellAsset001 extends TronBaseTest {
             .toByteArray();
   }
 
-  @Test(enabled = false, description = "create sellOrder", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "create sellOrder",
+      groups = {"daily"})
   void marketSellAssetTest001() {
 
     String txid =
@@ -146,7 +141,7 @@ public class MarketSellAsset001 extends TronBaseTest {
     Optional<MarketOrderList> orderList =
         PublicMethod.getMarketOrderByAccount(testAddress001, blockingStubFull);
     Assert.assertTrue(orderList.get().getOrdersCount() > 0);
-  byte[] orderId = orderList.get().getOrders(0).getOrderId().toByteArray();
+    byte[] orderId = orderList.get().getOrders(0).getOrderId().toByteArray();
 
     MarketOrder order = PublicMethod.getMarketOrderById(orderId, blockingStubFull).get();
 
@@ -163,12 +158,15 @@ public class MarketSellAsset001 extends TronBaseTest {
     Assert.assertEquals(transaction, transactionFromSolidity);
   }
 
-  @Test(enabled = false, description = "create sellOrder with value excption", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "create sellOrder with value excption",
+      groups = {"daily"})
   void marketSellAssetTest002() {
 
     ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] testAddress = ecKey.getAddress();
-  String testKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
+    byte[] testAddress = ecKey.getAddress();
+    String testKey = ByteArray.toHexString(ecKey.getPrivKeyBytes());
 
     long sendCoinValue = 10000_000000L;
     Assert.assertTrue(
@@ -211,7 +209,10 @@ public class MarketSellAsset001 extends TronBaseTest {
     Assert.assertEquals(account.getBalance(), sendCoinValue);
   }
 
-  @Test(enabled = false, description = "create sellOrder with tokenId excption", groups = {"daily"})
+  @Test(
+      enabled = false,
+      description = "create sellOrder with tokenId excption",
+      groups = {"daily"})
   void marketSellAssetTest003() {
 
     long beforeBalance = PublicMethod.queryAccount(testAddress001, blockingStubFull).getBalance();

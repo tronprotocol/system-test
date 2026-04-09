@@ -43,27 +43,27 @@ public class AttackSendcoin extends TronBaseTest {
   private static long afterNormal3Balance;
   private static long afterNormal4Balance;
   private static long afterAttackBalance;
-  //testng001、testng002、testng003、testng004
+  // testng001、testng002、testng003、testng004
   // all keys below are just for test!!!!!
-  //Devaccount
+  // Devaccount
   private final String testKey001 =
       "8CB4480194192F30907E14B52498F594BD046E21D7C4D8FE866563A6760AC891";
-  //Zion
+  // Zion
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
-  //Sun
+  // Sun
   private final String testKey003 =
       "6815B367FDDE637E53E9ADC8E69424E07724333C9A2B973CFA469975E20753FC";
-  //Normal1
+  // Normal1
   private final String normalKey001 =
       "36c0710378a34634e6baba0d3a79d7439a81183030147e7f4a0dd43bfed1a32f";
-  //Normal2
+  // Normal2
   private final String normalKey002 =
       "a6bfbcf98bbe07770bf79bc6b2970bae0992771c1dcbf24cc063a3f033f17fbf";
-  //Normal3
+  // Normal3
   private final String normalKey003 =
       "8273f6b26202526cbffb77569b830c1ba8a920040e77f6f26062a67315580ed7";
-  //Normal4
+  // Normal4
   private final String normalKey004 =
       "271c824fcb55f04a9f86f768424a80edeb26ab79cf12aa56643b595f689c008a";
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
@@ -78,16 +78,18 @@ public class AttackSendcoin extends TronBaseTest {
   private final Long sendNromal4Amount = 4L;
   private final Long attackAmount = 5L;
 
-  /**
-   * constructor.
-   */
-  public static Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
-      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /** constructor. */
+  public static Boolean freezeBalance(
+      byte[] addRess,
+      long freezeBalance,
+      long freezeDuration,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
-  //String priKey = testKey002;
-  ECKey temKey = null;
+    // String priKey = testKey002;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -95,17 +97,19 @@ public class AttackSendcoin extends TronBaseTest {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    Protocol.Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI
-        .EmptyMessage.newBuilder().build());
-  final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
-  Long beforeFrozenBalance = 0L;
-  //Long beforeBandwidth     = beforeFronzen.getBandwidth();
+    Protocol.Block currentBlock =
+        blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+    final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long beforeFrozenBalance = 0L;
+    // Long beforeBandwidth     = beforeFronzen.getBandwidth();
 
-    BalanceContract.FreezeBalanceContract.Builder builder = BalanceContract.FreezeBalanceContract
-        .newBuilder();
+    BalanceContract.FreezeBalanceContract.Builder builder =
+        BalanceContract.FreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
-    builder.setOwnerAddress(byteAddreess).setFrozenBalance(frozenBalance)
+    builder
+        .setOwnerAddress(byteAddreess)
+        .setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
     BalanceContract.FreezeBalanceContract contract = builder.build();
@@ -128,26 +132,22 @@ public class AttackSendcoin extends TronBaseTest {
     Long afterBlockNum = 0L;
 
     while (afterBlockNum < beforeBlockNum) {
-      Protocol.Block currentBlock1 = blockingStubFull.getNowBlock(GrpcAPI
-          .EmptyMessage.newBuilder().build());
+      Protocol.Block currentBlock1 =
+          blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
       afterBlockNum = currentBlock1.getBlockHeader().getRawData().getNumber();
     }
     return true;
   }
 
-  
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    final Account fromInfo = PublicMethod.queryAccount(testKey002, blockingStubFull);
-  final Account attackInfo = PublicMethod.queryAccount(testKey001, blockingStubFull);
-  final Account normal1Info = PublicMethod.queryAccount(normalKey001, blockingStubFull);
-  final Account normal2Info = PublicMethod.queryAccount(normalKey002, blockingStubFull);
-  final Account normal3Info = PublicMethod.queryAccount(normalKey003, blockingStubFull);
-  final Account normal4Info = PublicMethod.queryAccount(normalKey004, blockingStubFull);
+  public void beforeClass() {
+    final Account fromInfo = PublicMethod.queryAccount(testKey002, blockingStubFull);
+    final Account attackInfo = PublicMethod.queryAccount(testKey001, blockingStubFull);
+    final Account normal1Info = PublicMethod.queryAccount(normalKey001, blockingStubFull);
+    final Account normal2Info = PublicMethod.queryAccount(normalKey002, blockingStubFull);
+    final Account normal3Info = PublicMethod.queryAccount(normalKey003, blockingStubFull);
+    final Account normal4Info = PublicMethod.queryAccount(normalKey004, blockingStubFull);
     beforeFromBalance = fromInfo.getBalance();
     beforeNormal1Balance = normal1Info.getBalance();
     beforeNormal2Balance = normal2Info.getBalance();
@@ -157,8 +157,12 @@ public class AttackSendcoin extends TronBaseTest {
     start = System.currentTimeMillis();
   }
 
-  //@Test(enabled = true, groups = {"full"})
-  @Test(enabled = false, threadPoolSize = 200, invocationCount = 200, groups = {"full"})
+  // @Test(enabled = true, groups = {"full"})
+  @Test(
+      enabled = false,
+      threadPoolSize = 200,
+      invocationCount = 200,
+      groups = {"full"})
   public void freezeAndSendcoin() throws InterruptedException {
 
     Integer i = 0;
@@ -169,12 +173,13 @@ public class AttackSendcoin extends TronBaseTest {
     while (i < 20) {
       randNum = i % 4;
       i++;
-      fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-          .get(randNum);      if (randNum == 3) {
-        PublicMethod.sendcoin(attackAddress, attackAmount, foundationAddress, testKey002,
-            blockingStubFull);
-        PublicMethod.sendcoin(attackAddress, attackAmount, foundationAddress, testKey002,
-            blockingStubFull);
+      fullnode =
+          Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(randNum);
+      if (randNum == 3) {
+        PublicMethod.sendcoin(
+            attackAddress, attackAmount, foundationAddress, testKey002, blockingStubFull);
+        PublicMethod.sendcoin(
+            attackAddress, attackAmount, foundationAddress, testKey002, blockingStubFull);
         /*        PublicMethod.sendcoin(attackAddress, attackAmount, foundationAddress, testKey002,
             blockingStubFull);
         PublicMethod.sendcoin(attackAddress, attackAmount, foundationAddress, testKey002,
@@ -190,44 +195,41 @@ public class AttackSendcoin extends TronBaseTest {
       }
 
       if (randNum == 0) {
-        PublicMethod.sendcoin(normal1Address, sendNromal1Amount, foundationAddress,
-            testKey002, blockingStubFull);
+        PublicMethod.sendcoin(
+            normal1Address, sendNromal1Amount, foundationAddress, testKey002, blockingStubFull);
         continue;
       }
       if (randNum == 1) {
-        PublicMethod.sendcoin(normal2Address, sendNromal2Amount, foundationAddress,
-            testKey002, blockingStubFull);
+        PublicMethod.sendcoin(
+            normal2Address, sendNromal2Amount, foundationAddress, testKey002, blockingStubFull);
         continue;
       }
       if (randNum == 2) {
-        PublicMethod.sendcoin(normal3Address, sendNromal3Amount, foundationAddress,
-            testKey002, blockingStubFull);
+        PublicMethod.sendcoin(
+            normal3Address, sendNromal3Amount, foundationAddress, testKey002, blockingStubFull);
         continue;
       }
       if (randNum == 3) {
-        PublicMethod.sendcoin(normal4Address, sendNromal4Amount, foundationAddress,
-            testKey002, blockingStubFull);
+        PublicMethod.sendcoin(
+            normal4Address, sendNromal4Amount, foundationAddress, testKey002, blockingStubFull);
         continue;
       }
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
-    //Print the duration.
+    // Print the duration.
     end = System.currentTimeMillis();
     logger.info("The time is " + Long.toString(end - start));
-  //Print 6 account balance information.
+    // Print 6 account balance information.
     final Account fromInfo = PublicMethod.queryAccount(testKey002, blockingStubFull);
-  final Account attackInfo = PublicMethod.queryAccount(testKey001, blockingStubFull);
-  final Account normal1Info = PublicMethod.queryAccount(normalKey001, blockingStubFull);
-  final Account normal2Info = PublicMethod.queryAccount(normalKey002, blockingStubFull);
-  final Account normal3Info = PublicMethod.queryAccount(normalKey003, blockingStubFull);
-  final Account normal4Info = PublicMethod.queryAccount(normalKey004, blockingStubFull);
+    final Account attackInfo = PublicMethod.queryAccount(testKey001, blockingStubFull);
+    final Account normal1Info = PublicMethod.queryAccount(normalKey001, blockingStubFull);
+    final Account normal2Info = PublicMethod.queryAccount(normalKey002, blockingStubFull);
+    final Account normal3Info = PublicMethod.queryAccount(normalKey003, blockingStubFull);
+    final Account normal4Info = PublicMethod.queryAccount(normalKey004, blockingStubFull);
 
     afterFromBalance = fromInfo.getBalance();
     afterNormal1Balance = normal1Info.getBalance();
@@ -236,26 +238,33 @@ public class AttackSendcoin extends TronBaseTest {
     afterNormal4Balance = normal4Info.getBalance();
     afterAttackBalance = attackInfo.getBalance();
 
-    logger.info("attack transaction success num is "
-        + (afterAttackBalance - beforeAttackBalance) / attackAmount);
-    logger.info("Normal 1 transaction success num is "
-        + (afterNormal1Balance - beforeNormal1Balance) / sendNromal1Amount);
-    logger.info("Normal 2 transaction success num is "
-        + (afterNormal2Balance - beforeNormal2Balance) / sendNromal2Amount);
-    logger.info("Normal 3 transaction success num is "
-        + (afterNormal3Balance - beforeNormal3Balance) / sendNromal3Amount);
-    logger.info("Normal 4 transaction success num is "
-        + (afterNormal4Balance - beforeNormal4Balance) / sendNromal4Amount);
-  Long totalSuccessNum = (afterAttackBalance - beforeAttackBalance) / attackAmount
-        + (afterNormal1Balance - beforeNormal1Balance) / sendNromal1Amount
-        + (afterNormal3Balance - beforeNormal3Balance) / sendNromal3Amount
-        + (afterNormal4Balance - beforeNormal4Balance) / sendNromal4Amount
-        + (afterNormal2Balance - beforeNormal2Balance) / sendNromal2Amount;
+    logger.info(
+        "attack transaction success num is "
+            + (afterAttackBalance - beforeAttackBalance) / attackAmount);
+    logger.info(
+        "Normal 1 transaction success num is "
+            + (afterNormal1Balance - beforeNormal1Balance) / sendNromal1Amount);
+    logger.info(
+        "Normal 2 transaction success num is "
+            + (afterNormal2Balance - beforeNormal2Balance) / sendNromal2Amount);
+    logger.info(
+        "Normal 3 transaction success num is "
+            + (afterNormal3Balance - beforeNormal3Balance) / sendNromal3Amount);
+    logger.info(
+        "Normal 4 transaction success num is "
+            + (afterNormal4Balance - beforeNormal4Balance) / sendNromal4Amount);
+    Long totalSuccessNum =
+        (afterAttackBalance - beforeAttackBalance) / attackAmount
+            + (afterNormal1Balance - beforeNormal1Balance) / sendNromal1Amount
+            + (afterNormal3Balance - beforeNormal3Balance) / sendNromal3Amount
+            + (afterNormal4Balance - beforeNormal4Balance) / sendNromal4Amount
+            + (afterNormal2Balance - beforeNormal2Balance) / sendNromal2Amount;
     logger.info("Total success transaction is " + Long.toString(totalSuccessNum));
-  Long normaltotalSuccessNum = (afterNormal1Balance - beforeNormal1Balance) / sendNromal1Amount
-        + (afterNormal3Balance - beforeNormal3Balance) / sendNromal3Amount
-        + (afterNormal4Balance - beforeNormal4Balance) / sendNromal4Amount
-        + (afterNormal2Balance - beforeNormal2Balance) / sendNromal2Amount;
+    Long normaltotalSuccessNum =
+        (afterNormal1Balance - beforeNormal1Balance) / sendNromal1Amount
+            + (afterNormal3Balance - beforeNormal3Balance) / sendNromal3Amount
+            + (afterNormal4Balance - beforeNormal4Balance) / sendNromal4Amount
+            + (afterNormal2Balance - beforeNormal2Balance) / sendNromal2Amount;
     logger.info("Total normal success transaction is " + Long.toString(normaltotalSuccessNum));
 
     Integer blockTimes = 0;
@@ -263,12 +272,15 @@ public class AttackSendcoin extends TronBaseTest {
 
     while (blockTimes < 5) {
       blockTimes++;
-  //Print the current block transaction num.
+      // Print the current block transaction num.
       Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentNum = currentBlock.getBlockHeader().getRawData().getNumber();
-      logger.info("The block num " + Long.toString(currentNum)
-          + "total transaction is " + Long.toString(currentBlock.getTransactionsCount()));
-  //logger.info(Integer.toString(currentBlock.getTransactionsList()
+      Long currentNum = currentBlock.getBlockHeader().getRawData().getNumber();
+      logger.info(
+          "The block num "
+              + Long.toString(currentNum)
+              + "total transaction is "
+              + Long.toString(currentBlock.getTransactionsCount()));
+      // logger.info(Integer.toString(currentBlock.getTransactionsList()
       // .get(0).getRawData().getContract(0).getTypeValue()));
 
       Integer normal1Num = 0;
@@ -276,11 +288,17 @@ public class AttackSendcoin extends TronBaseTest {
       Integer normal3Num = 0;
       Integer normal4Num = 0;
       Integer attackNum = 0;
-  Long temp = 0L;
+      Long temp = 0L;
       for (Integer m = 0; m < currentBlock.getTransactionsCount(); m++) {
         try {
-          temp = currentBlock.getTransactions(m).getRawData().getContract(0).getParameter()
-              .unpack(TransferContract.class).getAmount();
+          temp =
+              currentBlock
+                  .getTransactions(m)
+                  .getRawData()
+                  .getContract(0)
+                  .getParameter()
+                  .unpack(TransferContract.class)
+                  .getAmount();
         } catch (InvalidProtocolBufferException e) {
           e.printStackTrace();
         }
@@ -300,16 +318,31 @@ public class AttackSendcoin extends TronBaseTest {
           attackNum++;
         }
       }
-      logger.info("Block num " + Long.toString(currentNum) + ", Attack num is "
-          + Integer.toString(attackNum));
-      logger.info("Block num " + Long.toString(currentNum) + ", normal 1 num is "
-          + Integer.toString(normal1Num));
-      logger.info("Block num " + Long.toString(currentNum) + ", normal 2 num is "
-          + Integer.toString(normal2Num));
-      logger.info("Block num " + Long.toString(currentNum) + ", normal 3 num is "
-          + Integer.toString(normal3Num));
-      logger.info("Block num " + Long.toString(currentNum) + ", normal 4 num is "
-          + Integer.toString(normal4Num));
+      logger.info(
+          "Block num "
+              + Long.toString(currentNum)
+              + ", Attack num is "
+              + Integer.toString(attackNum));
+      logger.info(
+          "Block num "
+              + Long.toString(currentNum)
+              + ", normal 1 num is "
+              + Integer.toString(normal1Num));
+      logger.info(
+          "Block num "
+              + Long.toString(currentNum)
+              + ", normal 2 num is "
+              + Integer.toString(normal2Num));
+      logger.info(
+          "Block num "
+              + Long.toString(currentNum)
+              + ", normal 3 num is "
+              + Integer.toString(normal3Num));
+      logger.info(
+          "Block num "
+              + Long.toString(currentNum)
+              + ", normal 4 num is "
+              + Integer.toString(normal4Num));
       blockTransNum = blockTransNum + currentBlock.getTransactionsCount();
       try {
         Thread.sleep(3000);
@@ -318,16 +351,12 @@ public class AttackSendcoin extends TronBaseTest {
       }
     }
     logger.info("Total block record num is " + Integer.toString(blockTransNum));
-
-
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean unFreezeBalance(byte[] addRess, String priKey) {
     byte[] address = addRess;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -335,10 +364,9 @@ public class AttackSendcoin extends TronBaseTest {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-  // Account search = queryAccount(ecKey, blockingStubFull);
+    // Account search = queryAccount(ecKey, blockingStubFull);
 
-    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract
-        .newBuilder();
+    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddreess);
@@ -360,9 +388,7 @@ public class AttackSendcoin extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean withdrawBalance(byte[] address, String priKey) {
     ECKey temKey = null;
     try {
@@ -374,8 +400,7 @@ public class AttackSendcoin extends TronBaseTest {
     ECKey ecKey = temKey;
 
     BalanceContract.WithdrawBalanceContract.Builder builder =
-        BalanceContract.WithdrawBalanceContract
-            .newBuilder();
+        BalanceContract.WithdrawBalanceContract.newBuilder();
     ByteString byteAddreess = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddreess);
     BalanceContract.WithdrawBalanceContract contract = builder.build();
@@ -391,7 +416,6 @@ public class AttackSendcoin extends TronBaseTest {
     }
     logger.info("test withdraw" + priKey);
     return true;
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -402,7 +426,4 @@ public class AttackSendcoin extends TronBaseTest {
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
-
 }
-
-

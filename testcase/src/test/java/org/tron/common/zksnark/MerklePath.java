@@ -9,11 +9,9 @@ import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 
 public class MerklePath {
 
-  @Getter
-  private List<List<Boolean>> authenticationPath;
+  @Getter private List<List<Boolean>> authenticationPath;
 
-  @Getter
-  private List<Boolean> index;
+  @Getter private List<Boolean> index;
 
   public MerklePath(List<List<Boolean>> authenticationPath, List<Boolean> index) {
     this.authenticationPath = authenticationPath;
@@ -81,8 +79,7 @@ public class MerklePath {
     for (int i = 0; i < authenticationPath.size(); i++) {
       pathByteList.add(Lists.newArrayList());
       for (int p = 0; p < authenticationPath.get(i).size(); p++) {
-        byte bByte = (byte) (authenticationPath.get(i).get(p) ? 1
-            : 0);
+        byte bByte = (byte) (authenticationPath.get(i).get(p) ? 1 : 0);
         int i1;
         if (pathByteList.get(i).size() > (p / 8)) {
           i1 = pathByteList.get(i).get(p / 8) | bByte << (7 - (p % 8));
@@ -91,7 +88,6 @@ public class MerklePath {
           i1 = bByte << (7 - (p % 8));
           pathByteList.get(i).add((byte) i1);
         }
-
       }
     }
     indexLong = convertVectorToLong(index);
@@ -100,8 +96,7 @@ public class MerklePath {
     byte[] pathByteArray = listList2Bytes(pathByteList);
     byte[] result = new byte[pathByteArray.length + 8];
     System.arraycopy(pathByteArray, 0, result, 0, pathByteArray.length);
-    System.arraycopy(indexBytes, 0, result,
-        pathByteArray.length, 8);
+    System.arraycopy(indexBytes, 0, result, pathByteArray.length, 8);
     return result;
   }
 }

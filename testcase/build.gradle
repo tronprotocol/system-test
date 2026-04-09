@@ -225,7 +225,6 @@ task lint(type: Checkstyle) {
     source 'src'
     include '**/*.java'
     exclude 'main/gen/**'
-    exclude 'test/**'
     // empty classpath
     classpath = files()
     //Failing the build

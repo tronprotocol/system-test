@@ -30,20 +30,15 @@ import java.util.List;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
-//import javassist.bytecode.ByteArray;
 import stest.tron.wallet.common.client.utils.exception.EventBloomException;
-
 
 public class ByteUtil {
 
   public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-  public static final byte[] ZERO_BYTE_ARRAY = new byte[]{0};
+  public static final byte[] ZERO_BYTE_ARRAY = new byte[] {0};
   public static final int WORD_SIZE = 32;
 
-
-  /**
-   * return a cloned byte array. return null if parameter data is null
-   */
+  /** return a cloned byte array. return null if parameter data is null */
   public static byte[] cloneBytes(byte[] data) {
     if (data == null) {
       return null;
@@ -58,8 +53,8 @@ public class ByteUtil {
   }
 
   /**
-   * The regular {@link BigInteger#toByteArray()} method isn't quite what we often need:
-   * it appends a leading zero to indicate that the number is positive and may need padding.
+   * The regular {@link BigInteger#toByteArray()} method isn't quite what we often need: it appends
+   * a leading zero to indicate that the number is positive and may need padding.
    *
    * @param b the integer to format into a byte array
    * @param numBytes the desired size of the resulting byte array
@@ -78,12 +73,14 @@ public class ByteUtil {
   }
 
   /**
-   * Omitting sign indication byte. <br><br> Instead of {@link org.spongycastle.util.BigIntegers#asUnsignedByteArray(BigInteger)}
-   * <br>we use this custom method to avoid an empty array in case of BigInteger.ZERO
+   * Omitting sign indication byte. <br>
+   * <br>
+   * Instead of {@link org.spongycastle.util.BigIntegers#asUnsignedByteArray(BigInteger)} <br>
+   * we use this custom method to avoid an empty array in case of BigInteger.ZERO
    *
    * @param value - any big integer number. A <code>null</code>-value will return <code>null</code>
    * @return A byte array without a leading zero byte if present in the signed encoding.
-   * BigInteger.ZERO will return an array with length 1 and byte-value 0.
+   *     BigInteger.ZERO will return an array with length 1 and byte-value 0.
    */
   public static byte[] bigIntegerToBytes(BigInteger value) {
     if (value == null) {
@@ -122,9 +119,7 @@ public class ByteUtil {
     return mergedArray;
   }
 
-  /**
-   * Creates a copy of bytes and appends b to the end of it.
-   */
+  /** Creates a copy of bytes and appends b to the end of it. */
   public static byte[] appendByte(byte[] bytes, byte b) {
     byte[] result = Arrays.copyOf(bytes, bytes.length + 1);
     result[result.length - 1] = b;
@@ -147,9 +142,7 @@ public class ByteUtil {
     return builder.toString();
   }
 
-  /**
-   * get hex string data from byte data.
-   */
+  /** get hex string data from byte data. */
   public static String oneByteToHexString(byte value) {
     String retVal = Integer.toString(value & 0xFF, 16);
     if (retVal.length() == 1) {
@@ -231,7 +224,7 @@ public class ByteUtil {
   /**
    * Cast hex encoded value from byte[] to long null is parsed like byte[0]
    *
-   * Limited to Long.MAX_VALUE: 2<sup>63</sup>-1 (8 bytes)
+   * <p>Limited to Long.MAX_VALUE: 2<sup>63</sup>-1 (8 bytes)
    *
    * @param b array contains the values
    * @return unsigned positive long value.
@@ -417,12 +410,11 @@ public class ByteUtil {
     int len = s.length();
     byte[] data = new byte[len / 2];
     for (int i = 0; i < len; i += 2) {
-      data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-          + Character.digit(s.charAt(i + 1), 16));
+      data[i / 2] =
+          (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
     }
     return data;
   }
-
 
   public static List<Boolean> convertBytesVectorToVector(final byte[] bytes) {
     List<Boolean> ret = new ArrayList<>();
@@ -514,5 +506,4 @@ public class ByteUtil {
 
     return output;
   }
-
 }

@@ -8,7 +8,6 @@ import org.tron.common.zksnark.LibrustzcashParam;
 import org.tron.protos.contract.ShieldContract.PedersenHash;
 import stest.tron.wallet.common.client.utils.exception.ZksnarkException;
 
-
 @Slf4j
 public class PedersenHashCapsule implements ProtoCapsule<PedersenHash> {
 
@@ -34,9 +33,9 @@ public class PedersenHashCapsule implements ProtoCapsule<PedersenHash> {
       throws ZksnarkException {
     byte[] res = new byte[32];
 
-
-    JLibrustzcash.librustzcashMerkleHash(new LibrustzcashParam.MerkleHashParams(depth, a.getContent().toByteArray(),
-        b.getContent().toByteArray(), res));
+    JLibrustzcash.librustzcashMerkleHash(
+        new LibrustzcashParam.MerkleHashParams(
+            depth, a.getContent().toByteArray(), b.getContent().toByteArray(), res));
 
     PedersenHashCapsule pedersenHashCapsule = new PedersenHashCapsule();
     pedersenHashCapsule.setContent(ByteString.copyFrom(res));
@@ -57,13 +56,13 @@ public class PedersenHashCapsule implements ProtoCapsule<PedersenHash> {
 
   public static void main(String[] args) {
     try {
-      //all keys are for test
+      // all keys are for test
       byte[] a =
-          ByteArray
-              .fromHexString("05655316a07e6ec8c9769af54ef98b30667bfb6302b32987d552227dae86a087");
+          ByteArray.fromHexString(
+              "05655316a07e6ec8c9769af54ef98b30667bfb6302b32987d552227dae86a087");
       byte[] b =
-          ByteArray
-              .fromHexString("06041357de59ba64959d1b60f93de24dfe5ea1e26ed9e8a73d35b225a1845ba7");
+          ByteArray.fromHexString(
+              "06041357de59ba64959d1b60f93de24dfe5ea1e26ed9e8a73d35b225a1845ba7");
 
       PedersenHash sa = PedersenHash.newBuilder().setContent(ByteString.copyFrom(a)).build();
       PedersenHash sb = PedersenHash.newBuilder().setContent(ByteString.copyFrom(b)).build();

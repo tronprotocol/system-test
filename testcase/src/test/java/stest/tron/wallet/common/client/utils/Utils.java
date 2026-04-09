@@ -58,7 +58,6 @@ public interface Utils {
     }
     String alignString = repeat("" + fillChar, targetLen - s.length());
     return alignRight ? alignString + s : s + alignString;
-
   }
 
   static String repeat(String s, int n) {

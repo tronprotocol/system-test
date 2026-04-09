@@ -1,6 +1,5 @@
 package stest.tron.wallet.multisign;
 
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +18,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestMultiSign005 extends TronBaseTest {
@@ -37,30 +35,33 @@ public class WalletTestMultiSign005 extends TronBaseTest {
   ECKey ecKey2 = new ECKey(Utils.getRandom());
   byte[] manager2Address = ecKey2.getAddress();
   String manager2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-  private long multiSignFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.multiSignFee");
-  private long updateAccountPermissionFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.updateAccountPermissionFee");
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private long multiSignFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.multiSignFee");
+  private long updateAccountPermissionFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.updateAccountPermissionFee");
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubSolidity = WalletSolidityGrpc.newBlockingStub(channelSolidity);
   }
 
-  @Test(enabled = true, groups = {"multisig", "smoke"})
+  @Test(
+      enabled = true,
+      groups = {"multisig", "smoke"})
   public void testMultiSignForProposal() {
     long needcoin = updateAccountPermissionFee + multiSignFee * 3;
-    Assert.assertTrue(PublicMethod.sendcoin(witness001Address, needcoin + 10000000L,
-        foundationAddress, foundationKey, blockingStubFull));
-
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            witness001Address,
+            needcoin + 10000000L,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     ecKey1 = new ECKey(Utils.getRandom());
     manager1Address = ecKey1.getAddress();
     manager1Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -69,45 +70,49 @@ public class WalletTestMultiSign005 extends TronBaseTest {
     manager2Address = ecKey2.getAddress();
     manager2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-    PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(witness001Address, blockingStubFull)
-        .getBalance();
+    Long balanceBefore =
+        PublicMethod.queryAccount(witness001Address, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
 
     permissionKeyString[0] = manager1Key;
     permissionKeyString[1] = manager2Key;
-    PublicMethod.waitProduceNextBlock(blockingStubFull);
     ownerKeyString[0] = witnessKey;
     accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":2,\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(witnessKey)
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
             + "\",\"weight\":2}]},"
             + "\"witness_permission\":{\"type\":1,\"permission_name\":\"owner\",\"threshold\":1,\""
-            + "keys\":[{\"address\":\"" + PublicMethod.getAddressString(witnessKey)
+            + "keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(witnessKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethod.getAddressString(manager2Key) + "\",\"weight\":1}"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager1Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(manager2Key)
+            + "\",\"weight\":1}"
             + "]}]}";
     logger.info(accountPermissionJson);
     PublicMethodForMultiSign.accountPermissionUpdate(
-        accountPermissionJson, witness001Address, witnessKey,
-        blockingStubFull, ownerKeyString);
-  //Create a proposal
-    Long proposalValue = 819699L;
+        accountPermissionJson, witness001Address, witnessKey, blockingStubFull, ownerKeyString);
+    // Create a proposal
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
+    Long proposalValue = 819699L;
     proposalMap.put(0L, proposalValue);
     Assert.assertTrue(
-        PublicMethodForMultiSign.createProposalWithPermissionId(witness001Address, witnessKey,
-            proposalMap, 2, blockingStubFull, permissionKeyString));
+        PublicMethodForMultiSign.createProposalWithPermissionId(
+            witness001Address, witnessKey, proposalMap, 2, blockingStubFull, permissionKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //Get proposal list
+    // Get proposal list
     ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
     Optional<ProposalList> listProposals = Optional.ofNullable(proposalList);
-    Integer proposalId = 0;
+    Integer proposalId = -1;
     for (Proposal proposal : listProposals.get().getProposalsList()) {
       for (Map.Entry<Long, Long> entry : proposal.getParametersMap().entrySet()) {
         if (entry.getValue() == proposalValue) {
@@ -115,32 +120,37 @@ public class WalletTestMultiSign005 extends TronBaseTest {
           break;
         }
       }
+      if (proposalId != -1) {
+        break;
+      }
     }
     final Integer finalProposalId = proposalId;
 
-    logger.info(Integer.toString(proposalId));
+    logger.info(Integer.toString(finalProposalId));
 
-    Assert.assertTrue(PublicMethodForMultiSign.approveProposalWithPermission(
-        witness001Address, witnessKey, proposalId,
-        true, 2, blockingStubFull, permissionKeyString));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.approveProposalWithPermission(
+            witness001Address,
+            witnessKey,
+            finalProposalId,
+            true,
+            2,
+            blockingStubFull,
+            permissionKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //Delete proposal list after approve
-    Assert.assertTrue(PublicMethodForMultiSign.deleteProposalWithPermissionId(
-        witness001Address, witnessKey, proposalId, 2, blockingStubFull, permissionKeyString));
+    // Delete proposal list after approve
+    Assert.assertTrue(
+        PublicMethodForMultiSign.deleteProposalWithPermissionId(
+            witness001Address, witnessKey, finalProposalId, 2,
+            blockingStubFull, permissionKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceAfter = PublicMethod.queryAccount(witness001Address, blockingStubFull)
-        .getBalance();
+    Long balanceAfter = PublicMethod.queryAccount(witness001Address, blockingStubFull).getBalance();
     logger.info("balanceAfter: " + balanceAfter);
 
     Assert.assertTrue(balanceBefore - balanceAfter >= needcoin);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

@@ -2,66 +2,45 @@ package stest.tron.wallet.common.client.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.primitives.Longs;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.netty.util.internal.StringUtil;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
 import org.bouncycastle.util.encoders.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountNetMessage;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.GrpcAPI.BlockExtention;
 import org.tron.api.GrpcAPI.BytesMessage;
-import org.tron.api.GrpcAPI.CanDelegatedMaxSizeRequestMessage;
 import org.tron.api.GrpcAPI.CanDelegatedMaxSizeResponseMessage;
-import org.tron.api.GrpcAPI.CanWithdrawUnfreezeAmountRequestMessage;
 import org.tron.api.GrpcAPI.CanWithdrawUnfreezeAmountResponseMessage;
 import org.tron.api.GrpcAPI.DecryptNotes;
 import org.tron.api.GrpcAPI.DecryptNotes.NoteTx;
 import org.tron.api.GrpcAPI.DecryptNotesMarked;
 import org.tron.api.GrpcAPI.DelegatedResourceList;
-import org.tron.api.GrpcAPI.DelegatedResourceMessage;
-import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.ExchangeList;
-import org.tron.api.GrpcAPI.GetAvailableUnfreezeCountRequestMessage;
 import org.tron.api.GrpcAPI.GetAvailableUnfreezeCountResponseMessage;
-import org.tron.api.GrpcAPI.IvkDecryptAndMarkParameters;
-import org.tron.api.GrpcAPI.IvkDecryptParameters;
-import org.tron.api.GrpcAPI.NfParameters;
 import org.tron.api.GrpcAPI.Note;
-import org.tron.api.GrpcAPI.NoteParameters;
-import org.tron.api.GrpcAPI.NumberMessage;
-import org.tron.api.GrpcAPI.OvkDecryptParameters;
-import org.tron.api.GrpcAPI.PrivateParameters;
-import org.tron.api.GrpcAPI.PrivateParametersWithoutAsk;
-import org.tron.api.GrpcAPI.ReceiveNote;
 import org.tron.api.GrpcAPI.Return;
-import org.tron.api.GrpcAPI.Return.response_code;
-import org.tron.api.GrpcAPI.SpendAuthSigParameters;
-import org.tron.api.GrpcAPI.SpendNote;
 import org.tron.api.GrpcAPI.SpendResult;
 import org.tron.api.GrpcAPI.TransactionApprovedList;
 import org.tron.api.GrpcAPI.TransactionExtention;
@@ -71,91 +50,39 @@ import org.tron.api.WalletGrpc.WalletBlockingStub;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
-
-import org.tron.protos.Protocol.Account.FreezeV2;
-import org.tron.protos.Protocol.Account.Frozen;
-import org.tron.protos.Protocol.Block;
-import org.tron.protos.Protocol.ChainParameters;
 import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Transaction;
-import org.tron.protos.Protocol.Transaction.Contract.ContractType;
-import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.TransactionInfo;
-import org.tron.protos.contract.AccountContract.AccountCreateContract;
-import org.tron.protos.contract.AccountContract.AccountPermissionUpdateContract;
-import org.tron.protos.contract.AccountContract.AccountUpdateContract;
-import org.tron.protos.contract.AccountContract.SetAccountIdContract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.AssetIssueContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.ParticipateAssetIssueContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.UpdateAssetContract;
 import org.tron.protos.contract.BalanceContract;
-import org.tron.protos.contract.BalanceContract.DelegateResourceContract;
-import org.tron.protos.contract.BalanceContract.FreezeBalanceContract;
-import org.tron.protos.contract.BalanceContract.FreezeBalanceV2Contract;
-import org.tron.protos.contract.BalanceContract.TransferContract;
-import org.tron.protos.contract.BalanceContract.UnDelegateResourceContract;
-import org.tron.protos.contract.BalanceContract.UnfreezeBalanceContract;
-import org.tron.protos.contract.BalanceContract.UnfreezeBalanceV2Contract;
-import org.tron.protos.contract.BalanceContract.WithdrawExpireUnfreezeContract;
-import org.tron.protos.contract.BalanceContract.CancelAllUnfreezeV2Contract;
-import org.tron.protos.contract.ExchangeContract.ExchangeCreateContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeInjectContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeTransactionContract;
-import org.tron.protos.contract.ExchangeContract.ExchangeWithdrawContract;
-import org.tron.protos.contract.MarketContract;
-import org.tron.protos.contract.ProposalContract.ProposalApproveContract;
-import org.tron.protos.contract.ProposalContract.ProposalCreateContract;
-import org.tron.protos.contract.ProposalContract.ProposalDeleteContract;
-import org.tron.protos.contract.ShieldContract.IncrementalMerkleVoucherInfo;
-import org.tron.protos.contract.ShieldContract.OutputPoint;
-import org.tron.protos.contract.ShieldContract.OutputPointInfo;
-import org.tron.protos.contract.ShieldContract.ShieldedTransferContract;
-import org.tron.protos.contract.ShieldContract.SpendDescription;
-import org.tron.protos.contract.SmartContractOuterClass.ClearABIContract;
-import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract;
-import org.tron.protos.contract.SmartContractOuterClass.CreateSmartContract.Builder;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
-import org.tron.protos.contract.SmartContractOuterClass.SmartContract.ABI;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContractDataWrapper;
-import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
-import org.tron.protos.contract.SmartContractOuterClass.UpdateEnergyLimitContract;
-import org.tron.protos.contract.SmartContractOuterClass.UpdateSettingContract;
-import org.tron.protos.contract.StorageContract.BuyStorageContract;
-import org.tron.protos.contract.StorageContract.SellStorageContract;
 import org.tron.protos.contract.StorageContract.UpdateBrokerageContract;
-import org.tron.protos.contract.WitnessContract.VoteWitnessContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
-import stest.tron.wallet.common.client.utils.BlockCapsule.BlockId;
-import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
-import stest.tron.wallet.common.client.utils.zen.address.ExpandedSpendingKey;
-import stest.tron.wallet.common.client.utils.zen.address.FullViewingKey;
-import stest.tron.wallet.common.client.utils.zen.address.IncomingViewingKey;
-import stest.tron.wallet.common.client.utils.zen.address.PaymentAddress;
-import stest.tron.wallet.common.client.utils.zen.address.SpendingKey;
 
 /**
  * Legacy facade class — delegates to specialized Helper classes.
  *
  * <p><b>For new test code, use the Helper classes directly:</b>
+ *
  * <ul>
- *   <li>{@link AccountHelper} — account queries, creation, permissions, sendcoin</li>
- *   <li>{@link ContractHelper} — contract deploy, trigger, ABI operations</li>
- *   <li>{@link ResourceHelper} — freeze, delegate, energy/bandwidth</li>
- *   <li>{@link AssetHelper} — TRC-10/TRC-20 token operations</li>
- *   <li>{@link GovernanceHelper} — proposals, voting, witness management</li>
- *   <li>{@link TransactionHelper} — transaction signing, broadcasting</li>
- *   <li>{@link BlockHelper} — block queries</li>
- *   <li>{@link ShieldHelper} — privacy/shielded operations</li>
- *   <li>{@link CommonHelper} — address/key utilities</li>
+ *   <li>{@link AccountHelper} — account queries, creation, permissions, sendcoin
+ *   <li>{@link ContractHelper} — contract deploy, trigger, ABI operations
+ *   <li>{@link ResourceHelper} — freeze, delegate, energy/bandwidth
+ *   <li>{@link AssetHelper} — TRC-10/TRC-20 token operations
+ *   <li>{@link GovernanceHelper} — proposals, voting, witness management
+ *   <li>{@link TransactionHelper} — transaction signing, broadcasting
+ *   <li>{@link BlockHelper} — block queries
+ *   <li>{@link ShieldHelper} — privacy/shielded operations
+ *   <li>{@link CommonHelper} — address/key utilities
  * </ul>
  *
- * <p>This class is kept for backward compatibility with existing 600+ test classes.
- * All delegating methods will be gradually marked {@code @Deprecated}.
+ * <p>This class is kept for backward compatibility with existing 600+ test classes. All delegating
+ * methods will be gradually marked {@code @Deprecated}.
  */
 @Slf4j
 public class PublicMethod {
@@ -164,7 +91,7 @@ public class PublicMethod {
 
   // //Wallet.setAddressPreFixByte()();
   private static final String FilePath = "Wallet";
-//  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
+  //  private static final Logger logger = LoggerFactory.getLogger("TestLogger");
   // private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   // private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;
   public static Map<Long, ShieldNoteInfo> utxoMapNote = new ConcurrentHashMap();
@@ -180,21 +107,20 @@ public class PublicMethod {
 
   public static AtomicInteger randomFreezeAmount = new AtomicInteger(1);
 
-  private static final String fullnode2 = Configuration.getByPath("testng.conf")
-          .getStringList("fullnode.ip.list").get(1);
-  private static ManagedChannel channelFull2 = ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
-  private static WalletGrpc.WalletBlockingStub blockingStubFull2 = WalletGrpc.newBlockingStub(channelFull2);
+  private static final String fullnode2 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private static ManagedChannel channelFull2 =
+      ManagedChannelBuilder.forTarget(fullnode2).usePlaintext().build();
+  private static WalletGrpc.WalletBlockingStub blockingStubFull2 =
+      WalletGrpc.newBlockingStub(channelFull2);
   private static final String gRPCurl =
       Configuration.getByPath("testng.conf").getString("defaultParameter.gRPCurl");
 
-
-
-
   /** constructor. */
   public static Integer getWitnessNum(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //if (null == witnessNum) {
-      //witnessNum = PublicMethod.listWitnesses(blockingStubFull).get().getWitnessesList().size();
-    //}
+    // if (null == witnessNum) {
+    // witnessNum = PublicMethod.listWitnesses(blockingStubFull).get().getWitnessesList().size();
+    // }
     witnessNum = PublicMethod.listWitnesses(blockingStubFull).get().getWitnessesList().size();
     return witnessNum;
   }
@@ -218,9 +144,24 @@ public class PublicMethod {
       Long frozenDay,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.createAssetIssueGetTxid(address, name, abbreviation, totalSupply, trxNum,
-        icoNum, startTime, endTime, voteScore, description, url, freeAssetNetLimit,
-        publicFreeAssetNetLimit, fronzenAmount, frozenDay, priKey, blockingStubFull);
+    return AssetHelper.createAssetIssueGetTxid(
+        address,
+        name,
+        abbreviation,
+        totalSupply,
+        trxNum,
+        icoNum,
+        startTime,
+        endTime,
+        voteScore,
+        description,
+        url,
+        freeAssetNetLimit,
+        publicFreeAssetNetLimit,
+        fronzenAmount,
+        frozenDay,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -241,9 +182,23 @@ public class PublicMethod {
       Long frozenDay,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.createAssetIssue(address, name, totalSupply, trxNum, icoNum, startTime,
-        endTime, voteScore, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
-        fronzenAmount, frozenDay, priKey, blockingStubFull);
+    return AssetHelper.createAssetIssue(
+        address,
+        name,
+        totalSupply,
+        trxNum,
+        icoNum,
+        startTime,
+        endTime,
+        voteScore,
+        description,
+        url,
+        freeAssetNetLimit,
+        publicFreeAssetNetLimit,
+        fronzenAmount,
+        frozenDay,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -265,9 +220,24 @@ public class PublicMethod {
       Long frozenDay,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.createAssetIssue(address, name, abbreviation, totalSupply, trxNum,
-        icoNum, startTime, endTime, voteScore, description, url, freeAssetNetLimit,
-        publicFreeAssetNetLimit, fronzenAmount, frozenDay, priKey, blockingStubFull);
+    return AssetHelper.createAssetIssue(
+        address,
+        name,
+        abbreviation,
+        totalSupply,
+        trxNum,
+        icoNum,
+        startTime,
+        endTime,
+        voteScore,
+        description,
+        url,
+        freeAssetNetLimit,
+        publicFreeAssetNetLimit,
+        fronzenAmount,
+        frozenDay,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -289,9 +259,24 @@ public class PublicMethod {
       Long frozenDay,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.createAssetIssue(address, name, totalSupply, trxNum, icoNum, precision,
-        startTime, endTime, voteScore, description, url, freeAssetNetLimit,
-        publicFreeAssetNetLimit, fronzenAmount, frozenDay, priKey, blockingStubFull);
+    return AssetHelper.createAssetIssue(
+        address,
+        name,
+        totalSupply,
+        trxNum,
+        icoNum,
+        precision,
+        startTime,
+        endTime,
+        voteScore,
+        description,
+        url,
+        freeAssetNetLimit,
+        publicFreeAssetNetLimit,
+        fronzenAmount,
+        frozenDay,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -312,9 +297,23 @@ public class PublicMethod {
       Long frozenDay,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.createAssetIssue2(address, name, totalSupply, trxNum, icoNum, startTime,
-        endTime, voteScore, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
-        fronzenAmount, frozenDay, priKey, blockingStubFull);
+    return AssetHelper.createAssetIssue2(
+        address,
+        name,
+        totalSupply,
+        trxNum,
+        icoNum,
+        startTime,
+        endTime,
+        voteScore,
+        description,
+        url,
+        freeAssetNetLimit,
+        publicFreeAssetNetLimit,
+        fronzenAmount,
+        frozenDay,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -415,7 +414,8 @@ public class PublicMethod {
       byte[] from,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.participateAssetIssue(to, assertName, amount, from, priKey, blockingStubFull);
+    return AssetHelper.participateAssetIssue(
+        to, assertName, amount, from, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -427,7 +427,8 @@ public class PublicMethod {
       byte[] from,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.participateAssetIssue2(to, assertName, amount, from, priKey, blockingStubFull);
+    return AssetHelper.participateAssetIssue2(
+        to, assertName, amount, from, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -438,20 +439,28 @@ public class PublicMethod {
       long freezeDuration,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalance(addRess, freezeBalance, freezeDuration, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalance(
+        addRess, freezeBalance, freezeDuration, priKey, blockingStubFull);
   }
 
   @Deprecated
-  public static Boolean freezeBalanceV1ForReceiver(byte[] addRess,
+  public static Boolean freezeBalanceV1ForReceiver(
+      byte[] addRess,
       long freezeBalance,
       long freezeDuration,
       int resourceCode,
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalanceV1ForReceiver(addRess, freezeBalance, freezeDuration, resourceCode, receiverAddress, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalanceV1ForReceiver(
+        addRess,
+        freezeBalance,
+        freezeDuration,
+        resourceCode,
+        receiverAddress,
+        priKey,
+        blockingStubFull);
   }
-
 
   @Deprecated
   public static Boolean freezeBalanceV1(
@@ -461,7 +470,8 @@ public class PublicMethod {
       int resourceCode,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalanceV1(addRess, freezeBalance, freezeDuration, resourceCode, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalanceV1(
+        addRess, freezeBalance, freezeDuration, resourceCode, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -472,7 +482,8 @@ public class PublicMethod {
       long freezeDuration,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalance2(addRess, freezeBalance, freezeDuration, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalance2(
+        addRess, freezeBalance, freezeDuration, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -483,9 +494,9 @@ public class PublicMethod {
       int resourceCode,
       byte[] receiverAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.unFreezeBalance(address, priKey, resourceCode, receiverAddress, blockingStubFull);
+    return ResourceHelper.unFreezeBalance(
+        address, priKey, resourceCode, receiverAddress, blockingStubFull);
   }
-
 
   /** constructor. */
   @Deprecated
@@ -495,9 +506,9 @@ public class PublicMethod {
       int resourceCode,
       byte[] receiverAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.unFreezeBalanceV1(address, priKey, resourceCode, receiverAddress, blockingStubFull);
+    return ResourceHelper.unFreezeBalanceV1(
+        address, priKey, resourceCode, receiverAddress, blockingStubFull);
   }
-
 
   /** constructor. */
   @Deprecated
@@ -507,59 +518,52 @@ public class PublicMethod {
       long unFreezeBalanceAmount,
       int resourceCode,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.unFreezeBalanceV2(address, priKey, unFreezeBalanceAmount, resourceCode, blockingStubFull);
+    return ResourceHelper.unFreezeBalanceV2(
+        address, priKey, unFreezeBalanceAmount, resourceCode, blockingStubFull);
   }
+
   @Deprecated
   public static String unFreezeBalanceV2AndGetTxId(
-          byte[] address,
-          String priKey,
-          long unFreezeBalanceAmount,
-          int resourceCode,
-          WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.unFreezeBalanceV2AndGetTxId(address, priKey, unFreezeBalanceAmount, resourceCode, blockingStubFull);
+      byte[] address,
+      String priKey,
+      long unFreezeBalanceAmount,
+      int resourceCode,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ResourceHelper.unFreezeBalanceV2AndGetTxId(
+        address, priKey, unFreezeBalanceAmount, resourceCode, blockingStubFull);
   }
 
   /** constructor. */
   @Deprecated
   public static Boolean cancelAllUnFreezeBalanceV2(
-      byte[] address,
-      String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.cancelAllUnFreezeBalanceV2(address, priKey, blockingStubFull);
   }
+
   /** constructor. */
   @Deprecated
   public static String cancelAllUnFreezeBalanceV2AndGetTxid(
-      byte[] address,
-      String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.cancelAllUnFreezeBalanceV2AndGetTxid(address, priKey, blockingStubFull);
   }
-
 
   /** constructor. */
   @Deprecated
   public static Boolean withdrawExpireUnfreeze(
-      byte[] address,
-      String priKey,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.withdrawExpireUnfreeze(address, priKey, blockingStubFull);
   }
 
   @Deprecated
   public static String withdrawExpireUnfreezeAndGetTxId(
-          byte[] address,
-          String priKey,
-          WalletGrpc.WalletBlockingStub blockingStubFull) {
+      byte[] address, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.withdrawExpireUnfreezeAndGetTxId(address, priKey, blockingStubFull);
   }
-
 
   @Deprecated
   public static Boolean freezeV2ProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.freezeV2ProposalIsOpen(blockingStubFull);
   }
-
 
   @Deprecated
   public static Boolean tronPowerProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -567,11 +571,10 @@ public class PublicMethod {
   }
 
   @Deprecated
-  public static Boolean getAllowDynamicEnergyProposalIsOpen(WalletGrpc.WalletBlockingStub blockingStubFull) {
+  public static Boolean getAllowDynamicEnergyProposalIsOpen(
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.getAllowDynamicEnergyProposalIsOpen(blockingStubFull);
   }
-
-
 
   @Deprecated
   public static Long getProposalMemoFee(WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -589,10 +592,10 @@ public class PublicMethod {
   }
 
   @Deprecated
-  public static String getEnergyPriceSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static String getEnergyPriceSolidity(
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return ResourceHelper.getEnergyPriceSolidity(blockingStubFull);
   }
-
 
   @Deprecated
   public static String getBandwidthPrices(WalletGrpc.WalletBlockingStub blockingStubFull) {
@@ -600,11 +603,10 @@ public class PublicMethod {
   }
 
   @Deprecated
-  public static String getBandwidthPricesSolidity(WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static String getBandwidthPricesSolidity(
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return ResourceHelper.getBandwidthPricesSolidity(blockingStubFull);
   }
-
-
 
   /** constructor. */
   @Deprecated
@@ -626,7 +628,8 @@ public class PublicMethod {
       String priKey,
       int scriptLength,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AccountHelper.sendcoinWithScript(to, amount, owner, priKey, scriptLength, blockingStubFull);
+    return AccountHelper.sendcoinWithScript(
+        to, amount, owner, priKey, scriptLength, blockingStubFull);
   }
 
   /** constructor. */
@@ -708,7 +711,8 @@ public class PublicMethod {
       byte[] owner,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AccountHelper.sendcoinDelayedGetTxid(to, amount, delaySeconds, owner, priKey, blockingStubFull);
+    return AccountHelper.sendcoinDelayedGetTxid(
+        to, amount, delaySeconds, owner, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -742,7 +746,8 @@ public class PublicMethod {
       byte[] owner,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AccountHelper.sendcoinWithMemoGetTransactionId(to, amount, memo, owner, priKey, blockingStubFull);
+    return AccountHelper.sendcoinWithMemoGetTransactionId(
+        to, amount, memo, owner, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -753,7 +758,8 @@ public class PublicMethod {
       byte[] owner,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AccountHelper.sendcoinGetTransactionIdForConstructData(to, amount, owner, priKey, blockingStubFull);
+    return AccountHelper.sendcoinGetTransactionIdForConstructData(
+        to, amount, owner, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -776,7 +782,6 @@ public class PublicMethod {
       ByteString assetId, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return AssetHelper.getAssetBalanceByAssetId(assetId, priKey, blockingStubFull);
   }
-
 
   @Deprecated
   public static Long getAssetBalanceByAssetId(
@@ -826,7 +831,8 @@ public class PublicMethod {
       long newPublicLimit,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.updateAsset(address, description, url, newLimit, newPublicLimit, priKey, blockingStubFull);
+    return AssetHelper.updateAsset(
+        address, description, url, newLimit, newPublicLimit, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -839,7 +845,8 @@ public class PublicMethod {
       long newPublicLimit,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.updateAsset2(address, description, url, newLimit, newPublicLimit, priKey, blockingStubFull);
+    return AssetHelper.updateAsset2(
+        address, description, url, newLimit, newPublicLimit, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -878,17 +885,15 @@ public class PublicMethod {
     return BlockHelper.waitProduceNextBlock(blockingStubFull);
   }
 
-
-
   /**
-   * if tx is found, return it
-   * if query timeout,assert failed then return false
-   * @param blockingStubFull
-   * @param txId
-   * @param timeout second
-   * @return
+   * if tx is found, return it if query timeout,assert failed then return false
+   *
+   * @param blockingStubFull the gRPC blocking stub
+   * @param txId transaction id to query
+   * @param timeout timeout in seconds
    */
-  public static void waitUntilTransactionInfoFound(WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
+  public static void waitUntilTransactionInfoFound(
+      WalletGrpc.WalletBlockingStub blockingStubFull, String txId, int timeout) {
     BlockHelper.waitUntilTransactionInfoFound(blockingStubFull, txId, timeout);
   }
 
@@ -983,7 +988,8 @@ public class PublicMethod {
       long id,
       boolean isAddApproval,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return GovernanceHelper.approveProposal(ownerAddress, priKey, id, isAddApproval, blockingStubFull);
+    return GovernanceHelper.approveProposal(
+        ownerAddress, priKey, id, isAddApproval, blockingStubFull);
   }
 
   /** constructor. */
@@ -1031,27 +1037,44 @@ public class PublicMethod {
       ByteString receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalanceGetTronPower(address, freezeBalance, freezeDuration, resourceCode, receiverAddress, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalanceGetTronPower(
+        address,
+        freezeBalance,
+        freezeDuration,
+        resourceCode,
+        receiverAddress,
+        priKey,
+        blockingStubFull);
   }
 
-
   @Deprecated
-  public static Long getChainParametersValue(String proposalName,WalletGrpc.WalletBlockingStub blockingStubFull) {
+  public static Long getChainParametersValue(
+      String proposalName, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return GovernanceHelper.getChainParametersValue(proposalName, blockingStubFull);
   }
 
-  public static Boolean allowTvmSelfdestructRestrictionIsActive(WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return PublicMethod.getChainParametersValue(ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(),
-            blockingStubFull) == 1;
+  public static Boolean allowTvmSelfdestructRestrictionIsActive(
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return PublicMethod.getChainParametersValue(
+            ProposalEnum.GetAllowTvmSelfdestructRestriction.getProposalName(), blockingStubFull)
+        == 1;
   }
 
   // TODO: Uncomment when proto supports getPaginatedNowWitnessList (v4.8.1+ API)
-  // public static GrpcAPI.WitnessList getPaginatedNowWitnessList(Long offset, Long limit, WalletGrpc.WalletBlockingStub blockingStubFull){
-  //   return blockingStubFull.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  // public static GrpcAPI.WitnessList getPaginatedNowWitnessList(Long offset, Long limit,
+  // WalletGrpc.WalletBlockingStub blockingStubFull){
+  //   return
+  // blockingStubFull.getPaginatedNowWitnessList(
+  //     GrpcAPI.PaginatedMessage.newBuilder()
+  //         .setLimit(limit).setOffset(offset).build());
   // }
   //
-  // public static GrpcAPI.WitnessList getPaginatedNowWitnessListSolidity(Long offset, Long limit, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity){
-  //   return blockingStubSolidity.getPaginatedNowWitnessList(GrpcAPI.PaginatedMessage.newBuilder().setLimit(limit).setOffset(offset).build());
+  // public static GrpcAPI.WitnessList getPaginatedNowWitnessListSolidity(Long offset, Long limit,
+  // WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity){
+  //   return
+  // blockingStubSolidity.getPaginatedNowWitnessList(
+  //     GrpcAPI.PaginatedMessage.newBuilder()
+  //         .setLimit(limit).setOffset(offset).build());
   // }
 
   /** constructor. */
@@ -1063,7 +1086,8 @@ public class PublicMethod {
       int resourceCode,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalanceGetEnergy(addRess, freezeBalance, freezeDuration, resourceCode, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalanceGetEnergy(
+        addRess, freezeBalance, freezeDuration, resourceCode, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -1109,9 +1133,21 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractFallbackReceive(contractName, abiString, code, data,
-        feeLimit, value, consumeUserResourcePercent, originEnergyLimit, tokenId, tokenValue,
-        libraryAddress, priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.deployContractFallbackReceive(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        originEnergyLimit,
+        tokenId,
+        tokenValue,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1130,30 +1166,21 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContract(contractName, abiString, code, data,
-        feeLimit, value, consumeUserResourcePercent, originEnergyLimit, tokenId, tokenValue,
-        libraryAddress, priKey, ownerAddress, blockingStubFull);
-  }
-
-  /** constructor. */
-  public static Transaction deployContractWithoutBroadcast(
-      String contractName,
-      String abiString,
-      String code,
-      String data,
-      Long feeLimit,
-      long value,
-      long consumeUserResourcePercent,
-      long originEnergyLimit,
-      String tokenId,
-      long tokenValue,
-      String libraryAddress,
-      String priKey,
-      byte[] ownerAddress,
-      WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractWithoutBroadcast(contractName, abiString, code, data,
-        feeLimit, value, consumeUserResourcePercent, originEnergyLimit, tokenId, tokenValue,
-        libraryAddress, priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.deployContract(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        originEnergyLimit,
+        tokenId,
+        tokenValue,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1187,6 +1214,39 @@ public class PublicMethod {
   }
 
   /** constructor. */
+  public static Transaction deployContractWithoutBroadcast(
+      String contractName,
+      String abiString,
+      String code,
+      String data,
+      Long feeLimit,
+      long value,
+      long consumeUserResourcePercent,
+      long originEnergyLimit,
+      String tokenId,
+      long tokenValue,
+      String libraryAddress,
+      String priKey,
+      byte[] ownerAddress,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ContractHelper.deployContractWithoutBroadcast(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        originEnergyLimit,
+        tokenId,
+        tokenValue,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
+  }
+
+  /** constructor. */
   @Deprecated
   public static byte[] deployContractFallback(
       String contractName,
@@ -1200,9 +1260,18 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractFallback(contractName, abiString, code, data,
-        feeLimit, value, consumeUserResourcePercent, libraryAddress, priKey,
-        ownerAddress, blockingStubFull);
+    return ContractHelper.deployContractFallback(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1220,9 +1289,19 @@ public class PublicMethod {
       byte[] ownerAddress,
       String compilerVersion,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractForLibrary(contractName, abiString, code, data,
-        feeLimit, value, consumeUserResourcePercent, libraryAddress, priKey,
-        ownerAddress, compilerVersion, blockingStubFull);
+    return ContractHelper.deployContractForLibrary(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        compilerVersion,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1239,9 +1318,18 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractAndGetTransactionInfoById(contractName, abiString,
-        code, data, feeLimit, value, consumeUserResourcePercent, libraryAddress, priKey,
-        ownerAddress, blockingStubFull);
+    return ContractHelper.deployContractAndGetTransactionInfoById(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1260,9 +1348,21 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractAndGetTransactionInfoById(contractName, abiString, code,
-        data, feeLimit, value, consumeUserResourcePercent, originEnergyLimit, tokenId, tokenValue,
-        libraryAddress, priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.deployContractAndGetTransactionInfoById(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        originEnergyLimit,
+        tokenId,
+        tokenValue,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1393,8 +1493,8 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.updateSetting(contractAddress, consumeUserResourcePercent,
-        priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.updateSetting(
+        contractAddress, consumeUserResourcePercent, priKey, ownerAddress, blockingStubFull);
   }
 
   /** 61 constructor. */
@@ -1437,8 +1537,16 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerContract(contractAddress, method, argsStr, isHex,
-        callValue, feeLimit, ownerAddress, priKey, blockingStubFull);
+    return ContractHelper.triggerContract(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        ownerAddress,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1455,8 +1563,18 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerContract(contractAddress, method, argsStr, isHex,
-        callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey, blockingStubFull);
+    return ContractHelper.triggerContract(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1472,8 +1590,17 @@ public class PublicMethod {
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       WalletGrpc.WalletBlockingStub blockingStubFull1) {
-    return ContractHelper.triggerContractBoth(contractAddress, method, argsStr, isHex,
-        callValue, feeLimit, ownerAddress, priKey, blockingStubFull, blockingStubFull1);
+    return ContractHelper.triggerContractBoth(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        ownerAddress,
+        priKey,
+        blockingStubFull,
+        blockingStubFull1);
   }
 
   /** constructor. */
@@ -1491,8 +1618,19 @@ public class PublicMethod {
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       WalletGrpc.WalletBlockingStub blockingStubFull1) {
-    return ContractHelper.triggerContractBoth(contractAddress, method, argsStr, isHex,
-        callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey, blockingStubFull, blockingStubFull1);
+    return ContractHelper.triggerContractBoth(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
+        blockingStubFull,
+        blockingStubFull1);
   }
 
   /** constructor. */
@@ -1509,8 +1647,18 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerParamListContract(contractAddress, method, params, isHex,
-        callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey, blockingStubFull);
+    return ContractHelper.triggerParamListContract(
+        contractAddress,
+        method,
+        params,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1523,8 +1671,14 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.exchangeCreate(firstTokenId, firstTokenBalance, secondTokenId,
-        secondTokenBalance, ownerAddress, priKey, blockingStubFull);
+    return AssetHelper.exchangeCreate(
+        firstTokenId,
+        firstTokenBalance,
+        secondTokenId,
+        secondTokenBalance,
+        ownerAddress,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1536,7 +1690,8 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.injectExchange(exchangeId, tokenId, quant, ownerAddress, priKey, blockingStubFull);
+    return AssetHelper.injectExchange(
+        exchangeId, tokenId, quant, ownerAddress, priKey, blockingStubFull);
   }
 
   @Deprecated
@@ -1575,7 +1730,8 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.exchangeWithdraw(exchangeId, tokenId, quant, ownerAddress, priKey, blockingStubFull);
+    return AssetHelper.exchangeWithdraw(
+        exchangeId, tokenId, quant, ownerAddress, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -1588,8 +1744,8 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.exchangeTransaction(exchangeId, tokenId, quant, expected, ownerAddress,
-        priKey, blockingStubFull);
+    return AssetHelper.exchangeTransaction(
+        exchangeId, tokenId, quant, expected, ownerAddress, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -1608,9 +1764,20 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractWithConstantParame(contractName, abiString, code,
-        constructorStr, argsStr, data, feeLimit, value, consumeUserResourcePercent,
-        libraryAddress, priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.deployContractWithConstantParame(
+        contractName,
+        abiString,
+        code,
+        constructorStr,
+        argsStr,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1631,9 +1798,23 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractWithConstantParame(contractName, abiString, code,
-        constructorStr, argsStr, data, feeLimit, value, consumeUserResourcePercent,
-        originEnergyLimit, tokenId, tokenValue, libraryAddress, priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.deployContractWithConstantParame(
+        contractName,
+        abiString,
+        code,
+        constructorStr,
+        argsStr,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        originEnergyLimit,
+        tokenId,
+        tokenValue,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1646,7 +1827,14 @@ public class PublicMethod {
       ByteString receiverAddressBytes,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalanceForReceiver(addRess, freezeBalance, freezeDuration, resourceCode, receiverAddressBytes, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalanceForReceiver(
+        addRess,
+        freezeBalance,
+        freezeDuration,
+        resourceCode,
+        receiverAddressBytes,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1662,7 +1850,8 @@ public class PublicMethod {
       byte[] fromAddress,
       byte[] toAddress,
       WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
-    return ResourceHelper.getDelegatedResourceFromSolidity(fromAddress, toAddress, blockingStubFull);
+    return ResourceHelper.getDelegatedResourceFromSolidity(
+        fromAddress, toAddress, blockingStubFull);
   }
 
   /** constructor. */
@@ -1672,7 +1861,6 @@ public class PublicMethod {
     return ResourceHelper.getDelegatedResourceAccountIndex(address, blockingStubFull);
   }
 
-
   /** constructor. */
   @Deprecated
   public static Optional<DelegatedResourceAccountIndex>
@@ -1680,24 +1868,30 @@ public class PublicMethod {
           byte[] address, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return ResourceHelper.getDelegatedResourceAccountIndexFromSolidity(address, blockingStubFull);
   }
+
   /** constructor. */
   @Deprecated
   public static Optional<DelegatedResourceList> getDelegatedResourceV2(
       byte[] fromAddress, byte[] toAddress, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.getDelegatedResourceV2(fromAddress, toAddress, blockingStubFull);
   }
+
   /** constructor. */
   @Deprecated
   public static Optional<DelegatedResourceList> getDelegatedResourceV2Solidity(
-      byte[] fromAddress, byte[] toAddress, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+      byte[] fromAddress,
+      byte[] toAddress,
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return ResourceHelper.getDelegatedResourceV2Solidity(fromAddress, toAddress, blockingStubFull);
   }
+
   /** constructor. */
   @Deprecated
   public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndexV2(
       byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.getDelegatedResourceAccountIndexV2(address, blockingStubFull);
   }
+
   /** constructor. */
   @Deprecated
   public static Optional<DelegatedResourceAccountIndex> getDelegatedResourceAccountIndexV2Solidity(
@@ -1706,41 +1900,47 @@ public class PublicMethod {
   }
 
   @Deprecated
-  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSize(byte[] ownerAddress, int type,
-      WalletGrpc.WalletBlockingStub blockingStub) {
+  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSize(
+      byte[] ownerAddress, int type, WalletGrpc.WalletBlockingStub blockingStub) {
     return ResourceHelper.getCanDelegatedMaxSize(ownerAddress, type, blockingStub);
   }
 
   @Deprecated
-  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSizeSolidity(byte[] ownerAddress, int type,
-                                                                                            WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static Optional<CanDelegatedMaxSizeResponseMessage> getCanDelegatedMaxSizeSolidity(
+      byte[] ownerAddress,
+      int type,
+      WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return ResourceHelper.getCanDelegatedMaxSizeSolidity(ownerAddress, type, blockingStubFull);
   }
 
-
   @Deprecated
   public static Optional<CanWithdrawUnfreezeAmountResponseMessage> getCanWithdrawUnfreezeAmount(
-      byte[] ownerAddress, long timestamp,WalletGrpc.WalletBlockingStub blockingStub) {
+      byte[] ownerAddress, long timestamp, WalletGrpc.WalletBlockingStub blockingStub) {
     return ResourceHelper.getCanWithdrawUnfreezeAmount(ownerAddress, timestamp, blockingStub);
   }
-  @Deprecated
-  public static Optional<CanWithdrawUnfreezeAmountResponseMessage> getCanWithdrawUnfreezeAmountSolidity(
-      byte[] ownerAddress, long timestamp,WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
-    return ResourceHelper.getCanWithdrawUnfreezeAmountSolidity(ownerAddress, timestamp, blockingStubFull);
-  }
 
+  @Deprecated
+  public static Optional<CanWithdrawUnfreezeAmountResponseMessage>
+      getCanWithdrawUnfreezeAmountSolidity(
+          byte[] ownerAddress,
+          long timestamp,
+          WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+    return ResourceHelper.getCanWithdrawUnfreezeAmountSolidity(
+        ownerAddress, timestamp, blockingStubFull);
+  }
 
   @Deprecated
   public static Optional<GetAvailableUnfreezeCountResponseMessage> getAvailableUnfreezeCount(
-      byte[] ownerAddress,WalletGrpc.WalletBlockingStub blockingStub) {
+      byte[] ownerAddress, WalletGrpc.WalletBlockingStub blockingStub) {
     return ResourceHelper.getAvailableUnfreezeCount(ownerAddress, blockingStub);
   }
+
   @Deprecated
-  public static Optional<GetAvailableUnfreezeCountResponseMessage> getAvailableUnfreezeCountSolidity(
-      byte[] ownerAddress,WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
+  public static Optional<GetAvailableUnfreezeCountResponseMessage>
+      getAvailableUnfreezeCountSolidity(
+          byte[] ownerAddress, WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubFull) {
     return ResourceHelper.getAvailableUnfreezeCountSolidity(ownerAddress, blockingStubFull);
   }
-
 
   /** constructor. */
   @Deprecated
@@ -1869,7 +2069,8 @@ public class PublicMethod {
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       String[] priKeys) {
-    return AccountHelper.accountPermissionUpdate(permissionJson, owner, priKey, blockingStubFull, priKeys);
+    return AccountHelper.accountPermissionUpdate(
+        permissionJson, owner, priKey, blockingStubFull, priKeys);
   }
 
   /** constructor. */
@@ -1879,7 +2080,8 @@ public class PublicMethod {
       String ecKey,
       Long targetEnergy,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.getFreezeBalanceCount(accountAddress, ecKey, targetEnergy, blockingStubFull);
+    return ResourceHelper.getFreezeBalanceCount(
+        accountAddress, ecKey, targetEnergy, blockingStubFull);
   }
 
   /** constructor. */
@@ -1926,9 +2128,21 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.deployContractAndGetResponse(contractName, abiString, code, data,
-        feeLimit, value, consumeUserResourcePercent, originEnergyLimit, tokenId, tokenValue,
-        libraryAddress, priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.deployContractAndGetResponse(
+        contractName,
+        abiString,
+        code,
+        data,
+        feeLimit,
+        value,
+        consumeUserResourcePercent,
+        originEnergyLimit,
+        tokenId,
+        tokenValue,
+        libraryAddress,
+        priKey,
+        ownerAddress,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -1945,8 +2159,17 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerContractAndGetResponse(contractAddress, method, argsStr,
-        isHex, callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey,
+    return ContractHelper.triggerContractAndGetResponse(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
         blockingStubFull);
   }
 
@@ -1958,8 +2181,8 @@ public class PublicMethod {
       String priKey,
       byte[] ownerAddress,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.updateEnergyLimit(contractAddress, originEnergyLimit,
-        priKey, ownerAddress, blockingStubFull);
+    return ContractHelper.updateEnergyLimit(
+        contractAddress, originEnergyLimit, priKey, ownerAddress, blockingStubFull);
   }
 
   /** constructor. */
@@ -1969,7 +2192,8 @@ public class PublicMethod {
       byte[] owner,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AccountHelper.accountPermissionUpdateForResponse(permissionJson, owner, priKey, blockingStubFull);
+    return AccountHelper.accountPermissionUpdateForResponse(
+        permissionJson, owner, priKey, blockingStubFull);
   }
 
   @Deprecated
@@ -1985,7 +2209,8 @@ public class PublicMethod {
       String ecKey,
       Long targetNet,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.getFreezeBalanceNetCount(accountAddress, ecKey, targetNet, blockingStubFull);
+    return ResourceHelper.getFreezeBalanceNetCount(
+        accountAddress, ecKey, targetNet, blockingStubFull);
   }
 
   /** constructor. */
@@ -2001,11 +2226,12 @@ public class PublicMethod {
       Transaction transaction,
       WalletGrpc.WalletBlockingStub blockingStubFull,
       WalletGrpc.WalletBlockingStub blockingStubFull1) {
-    return TransactionHelper.broadcastTransactionBoth(transaction, blockingStubFull, blockingStubFull1);
+    return TransactionHelper.broadcastTransactionBoth(
+        transaction, blockingStubFull, blockingStubFull1);
   }
 
   /** constructor. */
-  public synchronized static String exec(String command) throws InterruptedException {
+  public static synchronized String exec(String command) throws InterruptedException {
     String returnString = "";
     String errReturnString = "";
     Process pro = null;
@@ -2025,7 +2251,7 @@ public class PublicMethod {
       InputStreamReader errReader = new InputStreamReader(stderr);
       BufferedReader br = new BufferedReader(errReader);
       String errLine = null;
-      while ((errLine = br.readLine())!=null) {
+      while ((errLine = br.readLine()) != null) {
         errReturnString = errReturnString + errLine + "\n";
       }
       input.close();
@@ -2038,7 +2264,6 @@ public class PublicMethod {
     }
     return returnString.length() >= errReturnString.length() ? returnString : errReturnString;
   }
-
 
   /** constructor. */
   public static HashMap<String, String> getBycodeAbiNoOptimize(
@@ -2099,7 +2324,8 @@ public class PublicMethod {
   }
 
   /** constructor. */
-  public synchronized static HashMap<String, String> getBycodeAbi(String solFile, String contractName) {
+  public static synchronized HashMap<String, String> getBycodeAbi(
+      String solFile, String contractName) {
     final String compile =
         Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
 
@@ -2135,7 +2361,6 @@ public class PublicMethod {
     String byteCode = null;
     String abI = null;
 
-
     // compile solidity file
     try {
       exec(cmd);
@@ -2157,9 +2382,10 @@ public class PublicMethod {
   }
 
   /** constructor. */
-  public synchronized static HashMap<String, String> getBycodeAbiWithParam(String solFile, String contractName, String param) {
+  public static synchronized HashMap<String, String> getBycodeAbiWithParam(
+      String solFile, String contractName, String param) {
     final String compile =
-            Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
+        Configuration.getByPath("testng.conf").getString("defaultParameter.solidityCompile");
 
     String dirPath = solFile.substring(solFile.lastIndexOf("/"), solFile.lastIndexOf("."));
     String outputPath = "src/test/resources/soliditycode/output" + dirPath;
@@ -2179,20 +2405,21 @@ public class PublicMethod {
     logger.debug("solFile: " + solFile);
     logger.debug("outputPath: " + outputPath);
     String cmd =
-            compile
-                    + " --optimize " + param + " --bin --abi --overwrite "
-                    + absolutePath
-                    + "/"
-                    + solFile
-                    + " -o "
-                    + absolutePath
-                    + "/"
-                    + outputPath;
+        compile
+            + " --optimize "
+            + param
+            + " --bin --abi --overwrite "
+            + absolutePath
+            + "/"
+            + solFile
+            + " -o "
+            + absolutePath
+            + "/"
+            + outputPath;
     logger.info("cmd: " + cmd);
 
     String byteCode = null;
     String abI = null;
-
 
     // compile solidity file
     try {
@@ -2252,8 +2479,18 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerConstantContract(contractAddress, method, argsStr, isHex,
-        callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey, blockingStubFull);
+    return ContractHelper.triggerConstantContract(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -2270,9 +2507,18 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) {
-    return ContractHelper.triggerConstantContractForExtentionOnSolidity(contractAddress,
-        method, argsStr, isHex, callValue, feeLimit, tokenId, tokenValue, ownerAddress,
-        priKey, blockingStubSolidity);
+    return ContractHelper.triggerConstantContractForExtentionOnSolidity(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
+        blockingStubSolidity);
   }
 
   /** constructor. */
@@ -2282,8 +2528,7 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.clearContractAbi(contractAddress, ownerAddress, priKey,
-        blockingStubFull);
+    return ContractHelper.clearContractAbi(contractAddress, ownerAddress, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -2293,8 +2538,8 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.clearContractAbiForExtention(contractAddress, ownerAddress,
-        priKey, blockingStubFull);
+    return ContractHelper.clearContractAbiForExtention(
+        contractAddress, ownerAddress, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -2311,8 +2556,17 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerConstantContractForExtention(contractAddress, method,
-        argsStr, isHex, callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey,
+    return ContractHelper.triggerConstantContractForExtention(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
         blockingStubFull);
   }
 
@@ -2330,8 +2584,17 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletSolidityGrpc.WalletSolidityBlockingStub solidityBlockingStubFull) {
-    return ContractHelper.triggerSolidityContractForExtention(contractAddress, method,
-        argsStr, isHex, callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey,
+    return ContractHelper.triggerSolidityContractForExtention(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
         solidityBlockingStubFull);
   }
 
@@ -2349,8 +2612,17 @@ public class PublicMethod {
       byte[] ownerAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerContractForExtention(contractAddress, method, argsStr,
-        isHex, callValue, feeLimit, tokenId, tokenValue, ownerAddress, priKey,
+    return ContractHelper.triggerContractForExtention(
+        contractAddress,
+        method,
+        argsStr,
+        isHex,
+        callValue,
+        feeLimit,
+        tokenId,
+        tokenValue,
+        ownerAddress,
+        priKey,
         blockingStubFull);
   }
 
@@ -2372,7 +2644,16 @@ public class PublicMethod {
       long toAmount,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ShieldHelper.sendShieldCoin(publicZenTokenOwnerAddress, fromAmount, shieldAddressInfo, noteTx, shieldOutputList, publicZenTokenToAddress, toAmount, priKey, blockingStubFull);
+    return ShieldHelper.sendShieldCoin(
+        publicZenTokenOwnerAddress,
+        fromAmount,
+        shieldAddressInfo,
+        noteTx,
+        shieldOutputList,
+        publicZenTokenToAddress,
+        toAmount,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -2387,14 +2668,24 @@ public class PublicMethod {
       long toAmount,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ShieldHelper.sendShieldCoinWithoutAsk(publicZenTokenOwnerAddress, fromAmount, shieldAddressInfo, noteTx, shieldOutputList, publicZenTokenToAddress, toAmount, priKey, blockingStubFull);
+    return ShieldHelper.sendShieldCoinWithoutAsk(
+        publicZenTokenOwnerAddress,
+        fromAmount,
+        shieldAddressInfo,
+        noteTx,
+        shieldOutputList,
+        publicZenTokenToAddress,
+        toAmount,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
   @Deprecated
   public static List<Note> addShieldOutputList(
       List<Note> shieldOutList, String shieldToAddress, String toAmountString, String menoString) {
-    return ShieldHelper.addShieldOutputList(shieldOutList, shieldToAddress, toAmountString, menoString);
+    return ShieldHelper.addShieldOutputList(
+        shieldOutList, shieldToAddress, toAmountString, menoString);
   }
 
   /** constructor. */
@@ -2432,7 +2723,8 @@ public class PublicMethod {
   public static DecryptNotesMarked getShieldNotesAndMarkByIvkOnSolidity(
       Optional<ShieldAddressInfo> shieldAddressInfo,
       WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) {
-    return ShieldHelper.getShieldNotesAndMarkByIvkOnSolidity(shieldAddressInfo, blockingStubSolidity);
+    return ShieldHelper.getShieldNotesAndMarkByIvkOnSolidity(
+        shieldAddressInfo, blockingStubSolidity);
   }
 
   /** constructor. */
@@ -2504,7 +2796,16 @@ public class PublicMethod {
       long toAmount,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ShieldHelper.sendShieldCoinGetTxid(publicZenTokenOwnerAddress, fromAmount, shieldAddressInfo, noteTx, shieldOutputList, publicZenTokenToAddress, toAmount, priKey, blockingStubFull);
+    return ShieldHelper.sendShieldCoinGetTxid(
+        publicZenTokenOwnerAddress,
+        fromAmount,
+        shieldAddressInfo,
+        noteTx,
+        shieldOutputList,
+        publicZenTokenToAddress,
+        toAmount,
+        priKey,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -2543,7 +2844,8 @@ public class PublicMethod {
       byte[] address,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.transferAssetForReturn(to, assertName, amount, address, priKey, blockingStubFull);
+    return AssetHelper.transferAssetForReturn(
+        to, assertName, amount, address, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -2578,8 +2880,14 @@ public class PublicMethod {
       byte[] buyTokenId,
       long buyTokenQuantity,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.marketSellAsset(owner, priKey, sellTokenId, sellTokenQuantity,
-        buyTokenId, buyTokenQuantity, blockingStubFull);
+    return AssetHelper.marketSellAsset(
+        owner,
+        priKey,
+        sellTokenId,
+        sellTokenQuantity,
+        buyTokenId,
+        buyTokenQuantity,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -2592,8 +2900,14 @@ public class PublicMethod {
       byte[] buyTokenId,
       long buyTokenQuantity,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return AssetHelper.marketSellAssetGetResposne(owner, priKey, sellTokenId, sellTokenQuantity,
-        buyTokenId, buyTokenQuantity, blockingStubFull);
+    return AssetHelper.marketSellAssetGetResposne(
+        owner,
+        priKey,
+        sellTokenId,
+        sellTokenQuantity,
+        buyTokenId,
+        buyTokenQuantity,
+        blockingStubFull);
   }
 
   /** constructor. */
@@ -2658,7 +2972,8 @@ public class PublicMethod {
       byte[] sellTokenId,
       byte[] buyTokenId,
       WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity) {
-    return AssetHelper.getMarketOrderListByPairSolidity(sellTokenId, buyTokenId, blockingStubSolidity);
+    return AssetHelper.getMarketOrderListByPairSolidity(
+        sellTokenId, buyTokenId, blockingStubSolidity);
   }
 
   /** constructor. */
@@ -2773,62 +3088,72 @@ public class PublicMethod {
     return Optional.ofNullable(transaction);
   }
 
-
   /** constructor. */
   @Deprecated
-  public static Boolean freezeBalanceV2(byte[] addressByte,
+  public static Boolean freezeBalanceV2(
+      byte[] addressByte,
       long freezeBalance,
       int resourceCode,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalanceV2(addressByte, freezeBalance, resourceCode, priKey, blockingStubFull);
-  }
-  @Deprecated
-  public static String freezeBalanceV2AndGetTxId(byte[] addressByte,
-                                        long freezeBalance,
-                                        int resourceCode,
-                                        String priKey,
-                                        WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.freezeBalanceV2AndGetTxId(addressByte, freezeBalance, resourceCode, priKey, blockingStubFull);
+    return ResourceHelper.freezeBalanceV2(
+        addressByte, freezeBalance, resourceCode, priKey, blockingStubFull);
   }
 
+  @Deprecated
+  public static String freezeBalanceV2AndGetTxId(
+      byte[] addressByte,
+      long freezeBalance,
+      int resourceCode,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ResourceHelper.freezeBalanceV2AndGetTxId(
+        addressByte, freezeBalance, resourceCode, priKey, blockingStubFull);
+  }
 
   @Deprecated
-  public static Long getFrozenV2Amount(byte[] address, int resourceCode,WalletGrpc.WalletBlockingStub blockingStubFull) {
+  public static Long getFrozenV2Amount(
+      byte[] address, int resourceCode, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return ResourceHelper.getFrozenV2Amount(address, resourceCode, blockingStubFull);
   }
 
   /** constructor. */
   @Deprecated
-  public static Boolean delegateResourceForReceiver(byte[] addressByte,
+  public static Boolean delegateResourceForReceiver(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.delegateResourceForReceiver(addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
+    return ResourceHelper.delegateResourceForReceiver(
+        addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
   }
-
 
   /** constructor. */
   @Deprecated
-  public static Boolean delegateResourceV2(byte[] addressByte,
+  public static Boolean delegateResourceV2(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.delegateResourceV2(addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
+    return ResourceHelper.delegateResourceV2(
+        addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
   }
+
   /** constructor. */
   @Deprecated
-  public static String delegateResourceV2AndGetTxId(byte[] addressByte,
-                                           long delegateAmount,
-                                           int resourceCode,
-                                           byte[] receiverAddress,
-                                           String priKey,
-                                           WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.delegateResourceV2AndGetTxId(addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
+  public static String delegateResourceV2AndGetTxId(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ResourceHelper.delegateResourceV2AndGetTxId(
+        addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
   }
 
   /** constructor. */
@@ -2842,14 +3167,21 @@ public class PublicMethod {
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.delegateResourceV2AndGetTransactionExtention(addressByte, delegateAmount, resourceCode, lock, lockPeriod, receiverAddress, priKey, blockingStubFull);
+    return ResourceHelper.delegateResourceV2AndGetTransactionExtention(
+        addressByte,
+        delegateAmount,
+        resourceCode,
+        lock,
+        lockPeriod,
+        receiverAddress,
+        priKey,
+        blockingStubFull);
   }
-
-
 
   /** constructor. */
   @Deprecated
-  public static Boolean delegateResourceV2Lock(byte[] addressByte,
+  public static Boolean delegateResourceV2Lock(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       boolean lock,
@@ -2857,53 +3189,74 @@ public class PublicMethod {
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.delegateResourceV2Lock(addressByte, delegateAmount, resourceCode, lock, lockPeriod, receiverAddress, priKey, blockingStubFull);
+    return ResourceHelper.delegateResourceV2Lock(
+        addressByte,
+        delegateAmount,
+        resourceCode,
+        lock,
+        lockPeriod,
+        receiverAddress,
+        priKey,
+        blockingStubFull);
   }
 
   @Deprecated
-  public static String delegateResourceV2LockAndGetTxId(byte[] addressByte,
-                                               long delegateAmount,
-                                               int resourceCode,
-                                               boolean lock,
-                                               Long lockPeriod,
-                                               byte[] receiverAddress,
-                                               String priKey,
-                                               WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.delegateResourceV2LockAndGetTxId(addressByte, delegateAmount, resourceCode, lock, lockPeriod, receiverAddress, priKey, blockingStubFull);
+  public static String delegateResourceV2LockAndGetTxId(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      boolean lock,
+      Long lockPeriod,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ResourceHelper.delegateResourceV2LockAndGetTxId(
+        addressByte,
+        delegateAmount,
+        resourceCode,
+        lock,
+        lockPeriod,
+        receiverAddress,
+        priKey,
+        blockingStubFull);
   }
-
-
 
   /** constructor. */
   @Deprecated
-  public static Boolean unDelegateResourceV2(byte[] addressByte,
+  public static Boolean unDelegateResourceV2(
+      byte[] addressByte,
       long delegateAmount,
       int resourceCode,
       byte[] receiverAddress,
       String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.unDelegateResourceV2(addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
+    return ResourceHelper.unDelegateResourceV2(
+        addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
   }
 
   @Deprecated
-  public static String unDelegateResourceV2AndGetTxId(byte[] addressByte,
-                                             long delegateAmount,
-                                             int resourceCode,
-                                             byte[] receiverAddress,
-                                             String priKey,
-                                             WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.unDelegateResourceV2AndGetTxId(addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
-  }
-  @Deprecated
-  public static TransactionExtention unDelegateResourceV2AndGetTransactionExtention(byte[] addressByte,
-                                                      long delegateAmount,
-                                                      int resourceCode,
-                                                      byte[] receiverAddress,
-                                                      String priKey,
-                                                      WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ResourceHelper.unDelegateResourceV2AndGetTransactionExtention(addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
+  public static String unDelegateResourceV2AndGetTxId(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ResourceHelper.unDelegateResourceV2AndGetTxId(
+        addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
   }
 
+  @Deprecated
+  public static TransactionExtention unDelegateResourceV2AndGetTransactionExtention(
+      byte[] addressByte,
+      long delegateAmount,
+      int resourceCode,
+      byte[] receiverAddress,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ResourceHelper.unDelegateResourceV2AndGetTransactionExtention(
+        addressByte, delegateAmount, resourceCode, receiverAddress, priKey, blockingStubFull);
+  }
 
   /** constructor. */
   @Deprecated
@@ -2916,10 +3269,17 @@ public class PublicMethod {
       String argsStr,
       Boolean isHex,
       long tokenValue,
-      String tokenId
-      ) {
-    return ContractHelper.estimateEnergy(blockingStubFull, owner, contractAddress,
-        callValue, method, argsStr, isHex, tokenValue, tokenId);
+      String tokenId) {
+    return ContractHelper.estimateEnergy(
+        blockingStubFull,
+        owner,
+        contractAddress,
+        callValue,
+        method,
+        argsStr,
+        isHex,
+        tokenValue,
+        tokenId);
   }
 
   /** constructor. */
@@ -2933,59 +3293,64 @@ public class PublicMethod {
       String argsStr,
       Boolean isHex,
       long tokenValue,
-      String tokenId
-  ) {
-    return ContractHelper.estimateEnergySolidity(blockingStubFull, owner, contractAddress,
-        callValue, method, argsStr, isHex, tokenValue, tokenId);
+      String tokenId) {
+    return ContractHelper.estimateEnergySolidity(
+        blockingStubFull,
+        owner,
+        contractAddress,
+        callValue,
+        method,
+        argsStr,
+        isHex,
+        tokenValue,
+        tokenId);
   }
 
   @Deprecated
   public static Optional<GrpcAPI.EstimateEnergyMessage> estimateEnergyDeployContract(
-          WalletGrpc.WalletBlockingStub blockingStubFull,
-          byte[] owner,
-          long callValue,
-          long tokenValue,
-          String tokenId,
-          String code
-  ) {
-    return ContractHelper.estimateEnergyDeployContract(blockingStubFull, owner,
-        callValue, tokenValue, tokenId, code);
+      WalletGrpc.WalletBlockingStub blockingStubFull,
+      byte[] owner,
+      long callValue,
+      long tokenValue,
+      String tokenId,
+      String code) {
+    return ContractHelper.estimateEnergyDeployContract(
+        blockingStubFull, owner, callValue, tokenValue, tokenId, code);
   }
 
-
   public static void estimateDeployContractEnergy(
-          String code,
-          long value,
-          String tokenId,
-          long tokenValue,
-          byte[] ownerAddress,
-          WalletGrpc.WalletBlockingStub blockingStubFull
-  ) {
-    ContractHelper.estimateDeployContractEnergy(code, value, tokenId, tokenValue,
-        ownerAddress, blockingStubFull);
+      String code,
+      long value,
+      String tokenId,
+      long tokenValue,
+      byte[] ownerAddress,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    ContractHelper.estimateDeployContractEnergy(
+        code, value, tokenId, tokenValue, ownerAddress, blockingStubFull);
   }
 
   /** constructor. */
   @Deprecated
   public static TransactionExtention triggerConstantContractDeployContract(
-          String code,
-          byte[] ownerAddress,
-          long callValue,
-          String tokenId,
-          long tokenValue,
-          WalletGrpc.WalletBlockingStub blockingStubFull) {
-    return ContractHelper.triggerConstantContractDeployContract(code, ownerAddress,
-        callValue, tokenId, tokenValue, blockingStubFull);
+      String code,
+      byte[] ownerAddress,
+      long callValue,
+      String tokenId,
+      long tokenValue,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    return ContractHelper.triggerConstantContractDeployContract(
+        code, ownerAddress, callValue, tokenId, tokenValue, blockingStubFull);
   }
 
   @Deprecated
-  public static Long getExchangeIdByCreatorAddress(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  public static Long getExchangeIdByCreatorAddress(
+      byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     return AssetHelper.getExchangeIdByCreatorAddress(address, blockingStubFull);
   }
 
   public static String gRPCurlRequest(String data, String requestUrl, String node) {
     String cmd = gRPCurl + " " + "-plaintext";
-    if (data!=null) {
+    if (data != null) {
       cmd = cmd + " -d " + data;
     }
     cmd = cmd + " " + node + " " + requestUrl;
@@ -3001,9 +3366,4 @@ public class PublicMethod {
     }
     return null;
   }
-
-
-
-
-
 }

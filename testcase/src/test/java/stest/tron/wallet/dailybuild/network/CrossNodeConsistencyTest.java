@@ -20,8 +20,8 @@ import stest.tron.wallet.common.client.utils.Utils;
 /**
  * Cross-node state consistency tests.
  *
- * <p>Verifies that account balance and contract state are consistent
- * when queried from different nodes after transactions are confirmed.
+ * <p>Verifies that account balance and contract state are consistent when queried from different
+ * nodes after transactions are confirmed.
  */
 @Slf4j
 @MultiNode(reason = "Cross-node state consistency requires two nodes")
@@ -46,13 +46,20 @@ public class CrossNodeConsistencyTest extends TronBaseTest {
     testKeyStr = ByteArray.toHexString(testEcKey.getPrivKeyBytes());
 
     // Fund the test account
-    Assert.assertTrue(PublicMethod.sendcoin(testAddress, TronConstants.TEN_THOUSAND_TRX,
-        foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            testAddress,
+            TronConstants.TEN_THOUSAND_TRX,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "Account balance should be consistent across nodes",
+  @Test(
+      enabled = true,
+      description = "Account balance should be consistent across nodes",
       groups = {"daily"})
   public void test01BalanceConsistency() {
     Account accOnNode1 = PublicMethod.queryAccount(testAddress, blockingStubFull);
@@ -61,11 +68,12 @@ public class CrossNodeConsistencyTest extends TronBaseTest {
     long balance1 = accOnNode1.getBalance();
     long balance2 = accOnNode2.getBalance();
     logger.info("Balance on node1: {}, node2: {}", balance1, balance2);
-    Assert.assertEquals(balance1, balance2,
-        "Account balance should be identical on both nodes");
+    Assert.assertEquals(balance1, balance2, "Account balance should be identical on both nodes");
   }
 
-  @Test(enabled = true, dependsOnMethods = "test01BalanceConsistency",
+  @Test(
+      enabled = true,
+      dependsOnMethods = "test01BalanceConsistency",
       description = "Balance update via node1 should be reflected on node2",
       groups = {"daily"})
   public void test02BalanceUpdatePropagation() {
@@ -75,39 +83,48 @@ public class CrossNodeConsistencyTest extends TronBaseTest {
     byte[] receiverAddr = receiverKey.getAddress();
 
     // Transfer via node1
-    Assert.assertTrue(PublicMethod.sendcoin(receiverAddr, sendAmount,
-        testAddress, testKeyStr, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(receiverAddr, sendAmount, testAddress, testKeyStr, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     // Check sender balance consistency
     Account senderOnNode1 = PublicMethod.queryAccount(testAddress, blockingStubFull);
     Account senderOnNode2 = PublicMethod.queryAccount(testAddress, blockingStubFull2);
-    Assert.assertEquals(senderOnNode1.getBalance(), senderOnNode2.getBalance(),
+    Assert.assertEquals(
+        senderOnNode1.getBalance(),
+        senderOnNode2.getBalance(),
         "Sender balance should be consistent after transfer");
 
     // Check receiver balance consistency
     Account receiverOnNode1 = PublicMethod.queryAccount(receiverAddr, blockingStubFull);
     Account receiverOnNode2 = PublicMethod.queryAccount(receiverAddr, blockingStubFull2);
-    Assert.assertEquals(receiverOnNode1.getBalance(), receiverOnNode2.getBalance(),
+    Assert.assertEquals(
+        receiverOnNode1.getBalance(),
+        receiverOnNode2.getBalance(),
         "Receiver balance should be consistent after transfer");
-    Assert.assertEquals(receiverOnNode1.getBalance(), sendAmount,
-        "Receiver should have received the exact amount");
+    Assert.assertEquals(
+        receiverOnNode1.getBalance(), sendAmount, "Receiver should have received the exact amount");
     logger.info("Balance update propagated correctly to both nodes");
   }
 
-  @Test(enabled = true, description = "Foundation account should be consistent on both nodes",
+  @Test(
+      enabled = true,
+      description = "Foundation account should be consistent on both nodes",
       groups = {"daily"})
   public void test03FoundationAccountConsistency() {
     Account foundOnNode1 = PublicMethod.queryAccount(foundationAddress, blockingStubFull);
     Account foundOnNode2 = PublicMethod.queryAccount(foundationAddress, blockingStubFull2);
 
-    Assert.assertEquals(foundOnNode1.getBalance(), foundOnNode2.getBalance(),
+    Assert.assertEquals(
+        foundOnNode1.getBalance(),
+        foundOnNode2.getBalance(),
         "Foundation balance should be identical on both nodes");
-    Assert.assertEquals(foundOnNode1.getAccountName(), foundOnNode2.getAccountName(),
+    Assert.assertEquals(
+        foundOnNode1.getAccountName(),
+        foundOnNode2.getAccountName(),
         "Foundation account name should match");
-    logger.info("Foundation account consistent: balance={}",
-        foundOnNode1.getBalance());
+    logger.info("Foundation account consistent: balance={}", foundOnNode1.getBalance());
   }
 
   @AfterClass(enabled = true)

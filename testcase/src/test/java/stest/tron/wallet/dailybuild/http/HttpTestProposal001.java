@@ -13,7 +13,6 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.HttpMethod;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 
-
 @Slf4j
 public class HttpTestProposal001 {
 
@@ -35,7 +34,10 @@ public class HttpTestProposal001 {
   private int bandFee = 0;
 
   /** constructor. */
-  @Test(enabled = true, description = "Create proposal by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Create proposal by http",
+      groups = {"daily", "serial"})
   public void test1CreateProposal() {
     response = HttpMethod.createProposal(httpnode, witness1Address, 20L, 1L, witnessKey001);
     Assert.assertTrue(HttpMethod.verificationResult(response));
@@ -43,7 +45,10 @@ public class HttpTestProposal001 {
   }
 
   /** * constructor. * */
-  @Test(enabled = true, description = "List proposals by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "List proposals by http",
+      groups = {"daily", "serial"})
   public void test2ListProposals() {
     response = HttpMethod.listProposals(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -54,7 +59,10 @@ public class HttpTestProposal001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "GetProposalById by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetProposalById by http",
+      groups = {"daily", "serial"})
   public void test3GetExchangeById() {
     response = HttpMethod.getProposalById(httpnode, proposalId);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -65,7 +73,10 @@ public class HttpTestProposal001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Approval proposal by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Approval proposal by http",
+      groups = {"daily", "serial"})
   public void test4ApprovalProposal() {
     response =
         HttpMethod.approvalProposal(httpnode, witness1Address, proposalId, true, witnessKey001);
@@ -83,7 +94,10 @@ public class HttpTestProposal001 {
   }
 
   /** * constructor. * */
-  @Test(enabled = true, description = "Get paginated proposal list by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get paginated proposal list by http",
+      groups = {"daily", "serial"})
   public void test5GetPaginatedProposalList() {
 
     response = HttpMethod.getPaginatedProposalList(httpnode, 0, 1);
@@ -96,7 +110,10 @@ public class HttpTestProposal001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Delete proposal by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Delete proposal by http",
+      groups = {"daily", "serial"})
   public void test6DeleteProposal() {
     response = HttpMethod.deleteProposal(httpnode, witness1Address, proposalId, witnessKey001);
     Assert.assertTrue(HttpMethod.verificationResult(response));
@@ -108,7 +125,10 @@ public class HttpTestProposal001 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Get chain parameters by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get chain parameters by http",
+      groups = {"daily", "serial"})
   public void test7GetChainParameters() {
     response = HttpMethod.getChainParameters(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -136,7 +156,10 @@ public class HttpTestProposal001 {
   }
   /** constructor. */
 
-  @Test(enabled = true, description = "Get energy price by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get energy price by http",
+      groups = {"daily", "serial"})
   public void test8GetEnergyPrice() {
     response = HttpMethod.getEnergyPric(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -148,8 +171,10 @@ public class HttpTestProposal001 {
   }
 
   /** constructor. */
-
-  @Test(enabled = true, description = "Get band price by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Get band price by http",
+      groups = {"daily", "serial"})
   public void test8GetBandPrice() {
     response = HttpMethod.getBandPric(httpnode);
     responseContent = HttpMethod.parseResponseContent(response);

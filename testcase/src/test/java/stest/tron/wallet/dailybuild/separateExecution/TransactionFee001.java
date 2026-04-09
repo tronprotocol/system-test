@@ -28,8 +28,9 @@ import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
 import stest.tron.wallet.common.client.utils.Retry;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
+
 // import org.tron.common.parameter.CommonParameter;
 
 @Slf4j
@@ -71,19 +72,25 @@ public class TransactionFee001 extends TronBaseTest {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initPbftChannel();
-    initSolidityChannel();  }
+    initSolidityChannel();
+  }
 
-  @Test(enabled = true, retryAnalyzer = Retry.class, priority=2, description = "Test deploy contract with energy fee to sr", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      retryAnalyzer = Retry.class,
+      priority = 2,
+      description = "Test deploy contract with energy fee to sr",
+      groups = {"daily", "serial"})
   public void test01DeployContractEnergyFeeToSr() {
     Assert.assertTrue(
         PublicMethod.sendcoin(
             deployAddress, 20000000000L, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "src/test/resources/soliditycode//contractLinkage003.sol";
-  String contractName = "divideIHaveArgsReturnStorage";
+    String filePath = "src/test/resources/soliditycode//contractLinkage003.sol";
+    String contractName = "divideIHaveArgsReturnStorage";
     HashMap retMap = null;
-  String code = null;
-  String abi = null;
+    String code = null;
+    String abi = null;
     retMap = PublicMethod.getBycodeAbi(filePath, contractName);
     code = retMap.get("byteCode").toString();
     abi = retMap.get("abI").toString();
@@ -134,7 +141,7 @@ public class TransactionFee001 extends TronBaseTest {
             .getBalance();
     witness02Increase = witness02Allowance2 - witness02Allowance1;
     witness01Increase = witness01Allowance2 - witness01Allowance1;
-  // blackHoleIncrease = blackHoleBalance2 - blackHoleBalance1;
+    // blackHoleIncrease = blackHoleBalance2 - blackHoleBalance1;
     logger.info("----startNum:" + startNum + " endNum:" + endNum);
     logger.info(
         "====== witness02Allowance1 :"
@@ -155,12 +162,10 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethod.getAllowance2(startNum, endNum, blockingStubFull);
 
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
             <= 2);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
             <= 2);
     Assert.assertEquals(blackHoleBalance1, blackHoleBalance2);
     Optional<Protocol.TransactionInfo> infoById =
@@ -171,25 +176,31 @@ public class TransactionFee001 extends TronBaseTest {
   }
 
   @Test(
-      enabled = true, priority=2,
+      enabled = true,
+      priority = 2,
       retryAnalyzer = Retry.class,
       description =
           "Test update account permission fee to black hole,"
-              + "trans with multi sign and fee to sr", groups = {"daily", "serial"})
+              + "trans with multi sign and fee to sr",
+      groups = {"daily", "serial"})
   public void test02UpdateAccountPermissionAndMultiSiginTrans() {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] ownerAddress = ecKey1.getAddress();
-  final String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-  ECKey tmpEcKey02 = new ECKey(Utils.getRandom());
-  byte[] tmpAddr02 = tmpEcKey02.getAddress();
-  final String tmpKey02 = ByteArray.toHexString(tmpEcKey02.getPrivKeyBytes());
+    byte[] ownerAddress = ecKey1.getAddress();
+    final String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    ECKey tmpEcKey02 = new ECKey(Utils.getRandom());
+    byte[] tmpAddr02 = tmpEcKey02.getAddress();
+    final String tmpKey02 = ByteArray.toHexString(tmpEcKey02.getPrivKeyBytes());
     long needCoin = updateAccountPermissionFee * 2 + multiSignFee;
 
     Assert.assertTrue(
         PublicMethod.sendcoin(
-            ownerAddress, needCoin + 1_000_000, foundationAddress, foundationKey, blockingStubFull));
+            ownerAddress,
+            needCoin + 1_000_000,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
+    Long balanceBefore = PublicMethod.queryAccount(ownerAddress, blockingStubFull).getBalance();
     logger.info("balanceBefore: " + balanceBefore);
     PublicMethod.printAddress(ownerKey);
     PublicMethod.printAddress(tmpKey02);
@@ -215,7 +226,7 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethod.queryAccount(WalletClient.decode58Check(blackHoleAdd), blockingStubFull)
             .getBalance();
     beforeBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-  String accountPermissionJson =
+    String accountPermissionJson =
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner1\","
             + "\"threshold\":1,\"keys\":["
             + "{\"address\":\""
@@ -263,7 +274,7 @@ public class TransactionFee001 extends TronBaseTest {
             .getBalance();
     witness02Increase = witness02Allowance2 - witness02Allowance1;
     witness01Increase = witness01Allowance2 - witness01Allowance1;
-  // blackHoleIncrease = blackHoleBalance2 - blackHoleBalance1;
+    // blackHoleIncrease = blackHoleBalance2 - blackHoleBalance1;
     logger.info("----startNum:" + startNum + " endNum:" + endNum);
     logger.info(
         "====== witness02Allowance1 :"
@@ -284,12 +295,10 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethod.getAllowance2(startNum, endNum, blockingStubFull);
 
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
             <= 2);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
             <= 2);
     Assert.assertEquals(blackHoleBalance2, blackHoleBalance1);
 
@@ -363,7 +372,8 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethodForMultiSign.getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("TransactionSignWeight info : " + txWeight);
 
-    Assert.assertTrue(PublicMethodForMultiSign.broadcastTransaction(transaction2, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethodForMultiSign.broadcastTransaction(transaction2, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     endNum =
@@ -400,12 +410,10 @@ public class TransactionFee001 extends TronBaseTest {
     witnessAllowance = PublicMethod.getAllowance2(startNum, endNum, blockingStubFull);
 
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
             <= 2);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
             <= 2);
     Assert.assertEquals(blackHoleBalance2, blackHoleBalance1);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
@@ -416,8 +424,10 @@ public class TransactionFee001 extends TronBaseTest {
   }
 
   @Test(
-      enabled = true, priority=2,
-      description = "Test trigger result is \"OUT_OF_TIME\"" + " with energy fee to black hole", groups = {"daily", "serial"})
+      enabled = true,
+      priority = 2,
+      description = "Test trigger result is \"OUT_OF_TIME\"" + " with energy fee to black hole",
+      groups = {"daily", "serial"})
   public void test03OutOfTimeEnergyFeeToBlackHole() {
     Random rand = new Random();
     Integer randNum = rand.nextInt(4000);
@@ -426,13 +436,13 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethod.sendcoin(
             deployAddress, maxFeeLimit * 10, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String contractName = "StorageAndCpu" + Integer.toString(randNum);
-  String code =
+    String contractName = "StorageAndCpu" + Integer.toString(randNum);
+    String code =
         Configuration.getByPath("testng.conf")
             .getString("code.code_TestStorageAndCpu_storageAndCpu");
-  String abi =
+    String abi =
         Configuration.getByPath("testng.conf").getString("abi.abi_TestStorageAndCpu_storageAndCpu");
-  byte[] contractAddress = null;
+    byte[] contractAddress = null;
     contractAddress =
         PublicMethod.deployContract(
             contractName,
@@ -513,29 +523,34 @@ public class TransactionFee001 extends TronBaseTest {
     Map<String, Long> witnessAllowance =
         PublicMethod.getAllowance2(startNum, endNum, blockingStubFull);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
             <= 2);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
             <= 2);
     Assert.assertEquals(blackHoleBalance2, blackHoleBalance1);
-  Long packingFee = infoById.get().getPackingFee();
+    Long packingFee = infoById.get().getPackingFee();
     logger.info("receipt:" + infoById.get().getReceipt());
     Assert.assertTrue(packingFee == infoById.get().getReceipt().getNetFee());
-    Assert.assertTrue(infoById.get().getFee() < maxFeeLimit + infoById.get().getReceipt().getNetFee());
+    Assert.assertTrue(
+        infoById.get().getFee() < maxFeeLimit + infoById.get().getReceipt().getNetFee());
     afterBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-    Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getReceipt().getEnergyFee());
+    Assert.assertTrue(
+        afterBurnTrxAmount - beforeBurnTrxAmount == infoById.get().getReceipt().getEnergyFee());
   }
 
-  @Test(enabled = true, priority=2, description = "Test create account with netFee to sr", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 2,
+      description = "Test create account with netFee to sr",
+      groups = {"daily", "serial"})
   public void test04AccountCreate() {
-    //use new account to create account cost 1.1 TRX
+    // use new account to create account cost 1.1 TRX
     ECKey creatorEcKey = new ECKey(Utils.getRandom());
-  byte[] creatorAddress = creatorEcKey.getAddress();
-  final String creatorKey = ByteArray.toHexString(creatorEcKey.getPrivKeyBytes());
-    PublicMethod.sendcoin(creatorAddress, 100000000L, foundationAddress, foundationKey, blockingStubFull);
+    byte[] creatorAddress = creatorEcKey.getAddress();
+    final String creatorKey = ByteArray.toHexString(creatorEcKey.getPrivKeyBytes());
+    PublicMethod.sendcoin(
+        creatorAddress, 100000000L, foundationAddress, foundationKey, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     startNum =
@@ -552,10 +567,11 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethod.queryAccount(WalletClient.decode58Check(blackHoleAdd), blockingStubFull)
             .getBalance();
     beforeBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-  ECKey ecKey = new ECKey(Utils.getRandom());
-  byte[] lowBalAddress = ecKey.getAddress();
+    ECKey ecKey = new ECKey(Utils.getRandom());
+    byte[] lowBalAddress = ecKey.getAddress();
     txid =
-        PublicMethod.createAccountGetTxid(creatorAddress, lowBalAddress, creatorKey, blockingStubFull);
+        PublicMethod.createAccountGetTxid(
+            creatorAddress, lowBalAddress, creatorKey, blockingStubFull);
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     endNum =
@@ -593,12 +609,10 @@ public class TransactionFee001 extends TronBaseTest {
     Map<String, Long> witnessAllowance =
         PublicMethod.getAllowance2(startNum, endNum, blockingStubFull);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
             <= 2);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
             <= 2);
     Assert.assertEquals(blackHoleBalance1, blackHoleBalance2);
     Optional<Protocol.TransactionInfo> infoById =
@@ -610,9 +624,11 @@ public class TransactionFee001 extends TronBaseTest {
   }
 
   @Test(
-      enabled = true, priority=2,
+      enabled = true,
+      priority = 2,
       retryAnalyzer = Retry.class,
-      description = "Test trigger contract with netFee and energyFee to sr", groups = {"daily", "serial"})
+      description = "Test trigger contract with netFee and energyFee to sr",
+      groups = {"daily", "serial"})
   public void test05NetFeeAndEnergyFee2Sr() {
     Random rand = new Random();
     Integer randNum = rand.nextInt(30) + 1;
@@ -622,13 +638,13 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethod.sendcoin(
             deployAddress, maxFeeLimit * 10, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String contractName = "StorageAndCpu" + Integer.toString(randNum);
-  String code =
+    String contractName = "StorageAndCpu" + Integer.toString(randNum);
+    String code =
         Configuration.getByPath("testng.conf")
             .getString("code.code_TestStorageAndCpu_storageAndCpu");
-  String abi =
+    String abi =
         Configuration.getByPath("testng.conf").getString("abi.abi_TestStorageAndCpu_storageAndCpu");
-  byte[] contractAddress = null;
+    byte[] contractAddress = null;
     contractAddress =
         PublicMethod.deployContract(
             contractName,
@@ -683,7 +699,7 @@ public class TransactionFee001 extends TronBaseTest {
             deployAddress,
             deployKey,
             blockingStubFull);
-  //    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    //    PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     endNum =
         blockingStubFull
@@ -722,12 +738,10 @@ public class TransactionFee001 extends TronBaseTest {
     Map<String, Long> witnessAllowance =
         PublicMethod.getAllowance2(startNum, endNum, blockingStubFull);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
             <= 2);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
             <= 2);
     Assert.assertEquals(blackHoleBalance1, blackHoleBalance2);
     afterBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
@@ -735,12 +749,16 @@ public class TransactionFee001 extends TronBaseTest {
   }
 
   /** constructor. */
-  @Test(enabled = true, priority=2, description = "Test create trc10 token with fee not to sr", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 2,
+      description = "Test create trc10 token with fee not to sr",
+      groups = {"daily", "serial"})
   public void test06CreateAssetIssue() {
     // get account
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] tokenAccountAddress = ecKey1.getAddress();
-  final String tokenAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    byte[] tokenAccountAddress = ecKey1.getAddress();
+    final String tokenAccountKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
     PublicMethod.printAddress(tokenAccountKey);
 
@@ -763,13 +781,13 @@ public class TransactionFee001 extends TronBaseTest {
         PublicMethod.queryAccount(WalletClient.decode58Check(blackHoleAdd), blockingStubFull)
             .getBalance();
     beforeBurnTrxAmount = blockingStubFull.getBurnTrx(EmptyMessage.newBuilder().build()).getNum();
-  Long start = System.currentTimeMillis() + 2000;
-  Long end = System.currentTimeMillis() + 1000000000;
+    Long start = System.currentTimeMillis() + 2000;
+    Long end = System.currentTimeMillis() + 1000000000;
     long now = System.currentTimeMillis();
     long totalSupply = now;
-  String description = "for case assetissue016";
-  String url = "https://stest.assetissue016.url";
-  String name = "AssetIssue016_" + Long.toString(now);
+    String description = "for case assetissue016";
+    String url = "https://stest.assetissue016.url";
+    String name = "AssetIssue016_" + Long.toString(now);
     txid =
         PublicMethod.createAssetIssueGetTxid(
             tokenAccountAddress,
@@ -826,12 +844,10 @@ public class TransactionFee001 extends TronBaseTest {
     Map<String, Long> witnessAllowance =
         PublicMethod.getAllowance2(startNum, endNum, blockingStubFull);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress)) - witness01Increase))
             <= 2);
     Assert.assertTrue(
-        (Math.abs(
-                witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
+        (Math.abs(witnessAllowance.get(ByteArray.toHexString(witnessAddress2)) - witness02Increase))
             <= 2);
     Assert.assertEquals(blackHoleBalance1, blackHoleBalance2);
     Optional<Protocol.TransactionInfo> infoById =
@@ -842,43 +858,53 @@ public class TransactionFee001 extends TronBaseTest {
     Assert.assertTrue(afterBurnTrxAmount - beforeBurnTrxAmount == 1024000000L);
   }
 
-  @Test(enabled = true, priority=2, description = "commit NO.47 value can be 1e17 if commit No.63 opened", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 2,
+      description = "commit NO.47 value can be 1e17 if commit No.63 opened",
+      groups = {"daily", "serial"})
   public void test07Commit47Value() {
     HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
     proposalMap.put(47L, 100000000000000000L);
-    org.testng.Assert.assertTrue(PublicMethod.createProposal(witnessAddress, witnessKey,
-        proposalMap, blockingStubFull));
+    org.testng.Assert.assertTrue(
+        PublicMethod.createProposal(witnessAddress, witnessKey, proposalMap, blockingStubFull));
   }
 
   /** constructor. */
-  @Test(enabled = true, priority=2, description = " create and vote witness, "
-      + "after this case there will be 3 SR", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      priority = 2,
+      description = " create and vote witness, " + "after this case there will be 3 SR",
+      groups = {"daily", "serial"})
   public void test08CreateAndVoteWitness() {
-    int beforeCreateWitnessCount = PublicMethod.listWitnesses(blockingStubFull)
-        .get().getWitnessesCount();
+    int beforeCreateWitnessCount =
+        PublicMethod.listWitnesses(blockingStubFull).get().getWitnessesCount();
     Assert.assertEquals(2, beforeCreateWitnessCount);
-    Assert.assertTrue(PublicMethod
-        .sendcoin(witnessAddress3, costForCreateWitness + 100000000L, foundationAddress, foundationKey,
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            witnessAddress3,
+            costForCreateWitness + 100000000L,
+            foundationAddress,
+            foundationKey,
             blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    org.testng.Assert.assertTrue(PublicMethod.freezeBalanceGetTronPower(witnessAddress3, 1000000L,
-        0, 2, null, witnessKey3, blockingStubFull));
+    org.testng.Assert.assertTrue(
+        PublicMethod.freezeBalanceGetTronPower(
+            witnessAddress3, 1000000L, 0, 2, null, witnessKey3, blockingStubFull));
     Assert.assertTrue(createWitness(witnessAddress3, createUrl, witnessKey3));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  int afterCreateWitnessCount = PublicMethod.listWitnesses(blockingStubFull)
-        .get().getWitnessesCount();
+    int afterCreateWitnessCount =
+        PublicMethod.listWitnesses(blockingStubFull).get().getWitnessesCount();
     Assert.assertEquals(3, afterCreateWitnessCount);
     Assert.assertTrue(PublicMethod.queryAccount(witnessAddress3, blockingStubFull).getIsWitness());
 
     HashMap<byte[], Long> witnessMap = new HashMap<>();
     witnessMap.put(witnessAddress3, 1L);
-    Assert.assertTrue(PublicMethod.voteWitness(witnessAddress3, witnessKey3, witnessMap,
-        blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.voteWitness(witnessAddress3, witnessKey3, witnessMap, blockingStubFull));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Boolean createWitness(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
     try {
@@ -889,8 +915,8 @@ public class TransactionFee001 extends TronBaseTest {
     }
     final ECKey ecKey = temKey;
 
-    WitnessContract.WitnessCreateContract.Builder builder = WitnessContract.WitnessCreateContract
-        .newBuilder();
+    WitnessContract.WitnessCreateContract.Builder builder =
+        WitnessContract.WitnessCreateContract.newBuilder();
     builder.setOwnerAddress(ByteString.copyFrom(owner));
     builder.setUrl(ByteString.copyFrom(url));
     WitnessContract.WitnessCreateContract contract = builder.build();
@@ -916,7 +942,8 @@ public class TransactionFee001 extends TronBaseTest {
   @AfterClass
   public void shutdown() throws InterruptedException {
     PublicMethod.unFreezeBalance(deployAddress, deployKey, 1, deployAddress, blockingStubFull);
-    PublicMethod.freeResource(deployAddress, deployKey, foundationAddress, blockingStubFull);    if (!srStatus) {
+    PublicMethod.freeResource(deployAddress, deployKey, foundationAddress, blockingStubFull);
+    if (!srStatus) {
       System.exit(1);
     }
   }

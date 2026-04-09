@@ -27,8 +27,9 @@ public class SecurityEnergyBombTest extends TronBaseTest {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethod.printAddress(testKey);
-    Assert.assertTrue(PublicMethod.sendcoin(testAddress, 200_000_000_000L,
-        foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            testAddress, 200_000_000_000L, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     String filePath = "src/test/resources/soliditycode/security/SecurityEnergyBomb.sol";
@@ -36,9 +37,19 @@ public class SecurityEnergyBombTest extends TronBaseTest {
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "",
-        maxFeeLimit, 0L, 100, null, testKey,
-        testAddress, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            testKey,
+            testAddress,
+            blockingStubFull);
     Assert.assertNotNull("EnergyBomb contract deployment failed", contractAddress);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     SmartContractOuterClass.SmartContract contract =
@@ -46,13 +57,22 @@ public class SecurityEnergyBombTest extends TronBaseTest {
     Assert.assertNotNull("Contract ABI should not be null", contract.getAbi());
   }
 
-  @Test(enabled = true,
+  @Test(
+      enabled = true,
       description = "Infinite loop should exhaust energy and revert (OUT_OF_ENERGY)",
       groups = {"daily"})
   public void test01InfiniteLoopExhaustsEnergy() {
-    String txid = PublicMethod.triggerContract(contractAddress,
-        "infiniteLoop()", "#",
-        false, 0, maxFeeLimit, testAddress, testKey, blockingStubFull);
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "infiniteLoop()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            testAddress,
+            testKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> info =
         PublicMethod.getTransactionInfoById(txid, blockingStubFull);
@@ -63,46 +83,74 @@ public class SecurityEnergyBombTest extends TronBaseTest {
     // Should be OUT_OF_ENERGY or OUT_OF_TIME
     Assert.assertTrue(
         result == Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY
-        || result == Protocol.Transaction.Result.contractResult.OUT_OF_TIME);
+            || result == Protocol.Transaction.Result.contractResult.OUT_OF_TIME);
     logger.info("Infinite loop correctly stopped by energy/time limit");
     logger.info("Energy used: " + info.get().getReceipt().getEnergyUsageTotal());
   }
 
-  @Test(enabled = true,
+  @Test(
+      enabled = true,
       description = "Bounded loop with small iteration count should succeed",
       groups = {"daily"})
   public void test02SmallBoundedLoopSucceeds() {
-    String txid = PublicMethod.triggerContract(contractAddress,
-        "boundedLoop(uint256)", "10",
-        false, 0, maxFeeLimit, testAddress, testKey, blockingStubFull);
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "boundedLoop(uint256)",
+            "10",
+            false,
+            0,
+            maxFeeLimit,
+            testAddress,
+            testKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> info =
         PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(0, info.get().getResultValue());
-    Assert.assertEquals(Protocol.Transaction.Result.contractResult.SUCCESS,
-        info.get().getReceipt().getResult());
-    logger.info("Small bounded loop succeeded, energy used: "
-        + info.get().getReceipt().getEnergyUsageTotal());
+    Assert.assertEquals(
+        Protocol.Transaction.Result.contractResult.SUCCESS, info.get().getReceipt().getResult());
+    logger.info(
+        "Small bounded loop succeeded, energy used: "
+            + info.get().getReceipt().getEnergyUsageTotal());
 
     // Verify counter was updated
-    GrpcAPI.TransactionExtention ext = PublicMethod
-        .triggerConstantContractForExtention(contractAddress,
-            "getCounter()", "#", false,
-            0, maxFeeLimit, "0", 0, testAddress, testKey, blockingStubFull);
+    GrpcAPI.TransactionExtention ext =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "getCounter()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            testAddress,
+            testKey,
+            blockingStubFull);
     Assert.assertTrue(ext.getResult().getResult());
     long counter = ByteArray.toLong(ext.getConstantResult(0).toByteArray());
     Assert.assertEquals(10L, counter);
     logger.info("Counter value after 10 iterations: " + counter);
   }
 
-  @Test(enabled = true,
+  @Test(
+      enabled = true,
       description = "Large bounded loop should exhaust energy and revert",
       groups = {"daily"})
   public void test03LargeBoundedLoopExhaustsEnergy() {
     // Use a very large iteration count to exhaust energy
-    String txid = PublicMethod.triggerContract(contractAddress,
-        "boundedLoop(uint256)", "999999999",
-        false, 0, maxFeeLimit, testAddress, testKey, blockingStubFull);
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "boundedLoop(uint256)",
+            "999999999",
+            false,
+            0,
+            maxFeeLimit,
+            testAddress,
+            testKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> info =
         PublicMethod.getTransactionInfoById(txid, blockingStubFull);
@@ -112,18 +160,27 @@ public class SecurityEnergyBombTest extends TronBaseTest {
     logger.info("Large loop result: " + result);
     Assert.assertTrue(
         result == Protocol.Transaction.Result.contractResult.OUT_OF_ENERGY
-        || result == Protocol.Transaction.Result.contractResult.OUT_OF_TIME);
+            || result == Protocol.Transaction.Result.contractResult.OUT_OF_TIME);
     logger.info("Large bounded loop correctly stopped by energy/time limit");
   }
 
-  @Test(enabled = true,
+  @Test(
+      enabled = true,
       description = "Storage expansion bomb should exhaust energy with large count",
       groups = {"daily"})
   public void test04StorageExpansionBomb() {
     // Small storage expansion should succeed
-    String txid = PublicMethod.triggerContract(contractAddress,
-        "storageExpansion(uint256)", "5",
-        false, 0, maxFeeLimit, testAddress, testKey, blockingStubFull);
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "storageExpansion(uint256)",
+            "5",
+            false,
+            0,
+            maxFeeLimit,
+            testAddress,
+            testKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> info =
         PublicMethod.getTransactionInfoById(txid, blockingStubFull);
@@ -132,74 +189,138 @@ public class SecurityEnergyBombTest extends TronBaseTest {
     logger.info("Storage expansion (5 items) energy: " + energySmall);
 
     // Large storage expansion should exhaust energy
-    txid = PublicMethod.triggerContract(contractAddress,
-        "storageExpansion(uint256)", "999999999",
-        false, 0, maxFeeLimit, testAddress, testKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "storageExpansion(uint256)",
+            "999999999",
+            false,
+            0,
+            maxFeeLimit,
+            testAddress,
+            testKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     info = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertEquals(1, info.get().getResultValue());
     logger.info("Large storage expansion correctly stopped by energy limit");
   }
 
-  @Test(enabled = true,
+  @Test(
+      enabled = true,
       description = "Expensive O(n^2) computation: small succeeds, large triggers timeout",
       groups = {"daily"})
   public void test05ExpensiveComputation() {
     // Small input should succeed via constant call
-    GrpcAPI.TransactionExtention extSmall = PublicMethod
-        .triggerConstantContractForExtention(contractAddress,
-            "expensiveComputation(uint256)", "3", false,
-            0, maxFeeLimit, "0", 0, testAddress, testKey, blockingStubFull);
+    GrpcAPI.TransactionExtention extSmall =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "expensiveComputation(uint256)",
+            "3",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            testAddress,
+            testKey,
+            blockingStubFull);
     Assert.assertTrue("Small computation (n=3) should succeed", extSmall.getResult().getResult());
     logger.info("Small computation (n=3) succeeded");
 
     // Medium input should also succeed
-    GrpcAPI.TransactionExtention extMed = PublicMethod
-        .triggerConstantContractForExtention(contractAddress,
-            "expensiveComputation(uint256)", "50", false,
-            0, maxFeeLimit, "0", 0, testAddress, testKey, blockingStubFull);
+    GrpcAPI.TransactionExtention extMed =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "expensiveComputation(uint256)",
+            "50",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            testAddress,
+            testKey,
+            blockingStubFull);
     Assert.assertTrue("Medium computation (n=50) should succeed", extMed.getResult().getResult());
     logger.info("Medium computation (n=50) succeeded");
 
     // Very large input should fail via constant call (CPU timeout)
-    GrpcAPI.TransactionExtention extLarge = PublicMethod
-        .triggerConstantContractForExtention(contractAddress,
-            "expensiveComputation(uint256)", "99999", false,
-            0, maxFeeLimit, "0", 0, testAddress, testKey, blockingStubFull);
+    GrpcAPI.TransactionExtention extLarge =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "expensiveComputation(uint256)",
+            "99999",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            testAddress,
+            testKey,
+            blockingStubFull);
     // Either the result is false, or the message contains timeout/energy info
     boolean largeFailed = !extLarge.getResult().getResult();
     String msg = ByteArray.toStr(extLarge.getResult().getMessage().toByteArray());
-    logger.info("Large computation (n=99999) result: {}, message: {}",
-        extLarge.getResult().getResult(), msg);
-    Assert.assertTrue("Very large O(n^2) computation should fail. msg=" + msg,
-        largeFailed || msg.contains("CPU") || msg.contains("timeout")
-        || msg.contains("energy") || msg.contains("REVERT") || msg.contains("OUT_OF"));
+    logger.info(
+        "Large computation (n=99999) result: {}, message: {}",
+        extLarge.getResult().getResult(),
+        msg);
+    Assert.assertTrue(
+        "Very large O(n^2) computation should fail. msg=" + msg,
+        largeFailed
+            || msg.contains("CPU")
+            || msg.contains("timeout")
+            || msg.contains("energy")
+            || msg.contains("REVERT")
+            || msg.contains("OUT_OF"));
   }
 
-  @Test(enabled = true,
+  @Test(
+      enabled = true,
       description = "Infinite loop via constant call should return CPU timeout",
       groups = {"daily"})
   public void test06InfiniteLoopConstantCall() {
-    GrpcAPI.TransactionExtention ext = PublicMethod
-        .triggerConstantContractForExtention(contractAddress,
-            "infiniteLoop()", "#", false,
-            0, maxFeeLimit, "0", 0, testAddress, testKey, blockingStubFull);
+    GrpcAPI.TransactionExtention ext =
+        PublicMethod.triggerConstantContractForExtention(
+            contractAddress,
+            "infiniteLoop()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0,
+            testAddress,
+            testKey,
+            blockingStubFull);
     String message = ByteArray.toStr(ext.getResult().getMessage().toByteArray());
     logger.info("Infinite loop constant call message: " + message);
-    Assert.assertTrue(message.contains("CPU timeout") || message.contains("energy")
-        || !ext.getResult().getResult());
+    Assert.assertTrue(
+        message.contains("CPU timeout")
+            || message.contains("energy")
+            || !ext.getResult().getResult());
     logger.info("Infinite loop correctly stopped in constant call");
   }
 
-  @Test(enabled = true,
+  @Test(
+      enabled = true,
       description = "Energy fee is charged even when transaction reverts due to energy exhaustion",
       groups = {"daily"})
   public void test07EnergyFeeChargedOnRevert() {
     long balanceBefore = PublicMethod.queryAccount(testAddress, blockingStubFull).getBalance();
 
-    String txid = PublicMethod.triggerContract(contractAddress,
-        "infiniteLoop()", "#",
-        false, 0, maxFeeLimit, testAddress, testKey, blockingStubFull);
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "infiniteLoop()",
+            "#",
+            false,
+            0,
+            maxFeeLimit,
+            testAddress,
+            testKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<Protocol.TransactionInfo> info =
         PublicMethod.getTransactionInfoById(txid, blockingStubFull);

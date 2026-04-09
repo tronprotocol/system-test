@@ -12,20 +12,22 @@ import org.testng.SkipException;
 /**
  * TestNG listener that classifies test failures by root cause.
  *
- * <p>At the end of each suite, prints a summary that separates environment
- * issues from real bugs, so developers can focus on actionable failures.
+ * <p>At the end of each suite, prints a summary that separates environment issues from real bugs,
+ * so developers can focus on actionable failures.
  *
  * <p>Classification categories:
+ *
  * <ul>
- *   <li>{@code ENV_NODE_DOWN} — gRPC connection refused or UNAVAILABLE</li>
- *   <li>{@code ENV_SINGLE_NODE} — @MultiNode test skipped on single-node</li>
- *   <li>{@code ENV_NO_MONGO} — MongoDB-related failure</li>
- *   <li>{@code FLAKY} — Test marked with @Flaky annotation</li>
- *   <li>{@code TIMEOUT} — Execution timeout</li>
- *   <li>{@code BUG} — Likely a real code bug (assertion failure, NPE, etc.)</li>
+ *   <li>{@code ENV_NODE_DOWN} — gRPC connection refused or UNAVAILABLE
+ *   <li>{@code ENV_SINGLE_NODE} — @MultiNode test skipped on single-node
+ *   <li>{@code ENV_NO_MONGO} — MongoDB-related failure
+ *   <li>{@code FLAKY} — Test marked with @Flaky annotation
+ *   <li>{@code TIMEOUT} — Execution timeout
+ *   <li>{@code BUG} — Likely a real code bug (assertion failure, NPE, etc.)
  * </ul>
  *
  * <p>Register in testng XML:
+ *
  * <pre>
  * &lt;listeners&gt;
  *   &lt;listener class-name="stest.tron.wallet.common.client.utils.FailureClassifier"/&gt;
@@ -50,8 +52,7 @@ public class FailureClassifier implements ITestListener {
   @Override
   public void onTestFailure(ITestResult result) {
     totalFailures++;
-    String testName = result.getTestClass().getRealClass().getSimpleName()
-        + "." + result.getName();
+    String testName = result.getTestClass().getRealClass().getSimpleName() + "." + result.getName();
     Throwable cause = result.getThrowable();
     String category = classify(result, cause);
     classified.get(category).add(testName);
@@ -63,10 +64,12 @@ public class FailureClassifier implements ITestListener {
     Throwable cause = result.getThrowable();
     if (cause instanceof SkipException) {
       String msg = cause.getMessage();
-      if (msg != null && (msg.contains("Multi-node") || msg.contains("single-node")
-          || msg.contains("fullnode"))) {
-        String testName = result.getTestClass().getRealClass().getSimpleName()
-            + "." + result.getName();
+      if (msg != null
+          && (msg.contains("Multi-node")
+              || msg.contains("single-node")
+              || msg.contains("fullnode"))) {
+        String testName =
+            result.getTestClass().getRealClass().getSimpleName() + "." + result.getName();
         classified.get("ENV_SINGLE_NODE").add(testName);
       }
     }
@@ -159,8 +162,7 @@ public class FailureClassifier implements ITestListener {
     if (testClass.getAnnotation(Flaky.class) != null) {
       return true;
     }
-    java.lang.reflect.Method method =
-        result.getMethod().getConstructorOrMethod().getMethod();
+    java.lang.reflect.Method method = result.getMethod().getConstructorOrMethod().getMethod();
     return method != null && method.getAnnotation(Flaky.class) != null;
   }
 

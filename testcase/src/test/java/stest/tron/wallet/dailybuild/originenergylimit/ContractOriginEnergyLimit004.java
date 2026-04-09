@@ -20,10 +20,10 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -37,30 +37,27 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
   String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+  public void beforeClass() {
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
   private long getAvailableFrozenEnergy(byte[] accountAddress) {
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(accountAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(accountAddress, blockingStubFull);
     long energyLimit = resourceInfo.getEnergyLimit();
     long energyUsed = resourceInfo.getEnergyUsed();
     return energyLimit - energyUsed;
   }
 
   private long getUserAvailableEnergy(byte[] userAddress) {
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(userAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(userAddress, blockingStubFull);
     Account info = PublicMethod.queryAccount(userAddress, blockingStubFull);
     long balance = info.getBalance();
     long energyLimit = resourceInfo.getEnergyLimit();
@@ -89,10 +86,10 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     return smartContract.getConsumeUserResourcePercent();
   }
 
-  private long getDevMax(byte[] devAddress, byte[] userAddress, long feeLimit,
-      byte[] contractAddress) {
-    long devMax = Math.min(getAvailableFrozenEnergy(devAddress),
-        getOriginalEnergyLimit(contractAddress));
+  private long getDevMax(
+      byte[] devAddress, byte[] userAddress, long feeLimit, byte[] contractAddress) {
+    long devMax =
+        Math.min(getAvailableFrozenEnergy(devAddress), getOriginalEnergyLimit(contractAddress));
     long p = getConsumeUserResourcePercent(contractAddress);
     if (p != 0) {
       logger.info("p: " + p);
@@ -104,49 +101,57 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     return devMax;
   }
 
-  @Test(enabled = true, description = "Contract use Origin_energy_limit", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Contract use Origin_energy_limit",
+      groups = {"daily"})
   public void testOriginEnergyLimit() {
-    Assert.assertTrue(PublicMethod.sendcoin(dev001Address, 1000000L, foundationAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.sendcoin(user001Address, 1000000L, foundationAddress,
-        testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 1000000L, foundationAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            user001Address, 1000000L, foundationAddress, testKey002, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  // A2B1
+    // A2B1
 
-    //dev balance and Energy
+    // dev balance and Energy
     long devTargetBalance = 10_000_000;
     long devTargetEnergy = 70000;
-  // deploy contract parameters
+    // deploy contract parameters
     final long deployFeeLimit = maxFeeLimit;
-  final long consumeUserResourcePercent = 0;
-  final long originEnergyLimit = 1000;
-  //dev balance and Energy
+    final long consumeUserResourcePercent = 0;
+    final long originEnergyLimit = 1000;
+    // dev balance and Energy
     final long devTriggerTargetBalance = 0;
-  final long devTriggerTargetEnergy = 592;
-  // user balance and Energy
+    final long devTriggerTargetEnergy = 592;
+    // user balance and Energy
     final long userTargetBalance = 0;
-  final long userTargetEnergy = 2000L;
-  // trigger contract parameter, maxFeeLimit 10000000
+    final long userTargetEnergy = 2000L;
+    // trigger contract parameter, maxFeeLimit 10000000
     final long triggerFeeLimit = maxFeeLimit;
-  final boolean expectRet = true;
-  // count dev energy, balance
-    long devFreezeBalanceSun = PublicMethod.getFreezeBalanceCount(dev001Address, dev001Key,
-        devTargetEnergy, blockingStubFull);
+    final boolean expectRet = true;
+    // count dev energy, balance
+    long devFreezeBalanceSun =
+        PublicMethod.getFreezeBalanceCount(
+            dev001Address, dev001Key, devTargetEnergy, blockingStubFull);
 
     long devNeedBalance = devTargetBalance + devFreezeBalanceSun + 2000000000L;
 
     logger.info("need balance:" + devNeedBalance);
-  // get balance
-    Assert.assertTrue(PublicMethod.sendcoin(dev001Address, devNeedBalance, foundationAddress,
-        testKey002, blockingStubFull));
+    // get balance
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, devNeedBalance, foundationAddress, testKey002, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  // get energy
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun + 2000000000L,
-        0, 1, dev001Key, blockingStubFull));
+    // get energy
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            dev001Address, devFreezeBalanceSun + 2000000000L, 0, 1, dev001Key, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethod.queryAccount(dev001Key, blockingStubFull).getBalance();
@@ -154,15 +159,27 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     logger.info("before deploy, dev energy limit is " + Long.toString(devEnergyLimitBefore));
     logger.info("before deploy, dev energy usage is " + Long.toString(devEnergyUsageBefore));
     logger.info("before deploy, dev balance is " + Long.toString(devBalanceBefore));
-  String filePath = "src/test/resources/soliditycode/contractOriginEnergyLimit004.sol";
-  String contractName = "findArgsContractTest";
+    String filePath = "src/test/resources/soliditycode/contractOriginEnergyLimit004.sol";
+    String contractName = "findArgsContractTest";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  final String deployTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            deployFeeLimit, 0L, consumeUserResourcePercent, originEnergyLimit, "0",
-            0, null, dev001Key, dev001Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    final String deployTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            deployFeeLimit,
+            0L,
+            consumeUserResourcePercent,
+            originEnergyLimit,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethod.getAccountResource(dev001Address, blockingStubFull);
@@ -174,8 +191,8 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     logger.info("after deploy, dev energy usage is " + Long.toString(devEnergyUsageAfter));
     logger.info("after deploy, dev balance is " + Long.toString(devBalanceAfter));
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(deployTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(deployTxid, blockingStubFull);
 
     ByteString contractAddressString = infoById.get().getContractAddress();
     contractAddress = contractAddressString.toByteArray();
@@ -186,30 +203,36 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     Assert.assertTrue(devEnergyLimitAfter > 0);
     Assert.assertTrue(devEnergyUsageAfter > 0);
     Assert.assertEquals(devBalanceBefore, devBalanceAfter);
-  // count dev energy, balance
-    devFreezeBalanceSun = PublicMethod.getFreezeBalanceCount(dev001Address, dev001Key,
-        devTriggerTargetEnergy, blockingStubFull);
+    // count dev energy, balance
+    devFreezeBalanceSun =
+        PublicMethod.getFreezeBalanceCount(
+            dev001Address, dev001Key, devTriggerTargetEnergy, blockingStubFull);
 
     devNeedBalance = devTriggerTargetBalance + devFreezeBalanceSun;
     logger.info("dev need  balance:" + devNeedBalance);
-  // count user energy, balance
-    long userFreezeBalanceSun = PublicMethod.getFreezeBalanceCount(user001Address, user001Key,
-        userTargetEnergy, blockingStubFull);
+    // count user energy, balance
+    long userFreezeBalanceSun =
+        PublicMethod.getFreezeBalanceCount(
+            user001Address, user001Key, userTargetEnergy, blockingStubFull);
 
     long userNeedBalance = userTargetBalance + userFreezeBalanceSun;
 
     logger.info("User need  balance:" + userNeedBalance);
-  // get balance
-    Assert.assertTrue(PublicMethod.sendcoin(dev001Address, devNeedBalance, foundationAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.sendcoin(user001Address, userNeedBalance, foundationAddress,
-        testKey002, blockingStubFull));
+    // get balance
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, devNeedBalance, foundationAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            user001Address, userNeedBalance, foundationAddress, testKey002, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  // get energy
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun,
-        0, 1, dev001Key, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceGetEnergy(user001Address, userFreezeBalanceSun,
-        0, 1, user001Key, blockingStubFull));
+    // get energy
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            dev001Address, devFreezeBalanceSun, 0, 1, dev001Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceGetEnergy(
+            user001Address, userFreezeBalanceSun, 0, 1, user001Key, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethod.getAccountResource(dev001Address, blockingStubFull);
@@ -217,22 +240,22 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     devEnergyUsageBefore = accountResource.getEnergyUsed();
     devBalanceBefore = PublicMethod.queryAccount(dev001Key, blockingStubFull).getBalance();
 
-    logger.info("before trigger, dev devEnergyLimitBefore is "
-        + Long.toString(devEnergyLimitBefore));
-    logger.info("before trigger, dev devEnergyUsageBefore is "
-        + Long.toString(devEnergyUsageBefore));
+    logger.info(
+        "before trigger, dev devEnergyLimitBefore is " + Long.toString(devEnergyLimitBefore));
+    logger.info(
+        "before trigger, dev devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, dev devBalanceBefore is " + Long.toString(devBalanceBefore));
 
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethod.queryAccount(
-        user001Address, blockingStubFull).getBalance();
+    long userBalanceBefore =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
-    logger.info("before trigger, user userEnergyLimitBefore is "
-        + Long.toString(userEnergyLimitBefore));
-    logger.info("before trigger, user userEnergyUsageBefore is "
-        + Long.toString(userEnergyUsageBefore));
+    logger.info(
+        "before trigger, user userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
+    logger.info(
+        "before trigger, user userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, user userBalanceBefore is " + Long.toString(userBalanceBefore));
 
     logger.info("==================================");
@@ -242,11 +265,18 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     logger.info("userMax: " + userMax);
     logger.info("devMax: " + devMax);
     logger.info("==================================");
-  String param = "\"" + 0 + "\"";
-  final String triggerTxid = PublicMethod
-        .triggerContract(contractAddress, "findArgsByIndexTest(uint256)",
-            param, false, 0, triggerFeeLimit,
-            user001Address, user001Key, blockingStubFull);
+    String param = "\"" + 0 + "\"";
+    final String triggerTxid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "findArgsByIndexTest(uint256)",
+            param,
+            false,
+            0,
+            triggerFeeLimit,
+            user001Address,
+            user001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethod.getAccountResource(dev001Address, blockingStubFull);
@@ -261,13 +291,13 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     accountResource = PublicMethod.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethod.queryAccount(user001Address,
-        blockingStubFull).getBalance();
+    long userBalanceAfter =
+        PublicMethod.queryAccount(user001Address, blockingStubFull).getBalance();
 
-    logger.info("after trigger, user userEnergyLimitAfter is "
-        + Long.toString(userEnergyLimitAfter));
-    logger.info("after trigger, user userEnergyUsageAfter is "
-        + Long.toString(userEnergyUsageAfter));
+    logger.info(
+        "after trigger, user userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
+    logger.info(
+        "after trigger, user userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, user userBalanceAfter is " + Long.toString(userBalanceAfter));
 
     infoById = PublicMethod.getTransactionInfoById(triggerTxid, blockingStubFull);
@@ -299,19 +329,19 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
 
     long devExpectCost = energyTotalUsage * (100 - consumeUserPercent) / 100;
     long userExpectCost = energyTotalUsage - devExpectCost;
-  final long totalCost = devExpectCost + userExpectCost;
+    final long totalCost = devExpectCost + userExpectCost;
 
     logger.info("devExpectCost: " + devExpectCost);
     logger.info("userExpectCost: " + userExpectCost);
 
     Assert.assertTrue(devEnergyLimitAfter > 0);
     Assert.assertEquals(devBalanceBefore, devBalanceAfter);
-  // dev original is the dev max expense A2B1
+    // dev original is the dev max expense A2B1
     Assert.assertEquals(getOriginalEnergyLimit(contractAddress), devMax);
-  // DEV is enough to pay
+    // DEV is enough to pay
     Assert.assertEquals(originEnergyUsage, devExpectCost);
-  //    Assert.assertEquals(devEnergyUsageAfter,devExpectCost + devEnergyUsageBefore);
-  // User Energy is enough to pay");
+    //    Assert.assertEquals(devEnergyUsageAfter,devExpectCost + devEnergyUsageBefore);
+    // User Energy is enough to pay");
     Assert.assertEquals(energyUsage, userExpectCost);
     Assert.assertEquals(userBalanceBefore, userBalanceAfter);
     Assert.assertEquals(userEnergyUsageAfter, userEnergyUsageBefore);
@@ -325,18 +355,15 @@ public class ContractOriginEnergyLimit004 extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     PublicMethod.unFreezeBalance(user001Address, user001Key, 1, user001Address, blockingStubFull);
     PublicMethod.unFreezeBalance(dev001Address, dev001Key, 1, dev001Address, blockingStubFull);
     PublicMethod.freeResource(user001Address, user001Key, foundationAddress, blockingStubFull);
-    PublicMethod.freeResource(dev001Address, dev001Key, foundationAddress, blockingStubFull);    if (channelFull1 != null) {
+    PublicMethod.freeResource(dev001Address, dev001Key, foundationAddress, blockingStubFull);
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
 }
-
-

@@ -22,7 +22,6 @@ import java.util.List;
 import stest.tron.wallet.common.client.utils.Bech32;
 import stest.tron.wallet.common.client.utils.Bech32.Bech32Data;
 
-
 public class KeyIo {
 
   private static int CONVERTED_SAPLING_PAYMENT_ADDRESS_SIZE = ((32 + 11) * 8 + 4) / 5;
@@ -49,9 +48,7 @@ public class KeyIo {
     return Bech32.encode(SAPLING_PAYMENT_ADDRESS, prog);
   }
 
-  /**
-   * Helper for re-arranging bits into groups.
-   */
+  /** Helper for re-arranging bits into groups. */
   private static byte[] convertBits(
       final byte[] in,
       final int inStart,

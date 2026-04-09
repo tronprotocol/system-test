@@ -3,7 +3,6 @@ package stest.tron.wallet.dailybuild.http;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -17,8 +16,8 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.HttpMethod;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class HttpTestMultiSign001 extends TronBaseTest {
@@ -53,13 +52,17 @@ public class HttpTestMultiSign001 extends TronBaseTest {
 
   /** constructor. */
   @BeforeClass
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
   /** constructor. */
-  @Test(enabled = true, description = "Account Permission Up Date by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Account Permission Up Date by http",
+      groups = {"daily", "serial"})
   public void test1AccountPermissionUpDate() {
     PublicMethod.printAddress(ownerKey);
-    response = HttpMethod.sendCoin(httpnode, foundationAddress, ownerAddress, amount, foundationKey);
+    response =
+        HttpMethod.sendCoin(httpnode, foundationAddress, ownerAddress, amount, foundationKey);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
     manager1Wight.addProperty("address", ByteArray.toHexString(foundationAddress));
@@ -105,7 +108,10 @@ public class HttpTestMultiSign001 extends TronBaseTest {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "Add transaction sign by http with permission id", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Add transaction sign by http with permission id",
+      groups = {"daily", "serial"})
   public void test2AddTransactionSign() {
 
     HttpMethod.waitToProduceOneBlock(httpnode);
@@ -146,44 +152,55 @@ public class HttpTestMultiSign001 extends TronBaseTest {
   /** constructor. */
   @Test(
       enabled = true,
-      description = "Add broadcasthex http interface to " + "broadcast hex transaction string", groups = {"daily", "serial"})
+      description = "Add broadcasthex http interface to " + "broadcast hex transaction string",
+      groups = {"daily", "serial"})
   public void test3Broadcasthex() {
     PublicMethod.printAddress(hexTestKey);
-  String transactionHex =
+    String transactionHex =
         PublicMethod.sendcoinGetTransactionHex(
             hexTestAddress, 1000L, foundationAddress, foundationKey, blockingStubFull);
-  // Wrong type of hex
+    // Wrong type of hex
     response = HttpMethod.broadcasthex(httpnode, transactionHex);
     Assert.assertTrue(HttpMethod.verificationResult(response));
-  String wrongTransactionHex = transactionHex + "wrong";
+    String wrongTransactionHex = transactionHex + "wrong";
     response = HttpMethod.broadcasthex(httpnode, wrongTransactionHex);
     logger.info("transaction wrong:");
     Assert.assertFalse(HttpMethod.verificationResult(response));
-  // SingleSign for broadcastHex
+    // SingleSign for broadcastHex
     response = HttpMethod.broadcasthex(httpnode, transactionHex);
     Assert.assertFalse(HttpMethod.verificationResult(response));
-  // Multisign for broadcastHex
+    // Multisign for broadcastHex
     String multiSignTransactionHex =
         PublicMethodForMultiSign.sendcoinGetTransactionHex(
             hexTestAddress, 999L, ownerAddress, ownerKey, blockingStubFull, permissionKeyString);
     response = HttpMethod.broadcasthex(httpnode, multiSignTransactionHex);
     Assert.assertTrue(HttpMethod.verificationResult(response));
-  // Hex is null
+    // Hex is null
     response = HttpMethod.broadcasthex(httpnode, "");
     Assert.assertFalse(HttpMethod.verificationResult(response));
   }
 
-  @Test(enabled = true, description = "GetApprovedList  type is wrong by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetApprovedList  type is wrong by http",
+      groups = {"daily", "serial"})
   public void test4getApprovedListTypeWrong() {
 
     permissionKeyString = new String[2];
     permissionKeyString[0] = foundationKey;
     permissionKeyString[1] = manager2Key;
-  String originType = "\"type\":\"TransferContract\"";
-  String type = "\"type\": \"TransferContract1111111\"";
+    String originType = "\"type\":\"TransferContract\"";
+    String type = "\"type\": \"TransferContract1111111\"";
     response =
         HttpMethod.sendCoinReplaceTransactionType(
-            httpnode, foundationAddress, receiverAddress, 10L, 0, permissionKeyString, originType, type);
+            httpnode,
+            foundationAddress,
+            receiverAddress,
+            10L,
+            0,
+            permissionKeyString,
+            originType,
+            type);
     Assert.assertTrue(!HttpMethod.verificationResult(response));
     responseContent = HttpMethod.parseResponseContent(response);
     Assert.assertEquals(responseContent.getJSONObject("result").getString("code"), "OTHER_ERROR");
@@ -193,16 +210,26 @@ public class HttpTestMultiSign001 extends TronBaseTest {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "GetApprovedList without type  by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetApprovedList without type  by http",
+      groups = {"daily", "serial"})
   public void test5getApprovedListWithoutType() {
     permissionKeyString = new String[2];
     permissionKeyString[0] = foundationKey;
     permissionKeyString[1] = manager2Key;
-  String originType = "," + "\"type\":\"TransferContract\"";
-  String type = " ";
+    String originType = "," + "\"type\":\"TransferContract\"";
+    String type = " ";
     response =
         HttpMethod.sendCoinReplaceTransactionType(
-            httpnode, foundationAddress, receiverAddress, 10L, 0, permissionKeyString, originType, type);
+            httpnode,
+            foundationAddress,
+            receiverAddress,
+            10L,
+            0,
+            permissionKeyString,
+            originType,
+            type);
     Assert.assertTrue(!HttpMethod.verificationResult(response));
     responseContent = HttpMethod.parseResponseContent(response);
     Assert.assertEquals("OTHER_ERROR", responseContent.getJSONObject("result").getString("code"));
@@ -214,5 +241,6 @@ public class HttpTestMultiSign001 extends TronBaseTest {
   /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    HttpMethod.disConnect();  }
+    HttpMethod.disConnect();
+  }
 }

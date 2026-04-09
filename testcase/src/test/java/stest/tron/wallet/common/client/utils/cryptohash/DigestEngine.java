@@ -22,13 +22,14 @@ import java.security.MessageDigest;
 
 public abstract class DigestEngine extends MessageDigest implements Digest {
 
-  private int digestLen, blockLen, inputLen;
-  private byte[] inputBuf, outputBuf;
+  private int digestLen;
+  private int blockLen;
+  private int inputLen;
+  private byte[] inputBuf;
+  private byte[] outputBuf;
   private long blockCount;
 
-  /**
-   * Instantiate the engine.
-   */
+  /** Instantiate the engine. */
   public DigestEngine(String alg) {
     super(alg);
     doInit();
@@ -40,9 +41,7 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
     blockCount = 0;
   }
 
-  /**
-   * Reset the hash algorithm state.
-   */
+  /** Reset the hash algorithm state. */
   protected abstract void engineReset();
 
   /**
@@ -76,9 +75,7 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
     }
   }
 
-  /**
-   * @see Digest
-   */
+  /** @see Digest */
   public byte[] digest() {
     adjustDigestLen();
     byte[] result = new byte[digestLen];
@@ -86,17 +83,13 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
     return result;
   }
 
-  /**
-   * @see Digest
-   */
+  /** @see Digest */
   public byte[] digest(byte[] input) {
     update(input, 0, input.length);
     return digest();
   }
 
-  /**
-   * @see Digest
-   */
+  /** @see Digest */
   public int digest(byte[] buf, int offset, int len) {
     adjustDigestLen();
     if (len >= digestLen) {
@@ -111,18 +104,14 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
     }
   }
 
-  /**
-   * @see Digest
-   */
+  /** @see Digest */
   public void reset() {
     engineReset();
     inputLen = 0;
     blockCount = 0;
   }
 
-  /**
-   * @see Digest
-   */
+  /** @see Digest */
   public void update(byte input) {
     inputBuf[inputLen++] = input;
     if (inputLen == blockLen) {
@@ -132,24 +121,19 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
     }
   }
 
-  /**
-   * @see Digest
-   */
+  /** @see Digest */
   public void update(byte[] input) {
     update(input, 0, input.length);
   }
 
-  /**
-   * @see Digest
-   */
+  /** @see Digest */
   public void update(byte[] input, int offset, int len) {
     while (len > 0) {
       int copyLen = blockLen - inputLen;
       if (copyLen > len) {
         copyLen = len;
       }
-      System.arraycopy(input, offset, inputBuf, inputLen,
-          copyLen);
+      System.arraycopy(input, offset, inputBuf, inputLen, copyLen);
       offset += copyLen;
       inputLen += copyLen;
       len -= copyLen;
@@ -218,12 +202,10 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
   protected Digest copyState(DigestEngine dest) {
     dest.inputLen = inputLen;
     dest.blockCount = blockCount;
-    System.arraycopy(inputBuf, 0, dest.inputBuf, 0,
-        inputBuf.length);
+    System.arraycopy(inputBuf, 0, dest.inputBuf, 0, inputBuf.length);
     adjustDigestLen();
     dest.adjustDigestLen();
-    System.arraycopy(outputBuf, 0, dest.outputBuf, 0,
-        outputBuf.length);
+    System.arraycopy(outputBuf, 0, dest.outputBuf, 0, outputBuf.length);
     return dest;
   }
 }

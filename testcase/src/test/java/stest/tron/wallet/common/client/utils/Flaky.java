@@ -9,10 +9,11 @@ import java.lang.annotation.Target;
 /**
  * Marks a test method or class as flaky.
  *
- * <p>Flaky tests are those that fail intermittently due to timing, environment,
- * or external service dependencies rather than actual code bugs.
+ * <p>Flaky tests are those that fail intermittently due to timing, environment, or external service
+ * dependencies rather than actual code bugs.
  *
  * <p>Usage:
+ *
  * <pre>
  * {@literal @}Flaky(reason = "Depends on MongoDB availability",
  *        since = "2026-04-03",
@@ -22,10 +23,11 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * <p>Governance rules:
+ *
  * <ul>
- *   <li>Every {@code @Flaky} annotation must include a {@code reason}</li>
- *   <li>Tests marked flaky for more than 30 days without a fix should be reviewed for removal</li>
- *   <li>Flaky tests still run in CI but failures are tracked separately</li>
+ *   <li>Every {@code @Flaky} annotation must include a {@code reason}
+ *   <li>Tests marked flaky for more than 30 days without a fix should be reviewed for removal
+ *   <li>Flaky tests still run in CI but failures are tracked separately
  * </ul>
  */
 @Documented

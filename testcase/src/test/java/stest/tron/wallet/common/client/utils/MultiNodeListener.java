@@ -15,18 +15,20 @@ import org.testng.SkipException;
 import stest.tron.wallet.common.client.Configuration;
 
 /**
- * TestNG listener that detects single-node vs multi-node environments
- * and auto-skips {@link MultiNode @MultiNode} tests when only one node is available.
+ * TestNG listener that detects single-node vs multi-node environments and auto-skips {@link
+ * MultiNode @MultiNode} tests when only one node is available.
  *
  * <p>Detection logic (runs once at suite start):
+ *
  * <ol>
- *   <li>Read {@code fullnode.ip.list} from testng.conf</li>
- *   <li>If index [0] and [1] have the same host:port → single-node</li>
- *   <li>If index [1] is different but unreachable (TCP probe fails) → single-node</li>
- *   <li>Otherwise → multi-node</li>
+ *   <li>Read {@code fullnode.ip.list} from testng.conf
+ *   <li>If index [0] and [1] have the same host:port → single-node
+ *   <li>If index [1] is different but unreachable (TCP probe fails) → single-node
+ *   <li>Otherwise → multi-node
  * </ol>
  *
  * <p>Register in TestNG XML:
+ *
  * <pre>{@code
  * <listeners>
  *   <listener class-name="stest.tron.wallet.common.client.utils.MultiNodeListener"/>
@@ -34,6 +36,7 @@ import stest.tron.wallet.common.client.Configuration;
  * }</pre>
  *
  * <p>Or run with system property to force a mode:
+ *
  * <pre>
  *   -Dtron.test.multinode=true   (force multi-node, fail instead of skip)
  *   -Dtron.test.multinode=false  (force single-node, skip @MultiNode tests)
@@ -55,8 +58,7 @@ public class MultiNodeListener implements ISuiteListener, IClassListener {
     multiNodeAvailable = detectMultiNode();
     String mode = multiNodeAvailable ? "MULTI-NODE" : "SINGLE-NODE";
     logger.info("=== Environment: {} ===", mode);
-    logger.info("@MultiNode tests will be: {}",
-        multiNodeAvailable ? "EXECUTED" : "SKIPPED");
+    logger.info("@MultiNode tests will be: {}", multiNodeAvailable ? "EXECUTED" : "SKIPPED");
   }
 
   @Override
@@ -73,11 +75,10 @@ public class MultiNodeListener implements ISuiteListener, IClassListener {
     Class<?> realClass = testClass.getRealClass();
     if (realClass.isAnnotationPresent(MultiNode.class)) {
       MultiNode annotation = realClass.getAnnotation(MultiNode.class);
-      String reason = annotation.reason().isEmpty()
-          ? "requires multi-node environment"
-          : annotation.reason();
-      String msg = String.format(
-          "SKIP %s — %s (single-node detected)", realClass.getSimpleName(), reason);
+      String reason =
+          annotation.reason().isEmpty() ? "requires multi-node environment" : annotation.reason();
+      String msg =
+          String.format("SKIP %s — %s (single-node detected)", realClass.getSimpleName(), reason);
       logger.info(msg);
       throw new SkipException(msg);
     }
@@ -89,8 +90,8 @@ public class MultiNodeListener implements ISuiteListener, IClassListener {
   }
 
   /**
-   * Returns true if a multi-node environment is available.
-   * Can be called from test code for conditional logic.
+   * Returns true if a multi-node environment is available. Can be called from test code for
+   * conditional logic.
    */
   public static boolean isMultiNodeAvailable() {
     if (multiNodeAvailable == null) {
@@ -142,9 +143,7 @@ public class MultiNodeListener implements ISuiteListener, IClassListener {
     }
   }
 
-  /**
-   * TCP connect probe to check if a host:port is reachable.
-   */
+  /** TCP connect probe to check if a host:port is reachable. */
   private static boolean probeEndpoint(String hostPort) {
     String[] parts = hostPort.split(":");
     if (parts.length != 2) {

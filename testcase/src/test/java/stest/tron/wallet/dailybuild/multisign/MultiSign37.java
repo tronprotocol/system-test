@@ -24,8 +24,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.PublicMethodForMultiSign;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class MultiSign37 extends TronBaseTest {
@@ -45,34 +45,34 @@ public class MultiSign37 extends TronBaseTest {
   private ECKey ecKey5 = new ECKey(Utils.getRandom());
   byte[] test005Address = ecKey5.getAddress();
   String sendAccountKey5 = ByteArray.toHexString(ecKey5.getPrivKeyBytes());
-  private long multiSignFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.multiSignFee");
-  private long updateAccountPermissionFee = Configuration.getByPath("testng.conf")
-      .getLong("defaultParameter.updateAccountPermissionFee");
+  private long multiSignFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.multiSignFee");
+  private long updateAccountPermissionFee =
+      Configuration.getByPath("testng.conf").getLong("defaultParameter.updateAccountPermissionFee");
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {  }
+  public void beforeClass() {}
 
-  @Test(enabled = true, description =
-      "Sendcoin with permission id 0,use owner address sign, weight<threshold.Then use  "
-          + " active address to sign, meet all requirements,broadcastTransaction.", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description =
+          "Sendcoin with permission id 0,use owner address sign, weight<threshold.Then use  "
+              + " active address to sign, meet all requirements,broadcastTransaction.",
+      groups = {"daily", "multisig"})
   public void testMultiUpdatepermissions_47() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
     long amount = updateAccountPermissionFee + 1000000;
-    Assert.assertTrue(PublicMethod
-        .sendcoin(test001Address, amount, foundationAddress, testKey002,
-            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            test001Address, amount, foundationAddress, testKey002, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Account test001AddressAccount = PublicMethod.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-  final Permission witnessPermission = test001AddressAccount.getWitnessPermission();
+    final Permission witnessPermission = test001AddressAccount.getWitnessPermission();
     long balance = test001AddressAccount.getBalance();
     logger.info("balance:" + balance);
     PublicMethodForMultiSign.printPermissionList(permissionsList);
@@ -82,24 +82,34 @@ public class MultiSign37 extends TronBaseTest {
 
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
-  String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-        + "\"owner\",\"threshold\":2,\"keys\":[{\"address\":"
-        + "\"" + PublicMethod.getAddressString(dev001Key) + "\",\"weight\":1},"
-        + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey2) + "\",\"weight\":1}]},"
-        + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
-        + "\"threshold\":1,\"operations\":"
-        + "\"0200000000000000000000000000000000000000000000000000000000000000\","
-        + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]}]} ";
-    Assert.assertTrue(PublicMethodForMultiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-            blockingStubFull, 0,
+    String accountPermissionJson1 =
+        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+            + "\"owner\",\"threshold\":2,\"keys\":[{\"address\":"
+            + "\""
+            + PublicMethod.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey2)
+            + "\",\"weight\":1}]},"
+            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
+            + "\"threshold\":1,\"operations\":"
+            + "\"0200000000000000000000000000000000000000000000000000000000000000\","
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]}]} ";
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdateWithPermissionId(
+            accountPermissionJson1,
+            test001Address,
+            dev001Key,
+            blockingStubFull,
+            0,
             permissionKeyString));
 
     Account test001AddressAccount1 = PublicMethod.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-  final Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
+    final Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
     long balance1 = test001AddressAccount1.getBalance();
     logger.info("balance1:" + balance1);
 
@@ -108,59 +118,61 @@ public class MultiSign37 extends TronBaseTest {
     logger.info(PublicMethodForMultiSign.printPermission(witnessPermission1));
     Assert.assertEquals(balance - balance1, updateAccountPermissionFee);
 
-    Transaction transaction = PublicMethodForMultiSign
-        .sendcoinWithPermissionIdNotSign(foundationAddress, 1L, test001Address, 0, dev001Key,
-            blockingStubFull);
+    Transaction transaction =
+        PublicMethodForMultiSign.sendcoinWithPermissionIdNotSign(
+            foundationAddress, 1L, test001Address, 0, dev001Key, blockingStubFull);
 
-    Transaction transaction1 = PublicMethod
-        .addTransactionSign(transaction, dev001Key, blockingStubFull);
-    TransactionSignWeight transactionSignWeight = PublicMethodForMultiSign
-        .getTransactionSignWeight(transaction1, blockingStubFull);
+    Transaction transaction1 =
+        PublicMethod.addTransactionSign(transaction, dev001Key, blockingStubFull);
+    TransactionSignWeight transactionSignWeight =
+        PublicMethodForMultiSign.getTransactionSignWeight(transaction1, blockingStubFull);
     logger.info("transactionSignWeight:" + transactionSignWeight);
-    Assert
-        .assertThat(transactionSignWeight.getResult().getCode().toString(),
-            containsString("NOT_ENOUGH_PERMISSION"));
-    Transaction transaction2 = PublicMethodForMultiSign
-        .addTransactionSignWithPermissionId(transaction1, sendAccountKey3, 2, blockingStubFull);
-    TransactionSignWeight transactionSignWeight1 = PublicMethodForMultiSign
-        .getTransactionSignWeight(transaction2, blockingStubFull);
+    Assert.assertThat(
+        transactionSignWeight.getResult().getCode().toString(),
+        containsString("NOT_ENOUGH_PERMISSION"));
+    Transaction transaction2 =
+        PublicMethodForMultiSign.addTransactionSignWithPermissionId(
+            transaction1, sendAccountKey3, 2, blockingStubFull);
+    TransactionSignWeight transactionSignWeight1 =
+        PublicMethodForMultiSign.getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("transaction1:" + transactionSignWeight1);
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-    Return returnResult2 = PublicMethodForMultiSign
-        .broadcastTransaction1(transaction2, blockingStubFull);
+    Assert.assertThat(
+        transactionSignWeight1.getResult().getCode().toString(),
+        containsString("PERMISSION_ERROR"));
+    Assert.assertThat(
+        transactionSignWeight1.getResult().getMessage(),
+        containsString("Signature count is 2 more than key counts of permission : 1"));
+    Return returnResult2 =
+        PublicMethodForMultiSign.broadcastTransaction1(transaction2, blockingStubFull);
     logger.info("returnResult2:" + returnResult2);
-    Assert
-        .assertThat(returnResult2.getCode().toString(), containsString("SIGERROR"));
+    Assert.assertThat(returnResult2.getCode().toString(), containsString("SIGERROR"));
     Account test001AddressAccount3 = PublicMethod.queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
-    Assert
-        .assertThat(returnResult2.getMessage().toStringUtf8(),
-            containsString(
-                "Signature count is 2 more than key counts of permission : 1"));
+    Assert.assertThat(
+        returnResult2.getMessage().toStringUtf8(),
+        containsString("Signature count is 2 more than key counts of permission : 1"));
     Assert.assertEquals(balance1, balance3);
   }
 
-  @Test(enabled = true, description =
-      "Sendcoin,use owner address sign,  not meet all requirements.Then use  "
-          + " active address to sign, not meet all requirements,broadcastTransaction.", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description =
+          "Sendcoin,use owner address sign,  not meet all requirements.Then use  "
+              + " active address to sign, not meet all requirements,broadcastTransaction.",
+      groups = {"daily", "multisig"})
   public void testMultiUpdatepermissions_48() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
     long amount = updateAccountPermissionFee + 1000000;
-    Assert.assertTrue(PublicMethod
-        .sendcoin(test001Address, amount, foundationAddress, testKey002,
-            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            test001Address, amount, foundationAddress, testKey002, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Account test001AddressAccount = PublicMethod.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-  final Permission witnessPermission = test001AddressAccount.getWitnessPermission();
+    final Permission witnessPermission = test001AddressAccount.getWitnessPermission();
     long balance = test001AddressAccount.getBalance();
     logger.info("balance:" + balance);
     PublicMethodForMultiSign.printPermissionList(permissionsList);
@@ -170,24 +182,34 @@ public class MultiSign37 extends TronBaseTest {
 
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
-  String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-        + "\"owner\",\"threshold\":2,\"keys\":[{\"address\":"
-        + "\"" + PublicMethod.getAddressString(dev001Key) + "\",\"weight\":1},"
-        + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey2) + "\",\"weight\":1}]},"
-        + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
-        + "\"threshold\":1,\"operations\":"
-        + "\"0100000000000000000000000000000000000000000000000000000000000000\","
-        + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]}]} ";
-    Assert.assertTrue(PublicMethodForMultiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-            blockingStubFull, 0,
+    String accountPermissionJson1 =
+        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+            + "\"owner\",\"threshold\":2,\"keys\":[{\"address\":"
+            + "\""
+            + PublicMethod.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey2)
+            + "\",\"weight\":1}]},"
+            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
+            + "\"threshold\":1,\"operations\":"
+            + "\"0100000000000000000000000000000000000000000000000000000000000000\","
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]}]} ";
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdateWithPermissionId(
+            accountPermissionJson1,
+            test001Address,
+            dev001Key,
+            blockingStubFull,
+            0,
             permissionKeyString));
 
     Account test001AddressAccount1 = PublicMethod.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-  final Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
+    final Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
     long balance1 = test001AddressAccount1.getBalance();
     logger.info("balance1:" + balance1);
 
@@ -196,53 +218,58 @@ public class MultiSign37 extends TronBaseTest {
     logger.info(PublicMethodForMultiSign.printPermission(witnessPermission1));
     Assert.assertEquals(balance - balance1, updateAccountPermissionFee);
 
-    Transaction transaction = PublicMethodForMultiSign
-        .sendcoinWithPermissionIdNotSign(foundationAddress, 1L, test001Address, 0, dev001Key,
-            blockingStubFull);
+    Transaction transaction =
+        PublicMethodForMultiSign.sendcoinWithPermissionIdNotSign(
+            foundationAddress, 1L, test001Address, 0, dev001Key, blockingStubFull);
 
-    Transaction transaction1 = PublicMethod
-        .addTransactionSign(transaction, dev001Key, blockingStubFull);
-    TransactionSignWeight transactionSignWeight = PublicMethodForMultiSign
-        .getTransactionSignWeight(transaction1, blockingStubFull);
+    Transaction transaction1 =
+        PublicMethod.addTransactionSign(transaction, dev001Key, blockingStubFull);
+    TransactionSignWeight transactionSignWeight =
+        PublicMethodForMultiSign.getTransactionSignWeight(transaction1, blockingStubFull);
     logger.info("transactionSignWeight:" + transactionSignWeight);
-    Assert.assertThat(transactionSignWeight.getResult().getCode().toString(),
-            containsString("NOT_ENOUGH_PERMISSION"));
-    Transaction transaction2 = PublicMethodForMultiSign
-        .addTransactionSignWithPermissionId(transaction1, sendAccountKey3, 2, blockingStubFull);
-    TransactionSignWeight transactionSignWeight1 = PublicMethodForMultiSign
-        .getTransactionSignWeight(transaction2, blockingStubFull);
+    Assert.assertThat(
+        transactionSignWeight.getResult().getCode().toString(),
+        containsString("NOT_ENOUGH_PERMISSION"));
+    Transaction transaction2 =
+        PublicMethodForMultiSign.addTransactionSignWithPermissionId(
+            transaction1, sendAccountKey3, 2, blockingStubFull);
+    TransactionSignWeight transactionSignWeight1 =
+        PublicMethodForMultiSign.getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("transaction1:" + transactionSignWeight1);
-    Assert.assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert.assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Permission denied"));
-    Return returnResult2 = PublicMethodForMultiSign
-        .broadcastTransaction1(transaction2, blockingStubFull);
+    Assert.assertThat(
+        transactionSignWeight1.getResult().getCode().toString(),
+        containsString("PERMISSION_ERROR"));
+    Assert.assertThat(
+        transactionSignWeight1.getResult().getMessage(), containsString("Permission denied"));
+    Return returnResult2 =
+        PublicMethodForMultiSign.broadcastTransaction1(transaction2, blockingStubFull);
     logger.info("returnResult2:" + returnResult2);
-    Assert
-        .assertThat(returnResult2.getCode().toString(), containsString("SIGERROR"));
+    Assert.assertThat(returnResult2.getCode().toString(), containsString("SIGERROR"));
     Account test001AddressAccount3 = PublicMethod.queryAccount(test001Address, blockingStubFull);
     long balance3 = test001AddressAccount3.getBalance();
-    Assert.assertThat(returnResult2.getMessage().toStringUtf8(),
-            containsString("Permission denied"));
+    Assert.assertThat(
+        returnResult2.getMessage().toStringUtf8(), containsString("Permission denied"));
     Assert.assertEquals(balance1, balance3);
   }
 
-  @Test(enabled = true, description =
-      "Sendcoin,use two owner address sign,sum(weight)==threshold,broadcastTransaction.", groups = {"daily", "multisig"})
+  @Test(
+      enabled = true,
+      description =
+          "Sendcoin,use two owner address sign,sum(weight)==threshold,broadcastTransaction.",
+      groups = {"daily", "multisig"})
   public void testMultiUpdatepermissions_49() {
     ECKey ecKey = new ECKey(Utils.getRandom());
     test001Address = ecKey.getAddress();
     long amount = updateAccountPermissionFee + multiSignFee + 1000000;
-    Assert.assertTrue(PublicMethod
-        .sendcoin(test001Address, amount, foundationAddress, testKey002,
-            blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            test001Address, amount, foundationAddress, testKey002, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Account test001AddressAccount = PublicMethod.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
     Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-  final Permission witnessPermission = test001AddressAccount.getWitnessPermission();
+    final Permission witnessPermission = test001AddressAccount.getWitnessPermission();
     long balance = test001AddressAccount.getBalance();
     logger.info("balance:" + balance);
     PublicMethodForMultiSign.printPermissionList(permissionsList);
@@ -252,24 +279,34 @@ public class MultiSign37 extends TronBaseTest {
 
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
-  String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-        + "\"owner\",\"threshold\":2,\"keys\":[{\"address\":"
-        + "\"" + PublicMethod.getAddressString(dev001Key) + "\",\"weight\":1},"
-        + "{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey2) + "\",\"weight\":1}]},"
-        + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
-        + "\"threshold\":1,\"operations\":"
-        + "\"0100000000000000000000000000000000000000000000000000000000000000\","
-        + "\"keys\":[{\"address\":\"" + PublicMethod.getAddressString(sendAccountKey3)
-        + "\",\"weight\":1}]}]} ";
-    Assert.assertTrue(PublicMethodForMultiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-            blockingStubFull, 0,
+    String accountPermissionJson1 =
+        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+            + "\"owner\",\"threshold\":2,\"keys\":[{\"address\":"
+            + "\""
+            + PublicMethod.getAddressString(dev001Key)
+            + "\",\"weight\":1},"
+            + "{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey2)
+            + "\",\"weight\":1}]},"
+            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
+            + "\"threshold\":1,\"operations\":"
+            + "\"0100000000000000000000000000000000000000000000000000000000000000\","
+            + "\"keys\":[{\"address\":\""
+            + PublicMethod.getAddressString(sendAccountKey3)
+            + "\",\"weight\":1}]}]} ";
+    Assert.assertTrue(
+        PublicMethodForMultiSign.accountPermissionUpdateWithPermissionId(
+            accountPermissionJson1,
+            test001Address,
+            dev001Key,
+            blockingStubFull,
+            0,
             permissionKeyString));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account test001AddressAccount1 = PublicMethod.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
     Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-  final Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
+    final Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
     long balance1 = test001AddressAccount1.getBalance();
     logger.info("balance1:" + balance1);
 
@@ -278,28 +315,29 @@ public class MultiSign37 extends TronBaseTest {
     logger.info(PublicMethodForMultiSign.printPermission(witnessPermission1));
     Assert.assertEquals(balance - balance1, updateAccountPermissionFee);
 
-    Transaction transaction = PublicMethodForMultiSign
-        .sendcoinWithPermissionIdNotSign(foundationAddress, 1L, test001Address, 0, dev001Key,
-            blockingStubFull);
+    Transaction transaction =
+        PublicMethodForMultiSign.sendcoinWithPermissionIdNotSign(
+            foundationAddress, 1L, test001Address, 0, dev001Key, blockingStubFull);
 
-    Transaction transaction1 = PublicMethod
-        .addTransactionSign(transaction, dev001Key, blockingStubFull);
-    TransactionSignWeight transactionSignWeight = PublicMethodForMultiSign
-        .getTransactionSignWeight(transaction1, blockingStubFull);
+    Transaction transaction1 =
+        PublicMethod.addTransactionSign(transaction, dev001Key, blockingStubFull);
+    TransactionSignWeight transactionSignWeight =
+        PublicMethodForMultiSign.getTransactionSignWeight(transaction1, blockingStubFull);
     logger.info("transactionSignWeight:" + transactionSignWeight);
-    Assert
-        .assertThat(transactionSignWeight.getResult().getCode().toString(),
-            containsString("NOT_ENOUGH_PERMISSION"));
-    Transaction transaction2 = PublicMethodForMultiSign
-        .addTransactionSignWithPermissionId(transaction1, sendAccountKey2, 0, blockingStubFull);
-    TransactionSignWeight transactionSignWeight1 = PublicMethodForMultiSign
-        .getTransactionSignWeight(transaction2, blockingStubFull);
+    Assert.assertThat(
+        transactionSignWeight.getResult().getCode().toString(),
+        containsString("NOT_ENOUGH_PERMISSION"));
+    Transaction transaction2 =
+        PublicMethodForMultiSign.addTransactionSignWithPermissionId(
+            transaction1, sendAccountKey2, 0, blockingStubFull);
+    TransactionSignWeight transactionSignWeight1 =
+        PublicMethodForMultiSign.getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("transaction1:" + transactionSignWeight1);
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("ENOUGH_PERMISSION"));
-    Return returnResult2 = PublicMethodForMultiSign
-        .broadcastTransaction1(transaction2, blockingStubFull);
+    Assert.assertThat(
+        transactionSignWeight1.getResult().getCode().toString(),
+        containsString("ENOUGH_PERMISSION"));
+    Return returnResult2 =
+        PublicMethodForMultiSign.broadcastTransaction1(transaction2, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     logger.info("returnResult2:" + returnResult2);
     Account test001AddressAccount3 = PublicMethod.queryAccount(test001Address, blockingStubFull);
@@ -308,43 +346,44 @@ public class MultiSign37 extends TronBaseTest {
     Assert.assertTrue(returnResult2.getResult());
   }
 
-  /**
-   * constructor.
-   */
-  private Transaction setReference(Transaction transaction, long blockNum,
-      byte[] blockHash) {
+  /** constructor. */
+  private Transaction setReference(Transaction transaction, long blockNum, byte[] blockHash) {
     byte[] refBlockNum = ByteArray.fromLong(blockNum);
-    Transaction.raw rawData = transaction.getRawData().toBuilder()
-        .setRefBlockHash(ByteString.copyFrom(blockHash))
-        .setRefBlockBytes(ByteString.copyFrom(refBlockNum))
-        .build();
+    Transaction.raw rawData =
+        transaction
+            .getRawData()
+            .toBuilder()
+            .setRefBlockHash(ByteString.copyFrom(blockHash))
+            .setRefBlockBytes(ByteString.copyFrom(refBlockNum))
+            .build();
     return transaction.toBuilder().setRawData(rawData).build();
-    }
+  }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Transaction setExpiration(Transaction transaction, long expiration) {
-    Transaction.raw rawData = transaction.getRawData().toBuilder().setExpiration(expiration)
-        .build();
+    Transaction.raw rawData =
+        transaction.getRawData().toBuilder().setExpiration(expiration).build();
     return transaction.toBuilder().setRawData(rawData).build();
-    }
+  }
 
-  /**
-   * constructor.
-   */
-  public Transaction createTransaction(com.google.protobuf.Message message,
-      ContractType contractType) {
-    Transaction.raw.Builder transactionBuilder = Transaction.raw.newBuilder().addContract(
-        Transaction.Contract.newBuilder().setType(contractType).setParameter(
-            Any.pack(message)).build());
+  /** constructor. */
+  public Transaction createTransaction(
+      com.google.protobuf.Message message, ContractType contractType) {
+    Transaction.raw.Builder transactionBuilder =
+        Transaction.raw
+            .newBuilder()
+            .addContract(
+                Transaction.Contract.newBuilder()
+                    .setType(contractType)
+                    .setParameter(Any.pack(message))
+                    .build());
 
-    Transaction transaction = Transaction.newBuilder().setRawData(transactionBuilder.build())
-        .build();
+    Transaction transaction =
+        Transaction.newBuilder().setRawData(transactionBuilder.build()).build();
     long time = System.currentTimeMillis();
     AtomicLong count = new AtomicLong();
     long gtime = count.incrementAndGet() + time;
-  String ref = "" + gtime;
+    String ref = "" + gtime;
 
     transaction = setReference(transaction, gtime, ByteArray.fromString(ref));
 
@@ -358,11 +397,7 @@ public class MultiSign37 extends TronBaseTest {
     PublicMethod.freeResource(test001Address, dev001Key, foundationAddress, blockingStubFull);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
-
+  public void shutdown() throws InterruptedException {}
 }

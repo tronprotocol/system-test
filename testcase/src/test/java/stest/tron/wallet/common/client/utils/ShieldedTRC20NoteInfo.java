@@ -5,42 +5,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-
-
 @AllArgsConstructor
 public class ShieldedTRC20NoteInfo {
 
-  @Setter
-  @Getter
-  public long value = 0;
-  @Setter
-  @Getter
-  public String paymentAddress;
-  @Setter
-  @Getter
-  public byte[] r; // 256
-  @Setter
-  @Getter
-  public String trxId;
-  @Setter
-  @Getter
-  public int index;
-  @Setter
-  @Getter
-  public long noteIndex;
-  @Setter
-  @Getter
-  public long position;
-  @Setter
-  @Getter
-  public byte[] memo;
+  @Setter @Getter public long value = 0;
+  @Setter @Getter public String paymentAddress;
+  @Setter @Getter public byte[] r; // 256
+  @Setter @Getter public String trxId;
+  @Setter @Getter public int index;
+  @Setter @Getter public long noteIndex;
+  @Setter @Getter public long position;
+  @Setter @Getter public byte[] memo;
 
-  public ShieldedTRC20NoteInfo() {
-  }
+  public ShieldedTRC20NoteInfo() {}
 
-  /**
-   * format shieldedTRC20 note to a string
-   */
+  /** format shieldedTRC20 note to a string */
   public String encode(byte[] encryptKey) throws CipherException {
     String encodeString = noteIndex + ";";
     encodeString += paymentAddress;
@@ -66,9 +45,7 @@ public class ShieldedTRC20NoteInfo {
     return encodeString;
   }
 
-  /**
-   * parse string to get shieldedTRC20 note
-   */
+  /** parse string to get shieldedTRC20 note */
   public boolean decode(String data, byte[] encryptKey) throws CipherException {
     byte[] chipherText = Base58.decode(data);
     byte[] text = ZenUtils.aesCtrDecrypt(chipherText, encryptKey);

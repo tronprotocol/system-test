@@ -21,21 +21,21 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class FreezeAndSendcoin extends TronBaseTest {
 
   private static final long now = System.currentTimeMillis();
-  //testng001、testng002、testng003、testng004 only for test, do not worry
+  // testng001、testng002、testng003、testng004 only for test, do not worry
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final String testKey003 =
       "6815B367FDDE637E53E9ADC8E69424E07724333C9A2B973CFA469975E20753FC";
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   private final Long sendAmount = 10000000L;
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] freezeAddress = ecKey1.getAddress();
   String testKeyForFreeze = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -43,16 +43,18 @@ public class FreezeAndSendcoin extends TronBaseTest {
   byte[] transferAssetAddress = ecKey2.getAddress();
   String transferAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-  public static Boolean freezeBalance(byte[] addRess, long freezeBalance, long freezeDuration,
-      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /** constructor. */
+  public static Boolean freezeBalance(
+      byte[] addRess,
+      long freezeBalance,
+      long freezeDuration,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
     long frozenDuration = freezeDuration;
-  //String priKey = testKey002;
-  ECKey temKey = null;
+    // String priKey = testKey002;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -60,17 +62,19 @@ public class FreezeAndSendcoin extends TronBaseTest {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-    Protocol.Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI
-        .EmptyMessage.newBuilder().build());
-  final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
-  Long beforeFrozenBalance = 0L;
-  //Long beforeBandwidth     = beforeFronzen.getBandwidth();
+    Protocol.Block currentBlock =
+        blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
+    final Long beforeBlockNum = currentBlock.getBlockHeader().getRawData().getNumber();
+    Long beforeFrozenBalance = 0L;
+    // Long beforeBandwidth     = beforeFronzen.getBandwidth();
 
-    BalanceContract.FreezeBalanceContract.Builder builder = BalanceContract.FreezeBalanceContract
-        .newBuilder();
+    BalanceContract.FreezeBalanceContract.Builder builder =
+        BalanceContract.FreezeBalanceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
 
-    builder.setOwnerAddress(byteAddress).setFrozenBalance(frozenBalance)
+    builder
+        .setOwnerAddress(byteAddress)
+        .setFrozenBalance(frozenBalance)
         .setFrozenDuration(frozenDuration);
 
     BalanceContract.FreezeBalanceContract contract = builder.build();
@@ -93,21 +97,16 @@ public class FreezeAndSendcoin extends TronBaseTest {
     Long afterBlockNum = 0L;
 
     while (afterBlockNum < beforeBlockNum) {
-      Protocol.Block currentBlock1 = blockingStubFull.getNowBlock(GrpcAPI
-          .EmptyMessage.newBuilder().build());
+      Protocol.Block currentBlock1 =
+          blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
       afterBlockNum = currentBlock1.getBlockHeader().getRawData().getNumber();
     }
     return true;
   }
 
-  
+  // @Test(enabled = false, groups = {"full"})
 
-  //@Test(enabled = false, groups = {"full"})
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = false)
   public void beforeClass() {
     /*    Random rand = new Random();
@@ -121,14 +120,19 @@ public class FreezeAndSendcoin extends TronBaseTest {
     }*/
 
     logger.info(testKeyForFreeze);
-    logger.info(transferAssetCreateKey);  }
+    logger.info(transferAssetCreateKey);
+  }
 
-  @Test(enabled = false, threadPoolSize = 500, invocationCount = 1000, groups = {"full"})
+  @Test(
+      enabled = false,
+      threadPoolSize = 500,
+      invocationCount = 1000,
+      groups = {"full"})
   public void freezeAndSendcoin() throws InterruptedException {
 
     ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] freezeAddress = ecKey1.getAddress();
-  String testKeyForFreeze = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    byte[] freezeAddress = ecKey1.getAddress();
+    String testKeyForFreeze = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
     Account toAccountInfo = PublicMethod.queryAccount(testKey003, blockingStubFull);
     Account freezeAccountInfo = PublicMethod.queryAccount(testKeyForFreeze, blockingStubFull);
 
@@ -141,10 +145,11 @@ public class FreezeAndSendcoin extends TronBaseTest {
     Integer randNum = rand.nextInt(30) + 1;
 
     while (toAccountInfo.getBalance() > 10000009L) {
-      randNum = rand.nextInt(3);      fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-          .get(randNum);      freezeBalance(freezeAddress, 3000000L, 3L, testKeyForFreeze, blockingStubFull);
-      PublicMethod
-          .sendcoin(freezeAddress, sendAmount, toAddress, testKey003, blockingStubFull);
+      randNum = rand.nextInt(3);
+      fullnode =
+          Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(randNum);
+      freezeBalance(freezeAddress, 3000000L, 3L, testKeyForFreeze, blockingStubFull);
+      PublicMethod.sendcoin(freezeAddress, sendAmount, toAddress, testKey003, blockingStubFull);
 
       ret = freezeBalance(freezeAddress, 1000000L, 3L, testKeyForFreeze, blockingStubFull);
       freezeBalance(freezeAddress, 1000000L, 3L, testKeyForFreeze, blockingStubFull);
@@ -152,16 +157,15 @@ public class FreezeAndSendcoin extends TronBaseTest {
 
       if (ret) {
         logger.info("New account freeze success " + Integer.toString(i));
-        sendRet = PublicMethod.sendcoin(toAddress, 6000000L, freezeAddress,
-            testKeyForFreeze, blockingStubFull);
+        sendRet =
+            PublicMethod.sendcoin(
+                toAddress, 6000000L, freezeAddress, testKeyForFreeze, blockingStubFull);
         if (sendRet) {
           logger.info("This account transfer coin back. " + Integer.toString(i));
           freezeAccountInfo = PublicMethod.queryAccount(testKeyForFreeze, blockingStubFull);
-          logger.info("This account now has balance is " + Long
-              .toString(freezeAccountInfo.getBalance()));
-
+          logger.info(
+              "This account now has balance is " + Long.toString(freezeAccountInfo.getBalance()));
         }
-
       }
 
       unFreezeBalance(freezeAddress, testKeyForFreeze);
@@ -172,8 +176,8 @@ public class FreezeAndSendcoin extends TronBaseTest {
       testKeyForFreeze = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
       toAccountInfo = PublicMethod.queryAccount(testKey003, blockingStubFull);
       logger.info("Now the toaddress balance is " + Long.toString(toAccountInfo.getBalance()));
-      NumberMessage beforeGetTotalTransaction = blockingStubFull
-          .totalTransaction(GrpcAPI.EmptyMessage.newBuilder().build());
+      NumberMessage beforeGetTotalTransaction =
+          blockingStubFull.totalTransaction(GrpcAPI.EmptyMessage.newBuilder().build());
       logger.info("Now total transaction is " + Long.toString(beforeGetTotalTransaction.getNum()));
       ret = false;
       sendRet = false;
@@ -191,19 +195,14 @@ public class FreezeAndSendcoin extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = false)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean unFreezeBalance(byte[] addRess, String priKey) {
     byte[] address = addRess;
-  ECKey temKey = null;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -211,10 +210,9 @@ public class FreezeAndSendcoin extends TronBaseTest {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-  // Account search = queryAccount(ecKey, blockingStubFull);
+    // Account search = queryAccount(ecKey, blockingStubFull);
 
-    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract
-        .newBuilder();
+    UnfreezeBalanceContract.Builder builder = UnfreezeBalanceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
 
     builder.setOwnerAddress(byteAddress);
@@ -236,9 +234,7 @@ public class FreezeAndSendcoin extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public boolean withdrawBalance(byte[] address, String priKey) {
     ECKey temKey = null;
     try {
@@ -250,8 +246,7 @@ public class FreezeAndSendcoin extends TronBaseTest {
     ECKey ecKey = temKey;
 
     BalanceContract.WithdrawBalanceContract.Builder builder =
-        BalanceContract.WithdrawBalanceContract
-            .newBuilder();
+        BalanceContract.WithdrawBalanceContract.newBuilder();
     ByteString byteAddress = ByteString.copyFrom(address);
     builder.setOwnerAddress(byteAddress);
     BalanceContract.WithdrawBalanceContract contract = builder.build();
@@ -267,7 +262,6 @@ public class FreezeAndSendcoin extends TronBaseTest {
     }
     logger.info("test withdraw" + priKey);
     return true;
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -278,7 +272,4 @@ public class FreezeAndSendcoin extends TronBaseTest {
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
-
 }
-
-

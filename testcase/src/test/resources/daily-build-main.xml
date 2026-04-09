@@ -2,7 +2,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Main Tests" parallel="tests">
   <listeners>
-    <listener class-name="stest.tron.wallet.common.client.utils.DailyBuildReport"></listener>
     <listener class-name="stest.tron.wallet.common.client.utils.FlakyTestListener"></listener>
     <listener class-name="stest.tron.wallet.common.client.utils.MultiNodeListener"></listener>
     <listener class-name="stest.tron.wallet.common.client.utils.FailureClassifier"></listener>

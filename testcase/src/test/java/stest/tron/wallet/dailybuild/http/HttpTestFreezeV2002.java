@@ -12,22 +12,21 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.*;
+import stest.tron.wallet.common.client.utils.ByteArray;
+import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.HttpMethod;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.Utils;
 
-import java.util.HashMap;
-
-
-/**
- *
- */
+/** */
 @Slf4j
 public class HttpTestFreezeV2002 {
 
-  private final String testKeyFrom = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKeyFrom =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKeyFrom);
-  private final String testWitnessKey = Configuration.getByPath("testng.conf")
-      .getString("witness.key1");
+  private final String testWitnessKey =
+      Configuration.getByPath("testng.conf").getString("witness.key1");
   private final byte[] testWitnessAddress = PublicMethod.getFinalAddress(testWitnessKey);
 
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -36,41 +35,36 @@ public class HttpTestFreezeV2002 {
 
   private JSONObject responseContent;
   private HttpResponse response;
-  private String httpnode = Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list")
-      .get(0);
-  private String httpSoliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(2);
-  private String httpPbftNode = Configuration.getByPath("testng.conf")
-      .getStringList("httpnode.ip.list").get(4);
+  private String httpnode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(0);
+  private String httpSoliditynode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(2);
+  private String httpPbftNode =
+      Configuration.getByPath("testng.conf").getStringList("httpnode.ip.list").get(4);
 
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     if (!HttpMethod.proposalFreezeV2IsOpen(httpnode)) {
       throw new SkipException("Skipping this freezeV2 test case");
     }
     PublicMethod.printAddress(testKey001);
-    response = HttpMethod
-        .sendCoin(httpnode, fromAddress, testAddress001, 1000000000L, testKeyFrom);
+    response = HttpMethod.sendCoin(httpnode, fromAddress, testAddress001, 1000000000L, testKeyFrom);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
 
-    response = HttpMethod.freezeBalance(httpnode, testAddress001,20000000L, 0, 0,  testKey001);
+    response = HttpMethod.freezeBalance(httpnode, testAddress001, 20000000L, 0, 0, testKey001);
     Assert.assertTrue(HttpMethod.verificationResult(response));
-    response = HttpMethod.freezeBalance(httpnode, testAddress001,20000000L, 0, 1,  testKey001);
+    response = HttpMethod.freezeBalance(httpnode, testAddress001, 20000000L, 0, 1, testKey001);
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
-
   }
 
-
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "cancel all unfrozen net", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "cancel all unfrozen net",
+      groups = {"daily", "serial"})
   public void test001CancelAllUnfreezeNet() {
     response = HttpMethod.unFreezeBalanceV2(httpnode, testAddress001, 1000000L, 0, testKey001);
     Assert.assertTrue(HttpMethod.verificationResult(response));
@@ -79,7 +73,8 @@ public class HttpTestFreezeV2002 {
     responseContent = HttpMethod.parseResponseContent(response);
     long beforeBalance = responseContent.getLongValue("balance");
     Assert.assertEquals(responseContent.getJSONArray("unfrozenV2").size(), 1);
-    long beforeUnfreezeNet = responseContent.getJSONArray("unfrozenV2").getJSONObject(0).getLongValue("unfreeze_amount");
+    long beforeUnfreezeNet =
+        responseContent.getJSONArray("unfrozenV2").getJSONObject(0).getLongValue("unfreeze_amount");
     Assert.assertEquals(beforeUnfreezeNet, 1000000);
     response = HttpMethod.getAccountReource(httpnode, testAddress001);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -92,15 +87,16 @@ public class HttpTestFreezeV2002 {
     Assert.assertTrue(HttpMethod.verificationResult(response));
     HttpMethod.waitToProduceOneBlock(httpnode);
     String txid = responseContent.getString("txid");
-    responseContent = HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
+    responseContent =
+        HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
     logger.info("test001 cancelAllUnfreeze info: " + responseContent.toJSONString());
     JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
     Assert.assertEquals(cancelArray.size(), 3);
-    for(int i=0;i<3;i++){
+    for (int i = 0; i < 3; i++) {
       JSONObject tem = cancelArray.getJSONObject(i);
-      if(tem.getString("key").equals("BANDWIDTH")){
+      if (tem.getString("key").equals("BANDWIDTH")) {
         Assert.assertEquals(tem.getLongValue("value"), 1000000);
-      }else {
+      } else {
         Assert.assertEquals(tem.getLongValue("value"), 0);
       }
     }
@@ -111,8 +107,10 @@ public class HttpTestFreezeV2002 {
     System.out.println(responseContent.toJSONString());
     long afterBalance = responseContent.getLongValue("balance");
     Assert.assertFalse(responseContent.containsKey("unfrozenV2"));
-    long afterUnfreezeNet = responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
-    long afterUnfreezeEnergy = responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
+    long afterUnfreezeNet =
+        responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
+    long afterUnfreezeEnergy =
+        responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
     Assert.assertEquals(afterUnfreezeNet, 20000000);
     Assert.assertEquals(afterUnfreezeEnergy, 20000000);
     response = HttpMethod.getAccountReource(httpnode, testAddress001);
@@ -122,10 +120,11 @@ public class HttpTestFreezeV2002 {
     Assert.assertEquals(powerLimit2, 40);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "cancel all unfrozen energy", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "cancel all unfrozen energy",
+      groups = {"daily", "serial"})
   public void test002CancelAllUnfreezeEnergy() {
     response = HttpMethod.unFreezeBalanceV2(httpnode, testAddress001, 2000000L, 1, testKey001);
     Assert.assertTrue(HttpMethod.verificationResult(response));
@@ -135,7 +134,8 @@ public class HttpTestFreezeV2002 {
     responseContent = HttpMethod.parseResponseContent(response);
     long beforeBalance = responseContent.getLongValue("balance");
     Assert.assertEquals(responseContent.getJSONArray("unfrozenV2").size(), 1);
-    long beforeUnfreezeNet = responseContent.getJSONArray("unfrozenV2").getJSONObject(0).getLongValue("unfreeze_amount");
+    long beforeUnfreezeNet =
+        responseContent.getJSONArray("unfrozenV2").getJSONObject(0).getLongValue("unfreeze_amount");
     Assert.assertEquals(beforeUnfreezeNet, 2000000);
     response = HttpMethod.getAccountReource(httpnode, testAddress001);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -148,15 +148,16 @@ public class HttpTestFreezeV2002 {
     logger.info("test002 cancel res: " + responseContent.toJSONString());
     HttpMethod.waitToProduceOneBlock(httpnode);
     String txid = responseContent.getString("txid");
-    responseContent = HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
+    responseContent =
+        HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
     logger.info("test002 cancelAllUnfreeze info: " + responseContent.toJSONString());
     JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
     Assert.assertEquals(cancelArray.size(), 3);
-    for(int i=0;i<3;i++){
+    for (int i = 0; i < 3; i++) {
       JSONObject tem = cancelArray.getJSONObject(i);
-      if(tem.getString("key").equals("ENERGY")){
+      if (tem.getString("key").equals("ENERGY")) {
         Assert.assertEquals(tem.getLongValue("value"), 2000000);
-      }else {
+      } else {
         Assert.assertEquals(tem.getLongValue("value"), 0);
       }
     }
@@ -167,8 +168,10 @@ public class HttpTestFreezeV2002 {
     logger.info(responseContent.toJSONString());
     long afterBalance = responseContent.getLongValue("balance");
     Assert.assertFalse(responseContent.containsKey("unfrozenV2"));
-    long afterUnfreezeNet = responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
-    long afterUnfreezeEnergy = responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
+    long afterUnfreezeNet =
+        responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
+    long afterUnfreezeEnergy =
+        responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
     Assert.assertEquals(afterUnfreezeNet, 20000000);
     Assert.assertEquals(afterUnfreezeEnergy, 20000000);
     response = HttpMethod.getAccountReource(httpnode, testAddress001);
@@ -178,10 +181,11 @@ public class HttpTestFreezeV2002 {
     Assert.assertEquals(powerLimit2, 40);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "cancel all unexpired unfreeze net and energy", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "cancel all unexpired unfreeze net and energy",
+      groups = {"daily", "serial"})
   public void test03CancelAllUnfreezeNetAndEnergy() {
     response = HttpMethod.unFreezeBalanceV2(httpnode, testAddress001, 2000000L, 0, testKey001);
     Assert.assertTrue(HttpMethod.verificationResult(response));
@@ -193,8 +197,10 @@ public class HttpTestFreezeV2002 {
     responseContent = HttpMethod.parseResponseContent(response);
     long beforeBalance = responseContent.getLongValue("balance");
     Assert.assertEquals(responseContent.getJSONArray("unfrozenV2").size(), 2);
-    long beforeUnfreezeNet = responseContent.getJSONArray("unfrozenV2").getJSONObject(0).getLongValue("unfreeze_amount");
-    long beforeUnfreezeEnergy = responseContent.getJSONArray("unfrozenV2").getJSONObject(1).getLongValue("unfreeze_amount");
+    long beforeUnfreezeNet =
+        responseContent.getJSONArray("unfrozenV2").getJSONObject(0).getLongValue("unfreeze_amount");
+    long beforeUnfreezeEnergy =
+        responseContent.getJSONArray("unfrozenV2").getJSONObject(1).getLongValue("unfreeze_amount");
     Assert.assertEquals(beforeUnfreezeNet, 2000000);
     Assert.assertEquals(beforeUnfreezeEnergy, 2000000);
     response = HttpMethod.getAccountReource(httpnode, testAddress001);
@@ -207,7 +213,8 @@ public class HttpTestFreezeV2002 {
     logger.info("test003 cancel res: " + responseContent.toJSONString());
     HttpMethod.waitToProduceOneBlock(httpnode);
     String txid = responseContent.getString("txid");
-    responseContent = HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
+    responseContent =
+        HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
     logger.info("test003 cancelAllUnfreeze info: " + responseContent.toJSONString());
     JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
     Assert.assertEquals(cancelArray.size(), 3);
@@ -226,8 +233,10 @@ public class HttpTestFreezeV2002 {
     logger.info(responseContent.toJSONString());
     long afterBalance = responseContent.getLongValue("balance");
     Assert.assertFalse(responseContent.containsKey("unfrozenV2"));
-    long afterUnfreezeNet = responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
-    long afterUnfreezeEnergy = responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
+    long afterUnfreezeNet =
+        responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
+    long afterUnfreezeEnergy =
+        responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
     Assert.assertEquals(afterUnfreezeNet, 20000000);
     Assert.assertEquals(afterUnfreezeEnergy, 20000000);
     response = HttpMethod.getAccountReource(httpnode, testAddress001);
@@ -237,12 +246,13 @@ public class HttpTestFreezeV2002 {
     Assert.assertEquals(powerLimit2, 40);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "cancel 32  unexpired unfreeze", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "cancel 32  unexpired unfreeze",
+      groups = {"daily", "serial"})
   public void test04CancelAll32Unfreeze() {
-    for(int i=0;i<32;i++){
+    for (int i = 0; i < 32; i++) {
       response = HttpMethod.unFreezeBalanceV2(httpnode, testAddress001, i + 1L, i % 2, testKey001);
       Assert.assertTrue(HttpMethod.verificationResult(response));
     }
@@ -264,7 +274,8 @@ public class HttpTestFreezeV2002 {
     logger.info("test004 cancel res: " + responseContent.toJSONString());
     HttpMethod.waitToProduceOneBlock(httpnode);
     String txid = responseContent.getString("txid");
-    responseContent = HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
+    responseContent =
+        HttpMethod.parseResponseContent(HttpMethod.getTransactionInfoById(httpnode, txid));
     logger.info("test004 cancelAllUnfreeze info: " + responseContent.toJSONString());
     JSONArray cancelArray = responseContent.getJSONArray("cancel_unfreezeV2_amount");
     Assert.assertEquals(cancelArray.size(), 3);
@@ -272,7 +283,7 @@ public class HttpTestFreezeV2002 {
       JSONObject tem = cancelArray.getJSONObject(i);
       if (tem.getString("key").equals("BANDWIDTH")) {
         Assert.assertEquals(tem.getLongValue("value"), 256);
-      }else if (tem.getString("key").equals("ENERGY")) {
+      } else if (tem.getString("key").equals("ENERGY")) {
         Assert.assertEquals(tem.getLongValue("value"), 272);
       } else {
         Assert.assertEquals(tem.getLongValue("value"), 0);
@@ -284,8 +295,10 @@ public class HttpTestFreezeV2002 {
     responseContent = HttpMethod.parseResponseContent(response);
     long afterBalance = responseContent.getLongValue("balance");
     Assert.assertFalse(responseContent.containsKey("unfrozenV2"));
-    long afterUnfreezeNet = responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
-    long afterUnfreezeEnergy = responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
+    long afterUnfreezeNet =
+        responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
+    long afterUnfreezeEnergy =
+        responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
     Assert.assertEquals(afterUnfreezeNet, 20000000);
     Assert.assertEquals(afterUnfreezeEnergy, 20000000);
     response = HttpMethod.getAccountReource(httpnode, testAddress001);
@@ -295,10 +308,11 @@ public class HttpTestFreezeV2002 {
     Assert.assertEquals(powerLimit2, 40);
   }
 
-  /**
-   * constructor.
-   */
-  @Test(enabled = true, description = "vote after cancel all unfreeze", groups = {"daily", "serial"})
+  /** constructor. */
+  @Test(
+      enabled = true,
+      description = "vote after cancel all unfreeze",
+      groups = {"daily", "serial"})
   public void test05VoteAfterCancelAllUnfreeze() {
     JsonArray voteKeys = new JsonArray();
     JsonObject voteElement = new JsonObject();
@@ -310,28 +324,29 @@ public class HttpTestFreezeV2002 {
     HttpMethod.waitToProduceOneBlock(httpnode);
     response = HttpMethod.getAccount(httpnode, testAddress001);
     responseContent = HttpMethod.parseResponseContent(response);
-    long afterUnfreezeNet = responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
-    long afterUnfreezeEnergy = responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
+    long afterUnfreezeNet =
+        responseContent.getJSONArray("frozenV2").getJSONObject(0).getLongValue("amount");
+    long afterUnfreezeEnergy =
+        responseContent.getJSONArray("frozenV2").getJSONObject(1).getLongValue("amount");
     Assert.assertEquals(afterUnfreezeNet, 20000000);
     Assert.assertEquals(afterUnfreezeEnergy, 20000000);
     Assert.assertEquals(responseContent.getJSONArray("votes").size(), 1);
     String srAdd = responseContent.getJSONArray("votes").getJSONObject(0).getString("vote_address");
-    int voteCount = responseContent.getJSONArray("votes").getJSONObject(0).getIntValue("vote_count");
-    Assert.assertEquals(srAdd.toLowerCase(), ByteArray.toHexString(testWitnessAddress).toLowerCase());
+    int voteCount =
+        responseContent.getJSONArray("votes").getJSONObject(0).getIntValue("vote_count");
+    Assert.assertEquals(
+        srAdd.toLowerCase(), ByteArray.toHexString(testWitnessAddress).toLowerCase());
     Assert.assertEquals(voteCount, 40);
   }
 
-
-
-  /**
-   * constructor.
-   * */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
     response = HttpMethod.getAccount(httpnode, testAddress001);
     responseContent = HttpMethod.parseResponseContent(response);
     for (int i = 0; i < responseContent.getJSONArray("frozenV2").size(); i++) {
-      long amount = responseContent.getJSONArray("frozenV2").getJSONObject(i).getLongValue("amount");
+      long amount =
+          responseContent.getJSONArray("frozenV2").getJSONObject(i).getLongValue("amount");
       HttpMethod.unFreezeBalanceV2(httpnode, testAddress001, amount, i, testKey001);
     }
     HttpMethod.freeResource(httpnode, testAddress001, fromAddress, testKey001);

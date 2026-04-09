@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,10 @@ public class MongoEventQuery001 extends MongoBase {
   private HttpResponse response;
   List<String> transactionIdList = null;
 
-  @Test(enabled = true, description = "Event query for block on mongoDB", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Event query for block on mongoDB",
+      groups = {"daily"})
   public void test01MongoDbEventQueryForBlock() {
     FindIterable<Document> findIterable = mongoDatabase.getCollection("block").find();
     MongoCursor<Document> mongoCursor = findIterable.iterator();
@@ -66,16 +68,16 @@ public class MongoEventQuery001 extends MongoBase {
     Assert.assertTrue(hasTransactions);
   }
 
-  @Test(enabled = true, description = "Event query for solidity on mongoDB", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Event query for solidity on mongoDB",
+      groups = {"daily"})
   public void test02MongoDbEventQueryForSolidity() {
 
     response = HttpMethod.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethod.parseResponseContent(response);
     Long blockNumber =
-        responseContent
-            .getJSONObject("block_header")
-            .getJSONObject("raw_data")
-            .getLong("number");
+        responseContent.getJSONObject("block_header").getJSONObject("raw_data").getLong("number");
 
     BasicDBObject query = new BasicDBObject();
     PublicMethod.waitProduceNextBlock(blockingStubFull);
@@ -98,5 +100,4 @@ public class MongoEventQuery001 extends MongoBase {
     logger.info("timeStampFromHttp:" + timeStampFromHttp);
     Assert.assertEquals(timeStampFromHttp, document.get("timeStamp").toString());
   }
-
 }

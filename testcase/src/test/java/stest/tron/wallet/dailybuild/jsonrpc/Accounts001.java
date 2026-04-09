@@ -5,7 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.grpc.ManagedChannelBuilder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -54,7 +58,10 @@ public class Accounts001 extends JsonRpcBase {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_accounts", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_accounts",
+      groups = {"daily", "serial"})
   public void test01JsonRpcApiTestForEthAccounts() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_accounts", params);
@@ -65,7 +72,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(responseContent.get("result"), result);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_blockNumber", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_blockNumber",
+      groups = {"daily", "serial"})
   public void test02JsonRpcApiTestForEthBlockNumber() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_blockNumber", params);
@@ -83,7 +93,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertTrue(Math.abs(blockNumFromJsonRpcNode - blockNumFromHttp) <= 3);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_call", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_call",
+      groups = {"daily", "serial"})
   public void test03JsonRpcApiTestForEthCall() throws Exception {
     JsonObject param = new JsonObject();
     HttpMethod.waitToProduceOneBlock(httpFullNode);
@@ -109,10 +122,7 @@ public class Accounts001 extends JsonRpcBase {
             + "00000000000000000000000000000000000",
         dataResult);
 
-
-
-
-    //release_4.5.2 to latest version， revert will return instead of failed gas value.
+    // release_4.5.2 to latest version， revert will return instead of failed gas value.
     JsonObject wrongParam = new JsonObject();
     params.remove(param);
     HttpMethod.waitToProduceOneBlock(httpFullNode);
@@ -121,8 +131,11 @@ public class Accounts001 extends JsonRpcBase {
     wrongParam.addProperty("gas", "0x0");
     wrongParam.addProperty("gasPrice", "0x0");
     wrongParam.addProperty("value", "0x0");
-    paramString = "0000000000000000000000000000000000000000000000000000000000000000" + "0000000000000000000000000000000010000000000000000000000000000000";
-    wrongParam.addProperty("data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
+    paramString =
+        "0000000000000000000000000000000000000000000000000000000000000000"
+            + "0000000000000000000000000000000010000000000000000000000000000000";
+    wrongParam.addProperty(
+        "data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
 
     params.add(wrongParam);
     params.add("latest");
@@ -133,12 +146,14 @@ public class Accounts001 extends JsonRpcBase {
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     JSONObject errorResult = responseContent.getJSONObject("error");
-    Assert.assertEquals(errorResult.getString("code"),"-32602");
-    Assert.assertEquals(errorResult.getString("message"),"method parameters invalid");
-
+    Assert.assertEquals(errorResult.getString("code"), "-32602");
+    Assert.assertEquals(errorResult.getString("message"), "method parameters invalid");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_chainId", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_chainId",
+      groups = {"daily", "serial"})
   public void test04JsonRpcApiTestForEthChainId() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_chainId", params);
@@ -154,7 +169,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(blockIdFromJsonRpcNode, blockIdFromHttp);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_coinbase", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_coinbase",
+      groups = {"daily", "serial"})
   public void test05JsonRpcApiTestForEthCoinbase() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_coinbase", params);
@@ -165,7 +183,10 @@ public class Accounts001 extends JsonRpcBase {
         "0x410be88a918d74d0dfd71dc84bd4abf036d0562991", responseContent.getString("result"));
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_estimateGas", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_estimateGas",
+      groups = {"daily", "serial"})
   public void test06JsonRpcApiTestForEthEstimateGas() throws Exception {
     JsonObject param = new JsonObject();
     param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
@@ -173,7 +194,9 @@ public class Accounts001 extends JsonRpcBase {
     param.addProperty("gas", "0x0");
     param.addProperty("gasPrice", "0x0");
     param.addProperty("value", "0x0");
-    paramString = "0000000000000000000000000000000000000000000000000000000000000000" + "0000000000000000000000000000000010000000000000000000000000000000";
+    paramString =
+        "0000000000000000000000000000000000000000000000000000000000000000"
+            + "0000000000000000000000000000000010000000000000000000000000000000";
     param.addProperty("data", "0x" + Util.parseMethod("approve(address,uint256)", paramString));
     JsonArray params = new JsonArray();
     params.add(param);
@@ -185,7 +208,7 @@ public class Accounts001 extends JsonRpcBase {
     String dataResult = responseContent.getString("result");
     Assert.assertEquals("0x4fd1", dataResult);
 
-    //release_4.5.2 to latest version， revert will return instead of failed gas value.
+    // release_4.5.2 to latest version， revert will return instead of failed gas value.
     JsonObject wrongParam = new JsonObject();
     params.remove(param);
     wrongParam.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
@@ -193,18 +216,22 @@ public class Accounts001 extends JsonRpcBase {
     wrongParam.addProperty("gas", "0x0");
     wrongParam.addProperty("gasPrice", "0x0");
     wrongParam.addProperty("value", "0x0");
-    wrongParam.addProperty("data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
+    wrongParam.addProperty(
+        "data", "0x" + Util.parseMethod("transfer(address,uint256)", paramString));
     params.add(wrongParam);
     requestBody = getJsonRpcBody("eth_estimateGas", params);
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     JSONObject errorResult = responseContent.getJSONObject("error");
-    Assert.assertEquals(errorResult.getString("code"),"-32000");
-    Assert.assertEquals(errorResult.getString("message"),"REVERT opcode executed");
+    Assert.assertEquals(errorResult.getString("code"), "-32000");
+    Assert.assertEquals(errorResult.getString("message"), "REVERT opcode executed");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_estimateGasHasPayable", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_estimateGasHasPayable",
+      groups = {"daily", "serial"})
   public void test07JsonRpcApiTestForEthEstimateGasHasPayable() throws Exception {
     response = HttpMethod.getTransactionInfoById(httpFullNode, txid);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -227,7 +254,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals((long) realEnergyUsed, Long.parseLong(dataResult.substring(2), 16));
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_estimateGasWithoutTo", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_estimateGasWithoutTo",
+      groups = {"daily", "serial"})
   public void test08JsonRpcApiTestForEthEstimateGasWithoutTo() throws Exception {
     JsonObject param = new JsonObject();
     param.addProperty("from", "0x6C0214C9995C6F3A61AB23F0EB84B0CDE7FD9C7C");
@@ -258,7 +288,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(energyUsed, dataResult);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_estimateGasSendTrx", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_estimateGasSendTrx",
+      groups = {"daily", "serial"})
   public void test09JsonRpcApiTestForEthEstimateGasSendTrx() throws Exception {
     JsonObject param = new JsonObject();
     param.addProperty("from", ByteArray.toHexString(jsonRpcOwnerAddress));
@@ -277,7 +310,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals("0x0", dataResult);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_gasPrice", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_gasPrice",
+      groups = {"daily", "serial"})
   public void test10JsonRpcApiTestForEthGasPrice() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_gasPrice", params);
@@ -300,7 +336,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(gasPriceFromJsonrpc, gasPriceFromHttp);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getBalance", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getBalance",
+      groups = {"daily", "serial"})
   public void test11JsonRpcApiTestForEthGetBalance() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x" + ByteArray.toHexString(foundationAddress).substring(2));
@@ -316,7 +355,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(balance1, balance2);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getBlockTransactionCountByNumber", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getBlockTransactionCountByNumber",
+      groups = {"daily", "serial"})
   public void test12JsonRpcApiTestForEthGetBlockTransactionCountByNum() throws Exception {
     response = HttpMethod.getNowBlock(httpFullNode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -335,7 +377,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(transactionNum1, transactionNum2);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getCode", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getCode",
+      groups = {"daily", "serial"})
   public void test13JsonRpcApiTestForEthGetCode() throws Exception {
 
     JsonArray params = new JsonArray();
@@ -354,7 +399,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(codeFromJsonRpc, codeFromHttp);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getStorageAt", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getStorageAt",
+      groups = {"daily", "serial"})
   public void test14JsonRpcApiTestForEthGetStorageAt01() throws Exception {
 
     JsonArray params = new JsonArray();
@@ -372,7 +420,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals("1234", String.valueOf(resultExpect));
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getStorageAt", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getStorageAt",
+      groups = {"daily", "serial"})
   public void test15JsonRpcApiTestForEthGetStorageAt02() throws Exception {
 
     String address =
@@ -403,7 +454,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals("5678", String.valueOf(Integer.parseInt(result, 16)));
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getTransactionByBlockNumberAndIndex", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getTransactionByBlockNumberAndIndex",
+      groups = {"daily", "serial"})
   public void test16JsonRpcApiTestForEthGetTransactionByBlockNumberAndIndex() throws Exception {
     logger.info("16blockNum:" + blockNum);
     blockNumHex = "0x" + Long.toHexString(blockNum);
@@ -518,12 +572,25 @@ public class Accounts001 extends JsonRpcBase {
 
     Assert.assertEquals(jsonrpcResult.get("value").toString(), "0x1389");
     String data;
-    if (getBlockByNumResult.getJSONObject("raw_data").getJSONArray("contract").getJSONObject(0)
-        .getJSONObject("parameter").getJSONObject("value").getString("data") == null) {
+    if (getBlockByNumResult
+            .getJSONObject("raw_data")
+            .getJSONArray("contract")
+            .getJSONObject(0)
+            .getJSONObject("parameter")
+            .getJSONObject("value")
+            .getString("data")
+        == null) {
       data = "0x";
     } else {
-      data = "0x" + getBlockByNumResult.getJSONObject("raw_data").getJSONArray("contract")
-          .getJSONObject(0).getJSONObject("parameter").getJSONObject("value").getString("data");
+      data =
+          "0x"
+              + getBlockByNumResult
+                  .getJSONObject("raw_data")
+                  .getJSONArray("contract")
+                  .getJSONObject(0)
+                  .getJSONObject("parameter")
+                  .getJSONObject("value")
+                  .getString("data");
     }
     Assert.assertEquals(jsonrpcResult.get("input").toString(), data);
 
@@ -541,7 +608,10 @@ public class Accounts001 extends JsonRpcBase {
         getBlockByNumResult.getString("signature").substring(66, 130));
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getBlockTransactionCountByHash", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getBlockTransactionCountByHash",
+      groups = {"daily", "serial"})
   public void test17JsonRpcApiTestForEthGetBlockTransactionCountByHash() throws Exception {
     logger.info("17blockNum:" + blockNum);
     JsonArray params = new JsonArray();
@@ -563,7 +633,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(transactionNumFromHttp, transactionNumFromJsonRpcNode);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getBlockTransactionCountByNumber", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getBlockTransactionCountByNumber",
+      groups = {"daily", "serial"})
   public void test18JsonRpcApiTestForEthGetBlockTransactionCountByNum() throws Exception {
     JsonArray params = new JsonArray();
     params.add(blockNum);
@@ -585,7 +658,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(transactionNum1, transactionNum2);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getTransactionByBlockHashAndIndex", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getTransactionByBlockHashAndIndex",
+      groups = {"daily", "serial"})
   public void test19JsonRpcApiTestForEthGetTransactionByBlockHashAndIndex() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x" + bid);
@@ -598,7 +674,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(result, resultForGetTransactionByBlockHashAndIndex);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getTransactionByHash", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getTransactionByHash",
+      groups = {"daily", "serial"})
   public void test20JsonRpcApiTestForEthGetTransactionByHash() throws Exception {
     logger.info("20transacionHash:" + transacionHash);
     JsonArray params = new JsonArray();
@@ -611,7 +690,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(result, result1);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getTransactionReceipt", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getTransactionReceipt",
+      groups = {"daily", "serial"})
   public void test21JsonRpcApiTestForEthGetTransactionReceipt() throws Exception {
     logger.info("trc20Txid:" + trc20Txid);
     JsonArray params = new JsonArray();
@@ -728,7 +810,10 @@ public class Accounts001 extends JsonRpcBase {
         responseContent1.get(index).getJSONArray("log").getJSONObject(0).getString("topics"));
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getUncleByBlockHashAndIndex", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getUncleByBlockHashAndIndex",
+      groups = {"daily", "serial"})
   public void test22JsonRpcApiTestForEthGetUncleByBlockHashAndIndex() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x0000000000f9cc56243898cbe88685678855e07f51c5af91322c225ce3693868");
@@ -741,7 +826,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertNull(result);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getUncleByBlockNumberAndIndex", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getUncleByBlockNumberAndIndex",
+      groups = {"daily", "serial"})
   public void test23JsonRpcApiTestForEthGetUncleByBlockNumberAndIndex() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0xeb82f0");
@@ -754,7 +842,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertNull(result);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getUncleCountByBlockHash", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getUncleCountByBlockHash",
+      groups = {"daily", "serial"})
   public void test24JsonRpcApiTestForEthGetUncleCountByBlockHash() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x0000000000f9cc56243898cbe88685678855e07f51c5af91322c225ce3693868");
@@ -766,7 +857,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(result, "0x0");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getUncleCountByBlockNumber", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getUncleCountByBlockNumber",
+      groups = {"daily", "serial"})
   public void test25JsonRpcApiTestForEthGetUncleCountByBlockNumber() throws Exception {
     JsonArray params = new JsonArray();
     params.add("eth_getUncleCountByBlockNumber");
@@ -778,7 +872,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(result, "0x0");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getWork", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getWork",
+      groups = {"daily", "serial"})
   public void test26JsonRpcApiTestForEthGetWork() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_getWork", params);
@@ -795,7 +892,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(resultFromJsonRpcNode, resultFromHttp);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_hashrate", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_hashrate",
+      groups = {"daily", "serial"})
   public void test27JsonRpcApiTestForEthHashRate() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_hashrate", params);
@@ -806,7 +906,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals("0x0", result);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_mining", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_mining",
+      groups = {"daily", "serial"})
   public void test28JsonRpcApiTestForEthMining() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_mining", params);
@@ -817,7 +920,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(result, "true");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_protocolVersion", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_protocolVersion",
+      groups = {"daily", "serial"})
   public void test29JsonRpcApiTestForEthProtocolVersion() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_protocolVersion", params);
@@ -834,7 +940,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(protocolVersion1, protocolVersion2);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_syncing", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_syncing",
+      groups = {"daily", "serial"})
   public void test30JsonRpcApiTestForEthSyncing() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_syncing", params);
@@ -856,7 +965,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertTrue(temp.containsKey("highestBlock"));
   }
 
-  @Test(enabled = true, description = "Json rpc api of net_listening", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of net_listening",
+      groups = {"daily", "serial"})
   public void test31JsonRpcApiTestForNetListening() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("net_listening", params);
@@ -874,7 +986,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(temp, expect);
   }
 
-  @Test(enabled = true, description = "Json rpc api of net_peerCount", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of net_peerCount",
+      groups = {"daily", "serial"})
   public void test32JsonRpcApiTestForNetPeerCount() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("net_peerCount", params);
@@ -885,7 +1000,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertNotNull(result);
   }
 
-  @Test(enabled = true, description = "Json rpc api of net_version", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of net_version",
+      groups = {"daily", "serial"})
   public void test33JsonRpcApiTestForEthVersion() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("net_version", params);
@@ -900,7 +1018,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(firstBlockHashFromJsonRpc, firstBlockHashFromHttp);
   }
 
-  @Test(enabled = true, description = "Json rpc api of web3_clientVersion", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of web3_clientVersion",
+      groups = {"daily", "serial"})
   public void test34JsonRpcApiTestForWeb3ClientVersion() throws Exception {
     String javaFullVersion = System.getProperty("java.version");
     logger.info("javaFullVersion:" + javaFullVersion);
@@ -929,25 +1050,32 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(resultList.get(3), "Java" + javaVersion);
   }
 
-  @Test(enabled = true, description = "Json rpc api of web3_sha3", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of web3_sha3",
+      groups = {"daily", "serial"})
   public void test35JsonRpcApiTestForWeb3Sha3() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x08");
-    //JsonObject requestBody1 = getJsonRpcBody("web3_sha3", params);
-    //response = getEthHttps(ethHttpsNode, requestBody1);
-    //responseContent = HttpMethod.parseResponseContent(response);
-    //HttpMethod.printJsonContent(responseContent);
-    //String result1 = responseContent.getString("result");
+    // JsonObject requestBody1 = getJsonRpcBody("web3_sha3", params);
+    // response = getEthHttps(ethHttpsNode, requestBody1);
+    // responseContent = HttpMethod.parseResponseContent(response);
+    // HttpMethod.printJsonContent(responseContent);
+    // String result1 = responseContent.getString("result");
     JsonObject requestBody2 = getJsonRpcBody("web3_sha3", params);
     response = getJsonRpc(jsonRpcNode, requestBody2);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     String result2 = responseContent.getString("result");
 
-    Assert.assertEquals("0xd33e25809fcaa2b6900567812852539da8559dc8b76a7ce3fc5ddd77e8d19a69", result2);
+    Assert.assertEquals(
+        "0xd33e25809fcaa2b6900567812852539da8559dc8b76a7ce3fc5ddd77e8d19a69", result2);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_compileLLL", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_compileLLL",
+      groups = {"daily", "serial"})
   public void test36JsonRpcApiTestForEthCompileLll() throws Exception {
     JsonArray params = new JsonArray();
     params.add("(returnlll (suicide (caller)))");
@@ -958,7 +1086,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(errorMessage, "the method eth_compileLLL does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_compileSerpent", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_compileSerpent",
+      groups = {"daily", "serial"})
   public void test37JsonRpcApiTestForEthCompileSerpent() throws Exception {
     JsonArray params = new JsonArray();
     params.add("/* some serpent */");
@@ -970,7 +1101,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_compileSerpent does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_compileSolidity", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_compileSolidity",
+      groups = {"daily", "serial"})
   public void test38JsonRpcApiTestForEthCompileSolidity() throws Exception {
     JsonArray params = new JsonArray();
     params.add("contract test { function multiply(uint a) returns(uint d) {   return a * 7;   } }");
@@ -982,7 +1116,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_compileSolidity does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getCompilers", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getCompilers",
+      groups = {"daily", "serial"})
   public void test39JsonRpcApiTestForEthCompileSolidity() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject requestBody = getJsonRpcBody("eth_getCompilers", params);
@@ -993,7 +1130,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_getCompilers does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getTransactionCount", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getTransactionCount",
+      groups = {"daily", "serial"})
   public void test40JsonRpcApiTestForEthGetTransactionCount() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x407d73d8a49eeb85d32cf465507dd71d507100c1");
@@ -1006,7 +1146,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_getTransactionCount does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_sendRawTransaction", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_sendRawTransaction",
+      groups = {"daily", "serial"})
   public void test41JsonRpcApiTestForEthSendRawTransaction() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x234");
@@ -1018,7 +1161,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_sendRawTransaction does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_sendTransaction", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_sendTransaction",
+      groups = {"daily", "serial"})
   public void test42JsonRpcApiTestForEthSendTransaction() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject temp = new JsonObject();
@@ -1040,7 +1186,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_sendTransaction does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_sign", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_sign",
+      groups = {"daily", "serial"})
   public void test43JsonRpcApiTestForEthSign() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x9b2055d370f73ec7d8a03e965129118dc8f5bf83");
@@ -1052,7 +1201,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(errorMessage, "the method eth_sign does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_signTransaction", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_signTransaction",
+      groups = {"daily", "serial"})
   public void test44JsonRpcApiTestForEthSignTransaction() throws Exception {
     JsonArray params = new JsonArray();
     JsonObject temp = new JsonObject();
@@ -1074,7 +1226,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_signTransaction does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_submitWork", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_submitWork",
+      groups = {"daily", "serial"})
   public void test45JsonRpcApiTestForEthSubmitWork() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x0000000000000001");
@@ -1087,7 +1242,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(errorMessage, "the method eth_submitWork does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of parity_nextNonce", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of parity_nextNonce",
+      groups = {"daily", "serial"})
   public void test46JsonRpcApiTestForParityNextNonce() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x9b2055d370f73ec7d8a03e965129118dc8f5bf83");
@@ -1099,7 +1257,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method parity_nextNonce does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_submitHashrate", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_submitHashrate",
+      groups = {"daily", "serial"})
   public void test47JsonRpcApiTestForEthSubmitHashrate() throws Exception {
     JsonArray params = new JsonArray();
     params.add("0x0000000000000000000000000000000000000000000000000000000000500000");
@@ -1112,7 +1273,10 @@ public class Accounts001 extends JsonRpcBase {
         errorMessage, "the method eth_submitHashrate does not exist/is not available");
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getBlockByHash params is false", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getBlockByHash params is false",
+      groups = {"daily", "serial"})
   public void test48JsonRpcApiTestForEthGetBlockByHash() throws Exception {
     response = HttpMethod.getBlockByNum(httpFullNode, blockNum);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -1190,7 +1354,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(transactionIdListFromGetBlockByHash, transactionIdList);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getBlockByNumber params is true", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getBlockByNumber params is true",
+      groups = {"daily", "serial"})
   public void test49JsonRpcApiTestForEthGetBlockByNumber() throws Exception {
 
     JsonArray params = new JsonArray();
@@ -1278,7 +1445,8 @@ public class Accounts001 extends JsonRpcBase {
   @Test(
       enabled = true,
       description =
-          "Json rpc api of eth_call,eth_estimateGas and eth_getTransactionByBlockHashAndIndex.", groups = {"daily", "serial"})
+          "Json rpc api of eth_call,eth_estimateGas and eth_getTransactionByBlockHashAndIndex.",
+      groups = {"daily", "serial"})
   public void test50JsonRpcApiTestForInterfaceCombination() throws Exception {
     final JsonArray jsonArrayParams = new JsonArray();
     JsonObject param = new JsonObject();
@@ -1342,7 +1510,9 @@ public class Accounts001 extends JsonRpcBase {
   }
 
   @Test(
-      enabled = true, description = "Json rpc api of eth_call with blockNumber", groups = {"daily", "serial"})
+      enabled = true,
+      description = "Json rpc api of eth_call with blockNumber",
+      groups = {"daily", "serial"})
   public void test51JsonRpcApiTestForEthCallWithBlockNumber() throws Exception {
     final JsonArray jsonArrayParams = new JsonArray();
     JsonObject param = new JsonObject();
@@ -1356,7 +1526,7 @@ public class Accounts001 extends JsonRpcBase {
     JsonArray params = new JsonArray();
     params.add(param);
     JsonObject blockNumAndHash = new JsonObject();
-    blockNumAndHash.addProperty("blockNumber",String.valueOf(blockNum));
+    blockNumAndHash.addProperty("blockNumber", String.valueOf(blockNum));
     params.add(blockNumAndHash);
     final JsonObject requestBody = getJsonRpcBody("eth_call", params);
     JsonObject param1 = new JsonObject();
@@ -1407,9 +1577,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(result, resultForGetTransactionByBlockHashAndIndex);
   }
 
-
   @Test(
-      enabled = true, description = "Json rpc api of eth_call with blockHash", groups = {"daily", "serial"})
+      enabled = true,
+      description = "Json rpc api of eth_call with blockHash",
+      groups = {"daily", "serial"})
   public void test52JsonRpcApiTestForEthCallWithBlockHash() throws Exception {
     final JsonArray jsonArrayParams = new JsonArray();
     JsonObject param = new JsonObject();
@@ -1423,7 +1594,7 @@ public class Accounts001 extends JsonRpcBase {
     JsonArray params = new JsonArray();
     params.add(param);
     JsonObject blockNumAndHash = new JsonObject();
-    blockNumAndHash.addProperty("blockHash",blockHash);
+    blockNumAndHash.addProperty("blockHash", blockHash);
     params.add(blockNumAndHash);
     final JsonObject requestBody = getJsonRpcBody("eth_call", params);
     JsonObject param1 = new JsonObject();
@@ -1474,7 +1645,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(result, resultForGetTransactionByBlockHashAndIndex);
   }
 
-  @Test(enabled = true, description = "eth_getStorageAt with create2 address", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "eth_getStorageAt with create2 address",
+      groups = {"daily", "serial"})
   public void test53StateTreeWithEthGetStorageAt() {
     JsonArray params = new JsonArray();
     params.add(create2AddressFrom41);
@@ -1489,7 +1663,10 @@ public class Accounts001 extends JsonRpcBase {
     Assert.assertEquals(1, beforePos2);
   }
 
-  @Test(enabled = true, description = "Json rpc api of eth_getBlockByNumber params are finalized and true", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "Json rpc api of eth_getBlockByNumber params are finalized and true",
+      groups = {"daily", "serial"})
   public void test54JsonRpcApiTestForEthGetBlockByNumber() throws Exception {
 
     JsonArray params = new JsonArray();
@@ -1507,14 +1684,18 @@ public class Accounts001 extends JsonRpcBase {
     response = getJsonRpc(jsonRpcNode, requestBody);
     responseContent = HttpMethod.parseResponseContent(response);
     JSONObject getBlockByNumberResult1 = responseContent.getJSONObject("result");
-    Assert.assertEquals(getBlockByNumberResult.toJSONString(),getBlockByNumberResult1.toJSONString());
+    Assert.assertEquals(
+        getBlockByNumberResult.toJSONString(), getBlockByNumberResult1.toJSONString());
   }
 
-  @Test(enabled = false, description = "Json rpc api of eth_getBlockTransactionCountByNumber params are finalized ", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Json rpc api of eth_getBlockTransactionCountByNumber params are finalized ",
+      groups = {"daily", "serial"})
   public void test55JsonRpcApiTestForEthGetBlockTransactionCountByNum() {
     response = HttpMethod.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethod.parseResponseContent(response);
-    if (!responseContent.containsKey("transactions")){
+    if (!responseContent.containsKey("transactions")) {
       return;
     }
     int transactionNum1 = responseContent.getJSONArray("transactions").size();
@@ -1527,12 +1708,15 @@ public class Accounts001 extends JsonRpcBase {
     String transactionNum = responseContent.getString("result").substring(2);
     int transactionNum2 = Integer.parseInt(transactionNum, 16);
     logger.info(String.valueOf(transactionNum1));
-    System.out.println("transactionNum1: " +transactionNum1);
-    System.out.println("transactionNum2: " +transactionNum2);
+    System.out.println("transactionNum1: " + transactionNum1);
+    System.out.println("transactionNum2: " + transactionNum2);
     Assert.assertEquals(transactionNum1, transactionNum2);
   }
 
-  @Test(enabled = false, description = "Json rpc api of eth_getTransactionByBlockNumberAndIndex params are finalized", groups = {"daily", "serial"})
+  @Test(
+      enabled = false,
+      description = "Json rpc api of eth_getTransactionByBlockNumberAndIndex params are finalized",
+      groups = {"daily", "serial"})
   public void test56JsonRpcApiTestForEthGetTransactionByBlockNumberAndIndex() throws Exception {
     response = HttpMethod.getNowBlockFromSolidity(httpsolidityNode);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -1549,23 +1733,25 @@ public class Accounts001 extends JsonRpcBase {
     responseContent = HttpMethod.parseResponseContent(response);
     String trans2 = responseContent.getJSONObject("result").toJSONString();
     System.out.println(responseContent.toJSONString());
-//    Assert.assertEquals(trans1, trans2);
+    //    Assert.assertEquals(trans1, trans2);
   }
-
 
   @Test(enabled = true, description = "Json rpc api of eth_getBlockReceipts test")
   public void test57JsonRpcApiTestForEthGetBlockReceipts() throws Exception {
     String selector = "transfer(address,uint256)";
     String addressParam =
-        "000000000000000000000000"
-            + ByteArray.toHexString(foundationAddress).substring(2); // [0,3)
+        "000000000000000000000000" + ByteArray.toHexString(foundationAddress).substring(2); // [0,3)
     String transferValueParam = "0000000000000000000000000000000000000000000000000000000000000001";
     String paramString = addressParam + transferValueParam;
 
-    long startBlockNum = blockingStubFull.getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build())
-        .getBlockHeader().getRawData().getNumber();
+    long startBlockNum =
+        blockingStubFull
+            .getNowBlock2(GrpcAPI.EmptyMessage.newBuilder().build())
+            .getBlockHeader()
+            .getRawData()
+            .getNumber();
     int count = 10;
-    while (count-->0){
+    while (count-- > 0) {
       Random r = new Random();
       int randomValue = r.nextInt(9);
       transferValueParam.replace("1", String.valueOf(randomValue));
@@ -1586,11 +1772,11 @@ public class Accounts001 extends JsonRpcBase {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     long endBlockNum = startBlockNum + 10L;
     long targetBlockNum = 0L;
-    while (startBlockNum++ < endBlockNum){
+    while (startBlockNum++ < endBlockNum) {
       int trxCount = PublicMethod.getBlock(startBlockNum, blockingStubFull).getTransactionsCount();
       logger.info("trxCount: " + trxCount);
       logger.info("BlockNum: " + startBlockNum);
-      if(trxCount>=2){
+      if (trxCount >= 2) {
         targetBlockNum = startBlockNum;
         break;
       }
@@ -1609,7 +1795,7 @@ public class Accounts001 extends JsonRpcBase {
     logger.info("targetBlockNum: " + targetBlockNum);
     Assert.assertTrue(trxCount > 1);
     Assert.assertEquals(trxCount, trxArray.size());
-    for(int i = 0; i < trxCount; i++){
+    for (int i = 0; i < trxCount; i++) {
       JSONObject receipt = trxArray.getJSONObject(i);
       String txId = receipt.getString("transactionHash");
       JsonArray param = new JsonArray();

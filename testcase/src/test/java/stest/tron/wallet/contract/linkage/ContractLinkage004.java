@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
@@ -14,19 +13,19 @@ import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
-import stest.tron.wallet.common.client.utils.ByteArray; import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.Utils;
 
-import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
 @Slf4j
 @MultiNode
 public class ContractLinkage004 extends TronBaseTest {
 
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key1");
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey003);
   String contractName;
   String code;
@@ -55,17 +54,17 @@ public class ContractLinkage004 extends TronBaseTest {
   Long netFee;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] linkage004Address = ecKey1.getAddress();
-  String linkage004Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());  private ManagedChannel channelFull1 = null;
+  String linkage004Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);  /**
-   * constructor.
-   */
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  /** constructor. */
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(linkage004Key);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(linkage004Key);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
   }
 
@@ -75,13 +74,16 @@ public class ContractLinkage004 extends TronBaseTest {
     linkage004Address = ecKey1.getAddress();
     linkage004Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethod.sendcoin(linkage004Address, 2000000000000L, fromAddress,
-        testKey003, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalance(linkage004Address, 10000000L,
-        3, linkage004Key, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            linkage004Address, 2000000000000L, fromAddress, testKey003, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(linkage004Address,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(
+            linkage004Address, 10000000L, 3, linkage004Key, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(linkage004Address, blockingStubFull);
     info = PublicMethod.queryAccount(linkage004Address, blockingStubFull);
     beforeBalance = info.getBalance();
     beforeEnergyLimit = resourceInfo.getEnergyLimit();
@@ -104,9 +106,20 @@ public class ContractLinkage004 extends TronBaseTest {
 
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
-    //use freezeBalanceGetNet,Balance .No freezeBalanceGetenergy
-    String txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit, 0L, 50, null, linkage004Key, linkage004Address, blockingStubFull);
+    // use freezeBalanceGetNet,Balance .No freezeBalanceGetenergy
+    String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            50,
+            null,
+            linkage004Key,
+            linkage004Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull1);
     Optional<TransactionInfo> infoById = null;
@@ -126,8 +139,8 @@ public class ContractLinkage004 extends TronBaseTest {
     logger.info("netFee:" + netFee);
 
     Account infoafter = PublicMethod.queryAccount(linkage004Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(linkage004Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(linkage004Address, blockingStubFull1);
     afterBalance = infoafter.getBalance();
     afterEnergyLimit = resourceInfoafter.getEnergyLimit();
     afterEnergyUsed = resourceInfoafter.getEnergyUsed();
@@ -152,10 +165,10 @@ public class ContractLinkage004 extends TronBaseTest {
 
   @Test(enabled = true)
   public void test2FeeLimitIsTooSmall() {
-    //When the fee limit is only short with 1 sun,failed.use freezeBalanceGetNet.
+    // When the fee limit is only short with 1 sun,failed.use freezeBalanceGetNet.
     maxFeeLimit = currentFee - 1L;
-    AccountResourceMessage resourceInfo1 = PublicMethod.getAccountResource(linkage004Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo1 =
+        PublicMethod.getAccountResource(linkage004Address, blockingStubFull);
     Account info1 = PublicMethod.queryAccount(linkage004Address, blockingStubFull);
     Long beforeBalance1 = info1.getBalance();
     Long beforeEnergyLimit1 = resourceInfo1.getEnergyLimit();
@@ -179,13 +192,24 @@ public class ContractLinkage004 extends TronBaseTest {
     String code = retMap.get("byteCode").toString();
     String abi = retMap.get("abI").toString();
 
-    String txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit, 0L, 50, null, linkage004Key, linkage004Address, blockingStubFull);
+    String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            50,
+            null,
+            linkage004Key,
+            linkage004Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull1);
 
-    Optional<TransactionInfo> infoById1 = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById1 =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Long energyUsageTotal1 = infoById1.get().getReceipt().getEnergyUsageTotal();
     Long fee1 = infoById1.get().getFee();
     Long energyFee1 = infoById1.get().getReceipt().getEnergyFee();
@@ -200,8 +224,8 @@ public class ContractLinkage004 extends TronBaseTest {
     logger.info("netFee1:" + netFee1);
 
     Account infoafter1 = PublicMethod.queryAccount(linkage004Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter1 = PublicMethod.getAccountResource(linkage004Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter1 =
+        PublicMethod.getAccountResource(linkage004Address, blockingStubFull1);
     Long afterBalance1 = infoafter1.getBalance();
     Long afterEnergyLimit1 = resourceInfoafter1.getEnergyLimit();
     Long afterEnergyUsed1 = resourceInfoafter1.getEnergyUsed();
@@ -223,10 +247,10 @@ public class ContractLinkage004 extends TronBaseTest {
     Assert.assertTrue(afterEnergyUsed1 == 0);
     Assert.assertTrue(beforeNetUsed1 < afterNetUsed1);
 
-    //When the fee limit is just ok.use energyFee,freezeBalanceGetNet,balance change.
+    // When the fee limit is just ok.use energyFee,freezeBalanceGetNet,balance change.
     maxFeeLimit = currentFee;
-    AccountResourceMessage resourceInfo2 = PublicMethod.getAccountResource(linkage004Address,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo2 =
+        PublicMethod.getAccountResource(linkage004Address, blockingStubFull);
     Account info2 = PublicMethod.queryAccount(linkage004Address, blockingStubFull);
     Long beforeBalance2 = info2.getBalance();
     Long beforeEnergyLimit2 = resourceInfo2.getEnergyLimit();
@@ -242,12 +266,23 @@ public class ContractLinkage004 extends TronBaseTest {
     logger.info("beforeNetLimit2:" + beforeNetLimit2);
     logger.info("beforeNetUsed2:" + beforeNetUsed2);
     logger.info("beforeFreeNetUsed2:" + beforeFreeNetUsed2);
-    txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code,
-        "", maxFeeLimit, 0L, 50, null, linkage004Key, linkage004Address, blockingStubFull);
-    //logger.info("testFeeLimitIsTooSmall, the txid is " + txid);
+    txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            50,
+            null,
+            linkage004Key,
+            linkage004Address,
+            blockingStubFull);
+    // logger.info("testFeeLimitIsTooSmall, the txid is " + txid);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById2 = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    Optional<TransactionInfo> infoById2 =
+        PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Long energyUsageTotal2 = infoById2.get().getReceipt().getEnergyUsageTotal();
     Long fee2 = infoById2.get().getFee();
     Long energyFee2 = infoById2.get().getReceipt().getEnergyFee();
@@ -261,8 +296,8 @@ public class ContractLinkage004 extends TronBaseTest {
     logger.info("energyUsed2:" + energyUsed2);
     logger.info("netFee2:" + netFee2);
     Account infoafter2 = PublicMethod.queryAccount(linkage004Address, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter2 = PublicMethod.getAccountResource(linkage004Address,
-        blockingStubFull1);
+    AccountResourceMessage resourceInfoafter2 =
+        PublicMethod.getAccountResource(linkage004Address, blockingStubFull1);
     Long afterBalance2 = infoafter2.getBalance();
     Long afterEnergyLimit2 = resourceInfoafter2.getEnergyLimit();
     Long afterEnergyUsed2 = resourceInfoafter2.getEnergyUsed();
@@ -286,4 +321,3 @@ public class ContractLinkage004 extends TronBaseTest {
     currentFee = fee2;
   }
 }
-

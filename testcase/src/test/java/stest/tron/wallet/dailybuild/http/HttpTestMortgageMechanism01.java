@@ -44,7 +44,10 @@ public class HttpTestMortgageMechanism01 {
   private String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
   /** constructor. */
-  @Test(enabled = true, description = "GetBrokerage by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetBrokerage by http",
+      groups = {"daily", "serial"})
   public void test01GetBrokerage() {
     response = HttpMethod.getBrokerage(httpnode, witnessAddress);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -65,14 +68,16 @@ public class HttpTestMortgageMechanism01 {
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) < 100);
   }
 
-  @Test(enabled = true, description = "GetBrokerage from solidity by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetBrokerage from solidity by http",
+      groups = {"daily", "serial"})
   public void test02GetBrokerageFromSolidity() {
     response = HttpMethod.getBrokerageFromSolidity(httpSoliditynode, witnessAddress);
     responseContent = HttpMethod.parseResponseContent(response);
     HttpMethod.printJsonContent(responseContent);
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) > 0);
     Assert.assertTrue(Integer.parseInt(responseContent.getString("brokerage")) < 100);
-
 
     response =
         HttpMethod.getBrokerageFromSolidityOnVisible(httpSoliditynode, witnessAddress2, "true");
@@ -89,7 +94,10 @@ public class HttpTestMortgageMechanism01 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "GetBrokerage from PBFT by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetBrokerage from PBFT by http",
+      groups = {"daily", "serial"})
   public void test03GetBrokerageFromPbft() {
     response = HttpMethod.getBrokerageFromPbft(httpPbftNode, witnessAddress);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -99,7 +107,10 @@ public class HttpTestMortgageMechanism01 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "UpdateBrokerage by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "UpdateBrokerage by http",
+      groups = {"daily", "serial"})
   public void test04UpdateBrokerage() {
     response = HttpMethod.sendCoin(httpnode, fromAddress, witnessAddress, amount, testKey002);
     Assert.assertTrue(HttpMethod.verificationResult(response));
@@ -137,7 +148,10 @@ public class HttpTestMortgageMechanism01 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "GetReward by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetReward by http",
+      groups = {"daily", "serial"})
   public void test05GetReward() {
     response = HttpMethod.getReward(httpnode, witnessAddress);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -159,7 +173,10 @@ public class HttpTestMortgageMechanism01 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "GetReward from solidity by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetReward from solidity by http",
+      groups = {"daily", "serial"})
   public void test06GetRewardFromSolidity() {
     response = HttpMethod.getRewardFromSolidity(httpSoliditynode, witnessAddress);
     responseContent = HttpMethod.parseResponseContent(response);
@@ -181,7 +198,10 @@ public class HttpTestMortgageMechanism01 {
   }
 
   /** constructor. */
-  @Test(enabled = true, description = "GetReward from PBFT by http", groups = {"daily", "serial"})
+  @Test(
+      enabled = true,
+      description = "GetReward from PBFT by http",
+      groups = {"daily", "serial"})
   public void test07GetRewardFromPbft() {
     response = HttpMethod.getRewardFromPbft(httpPbftNode, witnessAddress);
     responseContent = HttpMethod.parseResponseContent(response);

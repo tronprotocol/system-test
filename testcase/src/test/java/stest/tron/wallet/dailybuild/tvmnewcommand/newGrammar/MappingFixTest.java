@@ -18,63 +18,85 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
+
 @Slf4j
 @MultiNode
 public class MappingFixTest extends TronBaseTest {
 
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey002);
-  private String fullnodeLocal = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
+  private String fullnodeLocal =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
   private byte[] contractAddress = null;
   private ECKey ecKey1 = new ECKey(Utils.getRandom());
   private byte[] dev001Address = ecKey1.getAddress();
   private String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = true)
-  public void beforeClass() {    PublicMethod.printAddress(dev001Key);
+  public void beforeClass() {
+    PublicMethod.printAddress(dev001Key);
   }
 
   // after solidity version 0.5.4.
   // Tron Solidity compiler is no longer compatible with Ethereum
   // Tron handles 41 Address in contract, and Ethereum do not
 
-  @Test(enabled = true, description = "Deploy contract", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Deploy contract",
+      groups = {"contract", "daily"})
   public void test01DeployContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(dev001Address, 1000_000_000L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.freezeBalanceForReceiver(fromAddress, 100_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 1000_000_000L, fromAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.freezeBalanceForReceiver(
+            fromAddress,
+            100_000_000L,
+            0,
+            0,
+            ByteString.copyFrom(dev001Address),
+            testKey002,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //before deploy, check account resource
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    // before deploy, check account resource
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     Protocol.Account info = PublicMethod.queryAccount(dev001Key, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = accountResource.getEnergyUsed();
-  Long beforeNetUsed = accountResource.getNetUsed();
-  Long beforeFreeNetUsed = accountResource.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = accountResource.getEnergyUsed();
+    Long beforeNetUsed = accountResource.getNetUsed();
+    Long beforeFreeNetUsed = accountResource.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String filePath = "./src/test/resources/soliditycode/SolidityMappingFix.sol";
-  String contractName = "Tests";
+    String filePath = "./src/test/resources/soliditycode/SolidityMappingFix.sol";
+    String contractName = "Tests";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  final String txid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, 0L, 0, 10000,
-            "0", 0, null, dev001Key,
-            dev001Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    final String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            0,
+            10000,
+            "0",
+            0,
+            null,
+            dev001Key,
+            dev001Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
@@ -89,29 +111,39 @@ public class MappingFixTest extends TronBaseTest {
     logger.info("NetUsage: " + transactionInfo.getReceipt().getNetUsage());
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod.getContract(contractAddress,
-        blockingStubFull);
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
-
   }
 
-  @Test(enabled = true, description = "Trigger contract,set balances[msg.sender]", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger contract,set balances[msg.sender]",
+      groups = {"contract", "daily"})
   public void test02TriggerContract() {
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(dev001Address,
-        blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     Protocol.Account info = PublicMethod.queryAccount(dev001Key, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = accountResource.getEnergyUsed();
-  Long beforeNetUsed = accountResource.getNetUsed();
-  Long beforeFreeNetUsed = accountResource.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = accountResource.getEnergyUsed();
+    Long beforeNetUsed = accountResource.getNetUsed();
+    Long beforeFreeNetUsed = accountResource.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String methodStr = "update(uint256)";
-  String argStr = "123";
-  String TriggerTxid = PublicMethod.triggerContract(contractAddress, methodStr, argStr, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodStr = "update(uint256)";
+    String argStr = "123";
+    String TriggerTxid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
@@ -122,9 +154,9 @@ public class MappingFixTest extends TronBaseTest {
     }
     TransactionInfo transactionInfo = infoById.get();
     logger.info("infoById" + infoById);
-  String ContractResult =
+    String ContractResult =
         ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray());
-  String tmpAddress =
+    String tmpAddress =
         Base58.encode58Check(ByteArray.fromHexString("41" + ContractResult.substring(24)));
     Assert.assertEquals(WalletClient.encode58Check(dev001Address), tmpAddress);
 
@@ -133,22 +165,29 @@ public class MappingFixTest extends TronBaseTest {
 
     methodStr = "balances(address)";
     argStr = "\"" + WalletClient.encode58Check(dev001Address) + "\"";
-    TransactionExtention return1 = PublicMethod
-        .triggerContractForExtention(contractAddress, methodStr, argStr, false,
-            0, maxFeeLimit, "0", 0L, dev001Address, dev001Key, blockingStubFull);
+    TransactionExtention return1 =
+        PublicMethod.triggerContractForExtention(
+            contractAddress,
+            methodStr,
+            argStr,
+            false,
+            0,
+            maxFeeLimit,
+            "0",
+            0L,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     logger.info("return1: " + return1);
     logger.info(Hex.toHexString(return1.getConstantResult(0).toByteArray()));
-  int ContractRestult = ByteArray.toInt(return1.getConstantResult(0).toByteArray());
+    int ContractRestult = ByteArray.toInt(return1.getConstantResult(0).toByteArray());
 
     Assert.assertEquals(123, ContractRestult);
-
   }
 
   @AfterClass
   public void shutdown() throws InterruptedException {
     long balance = PublicMethod.queryAccount(dev001Key, blockingStubFull).getBalance();
-    PublicMethod.sendcoin(fromAddress, balance, dev001Address, dev001Key,
-        blockingStubFull);  }
+    PublicMethod.sendcoin(fromAddress, balance, dev001Address, dev001Key, blockingStubFull);
+  }
 }
-
-

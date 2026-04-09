@@ -17,17 +17,17 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
 public class ShiftCommand001 extends TronBaseTest {
 
-  private final String testNetAccountKey = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testNetAccountKey =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] testNetAccountAddress = PublicMethod.getFinalAddress(testNetAccountKey);
   byte[] contractAddress = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
@@ -35,72 +35,90 @@ public class ShiftCommand001 extends TronBaseTest {
   String contractExcKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    PublicMethod.printAddress(contractExcKey);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    PublicMethod.printAddress(contractExcKey);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
-    }
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
+  }
 
-
-  @Test(enabled = true, description = "Trigger old ShiftLeft ShiftRight", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger old ShiftLeft ShiftRight",
+      groups = {"contract", "daily"})
   public void test1OldInstruction() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(contractExcAddress, 10000000000L, testNetAccountAddress, testNetAccountKey,
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contractExcAddress,
+            10000000000L,
+            testNetAccountAddress,
+            testNetAccountKey,
             blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "src/test/resources/soliditycode/TvmOldCommand001.sol";
-  String contractName = "binaryRightContract";
+    String filePath = "src/test/resources/soliditycode/TvmOldCommand001.sol";
+    String contractName = "binaryRightContract";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
-  String num = "1";
-    txid = PublicMethod.triggerContract(contractAddress,
-        "binaryMoveR(uint256)", num, false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    String txid = "";
+    String num = "1";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "binaryMoveR(uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
 
     Optional<TransactionInfo> infoById = null;
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
@@ -109,12 +127,12 @@ public class ShiftCommand001 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull1);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull1);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull1);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -125,55 +143,82 @@ public class ShiftCommand001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    txid = PublicMethod.triggerContract(contractAddress,
-        "binaryLiftR(uint256)", num, false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "binaryLiftR(uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
-
-
   }
 
-  @Test(enabled = true, description = "Trigger new ShiftLeft ShiftRight ShiftRightSigned", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "Trigger new ShiftLeft ShiftRight ShiftRightSigned",
+      groups = {"contract", "daily"})
   public void test2NewInstruction() {
     String filePath = "src/test/resources/soliditycode/ShiftCommand001.sol";
-  String contractName = "TestBitwiseShift";
+    String contractName = "TestBitwiseShift";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
 
-    contractAddress = PublicMethod.deployContract(contractName, abi, code, "", maxFeeLimit,
-        0L, 100, null, contractExcKey,
-        contractExcAddress, blockingStubFull);
+    contractAddress =
+        PublicMethod.deployContract(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contractExcKey,
+            contractExcAddress,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Account info;
 
-    AccountResourceMessage resourceInfo = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
-  String num = "1" + "," + "5";
+    String txid = "";
+    String num = "1" + "," + "5";
 
-    txid = PublicMethod.triggerContract(contractAddress,
-        "sarTest(uint256,uint256)", num, false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "sarTest(uint256,uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -183,12 +228,12 @@ public class ShiftCommand001 extends TronBaseTest {
     logger.info("energyUsageTotal:" + energyUsageTotal);
 
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-    AccountResourceMessage resourceInfoafter = PublicMethod.getAccountResource(contractExcAddress,
-        blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -199,31 +244,45 @@ public class ShiftCommand001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    txid = PublicMethod.triggerContract(contractAddress,
-        "shlTest(uint256,uint256)", num, false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "shlTest(uint256,uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     Assert.assertEquals(10, ByteArray.toInt(infoById.get().getContractResult(0).toByteArray()));
-    txid = PublicMethod.triggerContract(contractAddress,
-        "shrTest(uint256,uint256)", num, false,
-        0, maxFeeLimit, contractExcAddress, contractExcKey, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "shrTest(uint256,uint256)",
+            num,
+            false,
+            0,
+            maxFeeLimit,
+            contractExcAddress,
+            contractExcKey,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
     Assert.assertEquals(2, ByteArray.toInt(infoById.get().getContractResult(0).toByteArray()));
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod
-        .freeResource(contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);    if (channelFull1 != null) {
+    PublicMethod.freeResource(
+        contractAddress, contractExcKey, testNetAccountAddress, blockingStubFull);
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }  }
-
-
+    }
+  }
 }

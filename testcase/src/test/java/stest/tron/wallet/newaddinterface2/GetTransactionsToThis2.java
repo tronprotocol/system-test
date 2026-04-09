@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
@@ -23,8 +22,8 @@ import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+
 @Slf4j
 public class GetTransactionsToThis2 extends TronBaseTest {
 
@@ -36,43 +35,46 @@ public class GetTransactionsToThis2 extends TronBaseTest {
       Base58.decodeFromBase58Check("TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU");*/
   private static final byte[] INVAILD_ADDRESS =
       Base58.decodeFromBase58Check("27cu1ozb4mX3m2afY68FSAqn3HmMp815d48");
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final String notexist01 =
-      "DCB620820121A866E4E25905DC37F5025BFA5420B781C69E1BC6E1D83038C88A";  private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);  private ManagedChannel channelSolidity = null;  private WalletExtensionGrpc.WalletExtensionBlockingStub blockingStubExtension = null;  public static String loadPubKey() {
+      "DCB620820121A866E4E25905DC37F5025BFA5420B781C69E1BC6E1D83038C88A";
+  private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
+  private ManagedChannel channelSolidity = null;
+  private WalletExtensionGrpc.WalletExtensionBlockingStub blockingStubExtension = null;
+
+  public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
-  public void beforeClass() {    blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
-
+  public void beforeClass() {
+    blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
   }
 
   @Test(enabled = true)
   public void testgetTransactionsToThis2() {
-    //Create a transfer.
-    Assert.assertTrue(PublicMethod.sendcoin(toAddress, 1000000, fromAddress,
-        foundationKey2, blockingStubFull));
+    // Create a transfer.
+    Assert.assertTrue(
+        PublicMethod.sendcoin(toAddress, 1000000, fromAddress, foundationKey2, blockingStubFull));
 
     ByteString addressBs = ByteString.copyFrom(toAddress);
     Account account = Account.newBuilder().setAddress(addressBs).build();
     AccountPaginated.Builder accountPaginated = AccountPaginated.newBuilder().setAccount(account);
     accountPaginated.setOffset(1000);
     accountPaginated.setLimit(0);
-    GrpcAPI.TransactionListExtention transactionListExtention = blockingStubExtension
-        .getTransactionsToThis2(accountPaginated.build());
+    GrpcAPI.TransactionListExtention transactionListExtention =
+        blockingStubExtension.getTransactionsToThis2(accountPaginated.build());
 
-    Optional<GrpcAPI.TransactionListExtention> gettransactionstothis2 = Optional
-        .ofNullable(transactionListExtention);
+    Optional<GrpcAPI.TransactionListExtention> gettransactionstothis2 =
+        Optional.ofNullable(transactionListExtention);
 
     if (gettransactionstothis2.get().getTransactionCount() == 0) {
-      Assert.assertTrue(PublicMethod.sendcoin(toAddress, 1000000L, fromAddress, foundationKey2,
-          blockingStubFull));
+      Assert.assertTrue(
+          PublicMethod.sendcoin(
+              toAddress, 1000000L, fromAddress, foundationKey2, blockingStubFull));
     }
 
     Assert.assertTrue(gettransactionstothis2.isPresent());
@@ -80,61 +82,61 @@ public class GetTransactionsToThis2 extends TronBaseTest {
     logger.info(Integer.toString(beforecount));
     for (Integer j = 0; j < beforecount; j++) {
       Assert.assertFalse(
-          gettransactionstothis2.get().getTransaction(j).getTransaction().getRawData()
-              .getContractList().isEmpty());
+          gettransactionstothis2
+              .get()
+              .getTransaction(j)
+              .getTransaction()
+              .getRawData()
+              .getContractList()
+              .isEmpty());
     }
   }
 
   @Test(enabled = true)
   public void testgetTransactionsToThisByInvaildAddress2() {
-    //Invaild address.
+    // Invaild address.
     ByteString addressBs = ByteString.copyFrom(INVAILD_ADDRESS);
     Account account = Account.newBuilder().setAddress(addressBs).build();
     AccountPaginated.Builder accountPaginated = AccountPaginated.newBuilder().setAccount(account);
     accountPaginated.setOffset(1000);
     accountPaginated.setLimit(0);
-    GrpcAPI.TransactionListExtention transactionListExtention = blockingStubExtension
-        .getTransactionsToThis2(accountPaginated.build());
-    Optional<GrpcAPI.TransactionListExtention> gettransactionstothisByInvaildAddress = Optional
-        .ofNullable(transactionListExtention);
+    GrpcAPI.TransactionListExtention transactionListExtention =
+        blockingStubExtension.getTransactionsToThis2(accountPaginated.build());
+    Optional<GrpcAPI.TransactionListExtention> gettransactionstothisByInvaildAddress =
+        Optional.ofNullable(transactionListExtention);
 
     Assert.assertTrue(gettransactionstothisByInvaildAddress.get().getTransactionCount() == 0);
 
-    //Limit is -1
+    // Limit is -1
     addressBs = ByteString.copyFrom(INVAILD_ADDRESS);
     account = Account.newBuilder().setAddress(addressBs).build();
     accountPaginated = AccountPaginated.newBuilder().setAccount(account);
     accountPaginated.setOffset(1000);
     accountPaginated.setLimit(-1);
-    transactionListExtention = blockingStubExtension
-        .getTransactionsToThis2(accountPaginated.build());
-    gettransactionstothisByInvaildAddress = Optional
-        .ofNullable(transactionListExtention);
+    transactionListExtention =
+        blockingStubExtension.getTransactionsToThis2(accountPaginated.build());
+    gettransactionstothisByInvaildAddress = Optional.ofNullable(transactionListExtention);
 
     Assert.assertTrue(gettransactionstothisByInvaildAddress.get().getTransactionCount() == 0);
 
-    //offset is -1
+    // offset is -1
     addressBs = ByteString.copyFrom(INVAILD_ADDRESS);
     account = Account.newBuilder().setAddress(addressBs).build();
     accountPaginated = AccountPaginated.newBuilder().setAccount(account);
     accountPaginated.setOffset(-1);
     accountPaginated.setLimit(100);
-    transactionListExtention = blockingStubExtension
-        .getTransactionsToThis2(accountPaginated.build());
-    gettransactionstothisByInvaildAddress = Optional
-        .ofNullable(transactionListExtention);
+    transactionListExtention =
+        blockingStubExtension.getTransactionsToThis2(accountPaginated.build());
+    gettransactionstothisByInvaildAddress = Optional.ofNullable(transactionListExtention);
 
     Assert.assertTrue(gettransactionstothisByInvaildAddress.get().getTransactionCount() == 0);
-
   }
-  /**
-   * constructor.
-   */
+  /** constructor. */
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -150,20 +152,14 @@ public class GetTransactionsToThis2 extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
@@ -179,4 +175,3 @@ public class GetTransactionsToThis2 extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 }
-

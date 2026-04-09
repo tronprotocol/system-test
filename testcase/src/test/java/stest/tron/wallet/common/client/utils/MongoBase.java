@@ -5,11 +5,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import java.util.Arrays;
-
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -19,11 +16,10 @@ import stest.tron.wallet.common.client.Configuration;
 /**
  * Base class for MongoDB event query tests.
  *
- * <p>Extends {@link TronBaseTest} so all Mongo tests inherit the standard gRPC
- * channel management and foundation account configuration.  The MongoDB connection
- * is established in {@code @BeforeSuite} and cleaned up in {@code @AfterSuite}.
- * If MongoDB is unavailable the suite will log a warning and skip gracefully
- * rather than failing with a stack trace.
+ * <p>Extends {@link TronBaseTest} so all Mongo tests inherit the standard gRPC channel management
+ * and foundation account configuration. The MongoDB connection is established in
+ * {@code @BeforeSuite} and cleaned up in {@code @AfterSuite}. If MongoDB is unavailable the suite
+ * will log a warning and skip gracefully rather than failing with a stack trace.
  */
 @Slf4j
 public class MongoBase extends TronBaseTest {
@@ -55,8 +51,10 @@ public class MongoBase extends TronBaseTest {
       mongoDatabase.getCollection("contractlog").drop();
       mongoAvailable = true;
     } catch (Exception e) {
-      logger.warn("MongoDB is unavailable at {}, mongo tests will be skipped: {}",
-          mongoNode, e.getMessage());
+      logger.warn(
+          "MongoDB is unavailable at {}, mongo tests will be skipped: {}",
+          mongoNode,
+          e.getMessage());
     }
   }
 

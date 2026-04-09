@@ -29,13 +29,12 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.CommonParameter;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.MultiNode;
-
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -44,11 +43,11 @@ public class WalletTestTransfer003 extends TronBaseTest {
   private static final long now = System.currentTimeMillis();
   private static final String name = "transaction007_" + Long.toString(now);
   private static Protocol.Transaction sendCoinTransaction;
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   private final Long createUseFee = 100000L;
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] sendCoinAddress = ecKey1.getAddress();
   String testKeyForSendCoin = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -58,10 +57,11 @@ public class WalletTestTransfer003 extends TronBaseTest {
   private ManagedChannel channelFull1 = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull1 = null;
   private WalletExtensionGrpc.WalletExtensionBlockingStub blockingStubExtension = null;
-  private String fullnode1 = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(1);
-  private String soliditynode = Configuration.getByPath("testng.conf")
-      .getStringList("solidityNode.ip.list").get(0);
+  private String fullnode1 =
+      Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(1);
+  private String soliditynode =
+      Configuration.getByPath("testng.conf").getStringList("solidityNode.ip.list").get(0);
+
   public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
@@ -76,13 +76,15 @@ public class WalletTestTransfer003 extends TronBaseTest {
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public static Protocol.Transaction sendcoin(byte[] to, long amount, byte[] owner, String priKey,
+  /** constructor. */
+  public static Protocol.Transaction sendcoin(
+      byte[] to,
+      long amount,
+      byte[] owner,
+      String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
-    //String priKey = foundationKey;
-  ECKey temKey = null;
+    // String priKey = foundationKey;
+    ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
       temKey = ECKey.fromPrivate(priK);
@@ -90,10 +92,10 @@ public class WalletTestTransfer003 extends TronBaseTest {
       ex.printStackTrace();
     }
     final ECKey ecKey = temKey;
-  //Protocol.Account search = queryAccount(priKey, blockingStubFull);
+    // Protocol.Account search = queryAccount(priKey, blockingStubFull);
 
-    BalanceContract.TransferContract.Builder builder = BalanceContract.TransferContract
-        .newBuilder();
+    BalanceContract.TransferContract.Builder builder =
+        BalanceContract.TransferContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsOwner = ByteString.copyFrom(owner);
     builder.setToAddress(bsTo);
@@ -113,28 +115,23 @@ public class WalletTestTransfer003 extends TronBaseTest {
     return transaction;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
   public void beforeClass() {
     initSolidityChannel();
-    logger.info(testKeyForSendCoin);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1)
-        .usePlaintext()
-        .build();
+    logger.info(testKeyForSendCoin);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
 
-    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode)
-        .usePlaintext()
-        .build();
+    channelSolidity = ManagedChannelBuilder.forTarget(soliditynode).usePlaintext().build();
     blockingStubExtension = WalletExtensionGrpc.newBlockingStub(channelSolidity);
-
   }
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void test1UseFeeOrNet() {
-    //get account
+    // get account
     ecKey1 = new ECKey(Utils.getRandom());
     sendCoinAddress = ecKey1.getAddress();
     testKeyForSendCoin = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -143,41 +140,44 @@ public class WalletTestTransfer003 extends TronBaseTest {
     newAccountAddress = ecKey2.getAddress();
     testKeyForNewAccount = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-    Assert.assertTrue(PublicMethod.sendcoin(sendCoinAddress, 200000L,
-        foundationAddress, foundationKey, blockingStubFull));
-  Long feeNum = 0L;
-  Long netNum = 0L;
-  Long sendNum = 0L;
-  Long feeCost = 0L;
-  Long times = 0L;
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            sendCoinAddress, 200000L, foundationAddress, foundationKey, blockingStubFull));
+    Long feeNum = 0L;
+    Long netNum = 0L;
+    Long sendNum = 0L;
+    Long feeCost = 0L;
+    Long times = 0L;
     Account sendAccountInfo = PublicMethod.queryAccount(testKeyForSendCoin, blockingStubFull);
-  final Long beforeBalance = sendAccountInfo.getBalance();
-  Long netUsed1 = 0L;
-  Long netUsed2 = 1L;
+    final Long beforeBalance = sendAccountInfo.getBalance();
+    Long netUsed1 = 0L;
+    Long netUsed2 = 1L;
     logger.info("Before test, the account balance is " + Long.toString(beforeBalance));
 
     while (!(netUsed1.equals(netUsed2))) {
       sendAccountInfo = PublicMethod.queryAccount(testKeyForSendCoin, blockingStubFull);
       netUsed1 = sendAccountInfo.getFreeNetUsage();
-      sendCoinTransaction = sendcoin(foundationAddress, 1L, sendCoinAddress,
-          testKeyForSendCoin, blockingStubFull);
+      sendCoinTransaction =
+          sendcoin(foundationAddress, 1L, sendCoinAddress, testKeyForSendCoin, blockingStubFull);
 
       sendAccountInfo = PublicMethod.queryAccount(testKeyForSendCoin, blockingStubFull);
       netUsed2 = sendAccountInfo.getFreeNetUsage();
 
       if (times++ < 1) {
         PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
-  String txId = ByteArray.toHexString(Sha256Hash.hash(CommonParameter.getInstance()
-            .isECKeyCryptoEngine(), sendCoinTransaction
-            .getRawData().toByteArray()));
+        // PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
+        String txId =
+            ByteArray.toHexString(
+                Sha256Hash.hash(
+                    CommonParameter.getInstance().isECKeyCryptoEngine(),
+                    sendCoinTransaction.getRawData().toByteArray()));
         logger.info(txId);
         ByteString bsTxid = ByteString.copyFrom(ByteArray.fromHexString(txId));
         BytesMessage request = BytesMessage.newBuilder().setValue(bsTxid).build();
-    TransactionInfo transactionInfo = blockingStubFull.getTransactionInfoById(request);
+        TransactionInfo transactionInfo = blockingStubFull.getTransactionInfoById(request);
         Optional<TransactionInfo> getTransactionById = Optional.ofNullable(transactionInfo);
-        logger.info("solidity block num is " + Long.toString(getTransactionById
-            .get().getBlockNumber()));
+        logger.info(
+            "solidity block num is " + Long.toString(getTransactionById.get().getBlockNumber()));
         Assert.assertTrue(getTransactionById.get().getBlockNumber() > 0);
       }
 
@@ -190,39 +190,46 @@ public class WalletTestTransfer003 extends TronBaseTest {
       }
     }
     Assert.assertTrue(netUsed2 > 4500);
-  //Next time, use fee
-    sendCoinTransaction = sendcoin(foundationAddress, 1L, sendCoinAddress,
-        testKeyForSendCoin, blockingStubFull);
+    // Next time, use fee
+    sendCoinTransaction =
+        sendcoin(foundationAddress, 1L, sendCoinAddress, testKeyForSendCoin, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
-  String txId = ByteArray.toHexString(Sha256Hash.hash(CommonParameter.getInstance()
-        .isECKeyCryptoEngine(), sendCoinTransaction
-        .getRawData().toByteArray()));
+    // PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
+    String txId =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                sendCoinTransaction.getRawData().toByteArray()));
     logger.info(txId);
     ByteString bsTxid = ByteString.copyFrom(ByteArray.fromHexString(txId));
     BytesMessage request = BytesMessage.newBuilder().setValue(bsTxid).build();
     TransactionInfo transactionInfo = blockingStubFull.getTransactionInfoById(request);
     Optional<TransactionInfo> getTransactionById = Optional.ofNullable(transactionInfo);
     logger.info(getTransactionById.get().toString());
-    logger.info("when use fee, the block num is " + Long.toString(getTransactionById
-        .get().getBlockNumber()));
+    logger.info(
+        "when use fee, the block num is "
+            + Long.toString(getTransactionById.get().getBlockNumber()));
     Assert.assertTrue(getTransactionById.get().getFee() > 0);
     Assert.assertTrue(getTransactionById.get().getBlockNumber() > 0);
   }
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void test2CreateAccountUseFee() {
     Account sendAccountInfo = PublicMethod.queryAccount(testKeyForSendCoin, blockingStubFull);
-  final Long beforeBalance = sendAccountInfo.getBalance();
+    final Long beforeBalance = sendAccountInfo.getBalance();
     logger.info("before balance " + Long.toString(beforeBalance));
-  Long times = 0L;
-    sendCoinTransaction = sendcoin(newAccountAddress, 1L, sendCoinAddress,
-        testKeyForSendCoin, blockingStubFull);
+    Long times = 0L;
+    sendCoinTransaction =
+        sendcoin(newAccountAddress, 1L, sendCoinAddress, testKeyForSendCoin, blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  //PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
-  String txId = ByteArray.toHexString(Sha256Hash.hash(CommonParameter.getInstance()
-        .isECKeyCryptoEngine(), sendCoinTransaction
-        .getRawData().toByteArray()));
+    // PublicMethod.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
+    String txId =
+        ByteArray.toHexString(
+            Sha256Hash.hash(
+                CommonParameter.getInstance().isECKeyCryptoEngine(),
+                sendCoinTransaction.getRawData().toByteArray()));
     logger.info(txId);
     ByteString bsTxid = ByteString.copyFrom(ByteArray.fromHexString(txId));
     BytesMessage request = BytesMessage.newBuilder().setValue(bsTxid).build();
@@ -233,12 +240,14 @@ public class WalletTestTransfer003 extends TronBaseTest {
     Assert.assertTrue(getTransactionById.get().getFee() == createUseFee);
 
     sendAccountInfo = PublicMethod.queryAccount(testKeyForSendCoin, blockingStubFull);
-  final Long afterBalance = sendAccountInfo.getBalance();
+    final Long afterBalance = sendAccountInfo.getBalance();
     logger.info("after balance " + Long.toString(afterBalance));
     Assert.assertTrue(afterBalance + 1L + createUseFee == beforeBalance);
   }
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void test3InvalidGetTransactionById() {
     String txId = "";
     ByteString bsTxid = ByteString.copyFrom(ByteArray.fromHexString(txId));
@@ -255,44 +264,41 @@ public class WalletTestTransfer003 extends TronBaseTest {
     Assert.assertTrue(getTransactionById.get().getRawData().getContractCount() == 0);
   }
 
-  @Test(enabled = true, groups = {"smoke"})
+  @Test(
+      enabled = true,
+      groups = {"smoke"})
   public void test4NoBalanceCanSend() {
     Long feeNum = 0L;
     Account sendAccountInfo = PublicMethod.queryAccount(testKeyForSendCoin, blockingStubFull);
-  Long beforeBalance = sendAccountInfo.getBalance();
+    Long beforeBalance = sendAccountInfo.getBalance();
     logger.info("Before test, the account balance is " + Long.toString(beforeBalance));
     while (feeNum < 250) {
-      sendCoinTransaction = sendcoin(foundationAddress, 10L, sendCoinAddress,
-          testKeyForSendCoin, blockingStubFull);
+      sendCoinTransaction =
+          sendcoin(foundationAddress, 10L, sendCoinAddress, testKeyForSendCoin, blockingStubFull);
       feeNum++;
     }
     Assert.assertTrue(PublicMethod.waitProduceNextBlock(blockingStubFull));
-
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {    if (channelFull1 != null) {
+  public void shutdown() throws InterruptedException {
+    if (channelFull1 != null) {
       channelFull1.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
       }
       byte[] pubKeyAsc = pubKey.getBytes();
-  byte[] pubKeyHex = Hex.decode(pubKeyAsc);
+      byte[] pubKeyHex = Hex.decode(pubKeyAsc);
       ecKey = ECKey.fromPublicOnly(pubKeyHex);
     }
     return grpcQueryAccount(ecKey.getAddress(), blockingStubFull);
@@ -302,30 +308,26 @@ public class WalletTestTransfer003 extends TronBaseTest {
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
-  /**
-   * constructor.
-   */
-  public Protocol.Transaction updateAccount(byte[] addressBytes, byte[] accountNameBytes,
-      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /** constructor. */
+  public Protocol.Transaction updateAccount(
+      byte[] addressBytes,
+      byte[] accountNameBytes,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
 
     ECKey temKey = null;
     try {
@@ -356,5 +358,3 @@ public class WalletTestTransfer003 extends TronBaseTest {
     return transaction;
   }
 }
-
-

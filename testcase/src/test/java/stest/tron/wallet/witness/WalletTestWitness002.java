@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI;
@@ -25,29 +24,26 @@ import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+
 @Slf4j
-public class WalletTestWitness002 extends TronBaseTest {  private ManagedChannel channelSolidity = null;  private WalletSolidityGrpc.WalletSolidityBlockingStub blockingStubSolidity = null;  public static String loadPubKey() {
+public class WalletTestWitness002 extends TronBaseTest {
+  public static String loadPubKey() {
     char[] buf = new char[0x100];
     return String.valueOf(buf, 32, 130);
   }
 
-  
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass
   public void beforeClass() {
     initSolidityChannel();
-    WalletClient.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);  }
+    WalletClient.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+  }
 
   @Test(enabled = true)
   public void testQueryAllWitness() {
-    GrpcAPI.WitnessList witnesslist = blockingStubFull
-        .listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.WitnessList witnesslist =
+        blockingStubFull.listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<GrpcAPI.WitnessList> result = Optional.ofNullable(witnesslist);
     if (result.isPresent()) {
       GrpcAPI.WitnessList witnessList = result.get();
@@ -64,7 +60,7 @@ public class WalletTestWitness002 extends TronBaseTest {  private ManagedChannel
     for (int j = 0; j < result.get().getWitnessesCount(); j++) {
       Assert.assertFalse(result.get().getWitnesses(j).getAddress().isEmpty());
       Assert.assertFalse(result.get().getWitnesses(j).getUrl().isEmpty());
-      //Assert.assertTrue(result.get().getWitnesses(j).getLatestSlotNum() > 0);
+      // Assert.assertTrue(result.get().getWitnesses(j).getLatestSlotNum() > 0);
       result.get().getWitnesses(j).getUrlBytes();
       result.get().getWitnesses(j).getLatestBlockNum();
       result.get().getWitnesses(j).getLatestSlotNum();
@@ -72,7 +68,7 @@ public class WalletTestWitness002 extends TronBaseTest {  private ManagedChannel
       result.get().getWitnesses(j).getTotalProduced();
     }
 
-    //Improve coverage.
+    // Improve coverage.
     witnesslist.equals(result.get());
     witnesslist.hashCode();
     witnesslist.getSerializedSize();
@@ -81,8 +77,8 @@ public class WalletTestWitness002 extends TronBaseTest {  private ManagedChannel
 
   @Test(enabled = true)
   public void testSolidityQueryAllWitness() {
-    GrpcAPI.WitnessList solidityWitnessList = blockingStubSolidity
-        .listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
+    GrpcAPI.WitnessList solidityWitnessList =
+        blockingStubSolidity.listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
     Optional<GrpcAPI.WitnessList> result = Optional.ofNullable(solidityWitnessList);
     if (result.isPresent()) {
       GrpcAPI.WitnessList witnessList = result.get();
@@ -101,14 +97,12 @@ public class WalletTestWitness002 extends TronBaseTest {  private ManagedChannel
       Assert.assertFalse(result.get().getWitnesses(j).getUrl().isEmpty());
     }
   }
-  /**
-   * constructor.
-   */
+  /** constructor. */
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
     if (ecKey == null) {
-      String pubKey = loadPubKey(); //04 PubKey[128]
+      String pubKey = loadPubKey(); // 04 PubKey[128]
       if (StringUtils.isEmpty(pubKey)) {
         logger.warn("Warning: QueryAccount failed, no wallet address !!");
         return null;
@@ -124,25 +118,18 @@ public class WalletTestWitness002 extends TronBaseTest {  private ManagedChannel
     return ecKey.getAddress();
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
     builder.setNum(blockNum);
     return blockingStubFull.getBlockByNum(builder.build());
-
   }
 
   private Transaction signTransaction(ECKey ecKey, Transaction transaction) {
@@ -157,9 +144,8 @@ public class WalletTestWitness002 extends TronBaseTest {  private ManagedChannel
   class WitnessComparator implements Comparator {
 
     public int compare(Object o1, Object o2) {
-      return Long
-          .compare(((Protocol.Witness) o2).getVoteCount(), ((Protocol.Witness) o1).getVoteCount());
+      return Long.compare(
+          ((Protocol.Witness) o2).getVoteCount(), ((Protocol.Witness) o1).getVoteCount());
     }
   }
 }
-

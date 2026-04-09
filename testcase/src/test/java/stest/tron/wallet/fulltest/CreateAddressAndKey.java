@@ -29,7 +29,7 @@ public class CreateAddressAndKey {
   private static String path = "/Users/wangzihe/Documents/";
   private static String filename = "/Users/wangzihe/Sites/postmanUsedKeyandAddress";
   private static String filenameTemp;
-  //testng001、testng002、testng003、testng004 only for test
+  // testng001、testng002、testng003、testng004 only for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final String testKey003 =
@@ -37,37 +37,31 @@ public class CreateAddressAndKey {
   private final byte[] fromAddress = PublicMethod.getFinalAddress(testKey002);
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public static boolean createFile(String fileName, String filecontent) {
     Boolean bool = false;
-    filenameTemp = fileName;//文件路径+名称+文件类型
+    filenameTemp = fileName; // 文件路径+名称+文件类型
     File file = new File(filenameTemp);
     try {
-      //如果文件不存在，则创建新的文件
+      // 如果文件不存在，则创建新的文件
       if (!file.exists()) {
         file.createNewFile();
         bool = true;
         System.out.println("success create file,the file is " + filenameTemp);
-        //创建文件成功后，写入内容到文件里
+        // 创建文件成功后，写入内容到文件里
         writeFileContent(filenameTemp, filecontent);
       } else {
         clearInfoForFile(filenameTemp);
         writeFileContent(filenameTemp, filecontent);
-
       }
     } catch (Exception e) {
       e.printStackTrace();
-
     }
 
     return bool;
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public static void clearInfoForFile(String fileName) {
     File file = new File(fileName);
     try {
@@ -83,9 +77,7 @@ public class CreateAddressAndKey {
     }
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   public static boolean writeFileContent(String filepath, String newstr) throws IOException {
     Boolean bool = false;
     String filein = newstr + "\r\n";
@@ -137,10 +129,7 @@ public class CreateAddressAndKey {
     return bool;
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   public static boolean delFile(String fileName) {
     Boolean bool = false;
     filenameTemp = path + fileName + ".txt";
@@ -156,17 +145,13 @@ public class CreateAddressAndKey {
     return bool;
   }
 
-
-
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = false)
-  public void beforeClass() {
+  public void beforeClass() {}
 
-  }
-
-  @Test(enabled = false, groups = {"full"})
+  @Test(
+      enabled = false,
+      groups = {"full"})
   public void createAddressesAndKeys() {
     Integer i = 0;
     String accountIndex;
@@ -186,18 +171,19 @@ public class CreateAddressAndKey {
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("address", addressString);
       userBaseObj2.addProperty("key", keyString);
-      //userBaseObj2.addProperty("address",ByteArray.toStr(Base64.encode(address)));
-      //userBaseObj2.addProperty("key", ByteArray.toStr(Base64.encode(key)));
+      // userBaseObj2.addProperty("address",ByteArray.toStr(Base64.encode(address)));
+      // userBaseObj2.addProperty("key", ByteArray.toStr(Base64.encode(key)));
       jsonarray.add(userBaseObj2);
     }
     Gson gson = new Gson();
     String jsonMap = gson.toJson(addressAndKey);
-    //createFile(filename,jsonobject.toString());
+    // createFile(filename,jsonobject.toString());
     createFile(filename, jsonarray.toString());
-
   }
 
-  @Test(enabled = true, groups = {"full"})
+  @Test(
+      enabled = true,
+      groups = {"full"})
   public void create() {
     Integer i = 0;
     String accountIndex;
@@ -219,13 +205,10 @@ public class CreateAddressAndKey {
     }
     Gson gson = new Gson();
     String jsonMap = gson.toJson(addressAndKey);
-    //createFile(filename,jsonobject.toString());
+    // createFile(filename,jsonobject.toString());
     createFile(filename, jsonarray.toString());
-
   }
 
   @AfterClass(enabled = false)
-  public void shutdown() throws InterruptedException {
-  }
+  public void shutdown() throws InterruptedException {}
 }
-

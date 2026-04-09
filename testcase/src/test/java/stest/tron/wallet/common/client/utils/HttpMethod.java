@@ -7,7 +7,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
 import io.netty.util.internal.StringUtil;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.testng.collections.Lists;
 import org.tron.api.GrpcAPI;
-import org.tron.api.WalletGrpc;
 import org.tron.protos.Protocol;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.zen.address.DiversifierT;
@@ -69,7 +67,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse updateAccount(
       String httpNode, byte[] updateAccountAddress, String accountName, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/updateaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -95,7 +93,7 @@ public class HttpMethod {
       String accountId,
       Boolean visable,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/setaccountid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -119,7 +117,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse updateWitness(
       String httpNode, byte[] witnessAddress, String updateUrl, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/updatewitness";
       JsonObject userBaseObj2 = new JsonObject();
@@ -141,7 +139,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse voteWitnessAccount(
       String httpNode, byte[] ownerAddress, JsonArray voteArray, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/votewitnessaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -164,7 +162,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse createAccount(
       String httpNode, byte[] ownerAddress, byte[] accountAddress, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -183,7 +181,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse createWitness(String httpNode, byte[] ownerAddress, String url) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createwitness";
       JsonObject userBaseObj2 = new JsonObject();
@@ -203,7 +201,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse withdrawBalance(String httpNode, byte[] witnessAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/withdrawbalance";
       JsonObject userBaseObj2 = new JsonObject();
@@ -220,19 +218,19 @@ public class HttpMethod {
     return response;
   }
 
-
   /** constructor. */
-  public static HttpResponse withdrawExpireUnfreeze(String httpNode, byte[] ownerAddress,String ownerKey) {
-      HttpResponse response = null;
+  public static HttpResponse withdrawExpireUnfreeze(
+      String httpNode, byte[] ownerAddress, String ownerKey) {
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/withdrawexpireunfreeze";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
       response = createConnect(requestUrl, userBaseObj2);
       logger.info(userBaseObj2.toString());
-       String transactionString = EntityUtils.toString(response.getEntity());
-       String transactionSignString = gettransactionsign(httpNode,transactionString,ownerKey);
-        response = broadcastTransaction(httpNode,transactionSignString);
+      String transactionString = EntityUtils.toString(response.getEntity());
+      String transactionSignString = gettransactionsign(httpNode, transactionString, ownerKey);
+      response = broadcastTransaction(httpNode, transactionSignString);
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -243,7 +241,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse sendCoin(
       String httpNode, byte[] fromAddress, byte[] toAddress, Long amount, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
       JsonObject userBaseObj2 = new JsonObject();
@@ -269,7 +267,7 @@ public class HttpMethod {
       Long amount,
       String notes,
       String fromKey) {
-      String transactionString = null;
+    String transactionString = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
       JsonObject userBaseObj2 = new JsonObject();
@@ -297,7 +295,7 @@ public class HttpMethod {
       Long amount,
       Integer permissionId,
       String[] managerKeys) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
       JsonObject userBaseObj2 = new JsonObject();
@@ -373,7 +371,7 @@ public class HttpMethod {
   /** constructor. */
   public static String sendCoinGetTxid(
       String httpNode, byte[] fromAddress, byte[] toAddress, Long amount, String fromKey) {
-      String transactionString = null;
+    String transactionString = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createtransaction";
       JsonObject userBaseObj2 = new JsonObject();
@@ -398,7 +396,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse createProposal(
       String httpNode, byte[] ownerAddress, Long proposalKey, Long proposalValue, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/proposalcreate";
       JsonObject userBaseObj2 = new JsonObject();
@@ -428,7 +426,7 @@ public class HttpMethod {
       Integer proposalId,
       Boolean isAddApproval,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/proposalapprove";
       JsonObject userBaseObj2 = new JsonObject();
@@ -451,7 +449,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse deleteProposal(
       String httpNode, byte[] ownerAddress, Integer proposalId, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/proposaldelete";
       JsonObject userBaseObj2 = new JsonObject();
@@ -472,7 +470,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getEnergyPric(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getenergyprices";
       response = createConnect(requestUrl);
@@ -482,8 +480,9 @@ public class HttpMethod {
     }
     return response;
   }
+
   public static HttpResponse getEnergyPricSolidity(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/walletsolidity/getenergyprices";
       response = createConnect(requestUrl);
@@ -495,7 +494,7 @@ public class HttpMethod {
   }
 
   public static HttpResponse getEnergyPricPbft(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/walletpbft/getenergyprices";
       response = createConnect(requestUrl);
@@ -508,7 +507,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBandPric(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getbandwidthprices";
       response = createConnect(requestUrl);
@@ -518,8 +517,9 @@ public class HttpMethod {
     }
     return response;
   }
+
   public static HttpResponse getBandPricSolidity(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/walletsolidity/getbandwidthprices";
       response = createConnect(requestUrl);
@@ -529,8 +529,9 @@ public class HttpMethod {
     }
     return response;
   }
+
   public static HttpResponse getBandPricPbft(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/walletpbft/getbandwidthprices";
       response = createConnect(requestUrl);
@@ -540,8 +541,9 @@ public class HttpMethod {
     }
     return response;
   }
+
   public static HttpResponse getMemoFee(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getmemofee";
       response = createConnect(requestUrl);
@@ -554,7 +556,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getChainParameters(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getchainparameters";
       response = createConnect(requestUrl);
@@ -566,32 +568,29 @@ public class HttpMethod {
   }
 
   public static Boolean proposalFreezeV2IsOpen(String http) {
-    return getProposalValue(http,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0;
+    return getProposalValue(http, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0;
   }
 
   public static Boolean proposalTronPowerIsOpen(String http) {
-    return getProposalValue(http,ProposalEnum.GetAllowNewResourceModel.getProposalName()) > 0;
+    return getProposalValue(http, ProposalEnum.GetAllowNewResourceModel.getProposalName()) > 0;
   }
 
   /** constructor. */
-  public static Long getProposalValue(String httpNode,String proposalName) {
+  public static Long getProposalValue(String httpNode, String proposalName) {
     HttpResponse response = HttpMethod.getChainParameters(httpNode);
     JSONObject responseContent = HttpMethod.parseResponseContent(response);
     JSONArray temp;
     temp = responseContent.getJSONArray("chainParameter");
     for (int i = 0; i < temp.size(); i++) {
       if (temp.getJSONObject(i).get("key").equals(proposalName)) {
-        if(temp.getJSONObject(i).containsKey("value")) {
+        if (temp.getJSONObject(i).containsKey("value")) {
           return temp.getJSONObject(i).getLong("value");
         } else {
           return 0L;
         }
-
-
       }
     }
     return 0L;
-
   }
 
   /** constructor. */
@@ -602,7 +601,7 @@ public class HttpMethod {
       JsonObject witnessObject,
       JsonObject activesObject,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/accountpermissionupdate";
       JsonObject userBaseObj2 = new JsonObject();
@@ -634,7 +633,7 @@ public class HttpMethod {
       String secondTokenId,
       Long secondTokenBalance,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/exchangecreate";
       JsonObject userBaseObj2 = new JsonObject();
@@ -662,7 +661,7 @@ public class HttpMethod {
       String tokenId,
       Long quant,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/exchangeinject";
       JsonObject userBaseObj2 = new JsonObject();
@@ -689,7 +688,7 @@ public class HttpMethod {
       String tokenId,
       Long quant,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/exchangewithdraw";
       JsonObject userBaseObj2 = new JsonObject();
@@ -717,7 +716,7 @@ public class HttpMethod {
       Long quant,
       Long expected,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/exchangetransaction";
       JsonObject userBaseObj2 = new JsonObject();
@@ -755,7 +754,7 @@ public class HttpMethod {
       Long freeAssetNetLimit,
       Long publicFreeAssetNetLimit,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createassetissue";
       JsonObject userBaseObj2 = new JsonObject();
@@ -792,7 +791,7 @@ public class HttpMethod {
       String assetIssueById,
       Long amount,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/transferasset";
       JsonObject userBaseObj2 = new JsonObject();
@@ -811,8 +810,7 @@ public class HttpMethod {
     return response;
   }
 
-  /** constructor.
-   * visible: true and broadcast hex */
+  /** constructor. visible: true and broadcast hex */
   public static HttpResponse transferAsset(
       String httpNode,
       String ownerAddress,
@@ -820,7 +818,7 @@ public class HttpMethod {
       String assetIssueById,
       Long amount,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/transferasset";
       JsonObject userBaseObj2 = new JsonObject();
@@ -836,9 +834,11 @@ public class HttpMethod {
       System.out.println(transactionSignString);
       JSONObject ob = JSONObject.parseObject(transactionSignString);
       Protocol.Transaction.Builder transaction = Protocol.Transaction.newBuilder();
-      Protocol.Transaction.raw raw = Protocol.Transaction.raw.parseFrom(Hex.decode(ob.getString("raw_data_hex")));
+      Protocol.Transaction.raw raw =
+          Protocol.Transaction.raw.parseFrom(Hex.decode(ob.getString("raw_data_hex")));
       transaction.setRawData(raw);
-      transaction.addSignature(ByteString.copyFrom(Hex.decode(ob.getJSONArray("signature").get(0).toString())));
+      transaction.addSignature(
+          ByteString.copyFrom(Hex.decode(ob.getJSONArray("signature").get(0).toString())));
       response = broadcasthex(httpNode, Hex.toHexString(transaction.build().toByteArray()));
     } catch (Exception e) {
       e.printStackTrace();
@@ -862,7 +862,7 @@ public class HttpMethod {
       Long tokenValue,
       byte[] ownerAddress,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/deploycontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -906,7 +906,7 @@ public class HttpMethod {
       Long tokenValue,
       byte[] ownerAddress,
       String fromKey) {
-      String transactionString = null;
+    String transactionString = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/deploycontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -953,7 +953,7 @@ public class HttpMethod {
       Long tokenValue,
       byte[] ownerAddress,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/deploycontract";
 
@@ -998,7 +998,7 @@ public class HttpMethod {
       Long tokenValue,
       String data,
       String fromKey) {
-      String transactionSignString = null;
+    String transactionSignString = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/triggersmartcontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1067,7 +1067,7 @@ public class HttpMethod {
       Integer tokenId,
       Long tokenValue,
       String fromKey) {
-      String transactionSignString = null;
+    String transactionSignString = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/triggersmartcontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1109,7 +1109,7 @@ public class HttpMethod {
       String parameter,
       Long feeLimit,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/triggerconstantcontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1165,10 +1165,10 @@ public class HttpMethod {
       final String requestUrl = "http://" + httpNode + "/wallet/triggerconstantcontract";
       JsonObject userBaseObj2 = new JsonObject();
       userBaseObj2.addProperty("owner_address", ByteArray.toHexString(ownerAddress));
-      if(contractAddress == null) {
+      if (contractAddress == null) {
         String tem = null;
         userBaseObj2.addProperty("contract_address", tem);
-      }else {
+      } else {
         userBaseObj2.addProperty("contract_address", contractAddress);
       }
       userBaseObj2.addProperty("function_selector", functionSelector);
@@ -1240,7 +1240,7 @@ public class HttpMethod {
       String assetIssueById,
       Long amount,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/participateassetissue";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1270,7 +1270,7 @@ public class HttpMethod {
       Long newLimit,
       Long newPublicLimit,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/updateasset";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1311,28 +1311,23 @@ public class HttpMethod {
       Integer frozenDuration,
       Integer resourceCode,
       String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) != 0
-    && getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+    if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) != 0
+        && getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
       return freezeBalance(
           httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
     }
 
-    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0
-        && getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+    if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0
+        && getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
       return freezeBalance(
           httpNode, ownerAddress, frozenBalance, frozenDuration, resourceCode, null, fromKey);
     }
 
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
-      return freezeBalanceV2(
-          httpNode, ownerAddress, frozenBalance, resourceCode, null,fromKey);
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      return freezeBalanceV2(httpNode, ownerAddress, frozenBalance, resourceCode, null, fromKey);
     }
-
 
     return null;
-
-
-
   }
 
   /** constructor. */
@@ -1344,13 +1339,20 @@ public class HttpMethod {
       Integer resourceCode,
       byte[] receiverAddress,
       String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
-      return freezeBalanceV2(httpNode,ownerAddress,frozenBalance,resourceCode,receiverAddress,fromKey);
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+      return freezeBalanceV2(
+          httpNode, ownerAddress, frozenBalance, resourceCode, receiverAddress, fromKey);
     } else {
-      return freezeBalanceV1(httpNode,ownerAddress,frozenBalance,frozenDuration,resourceCode,receiverAddress,fromKey);
+      return freezeBalanceV1(
+          httpNode,
+          ownerAddress,
+          frozenBalance,
+          frozenDuration,
+          resourceCode,
+          receiverAddress,
+          fromKey);
     }
   }
-
 
   /** constructor. */
   public static HttpResponse freezeBalanceV1(
@@ -1361,7 +1363,7 @@ public class HttpMethod {
       Integer resourceCode,
       byte[] receiverAddress,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/freezebalance";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1399,7 +1401,7 @@ public class HttpMethod {
       Integer resourceCode,
       byte[] receiverAddress,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/freezebalancev2";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1412,12 +1414,12 @@ public class HttpMethod {
         userBaseObj2.addProperty("resource", "ENERGY");
       }
       if (resourceCode == 2) {
-        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+        if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName())
+            == 1) {
           userBaseObj2.addProperty("resource", "TRON_POWER");
         } else {
           userBaseObj2.addProperty("resource", "ENERGY");
         }
-
       }
 
       response = createConnect(requestUrl, userBaseObj2);
@@ -1425,10 +1427,17 @@ public class HttpMethod {
       String transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
       response = broadcastTransaction(httpNode, transactionSignString);
 
-      if(receiverAddress != null) {
+      if (receiverAddress != null) {
         waitToProduceOneBlock(httpNode);
-        delegateresource(httpNode,ownerAddress,frozenBalance / 2,resourceCode,null,null,receiverAddress,fromKey);
-
+        delegateresource(
+            httpNode,
+            ownerAddress,
+            frozenBalance / 2,
+            resourceCode,
+            null,
+            null,
+            receiverAddress,
+            fromKey);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -1447,7 +1456,7 @@ public class HttpMethod {
       Long lockPeriod,
       byte[] receiverAddress,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/delegateresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1461,7 +1470,8 @@ public class HttpMethod {
         userBaseObj2.addProperty("resource", "ENERGY");
       }
       if (resourceCode == 2) {
-        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+        if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName())
+            == 1) {
           userBaseObj2.addProperty("resource", "TRON_POWER");
         } else {
           userBaseObj2.addProperty("resource", "ENERGY");
@@ -1481,22 +1491,23 @@ public class HttpMethod {
       String transactionSignString = gettransactionsign(httpNode, transactionString, fromKey);
       response = broadcastTransaction(httpNode, transactionSignString);
 
-
     } catch (Exception e) {
       e.printStackTrace();
       return null;
     }
 
     return response;
-
-
   }
-
 
   /** constructor. */
   public static HttpResponse unDelegateresource(
-      String httpNode, byte[] ownerAddress, Long delegteAmount, Integer resourceCode,byte[] receiverAddress,String fromKey) {
-      HttpResponse response = null;
+      String httpNode,
+      byte[] ownerAddress,
+      Long delegteAmount,
+      Integer resourceCode,
+      byte[] receiverAddress,
+      String fromKey) {
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/undelegateresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1510,7 +1521,8 @@ public class HttpMethod {
         userBaseObj2.addProperty("resource", "ENERGY");
       }
       if (resourceCode == 2) {
-        if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 1) {
+        if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName())
+            == 1) {
           userBaseObj2.addProperty("resource", "TRON_POWER");
         } else {
           userBaseObj2.addProperty("resource", "ENERGY");
@@ -1531,25 +1543,24 @@ public class HttpMethod {
     }
 
     return response;
-
-
   }
 
   /** constructor. */
   public static HttpResponse unFreezeBalance(
-      String httpNode, byte[] ownerAddress, Long unfreezeBalance,Integer resourceCode, String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
-      return unFreezeBalance(httpNode, ownerAddress, unfreezeBalance,resourceCode, null, fromKey);
+      String httpNode,
+      byte[] ownerAddress,
+      Long unfreezeBalance,
+      Integer resourceCode,
+      String fromKey) {
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) == 0) {
+      return unFreezeBalance(httpNode, ownerAddress, unfreezeBalance, resourceCode, null, fromKey);
     }
 
-    if(getProposalValue(httpNode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
-      return unFreezeBalanceV2(
-          httpNode, ownerAddress,unfreezeBalance, resourceCode, fromKey);
+    if (getProposalValue(httpNode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) != 0) {
+      return unFreezeBalanceV2(httpNode, ownerAddress, unfreezeBalance, resourceCode, fromKey);
     }
 
     return null;
-
-
   }
 
   /** constructor. */
@@ -1560,15 +1571,17 @@ public class HttpMethod {
       Integer resourceCode,
       byte[] receiverAddress,
       String fromKey) {
-    if(getProposalValue(httpNode,ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0 && resourceCode == 2) {
+    if (getProposalValue(httpNode, ProposalEnum.GetAllowNewResourceModel.getProposalName()) == 0
+        && resourceCode == 2) {
       resourceCode = 1;
     }
-    if(getProposalValue(httpnode,ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
-      unDelegateresource(httpNode,ownerAddress,unfreezeBalance / 2,resourceCode,receiverAddress,fromKey);
+    if (getProposalValue(httpnode, ProposalEnum.GetUnfreezeDelayDays.getProposalName()) > 0) {
+      unDelegateresource(
+          httpNode, ownerAddress, unfreezeBalance / 2, resourceCode, receiverAddress, fromKey);
       waitToProduceOneBlock(httpNode);
-      return unFreezeBalanceV2(httpnode,ownerAddress,unfreezeBalance,resourceCode,fromKey);
+      return unFreezeBalanceV2(httpnode, ownerAddress, unfreezeBalance, resourceCode, fromKey);
     } else {
-      return unFreezeBalanceV1(httpNode,ownerAddress,resourceCode,receiverAddress,fromKey);
+      return unFreezeBalanceV1(httpNode, ownerAddress, resourceCode, receiverAddress, fromKey);
     }
   }
 
@@ -1579,7 +1592,7 @@ public class HttpMethod {
       Integer resourceCode,
       byte[] receiverAddress,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/unfreezebalance";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1614,7 +1627,7 @@ public class HttpMethod {
       Long unfreezeBalance,
       Integer resourceCode,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/unfreezebalancev2";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1645,10 +1658,8 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse cancelAllUnfreezeBalanceV2(
-      String httpNode,
-      byte[] ownerAddress,
-      String fromKey) {
-      HttpResponse response = null;
+      String httpNode, byte[] ownerAddress, String fromKey) {
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/cancelallunfreezev2";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1670,15 +1681,15 @@ public class HttpMethod {
   public static String gettransactionsign(
       String httpNode, String transactionString, String privateKey) {
     boolean visible = transactionString.contains("visible\":true");
-    String transactionSignString = TransactionUtils.getTransactionSign(transactionString, privateKey,
-        visible);
+    String transactionSignString =
+        TransactionUtils.getTransactionSign(transactionString, privateKey, visible);
     return transactionSignString;
   }
 
   /** constructor. */
   public static HttpResponse broadcastTransaction(String httpNode, String transactionSignString) {
-      HttpPost httppost = null;
-      HttpResponse response = null;
+    HttpPost httppost = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/broadcasttransaction";
       httpClient
@@ -1728,7 +1739,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse broadcasthex(String httpNode, String transactionHex) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/broadcasthex";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1743,7 +1754,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAccountById(String httpNode, String accountId, Boolean visable) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getaccountbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1760,7 +1771,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getAccountByIdFromSolidity(
       String httpSolidityNode, String accountId, Boolean visable) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getaccountbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1777,7 +1788,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getAccountByIdFromPbft(
       String httpSolidityNode, String accountId, Boolean visable) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getaccountbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1793,7 +1804,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAccount(String httpNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1805,8 +1816,6 @@ public class HttpMethod {
     }
     return response;
   }
-
-
 
   /** constructor. */
   public static Long getAccountForResponse(String httpNode, byte[] queryAddress, Integer times) {
@@ -1824,7 +1833,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAccountFromSolidity(String httpSolidityNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1855,7 +1864,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getContract(String httpNode, String contractAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getcontract";
       JsonObject userBaseObj2 = new JsonObject();
@@ -1870,7 +1879,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getSignWeight(String httpNode, String transactionSignString) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getsignweight";
       httpClient
@@ -1898,7 +1907,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getTransactionApprovedList(
       String httpNode, String transactionSignString) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getapprovedlist";
       httpClient
@@ -1925,7 +1934,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listExchanges(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/listexchanges";
       response = createConnect(requestUrl);
@@ -1938,7 +1947,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listExchangesFromSolidity(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/listexchanges";
       response = createConnect(requestUrl);
@@ -1951,7 +1960,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listExchangesFromPbft(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/listexchanges";
       response = createConnect(requestUrl);
@@ -1964,7 +1973,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listNodes(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/listnodes";
       response = createConnect(requestUrl);
@@ -1977,7 +1986,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getStatsInfo(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/monitor/getstatsinfo";
       response = createConnectForGet(requestUrl);
@@ -1990,7 +1999,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getNextmaintenanceTime(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnextmaintenancetime";
       response = createConnect(requestUrl);
@@ -2003,7 +2012,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getChainParameter(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getchainparameters";
       response = createConnect(requestUrl);
@@ -2016,7 +2025,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getNodeInfo(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnodeinfo";
       response = createConnect(requestUrl);
@@ -2029,7 +2038,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listwitnesses(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/listwitnesses";
       response = createConnect(requestUrl);
@@ -2042,7 +2051,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listwitnesses(String httpNode, Boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/listwitnesses";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2057,7 +2066,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listwitnessesFromSolidity(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/listwitnesses";
       response = createConnect(requestUrl);
@@ -2070,7 +2079,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listwitnessesFromPbft(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/listwitnesses";
       response = createConnect(requestUrl);
@@ -2083,7 +2092,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse listProposals(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/listproposals";
       response = createConnect(requestUrl);
@@ -2096,7 +2105,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getExchangeById(String httpNode, Integer exchangeId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getexchangebyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2112,7 +2121,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getExchangeByIdFromSolidity(
       String httpSolidityNode, Integer exchangeId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getexchangebyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2127,7 +2136,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getExchangeByIdFromPbft(String httpSolidityNode, Integer exchangeId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getexchangebyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2142,7 +2151,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getProposalById(String httpNode, Integer proposalId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getproposalbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2157,7 +2166,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueListByName(String httpNode, String name) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getassetissuelistbyname";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2173,7 +2182,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getAssetIssueListByNameFromSolidity(
       String httpSolidityNode, String name) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getassetissuelistbyname";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2188,7 +2197,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueListByNameFromPbft(String httpPbftNode, String name) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpPbftNode + "/walletpbft/getassetissuelistbyname";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2203,7 +2212,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueById(String httpNode, String assetIssueId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getassetissuebyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2219,7 +2228,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getAssetIssueByIdFromSolidity(
       String httpSolidityNode, String assetIssueId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getassetissuebyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2235,7 +2244,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getAssetIssueByIdFromPbft(
       String httpSolidityNode, String assetIssueId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getassetissuebyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2250,7 +2259,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionById(String httpNode, String txid) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/gettransactionbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2279,7 +2288,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionByIdFromSolidity(String httpSolidityNode, String txid) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/gettransactionbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2294,7 +2303,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionByIdFromPbft(String httpSolidityNode, String txid) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/gettransactionbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2314,7 +2323,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionInfoById(String httpNode, String txid, Boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/gettransactioninfobyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2331,7 +2340,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getTransactionInfoByIdFromSolidity(
       String httpSolidityNode, String txid) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/gettransactioninfobyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2346,7 +2355,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionInfoByIdFromPbft(String httpSolidityNode, String txid) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/gettransactioninfobyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2361,7 +2370,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionInfoByBlocknum(String httpNode, long blocknum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/gettransactioninfobyblocknum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2377,7 +2386,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getTransactionInfoByBlocknumFromSolidity(
       String httpSolidityNode, long blocknum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl =
           "http://" + httpSolidityNode + "/walletsolidity/gettransactioninfobyblocknum";
@@ -2394,7 +2403,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getTransactionCountByBlocknumFromSolidity(
       String httpSolidityNode, long blocknum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl =
           "http://" + httpSolidityNode + "/walletsolidity/gettransactioncountbyblocknum";
@@ -2411,7 +2420,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getTransactionCountByBlocknumFromPbft(
       String httpSolidityNode, long blocknum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl =
           "http://" + httpSolidityNode + "/walletpbft/gettransactioncountbyblocknum";
@@ -2428,7 +2437,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getTransactionsFromThisFromSolidity(
       String httpSolidityNode, byte[] fromAddress, long offset, long limit) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       Map<String, String> map1 = new HashMap<String, String>();
       Map<String, Object> map = new HashMap<String, Object>();
@@ -2450,7 +2459,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getTransactionsToThisFromSolidity(
       String httpSolidityNode, byte[] toAddress, long offset, long limit) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       Map<String, String> map1 = new HashMap<String, String>();
       Map<String, Object> map = new HashMap<String, Object>();
@@ -2471,7 +2480,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueByName(String httpNode, String name) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getassetissuebyname";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2486,7 +2495,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueByNameFromSolidity(String httpSolidityNode, String name) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getassetissuebyname";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2501,7 +2510,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueByNameFromPbft(String httpSolidityNode, String name) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getassetissuebyname";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2516,7 +2525,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static Long getBalance(String httpNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2536,7 +2545,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAccountNet(String httpNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getaccountnet";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2551,7 +2560,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAccountReource(String httpNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getaccountresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2567,7 +2576,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getAccountBalance(
       String httpNode, byte[] queryAddress, Long blockNum, String blockHash) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getaccountbalance";
       JsonObject addressObj = new JsonObject();
@@ -2590,7 +2599,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockBalance(String httpNode, Long blockNum, String blockHash) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getblockbalance";
       JsonObject blockObj = new JsonObject();
@@ -2607,7 +2616,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static Long getBurnTrx(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getburntrx";
       JsonObject blockObj = new JsonObject();
@@ -2622,7 +2631,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static Long getBurnTrxFromSolidity(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/walletsolidity/getburntrx";
       JsonObject blockObj = new JsonObject();
@@ -2637,7 +2646,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static Long getBurnTrxFromPbft(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/walletpbft/getburntrx";
       JsonObject blockObj = new JsonObject();
@@ -2657,7 +2666,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getNowBlock(String httpNode, Boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnowblock";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2672,7 +2681,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static Long getNowBlockNum(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnowblock";
       response = createConnect(requestUrl);
@@ -2688,7 +2697,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static Long getNowBlockNumOnSolidity(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/getnowblock";
       response = createConnect(requestUrl);
@@ -2704,7 +2713,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getNowBlockFromSolidity(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getnowblock";
       response = createConnect(requestUrl);
@@ -2717,7 +2726,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getNowBlockFromPbft(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getnowblock";
       response = createConnect(requestUrl);
@@ -2783,7 +2792,11 @@ public class HttpMethod {
   public static void waitUntilFixedBlockFromSolidity(int blockNum, String httpSolidityNode) {
     HttpResponse response = HttpMethod.getNowBlockFromSolidity(httpSolidityNode);
     JSONObject responseContent = HttpMethod.parseResponseContent(response);
-    Integer currentBlockNum = responseContent.getJSONObject("block_header").getJSONObject("raw_data").getIntValue("number");
+    Integer currentBlockNum =
+        responseContent
+            .getJSONObject("block_header")
+            .getJSONObject("raw_data")
+            .getIntValue("number");
     Integer times = 0;
     while (currentBlockNum < blockNum
         && times++ <= ((getWitnessNum() >= 27) ? 27 : getWitnessNum() + 4)) {
@@ -2794,7 +2807,11 @@ public class HttpMethod {
       }
       response = HttpMethod.getNowBlockFromSolidity(httpSolidityNode);
       responseContent = HttpMethod.parseResponseContent(response);
-      currentBlockNum = responseContent.getJSONObject("block_header").getJSONObject("raw_data").getIntValue("number");
+      currentBlockNum =
+          responseContent
+              .getJSONObject("block_header")
+              .getJSONObject("raw_data")
+              .getIntValue("number");
     }
     logger.info("currentBlockNum2:" + currentBlockNum);
   }
@@ -2825,21 +2842,20 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlock(String httpNode, String idOrNum, Boolean detail) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblock";
       JsonObject userBaseObj2 = new JsonObject();
-      if(null != idOrNum) {
+      if (null != idOrNum) {
         userBaseObj2.addProperty("id_or_num", idOrNum);
       }
-      if(null != detail) {
+      if (null != detail) {
         userBaseObj2.addProperty("detail", detail);
       }
 
-      if(userBaseObj2.size() == 0) {
+      if (userBaseObj2.size() == 0) {
         userBaseObj2 = null;
       }
-
 
       response = createConnect(requestUrl, userBaseObj2);
     } catch (Exception e) {
@@ -2849,9 +2865,6 @@ public class HttpMethod {
     return response;
   }
 
-
-
-
   /** constructor. */
   public static HttpResponse getBlockByNum(String httpNode, Long blockNUm) {
     return getBlockByNum(httpNode, blockNUm, false);
@@ -2859,7 +2872,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByNum(String httpNode, Long blockNUm, Boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbynum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2893,7 +2906,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getBlockByNumWithType(
       String httpNode, HashMap<String, String> hashMap) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbynum";
       requestUrl = requestUrl + convertJsonObjectToGetParam(hashMap);
@@ -2922,7 +2935,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByNumFromSolidity(String httpSolidityNode, Long blockNum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getblockbynum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2937,7 +2950,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByNumFromPbft(String httpSolidityNode, Long blockNum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getblockbynum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2951,9 +2964,8 @@ public class HttpMethod {
   }
 
   /** constructor. */
-  public static HttpResponse getBlockByLimitNext(
-      String httpNode, Long startNum, Long endNum) {
-      HttpResponse response = null;
+  public static HttpResponse getBlockByLimitNext(String httpNode, Long startNum, Long endNum) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbylimitnext";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2970,7 +2982,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getBlockByLimitNextFromSolidity(
       String httpNode, Long startNum, Long endNum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbylimitnext";
       JsonObject userBaseObj2 = new JsonObject();
@@ -2987,7 +2999,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getBlockByLimitNextFromPbft(
       String httpNode, Long startNum, Long endNum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getblockbylimitnext";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3003,7 +3015,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByLastNum(String httpNode, Integer num) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbylatestnum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3018,7 +3030,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByLastNum2(String httpNode, Integer num) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbylatestnum2";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3033,7 +3045,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByLastNumFromSolidity(String httpNode, Integer num) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbylatestnum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3048,7 +3060,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByLastNumFromPbft(String httpNode, Integer num) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getblockbylatestnum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3062,7 +3074,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockById(String httpNode, String blockId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getblockbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3077,7 +3089,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByIdFromSolidity(String httpNode, String blockId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3093,7 +3105,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getBlockByIdFromSolidity(
       String httpNode, String blockId, Integer type) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/getblockbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3109,7 +3121,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBlockByIdFromPbft(String httpNode, String blockId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getblockbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3125,7 +3137,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getDelegatedResource(
       String httpNode, byte[] fromAddress, byte[] toAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3142,7 +3154,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getDelegatedResourceFromSolidity(
       String httpSolidityNode, byte[] fromAddress, byte[] toAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getdelegatedresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3159,7 +3171,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getDelegatedResourceFromPbft(
       String httpSolidityNode, byte[] fromAddress, byte[] toAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getdelegatedresource";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3176,7 +3188,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getDelegatedResourceAccountIndex(
       String httpNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresourceaccountindex";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3192,7 +3204,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getDelegatedResourceAccountIndexFromSolidity(
       String httpSolidityNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl =
           "http://" + httpSolidityNode + "/walletsolidity/getdelegatedresourceaccountindex";
@@ -3209,7 +3221,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getDelegatedResourceAccountIndexFromPbft(
       String httpSolidityNode, byte[] queryAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl =
           "http://" + httpSolidityNode + "/walletpbft/getdelegatedresourceaccountindex";
@@ -3225,7 +3237,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse createConnect(String url) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       httpClient
           .getParams()
@@ -3246,7 +3258,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse createConnect(String url, JsonObject requestBody) {
     logger.info("Thread count :" + Thread.activeCount());
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       httpClient
           .getParams()
@@ -3273,7 +3285,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse createConnect(String url, JsonArray requestBody) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       httpClient
           .getParams()
@@ -3300,7 +3312,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse createConnectForGet(String url) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       httpClient
           .getParams()
@@ -3322,7 +3334,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse createConnectForShieldTrc20(String url, JSONObject requestBody) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       httpClient
           .getParams()
@@ -3383,7 +3395,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse createConnect1(String url, JSONObject requestBody) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       httpClient
           .getParams()
@@ -3412,7 +3424,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetissueList(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getassetissuelist";
       response = createConnect(requestUrl);
@@ -3444,7 +3456,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueListFromSolidity(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getassetissuelist";
       response = createConnect(requestUrl);
@@ -3457,7 +3469,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAssetIssueListFromPbft(String httpSolidityNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getassetissuelist";
       response = createConnect(requestUrl);
@@ -3471,7 +3483,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getPaginatedAssetissueList(
       String httpNode, Integer offset, Integer limit) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getpaginatedassetissuelist";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3489,7 +3501,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getPaginatedAssetissueListFromSolidity(
       String httpSolidityNode, Integer offset, Integer limit) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl =
           "http://" + httpSolidityNode + "/walletsolidity/getpaginatedassetissuelist";
@@ -3507,7 +3519,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getPaginatedAssetissueListFromPbft(
       String httpSolidityNode, Integer offset, Integer limit) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getpaginatedassetissuelist";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3524,7 +3536,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getPaginatedProposalList(
       String httpNode, Integer offset, Integer limit) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getpaginatedproposallist";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3541,7 +3553,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getPaginatedExchangeList(
       String httpNode, Integer offset, Integer limit) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getpaginatedexchangelist";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3562,7 +3574,7 @@ public class HttpMethod {
       String contractAddress,
       Integer consumeUserResourcePercent,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/updatesetting";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3590,7 +3602,7 @@ public class HttpMethod {
       String contractAddress,
       Integer originEnergyLimit,
       String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/updateenergylimit";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3613,7 +3625,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse createAddress(String httpNode, String value) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createaddress";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3629,7 +3641,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse generateAddress(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/generateaddress";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3643,7 +3655,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionCountByBlocknum(String httpNode, long blocknum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/gettransactioncountbyblocknum";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3658,7 +3670,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse validateAddress(String httpNode, String address) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/validateaddress";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3675,7 +3687,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse easyTransfer(
       String httpNode, String value, byte[] toAddress, Long amount) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/easytransfer";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3696,7 +3708,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse easyTransferByPrivate(
       String httpNode, String privateKey, byte[] toAddress, Long amount) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/easytransferbyprivate";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3717,7 +3729,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse easyTransferAsset(
       String httpNode, String value, byte[] toAddress, Long amount, String assetId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/easytransferasset";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3739,7 +3751,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse easyTransferAssetByPrivate(
       String httpNode, String privateKey, byte[] toAddress, Long amount, String assetId) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/easytransferassetbyprivate";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3760,7 +3772,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getContractInfo(String httpNode, String contractAddress) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getcontractinfo";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3851,7 +3863,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse clearABiGetTxid(
       String httpNode, byte[] ownerAddress, String contractAddress, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/clearabi";
       JsonObject userBaseObj2 = new JsonObject();
@@ -3967,7 +3979,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getSpendingKey(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getspendingkey";
       response = createConnect(requestUrl);
@@ -3980,7 +3992,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getDiversifier(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getdiversifier";
       response = createConnect(requestUrl);
@@ -3993,7 +4005,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getRcm(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getrcm";
       response = createConnect(requestUrl);
@@ -4006,7 +4018,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getExpandedSpendingKey(String httpNode, String spendingKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getexpandedspendingkey";
       JsonObject userBaseObj2 = new JsonObject();
@@ -4021,7 +4033,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getAkFromAsk(String httpNode, String ask) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getakfromask";
       JsonObject userBaseObj2 = new JsonObject();
@@ -4036,7 +4048,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getNkFromNsk(String httpNode, String nsk) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnkfromnsk";
       JsonObject userBaseObj2 = new JsonObject();
@@ -4051,7 +4063,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getIncomingViewingKey(String httpNode, String ak, String nk) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getincomingviewingkey";
       JsonObject userBaseObj2 = new JsonObject();
@@ -4067,7 +4079,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getNewShieldedAddress(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getnewshieldedaddress";
       response = createConnect(requestUrl);
@@ -4080,7 +4092,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getZenPaymentAddress(String httpNode, String ivk, String d) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getzenpaymentaddress";
       JsonObject userBaseObj2 = new JsonObject();
@@ -4097,7 +4109,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMerkleTreeVoucherInfo(
       String httpNode, String hash, Integer index, int blockNum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getmerkletreevoucherinfo";
       JSONObjectWarp jsonObjectWarp = new JSONObjectWarp();
@@ -4120,7 +4132,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMerkleTreeVoucherInfoFromSolidity(
       String httpSolidityNode, String hash, Integer index, int blockNum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getmerkletreevoucherinfo";
       JSONObjectWarp jsonObjectWarp = new JSONObjectWarp();
@@ -4143,7 +4155,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMerkleTreeVoucherInfoFromPbft(
       String httpSolidityNode, String hash, Integer index, int blockNum) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getmerkletreevoucherinfo";
       JSONObjectWarp jsonObjectWarp = new JSONObjectWarp();
@@ -4174,7 +4186,7 @@ public class HttpMethod {
       byte[] publicZenTokenToAddress,
       long toAmount,
       String zenTokenOwnerKey) {
-        HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/createshieldedtransaction";
 
@@ -4252,7 +4264,8 @@ public class HttpMethod {
       String transactionString = EntityUtils.toString(response.getEntity());
       logger.info(transactionString);
       if (!ByteUtil.isNullOrZeroArray(publicZenTokenOwnerAddress)) {
-        String transactionSignString = gettransactionsign(httpNode, transactionString, zenTokenOwnerKey);
+        String transactionSignString =
+            gettransactionsign(httpNode, transactionString, zenTokenOwnerKey);
         logger.info(transactionSignString);
         response = broadcastTransaction(httpNode, transactionSignString);
       } else {
@@ -4271,7 +4284,7 @@ public class HttpMethod {
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/isspend";
 
-      HttpResponse response = 
+      HttpResponse response =
           HttpMethod.getExpandedSpendingKey(httpNode, ByteArray.toHexString(shieldAddressInfo.sk));
       JSONObject responseContent = HttpMethod.parseResponseContent(response);
       String ask = responseContent.getString("ask");
@@ -4325,7 +4338,7 @@ public class HttpMethod {
     try {
       final String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/isspend";
 
-      HttpResponse response = 
+      HttpResponse response =
           HttpMethod.getExpandedSpendingKey(httpNode, ByteArray.toHexString(shieldAddressInfo.sk));
       JSONObject responseContent = HttpMethod.parseResponseContent(response);
       String ask = responseContent.getString("ask");
@@ -4380,7 +4393,7 @@ public class HttpMethod {
       final String requestUrl = "http://" + httpSolidityNode + "/walletpbft/isspend";
       final JSONObjectWarp jsonObjectWarp = new JSONObjectWarp();
 
-      HttpResponse response = 
+      HttpResponse response =
           HttpMethod.getExpandedSpendingKey(httpNode, ByteArray.toHexString(shieldAddressInfo.sk));
       JSONObject responseContent = HttpMethod.parseResponseContent(response);
       String ask = responseContent.getString("ask");
@@ -4624,7 +4637,7 @@ public class HttpMethod {
   public static List<ShieldNoteInfo> scanAndMarkNoteByIvk(
       String httpNode, ShieldAddressInfo shieldAddressInfo) {
     try {
-      HttpResponse response = 
+      HttpResponse response =
           HttpMethod.getExpandedSpendingKey(httpNode, ByteArray.toHexString(shieldAddressInfo.sk));
       JSONObject responseContent = HttpMethod.parseResponseContent(response);
       String ask = responseContent.getString("ask");
@@ -4691,7 +4704,7 @@ public class HttpMethod {
   public static List<ShieldNoteInfo> scanAndMarkNoteByIvkFromSolidity(
       String httpNode, String httpSolidityNode, ShieldAddressInfo shieldAddressInfo) {
     try {
-      HttpResponse response = 
+      HttpResponse response =
           HttpMethod.getExpandedSpendingKey(httpNode, ByteArray.toHexString(shieldAddressInfo.sk));
       JSONObject responseContent = HttpMethod.parseResponseContent(response);
       String ask = responseContent.getString("ask");
@@ -4759,7 +4772,7 @@ public class HttpMethod {
   public static List<ShieldNoteInfo> scanAndMarkNoteByIvkFromPbft(
       String httpNode, String httpSolidityNode, ShieldAddressInfo shieldAddressInfo) {
     try {
-      HttpResponse response = 
+      HttpResponse response =
           HttpMethod.getExpandedSpendingKey(httpNode, ByteArray.toHexString(shieldAddressInfo.sk));
       JSONObject responseContent = HttpMethod.parseResponseContent(response);
       String ask = responseContent.getString("ask");
@@ -4933,7 +4946,7 @@ public class HttpMethod {
       byte[] publicZenTokenToAddress,
       long toAmount,
       String zenTokenOwnerKey) {
-        HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl =
           "http://" + httpNode + "/wallet/createshieldedtransactionwithoutspendauthsig";
@@ -5065,7 +5078,8 @@ public class HttpMethod {
       }
 
       if (!ByteUtil.isNullOrZeroArray(publicZenTokenOwnerAddress)) {
-        String transactionSignString = gettransactionsign(httpNode, transactionString, zenTokenOwnerKey);
+        String transactionSignString =
+            gettransactionsign(httpNode, transactionString, zenTokenOwnerKey);
         logger.info(transactionSignString);
         response = broadcastTransaction(httpNode, transactionSignString);
       } else {
@@ -5091,7 +5105,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse updateBrokerage(
       String httpNode, byte[] ownerAddress, Long brokerage, String fromKey) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/updateBrokerage";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5112,7 +5126,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse updateBrokerageOnVisible(
       String httpNode, byte[] ownerAddress, Long brokerage, String fromKey, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/updateBrokerage";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5137,7 +5151,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getReward(String httpNode, byte[] address) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getReward";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5153,7 +5167,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getRewardFromSolidity(String httpSolidityNode, byte[] address) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getReward";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5169,7 +5183,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getRewardFromPbft(String httpSolidityNode, byte[] address) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getReward";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5185,7 +5199,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBrokerage(String httpNode, byte[] address) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getBrokerage";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5201,7 +5215,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBrokerageFromSolidity(String httpSolidityNode, byte[] address) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getBrokerage";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5217,7 +5231,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getRewardOnVisible(String httpNode, byte[] address, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getReward";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5239,7 +5253,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getRewardFromSolidityOnVisible(
       String httpSolidityNode, byte[] address, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getReward";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5261,7 +5275,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getBrokerageOnVisible(
       String httpNode, byte[] address, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/getBrokerage";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5283,7 +5297,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getBrokerageFromSolidityOnVisible(
       String httpSolidityNode, byte[] address, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getBrokerage";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5304,7 +5318,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getBrokerageFromPbft(String httpSolidityNode, byte[] address) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpSolidityNode + "/walletpbft/getBrokerage";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5327,7 +5341,7 @@ public class HttpMethod {
       Long buyTokenQuantity,
       String fromKey,
       String visible) {
-      String transactionSignString = null;
+    String transactionSignString = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/marketsellasset";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5359,7 +5373,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getMarketOrderById(String httpNode, String orderId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getmarketorderbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5376,7 +5390,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderByIdFromSolidity(
       String httpSolidityNode, String orderId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getmarketorderbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5393,7 +5407,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderByIdFromPbft(
       String httpPbftNode, String orderId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpPbftNode + "/walletpbft/getmarketorderbyid";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5410,7 +5424,7 @@ public class HttpMethod {
   /** constructor. */
   public static String marketCancelOrder(
       String httpNode, byte[] ownerAddress, String orderId, String fromKey, String visible) {
-      String transactionSignString = null;
+    String transactionSignString = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/marketcancelorder";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5438,7 +5452,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderByAccount(
       String httpNode, byte[] ownerAddress, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getmarketorderbyaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5459,7 +5473,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderByAccountFromSolidity(
       String httpSolidityNode, byte[] ownerAddress, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getmarketorderbyaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5480,7 +5494,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderByAccountFromPbft(
       String httpPbftNode, byte[] ownerAddress, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpPbftNode + "/walletpbft/getmarketorderbyaccount";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5500,7 +5514,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getMarketPairList(String httpNode, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getmarketpairlist";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5516,7 +5530,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketPairListFromSolidity(
       String httpSolidityNode, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getmarketpairlist";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5531,7 +5545,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getMarketPairListFromPbft(String httpPbftNode, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpPbftNode + "/walletpbft/getmarketpairlist";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5547,7 +5561,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderListByPair(
       String httpNode, String sellTokenId, String buyTokenId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getmarketorderlistbypair";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5570,7 +5584,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderListByPairFromSolidity(
       String httpSolidityNode, String sellTokenId, String buyTokenId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getmarketorderlistbypair";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5593,7 +5607,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketOrderListByPairFromPbft(
       String httpPbftNode, String sellTokenId, String buyTokenId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpPbftNode + "/walletpbft/getmarketorderlistbypair";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5616,7 +5630,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketPriceByPair(
       String httpNode, String sellTokenId, String buyTokenId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getmarketpricebypair";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5639,7 +5653,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketPriceByPairFromSolidity(
       String httpSolidityNode, String sellTokenId, String buyTokenId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpSolidityNode + "/walletsolidity/getmarketpricebypair";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5662,7 +5676,7 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getMarketPriceByPairFromPbft(
       String httpPbftNode, String sellTokenId, String buyTokenId, String visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpPbftNode + "/walletpbft/getmarketpricebypair";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5684,7 +5698,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static int getTransactionPendingSize(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getpendingsize";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5699,7 +5713,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionListFromPending(String httpNode) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/gettransactionlistfrompending";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5713,7 +5727,7 @@ public class HttpMethod {
 
   /** constructor. */
   public static HttpResponse getTransactionFromPending(String httpNode, String txid) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/gettransactionfrompending";
       JsonObject userBaseObj2 = new JsonObject();
@@ -5726,12 +5740,15 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
-  public static HttpResponse getCanDelegatedMaxSize(String httpNode,  byte[] ownerAddress, Long type, boolean visible) {
-      HttpResponse response = null;
+
+  public static HttpResponse getCanDelegatedMaxSize(
+      String httpNode, byte[] ownerAddress, Long type, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getcandelegatedmaxsize";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("type", type);
       requestParam.addProperty("visible", visible);
@@ -5742,12 +5759,15 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
-  public static HttpResponse getAvailableUnfreezeCount(String httpNode, byte[] ownerAddress, boolean visible) {
-      HttpResponse response = null;
+
+  public static HttpResponse getAvailableUnfreezeCount(
+      String httpNode, byte[] ownerAddress, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getavailableunfreezecount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5757,13 +5777,15 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
+
   public static HttpResponse getCanWithdrawUnfreezeAmount(
       String httpNode, byte[] ownerAddress, Long timestamp, boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getcanwithdrawunfreezeamount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("timestamp", timestamp);
       requestParam.addProperty("visible", visible);
@@ -5774,15 +5796,18 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
+
   public static HttpResponse getDelegatedResourceV2(
       String httpNode, byte[] fromAddress, byte[] toAddress, boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresourcev2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("fromAddress",
+      requestParam.addProperty(
+          "fromAddress",
           visible ? Base58.encode58Check(fromAddress) : ByteArray.toHexString(fromAddress));
-      requestParam.addProperty("toAddress",
+      requestParam.addProperty(
+          "toAddress",
           visible ? Base58.encode58Check(toAddress) : ByteArray.toHexString(toAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5792,46 +5817,52 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
-  public static HttpResponse getDelegatedResourceAccountIndexV2(String httpNode, byte[] address, boolean visible) {
-      HttpResponse response = null;
+
+  public static HttpResponse getDelegatedResourceAccountIndexV2(
+      String httpNode, byte[] address, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/getdelegatedresourceaccountindexv2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("value",
-          visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
+      requestParam.addProperty(
+          "value", visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
   public static HttpResponse getCanDelegatedMaxSizeSolidity(
-      String httpNodeSolidity,  byte[] ownerAddress, Long type, boolean visible) {
-      HttpResponse response = null;
+      String httpNodeSolidity, byte[] ownerAddress, Long type, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getcandelegatedmaxsize";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("type", type);
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
-    }catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return response;
   }
   /** constructor. */
+
   public static HttpResponse getAvailableUnfreezeCountSolidity(
-      String httpNodeSolidity, byte[] ownerAddress, boolean visible){
-      HttpResponse response = null;
+      String httpNodeSolidity, byte[] ownerAddress, boolean visible) {
+    HttpResponse response = null;
     try {
-      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getavailableunfreezecount";
+      String requestUrl =
+          "http://" + httpNodeSolidity + "/walletsolidity/getavailableunfreezecount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5841,13 +5872,16 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
+
   public static HttpResponse getCanWithdrawUnfreezeAmountSolidity(
-      String httpNodeSolidity, byte[] ownerAddress, Long timestamp, boolean visible){
-      HttpResponse response = null;
+      String httpNodeSolidity, byte[] ownerAddress, Long timestamp, boolean visible) {
+    HttpResponse response = null;
     try {
-      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getcanwithdrawunfreezeamount";
+      String requestUrl =
+          "http://" + httpNodeSolidity + "/walletsolidity/getcanwithdrawunfreezeamount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("timestamp", timestamp);
       requestParam.addProperty("visible", visible);
@@ -5858,15 +5892,18 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
+
   public static HttpResponse getDelegatedResourceV2Solidity(
-      String httpNodeSolidity, byte[] fromAddress, byte[] toAddress,boolean visible) {
-      HttpResponse response = null;
+      String httpNodeSolidity, byte[] fromAddress, byte[] toAddress, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourcev2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("fromAddress",
+      requestParam.addProperty(
+          "fromAddress",
           visible ? Base58.encode58Check(fromAddress) : ByteArray.toHexString(fromAddress));
-      requestParam.addProperty("toAddress",
+      requestParam.addProperty(
+          "toAddress",
           visible ? Base58.encode58Check(toAddress) : ByteArray.toHexString(toAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5879,26 +5916,30 @@ public class HttpMethod {
   /** constructor. */
   public static HttpResponse getDelegatedResourceAccountIndexV2Solidity(
       String httpNodeSolidity, byte[] address, boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
-      String requestUrl = "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourceaccountindexv2";
+      String requestUrl =
+          "http://" + httpNodeSolidity + "/walletsolidity/getdelegatedresourceaccountindexv2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("value",
-          visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
+      requestParam.addProperty(
+          "value", visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return  response;
+    return response;
   }
   /** constructor. */
-  public static HttpResponse getCanDelegatedMaxSizePbft(String httpNode,  byte[] ownerAddress, Long type, boolean visible) {
-      HttpResponse response = null;
+
+  public static HttpResponse getCanDelegatedMaxSizePbft(
+      String httpNode, byte[] ownerAddress, Long type, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getcandelegatedmaxsize";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("type", type);
       requestParam.addProperty("visible", visible);
@@ -5909,12 +5950,15 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
-  public static HttpResponse getAvailableUnfreezeCountPbft(String httpNode, byte[] ownerAddress, boolean visible) {
-      HttpResponse response = null;
+
+  public static HttpResponse getAvailableUnfreezeCountPbft(
+      String httpNode, byte[] ownerAddress, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getavailableunfreezecount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5924,13 +5968,15 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
+
   public static HttpResponse getCanWithdrawUnfreezeAmountPbft(
       String httpNode, byte[] ownerAddress, Long timestamp, boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getcanwithdrawunfreezeamount";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       requestParam.addProperty("timestamp", timestamp);
       requestParam.addProperty("visible", visible);
@@ -5941,15 +5987,18 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
+
   public static HttpResponse getDelegatedResourceV2Pbft(
       String httpNode, byte[] fromAddress, byte[] toAddress, boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getdelegatedresourcev2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("fromAddress",
+      requestParam.addProperty(
+          "fromAddress",
           visible ? Base58.encode58Check(fromAddress) : ByteArray.toHexString(fromAddress));
-      requestParam.addProperty("toAddress",
+      requestParam.addProperty(
+          "toAddress",
           visible ? Base58.encode58Check(toAddress) : ByteArray.toHexString(toAddress));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
@@ -5959,19 +6008,21 @@ public class HttpMethod {
     return response;
   }
   /** constructor. */
-  public static HttpResponse getDelegatedResourceAccountIndexV2Pbft(String httpNode, byte[] address, boolean visible) {
-      HttpResponse response = null;
+
+  public static HttpResponse getDelegatedResourceAccountIndexV2Pbft(
+      String httpNode, byte[] address, boolean visible) {
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/getdelegatedresourceaccountindexv2";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("value",
-          visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
+      requestParam.addProperty(
+          "value", visible ? Base58.encode58Check(address) : ByteArray.toHexString(address));
       requestParam.addProperty("visible", visible);
       response = createConnect(requestUrl, requestParam);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
@@ -5986,18 +6037,22 @@ public class HttpMethod {
       long call_value,
       long call_token_value,
       long token_id) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
-      if(contractAddress == null){
+      if (contractAddress == null) {
         String tem = null;
         requestParam.addProperty("contract_address", tem);
-      }else {
-        requestParam.addProperty("contract_address",
-            visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+      } else {
+        requestParam.addProperty(
+            "contract_address",
+            visible
+                ? Base58.encode58Check(contractAddress)
+                : ByteArray.toHexString(contractAddress));
       }
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6007,7 +6062,7 @@ public class HttpMethod {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
@@ -6018,13 +6073,15 @@ public class HttpMethod {
       String functionSelector,
       String parameter,
       boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletsolidity/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
-      requestParam.addProperty("contract_address",
+      requestParam.addProperty(
+          "contract_address",
           visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6033,7 +6090,7 @@ public class HttpMethod {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return  response;
+    return response;
   }
 
   /** constructor. */
@@ -6044,13 +6101,15 @@ public class HttpMethod {
       String functionSelector,
       String parameter,
       boolean visible) {
-      HttpResponse response = null;
+    HttpResponse response = null;
     try {
       String requestUrl = "http://" + httpNode + "/walletpbft/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
+      requestParam.addProperty(
+          "owner_address",
           visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
-      requestParam.addProperty("contract_address",
+      requestParam.addProperty(
+          "contract_address",
           visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6059,32 +6118,37 @@ public class HttpMethod {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return  response;
+    return response;
   }
   /** constructor. */
+
   public static HttpResponse getEstimateEnergyDeployContract(
-          String httpNode,
-          byte[] ownerAddress,
-          byte[] contractAddress,
-          String functionSelector,
-          String parameter,
-          String data,
-          long call_value,
-          long call_token_value,
-          long token_id,
-          boolean visible) {
-      HttpResponse response = null;
+      String httpNode,
+      byte[] ownerAddress,
+      byte[] contractAddress,
+      String functionSelector,
+      String parameter,
+      String data,
+      long call_value,
+      long call_token_value,
+      long token_id,
+      boolean visible) {
+    HttpResponse response = null;
     try {
       final String requestUrl = "http://" + httpNode + "/wallet/estimateenergy";
       JsonObject requestParam = new JsonObject();
-      requestParam.addProperty("owner_address",
-              visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
+      requestParam.addProperty(
+          "owner_address",
+          visible ? Base58.encode58Check(ownerAddress) : ByteArray.toHexString(ownerAddress));
       if (contractAddress == null) {
         String tem = null;
         requestParam.addProperty("contract_address", tem);
       } else {
-        requestParam.addProperty("contract_address",
-                visible ? Base58.encode58Check(contractAddress) : ByteArray.toHexString(contractAddress));
+        requestParam.addProperty(
+            "contract_address",
+            visible
+                ? Base58.encode58Check(contractAddress)
+                : ByteArray.toHexString(contractAddress));
       }
       requestParam.addProperty("function_selector", functionSelector);
       requestParam.addProperty("parameter", parameter);
@@ -6099,9 +6163,6 @@ public class HttpMethod {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return  response;
+    return response;
   }
-
-
-
 }

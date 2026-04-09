@@ -20,8 +20,8 @@ import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TransactionUtils;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class ParticipateAssetIssue extends TronBaseTest {
@@ -34,7 +34,7 @@ public class ParticipateAssetIssue extends TronBaseTest {
   private static long afterParticipateAssetIssueBalance;
   private static long start1;
   private static long end1;
-  //testng001、testng002、testng003、testng004 only for test
+  // testng001、testng002、testng003、testng004 only for test
   private final String testKey002 =
       "FC8BF0238748587B9617EB6D15D47A66C0E07C1A1959033CF249C6532DC29FE6";
   private final String testKey003 =
@@ -45,7 +45,7 @@ public class ParticipateAssetIssue extends TronBaseTest {
   Long publicFreeAssetNetLimit = 300000000L;
   String description = "f";
   String url = "h";
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] createAddress = ecKey1.getAddress();
   String testKeyForCreate = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -53,11 +53,14 @@ public class ParticipateAssetIssue extends TronBaseTest {
   byte[] participateAssetAddress = ecKey2.getAddress();
   String testKeyForParticipate = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-  public static boolean participateAssetIssue(byte[] to, byte[] assertName, long amount,
-      byte[] from, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /** constructor. */
+  public static boolean participateAssetIssue(
+      byte[] to,
+      byte[] assertName,
+      long amount,
+      byte[] from,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -68,8 +71,7 @@ public class ParticipateAssetIssue extends TronBaseTest {
     final ECKey ecKey = temKey;
 
     AssetIssueContractOuterClass.ParticipateAssetIssueContract.Builder builder =
-        AssetIssueContractOuterClass.ParticipateAssetIssueContract
-            .newBuilder();
+        AssetIssueContractOuterClass.ParticipateAssetIssueContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(from);
@@ -88,24 +90,25 @@ public class ParticipateAssetIssue extends TronBaseTest {
     }
   }
 
-  /**
-   * constructor.
-   */
-  public static Protocol.Transaction signTransaction(ECKey ecKey,
-      Protocol.Transaction transaction) {
+  /** constructor. */
+  public static Protocol.Transaction signTransaction(
+      ECKey ecKey, Protocol.Transaction transaction) {
     if (ecKey == null || ecKey.getPrivKey() == null) {
-      //logger.warn("Warning: Can't sign,there is no private key !!");
+      // logger.warn("Warning: Can't sign,there is no private key !!");
       return null;
     }
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
 
-  /**
-   * constructor.
-   */
-  public static boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
-      String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+  /** constructor. */
+  public static boolean transferAsset(
+      byte[] to,
+      byte[] assertName,
+      long amount,
+      byte[] address,
+      String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
     ECKey temKey = null;
     try {
       BigInteger priK = new BigInteger(priKey, 16);
@@ -116,8 +119,7 @@ public class ParticipateAssetIssue extends TronBaseTest {
     final ECKey ecKey = temKey;
 
     AssetIssueContractOuterClass.TransferAssetContract.Builder builder =
-        AssetIssueContractOuterClass.TransferAssetContract
-            .newBuilder();
+        AssetIssueContractOuterClass.TransferAssetContract.newBuilder();
     ByteString bsTo = ByteString.copyFrom(to);
     ByteString bsName = ByteString.copyFrom(assertName);
     ByteString bsOwner = ByteString.copyFrom(address);
@@ -130,57 +132,71 @@ public class ParticipateAssetIssue extends TronBaseTest {
     Protocol.Transaction transaction = blockingStubFull.transferAsset(contract);
     if (transaction == null || transaction.getRawData().getContractCount() == 0) {
       if (transaction == null) {
-        //logger.info("transaction == null");
+        // logger.info("transaction == null");
       } else {
-        //logger.info("transaction.getRawData().getContractCount() == 0");
+        // logger.info("transaction.getRawData().getContractCount() == 0");
       }
       return false;
     }
     transaction = signTransaction(ecKey, transaction);
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
     if (response.getResult() == false) {
-      //logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
+      // logger.info(ByteArray.toStr(response.getMessage().toByteArray()));
       return false;
     } else {
-      //Protocol.Account search = queryAccount(ecKey, blockingStubFull);
+      // Protocol.Account search = queryAccount(ecKey, blockingStubFull);
       return true;
     }
   }
 
-
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = false)
   public void beforeClass() {
     logger.info(testKeyForCreate);
     logger.info(testKeyForParticipate);
-  //Send coin to 2 account.
-    Assert.assertTrue(PublicMethod.sendcoin(createAddress, sendAmount, foundationAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethod.sendcoin(participateAssetAddress, sendAmount,
-        foundationAddress, testKey002, blockingStubFull));
-  //Participate account freeze balance to get bandwidth.
-    Assert.assertTrue(PublicMethod.freezeBalance(participateAssetAddress,
-        10000000L, 3, testKeyForParticipate, blockingStubFull));
-  //Create an asset issue.
+    // Send coin to 2 account.
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            createAddress, sendAmount, foundationAddress, testKey002, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            participateAssetAddress, sendAmount, foundationAddress, testKey002, blockingStubFull));
+    // Participate account freeze balance to get bandwidth.
+    Assert.assertTrue(
+        PublicMethod.freezeBalance(
+            participateAssetAddress, 10000000L, 3, testKeyForParticipate, blockingStubFull));
+    // Create an asset issue.
     Long start = System.currentTimeMillis() + 2000;
-  Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethod.createAssetIssue(createAddress, name, totalSupply, 1, 1,
-        start, end, 1, description, url, freeAssetNetLimit, publicFreeAssetNetLimit,
-        10L, 10L, testKeyForCreate, blockingStubFull));
+    Long end = System.currentTimeMillis() + 1000000000;
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            createAddress,
+            name,
+            totalSupply,
+            1,
+            1,
+            start,
+            end,
+            1,
+            description,
+            url,
+            freeAssetNetLimit,
+            publicFreeAssetNetLimit,
+            10L,
+            10L,
+            testKeyForCreate,
+            blockingStubFull));
     try {
       Thread.sleep(5000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
     final Account createInfo = PublicMethod.queryAccount(testKeyForCreate, blockingStubFull);
-  final Account participateInfo = PublicMethod.queryAccount(testKeyForParticipate,
-        blockingStubFull);
+    final Account participateInfo =
+        PublicMethod.queryAccount(testKeyForParticipate, blockingStubFull);
 
     Map<String, Long> assetIssueMap = new HashMap<String, Long>();
-  Long temp = 0L;
+    Long temp = 0L;
     assetIssueMap = createInfo.getAssetMap();
     for (String key : assetIssueMap.keySet()) {
 
@@ -194,8 +210,12 @@ public class ParticipateAssetIssue extends TronBaseTest {
     start1 = System.currentTimeMillis();
   }
 
-  //@Test(enabled = false, groups = {"full"})
-  @Test(enabled = false, threadPoolSize = 250, invocationCount = 250, groups = {"full"})
+  // @Test(enabled = false, groups = {"full"})
+  @Test(
+      enabled = false,
+      threadPoolSize = 250,
+      invocationCount = 250,
+      groups = {"full"})
   public void testParticipateAssetIssue() throws InterruptedException {
     Integer i = 0;
     Integer randNum;
@@ -203,26 +223,29 @@ public class ParticipateAssetIssue extends TronBaseTest {
     while (i < 20) {
       randNum = i % 4;
       i++;
-      fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")
-          .get(randNum);      participateAssetIssue(createAddress, name.getBytes(),
-          1, participateAssetAddress, testKeyForParticipate, blockingStubFull);
+      fullnode =
+          Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list").get(randNum);
+      participateAssetIssue(
+          createAddress,
+          name.getBytes(),
+          1,
+          participateAssetAddress,
+          testKeyForParticipate,
+          blockingStubFull);
     }
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = false)
   public void shutdown() throws InterruptedException {
-    //Print the duration.
+    // Print the duration.
     end1 = System.currentTimeMillis();
     logger.info("The time is " + Long.toString(end1 - start1));
 
     Account createInfo = PublicMethod.queryAccount(testKeyForCreate, blockingStubFull);
 
     Map<String, Long> createAssetIssueMap = new HashMap<String, Long>();
-  Long temp = 0L;
+    Long temp = 0L;
     createAssetIssueMap = createInfo.getAssetMap();
     for (String key : createAssetIssueMap.keySet()) {
 
@@ -244,25 +267,34 @@ public class ParticipateAssetIssue extends TronBaseTest {
     }
     afterParticipateAssetIssueBalance = temp;
 
-    logger.info("Create account has balance " + Long.toString(beforeCreateAssetIssueBalance)
-        + " at the beginning");
-    logger.info("Create account has balance " + Long.toString(afterCreateAssetIssueBalance)
-        + " at the end");
-    logger.info("Create account reduce balance " + Long.toString(beforeCreateAssetIssueBalance
-        - afterCreateAssetIssueBalance));
-    logger.info("Participate account total success transaction is "
-        + Long.toString(afterParticipateAssetIssueBalance));
+    logger.info(
+        "Create account has balance "
+            + Long.toString(beforeCreateAssetIssueBalance)
+            + " at the beginning");
+    logger.info(
+        "Create account has balance "
+            + Long.toString(afterCreateAssetIssueBalance)
+            + " at the end");
+    logger.info(
+        "Create account reduce balance "
+            + Long.toString(beforeCreateAssetIssueBalance - afterCreateAssetIssueBalance));
+    logger.info(
+        "Participate account total success transaction is "
+            + Long.toString(afterParticipateAssetIssueBalance));
 
     Integer blockTimes = 0;
     Integer blockTransParticipateNum = 0;
 
     while (blockTimes < 5) {
       blockTimes++;
-  //Print the current block transaction num.
+      // Print the current block transaction num.
       Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
-  Long currentNum = currentBlock.getBlockHeader().getRawData().getNumber();
-      logger.info("The block num " + Long.toString(currentNum)
-          + " total transaction is " + Long.toString(currentBlock.getTransactionsCount()));
+      Long currentNum = currentBlock.getBlockHeader().getRawData().getNumber();
+      logger.info(
+          "The block num "
+              + Long.toString(currentNum)
+              + " total transaction is "
+              + Long.toString(currentBlock.getTransactionsCount()));
       try {
         Thread.sleep(3000);
       } catch (InterruptedException e) {
@@ -295,13 +327,14 @@ public class ParticipateAssetIssue extends TronBaseTest {
     }
     afterParticipateAssetIssueBalance = temp;
 
-    logger.info("Create account has balance " + Long.toString(beforeCreateAssetIssueBalance)
-        + "at the beginning");
-    logger.info("Create account has balance " + Long.toString(afterCreateAssetIssueBalance)
-        + "at the end");
-    logger.info("Participate account total success transaction is "
-        + Long.toString(afterParticipateAssetIssueBalance));  }
-
+    logger.info(
+        "Create account has balance "
+            + Long.toString(beforeCreateAssetIssueBalance)
+            + "at the beginning");
+    logger.info(
+        "Create account has balance " + Long.toString(afterCreateAssetIssueBalance) + "at the end");
+    logger.info(
+        "Participate account total success transaction is "
+            + Long.toString(afterParticipateAssetIssueBalance));
+  }
 }
-
-

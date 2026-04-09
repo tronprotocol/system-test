@@ -1,6 +1,5 @@
 package stest.tron.wallet.common.client.utils.services;
 
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.ByteString;
@@ -23,7 +22,6 @@ import stest.tron.wallet.common.client.utils.CommonParameter;
 import stest.tron.wallet.common.client.utils.Hash;
 import stest.tron.wallet.common.client.utils.JsonFormat;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
-
 
 @Slf4j(topic = "API")
 public class Util {
@@ -49,7 +47,7 @@ public class Util {
     return jsonObject.toJSONString();
   }
 
-/*  public static String printBlockList(BlockList list, boolean selfType) {
+  /*  public static String printBlockList(BlockList list, boolean selfType) {
     List<Block> blocks = list.getBlockList();
     JSONObject jsonObject = JSONObject.parseObject(JsonFormat.printToString(list, selfType));
     JSONArray jsonArray = new JSONArray();
@@ -59,11 +57,11 @@ public class Util {
     return jsonObject.toJSONString();
   }*/
 
-/*  public static String printBlock(Block block, boolean selfType) {
+  /*  public static String printBlock(Block block, boolean selfType) {
     return printBlockToJSON(block, selfType).toJSONString();
   }*/
 
-/*  public static JSONObject printBlockToJSON(Block block, boolean selfType) {
+  /*  public static JSONObject printBlockToJSON(Block block, boolean selfType) {
 
     BlockCapsule blockCapsule = new BlockCapsule(block);
     String blockID = ByteArray.toHexString(blockCapsule.getBlockId().getBytes());
@@ -76,21 +74,18 @@ public class Util {
     return jsonObject;
   }*/
 
-
   public static String printTransactionIdList(TransactionIdList list, boolean selfType) {
     JSONObject jsonObject = JSONObject.parseObject(JsonFormat.printToString(list, selfType));
 
     return jsonObject.toJSONString();
   }
 
-
-
-
   public static byte[] generateContractAddress(Transaction trx, byte[] ownerAddress) {
     // get tx hash
-    byte[] txRawDataHash = Sha256Hash
-        .of(CommonParameter.getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())
-        .getBytes();
+    byte[] txRawDataHash =
+        Sha256Hash.of(
+                CommonParameter.getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())
+            .getBytes();
 
     // combine
     byte[] combined = new byte[txRawDataHash.length + ownerAddress.length];
@@ -99,9 +94,6 @@ public class Util {
 
     return Hash.sha3omit12(combined);
   }
-
-
-
 
   public static boolean getVisible(final HttpServletRequest request) {
     boolean visible = false;
@@ -145,8 +137,8 @@ public class Util {
     return ByteArray.toHexString(ByteString.copyFromUtf8(string).toByteArray());
   }
 
-  public static Transaction setTransactionPermissionId(JSONObject jsonObject,
-      Transaction transaction) {
+  public static Transaction setTransactionPermissionId(
+      JSONObject jsonObject, Transaction transaction) {
     if (jsonObject.containsKey(PERMISSION_ID)) {
       int permissionId = jsonObject.getInteger(PERMISSION_ID);
       return setTransactionPermissionId(permissionId, transaction);
@@ -158,8 +150,8 @@ public class Util {
   public static Transaction setTransactionPermissionId(int permissionId, Transaction transaction) {
     if (permissionId > 0) {
       Transaction.raw.Builder raw = transaction.getRawData().toBuilder();
-      Transaction.Contract.Builder contract = raw.getContract(0).toBuilder()
-          .setPermissionId(permissionId);
+      Transaction.Contract.Builder contract =
+          raw.getContract(0).toBuilder().setPermissionId(permissionId);
       raw.clearContract();
       raw.addContract(contract);
       return transaction.toBuilder().setRawData(raw).build();
@@ -168,8 +160,8 @@ public class Util {
     return transaction;
   }
 
-  public static Transaction setTransactionExtraData(JSONObject jsonObject,
-      Transaction transaction, boolean visible) {
+  public static Transaction setTransactionExtraData(
+      JSONObject jsonObject, Transaction transaction, boolean visible) {
     if (jsonObject.containsKey(EXTRA_DATA)) {
       String data = jsonObject.getString(EXTRA_DATA);
       return setTransactionExtraData(data, transaction, visible);
@@ -178,8 +170,8 @@ public class Util {
     return transaction;
   }
 
-  public static Transaction setTransactionExtraData(String data, Transaction transaction,
-      boolean visible) {
+  public static Transaction setTransactionExtraData(
+      String data, Transaction transaction, boolean visible) {
     if (data.length() > 0) {
       Transaction.raw.Builder raw = transaction.getRawData().toBuilder();
       if (visible) {
@@ -206,7 +198,7 @@ public class Util {
   public static String parseMethod(String methodSign, String input) {
     byte[] selector = new byte[4];
     System.arraycopy(Hash.sha3(methodSign.getBytes()), 0, selector, 0, 4);
-    //System.out.println(methodSign + ":" + Hex.toHexString(selector));
+    // System.out.println(methodSign + ":" + Hex.toHexString(selector));
     if (StringUtils.isEmpty(input)) {
       return Hex.toHexString(selector);
     }
@@ -254,8 +246,8 @@ public class Util {
     } else {
       JSONObject accountJson = JSONObject.parseObject(JsonFormat.printToString(account, false));
       String assetId = accountJson.get("asset_issued_ID").toString();
-      accountJson.put("asset_issued_ID",
-          ByteString.copyFrom(ByteArray.fromHexString(assetId)).toStringUtf8());
+      accountJson.put(
+          "asset_issued_ID", ByteString.copyFrom(ByteArray.fromHexString(assetId)).toStringUtf8());
       return accountJson.toJSONString();
     }
   }
@@ -272,7 +264,4 @@ public class Util {
       response.getWriter().println("{}");
     }
   }
-
-
-
 }

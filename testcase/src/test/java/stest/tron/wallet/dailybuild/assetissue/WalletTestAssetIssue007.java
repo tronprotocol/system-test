@@ -13,8 +13,8 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class WalletTestAssetIssue007 extends TronBaseTest {
@@ -26,15 +26,15 @@ public class WalletTestAssetIssue007 extends TronBaseTest {
   private static final Integer trxNum = 1;
   private static final Integer icoNum = 1;
   private static String name = "AssetIssue007_" + Long.toString(now);
-  private final String testKey003 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key2");
+  private final String testKey003 =
+      Configuration.getByPath("testng.conf").getString("foundationAccount.key2");
   private final byte[] toAddress = PublicMethod.getFinalAddress(testKey003);
   Long freeAssetNetLimit = 10000L;
   Long publicFreeAssetNetLimit = 10000L;
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
+  String description =
+      Configuration.getByPath("testng.conf").getString("defaultParameter.assetDescription");
   String url = Configuration.getByPath("testng.conf").getString("defaultParameter.assetUrl");
-  //get account
+  // get account
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] asset007Address = ecKey1.getAddress();
   String testKeyForAssetIssue007 = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
@@ -42,67 +42,98 @@ public class WalletTestAssetIssue007 extends TronBaseTest {
   byte[] participateAssetAddress = ecKey2.getAddress();
   String participateAssetCreateKey = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethod.printAddress(testKeyForAssetIssue007);
-    PublicMethod.printAddress(participateAssetCreateKey);  }
+    PublicMethod.printAddress(participateAssetCreateKey);
+  }
 
-  @Test(enabled = true, description = "Participate asset issue use participate bandwidth", groups = {"daily"})
+  @Test(
+      enabled = true,
+      description = "Participate asset issue use participate bandwidth",
+      groups = {"daily"})
   public void testParticipateAssetIssueUseParticipateBandwidth() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(asset007Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            asset007Address, sendAmount, foundationAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  Long start = System.currentTimeMillis() + 5000;
-  Long end = System.currentTimeMillis() + 1000000000;
-    Assert.assertTrue(PublicMethod
-        .createAssetIssue(asset007Address, name, totalSupply, trxNum, icoNum, start, end, 1,
-            description, url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L, 1L,
-            testKeyForAssetIssue007, blockingStubFull));
+    Long start = System.currentTimeMillis() + 5000;
+    Long end = System.currentTimeMillis() + 1000000000;
+    Assert.assertTrue(
+        PublicMethod.createAssetIssue(
+            asset007Address,
+            name,
+            totalSupply,
+            trxNum,
+            icoNum,
+            start,
+            end,
+            1,
+            description,
+            url,
+            freeAssetNetLimit,
+            publicFreeAssetNetLimit,
+            1L,
+            1L,
+            testKeyForAssetIssue007,
+            blockingStubFull));
 
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     logger.info(name);
-  //Assert.assertTrue(PublicMethod.waitProduceNextBlock(blockingStubFull));
-  //When no balance, participate an asset issue
-    Assert.assertFalse(PublicMethod
-        .participateAssetIssue(asset007Address, name.getBytes(), 1L, participateAssetAddress,
-            participateAssetCreateKey, blockingStubFull));
+    // Assert.assertTrue(PublicMethod.waitProduceNextBlock(blockingStubFull));
+    // When no balance, participate an asset issue
+    Assert.assertFalse(
+        PublicMethod.participateAssetIssue(
+            asset007Address,
+            name.getBytes(),
+            1L,
+            participateAssetAddress,
+            participateAssetCreateKey,
+            blockingStubFull));
 
     ByteString addressBs = ByteString.copyFrom(asset007Address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     AccountNetMessage asset007NetMessage = blockingStubFull.getAccountNet(request);
-  final Long asset007BeforeFreeNetUsed = asset007NetMessage.getFreeNetUsed();
-  //SendCoin to participate account.
-    Assert.assertTrue(PublicMethod
-        .sendcoin(participateAssetAddress, 10000000L, foundationAddress, foundationKey, blockingStubFull));
+    final Long asset007BeforeFreeNetUsed = asset007NetMessage.getFreeNetUsed();
+    // SendCoin to participate account.
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            participateAssetAddress,
+            10000000L,
+            foundationAddress,
+            foundationKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     addressBs = ByteString.copyFrom(participateAssetAddress);
     request = Account.newBuilder().setAddress(addressBs).build();
     AccountNetMessage participateAccountNetMessage = blockingStubFull.getAccountNet(request);
-  final Long participateAccountBeforeNetUsed = participateAccountNetMessage.getFreeNetUsed();
+    final Long participateAccountBeforeNetUsed = participateAccountNetMessage.getFreeNetUsed();
     Assert.assertTrue(participateAccountBeforeNetUsed == 0);
 
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethod.queryAccount(asset007Address, blockingStubFull);
     ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
     logger.info(assetAccountId.toString());
-  //Participate an assetIssue, then query the net information.
-    Assert.assertTrue(PublicMethod
-        .participateAssetIssue(asset007Address, assetAccountId.toByteArray(), 1L,
-            participateAssetAddress, participateAssetCreateKey, blockingStubFull));
+    // Participate an assetIssue, then query the net information.
+    Assert.assertTrue(
+        PublicMethod.participateAssetIssue(
+            asset007Address,
+            assetAccountId.toByteArray(),
+            1L,
+            participateAssetAddress,
+            participateAssetCreateKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     addressBs = ByteString.copyFrom(asset007Address);
     request = Account.newBuilder().setAddress(addressBs).build();
     asset007NetMessage = blockingStubFull.getAccountNet(request);
-  final Long asset007AfterFreeNetUsed = asset007NetMessage.getFreeNetUsed();
+    final Long asset007AfterFreeNetUsed = asset007NetMessage.getFreeNetUsed();
 
     addressBs = ByteString.copyFrom(participateAssetAddress);
     request = Account.newBuilder().setAddress(addressBs).build();
     participateAccountNetMessage = blockingStubFull.getAccountNet(request);
-  final Long participateAccountAfterNetUsed = participateAccountNetMessage.getFreeNetUsed();
+    final Long participateAccountAfterNetUsed = participateAccountNetMessage.getFreeNetUsed();
 
     logger.info(Long.toString(asset007BeforeFreeNetUsed));
     logger.info(Long.toString(asset007AfterFreeNetUsed));
@@ -111,38 +142,48 @@ public class WalletTestAssetIssue007 extends TronBaseTest {
     Assert.assertTrue(asset007AfterFreeNetUsed <= asset007BeforeFreeNetUsed);
     Assert.assertTrue(participateAccountAfterNetUsed - participateAccountBeforeNetUsed > 150);
 
-    Assert.assertTrue(PublicMethod
-        .participateAssetIssue(asset007Address, assetAccountId.toByteArray(), 1L,
-            participateAssetAddress, participateAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.participateAssetIssue(
+            asset007Address,
+            assetAccountId.toByteArray(),
+            1L,
+            participateAssetAddress,
+            participateAssetCreateKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethod
-        .participateAssetIssue(asset007Address, assetAccountId.toByteArray(), 1L,
-            participateAssetAddress, participateAssetCreateKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.participateAssetIssue(
+            asset007Address,
+            assetAccountId.toByteArray(),
+            1L,
+            participateAssetAddress,
+            participateAssetCreateKey,
+            blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Account participateInfo = PublicMethod
-        .queryAccount(participateAssetCreateKey, blockingStubFull);
-  final Long beforeBalance = participateInfo.getBalance();
-    Assert.assertTrue(PublicMethod
-        .participateAssetIssue(asset007Address, assetAccountId.toByteArray(), 1L,
-            participateAssetAddress, participateAssetCreateKey, blockingStubFull));
+    Account participateInfo =
+        PublicMethod.queryAccount(participateAssetCreateKey, blockingStubFull);
+    final Long beforeBalance = participateInfo.getBalance();
+    Assert.assertTrue(
+        PublicMethod.participateAssetIssue(
+            asset007Address,
+            assetAccountId.toByteArray(),
+            1L,
+            participateAssetAddress,
+            participateAssetCreateKey,
+            blockingStubFull));
     participateInfo = PublicMethod.queryAccount(participateAssetCreateKey, blockingStubFull);
-  final Long afterBalance = participateInfo.getBalance();
+    final Long afterBalance = participateInfo.getBalance();
 
     Assert.assertTrue(beforeBalance - trxNum * 1 * icoNum >= afterBalance);
   }
 
   @AfterMethod
   public void aftertest() {
-    PublicMethod
-        .freeResource(asset007Address, testKeyForAssetIssue007, foundationAddress, blockingStubFull);
+    PublicMethod.freeResource(
+        asset007Address, testKeyForAssetIssue007, foundationAddress, blockingStubFull);
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass(enabled = true)
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

@@ -34,27 +34,16 @@ public class JLibsodiumParam {
 
   public static class Blake2bInitSaltPersonalParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long state;
-    @Setter
-    @Getter
-    private byte[] key;
-    @Setter
-    @Getter
-    private int keyLen;
-    @Setter
-    @Getter
-    private int outLen;
-    @Setter
-    @Getter
-    private byte[] salt;
-    @Setter
-    @Getter
-    private byte[] personal;
+    @Setter @Getter private long state;
+    @Setter @Getter private byte[] key;
+    @Setter @Getter private int keyLen;
+    @Setter @Getter private int outLen;
+    @Setter @Getter private byte[] salt;
+    @Setter @Getter private byte[] personal;
 
-    public Blake2bInitSaltPersonalParams(long state, byte[] key, int keyLen, int outLen,
-        byte[] salt, byte[] personal) throws ZksnarkException {
+    public Blake2bInitSaltPersonalParams(
+        long state, byte[] key, int keyLen, int outLen, byte[] salt, byte[] personal)
+        throws ZksnarkException {
       this.state = state;
       this.key = key;
       this.keyLen = keyLen;
@@ -74,15 +63,9 @@ public class JLibsodiumParam {
 
   public static class Blake2bUpdateParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long state;
-    @Setter
-    @Getter
-    private byte[] in;
-    @Setter
-    @Getter
-    private long inLen;
+    @Setter @Getter private long state;
+    @Setter @Getter private byte[] in;
+    @Setter @Getter private long inLen;
 
     public Blake2bUpdateParams(long state, byte[] in, long inLen) throws ZksnarkException {
       this.state = state;
@@ -103,15 +86,9 @@ public class JLibsodiumParam {
 
   public static class Blake2bFinalParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private long state;
-    @Setter
-    @Getter
-    private byte[] out;
-    @Setter
-    @Getter
-    private int outLen;
+    @Setter @Getter private long state;
+    @Setter @Getter private byte[] out;
+    @Setter @Getter private int outLen;
 
     public Blake2bFinalParams(long state, byte[] out, int outLen) throws ZksnarkException {
       this.state = state;
@@ -132,34 +109,25 @@ public class JLibsodiumParam {
 
   public static class Black2bSaltPersonalParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] out;
-    @Setter
-    @Getter
-    private int outLen;
-    @Setter
-    @Getter
-    private byte[] in;
-    @Setter
-    @Getter
-    private long inLen;
-    @Setter
-    @Getter
-    private byte[] key;
-    @Setter
-    @Getter
-    private int keyLen;
-    @Setter
-    @Getter
-    private byte[] salt;
-    @Setter
-    @Getter
-    private byte[] personal;
+    @Setter @Getter private byte[] out;
+    @Setter @Getter private int outLen;
+    @Setter @Getter private byte[] in;
+    @Setter @Getter private long inLen;
+    @Setter @Getter private byte[] key;
+    @Setter @Getter private int keyLen;
+    @Setter @Getter private byte[] salt;
+    @Setter @Getter private byte[] personal;
 
-
-    public Black2bSaltPersonalParams(byte[] out, int outLen, byte[] in, long inLen, byte[] key,
-        int keyLen, byte[] salt, byte[] personal) throws ZksnarkException {
+    public Black2bSaltPersonalParams(
+        byte[] out,
+        int outLen,
+        byte[] in,
+        long inLen,
+        byte[] key,
+        int keyLen,
+        byte[] salt,
+        byte[] personal)
+        throws ZksnarkException {
       this.out = out;
       this.outLen = outLen;
       this.in = in;
@@ -175,8 +143,8 @@ public class JLibsodiumParam {
     @Override
     public void valid() throws ZksnarkException {
       if (out.length != outLen || in.length != inLen) {
-        throw new ZksnarkException("out.length is not equal to outlen "
-            + "or in.length is not equal to inlen");
+        throw new ZksnarkException(
+            "out.length is not equal to outlen " + "or in.length is not equal to inlen");
       }
       validParamLength(out, 32);
       validParamLength(personal, 16);
@@ -185,36 +153,27 @@ public class JLibsodiumParam {
 
   public static class Chacha20poly1305IetfDecryptParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] m;
-    @Setter
-    @Getter
-    private long[] mLenP;
-    @Setter
-    @Getter
-    private byte[] nSec;
-    @Setter
-    @Getter
-    private byte[] c;
-    @Setter
-    @Getter
-    private long cLen;
-    @Setter
-    @Getter
-    private byte[] ad;
-    @Setter
-    @Getter
-    private long adLen;
-    @Setter
-    @Getter
-    private byte[] nPub;
-    @Setter
-    @Getter
-    private byte[] k;
+    @Setter @Getter private byte[] m;
+    @Setter @Getter private long[] mLenP;
+    @Setter @Getter private byte[] nSec;
+    @Setter @Getter private byte[] c;
+    @Setter @Getter private long cLen;
+    @Setter @Getter private byte[] ad;
+    @Setter @Getter private long adLen;
+    @Setter @Getter private byte[] nPub;
+    @Setter @Getter private byte[] k;
 
-    public Chacha20poly1305IetfDecryptParams(byte[] m, long[] mLenP, byte[] nSec, byte[] c,
-        long cLen, byte[] ad, long adLen, byte[] nPub, byte[] k) throws ZksnarkException {
+    public Chacha20poly1305IetfDecryptParams(
+        byte[] m,
+        long[] mLenP,
+        byte[] nSec,
+        byte[] c,
+        long cLen,
+        byte[] ad,
+        long adLen,
+        byte[] nPub,
+        byte[] k)
+        throws ZksnarkException {
       this.m = m;
       this.mLenP = mLenP;
       this.nSec = nSec;
@@ -237,36 +196,27 @@ public class JLibsodiumParam {
 
   public static class Chacha20Poly1305IetfEncryptParams implements ValidParam {
 
-    @Setter
-    @Getter
-    private byte[] c;
-    @Setter
-    @Getter
-    private long[] cLenP;
-    @Setter
-    @Getter
-    private byte[] m;
-    @Setter
-    @Getter
-    private long mLen;
-    @Setter
-    @Getter
-    private byte[] ad;
-    @Setter
-    @Getter
-    private long adLen;
-    @Setter
-    @Getter
-    private byte[] nSec;
-    @Setter
-    @Getter
-    private byte[] nPub;
-    @Setter
-    @Getter
-    private byte[] k;
+    @Setter @Getter private byte[] c;
+    @Setter @Getter private long[] cLenP;
+    @Setter @Getter private byte[] m;
+    @Setter @Getter private long mLen;
+    @Setter @Getter private byte[] ad;
+    @Setter @Getter private long adLen;
+    @Setter @Getter private byte[] nSec;
+    @Setter @Getter private byte[] nPub;
+    @Setter @Getter private byte[] k;
 
-    public Chacha20Poly1305IetfEncryptParams(byte[] c, long[] cLenP, byte[] m, long mLen,
-        byte[] ad, long adLen, byte[] nSec, byte[] nPub, byte[] k) throws ZksnarkException {
+    public Chacha20Poly1305IetfEncryptParams(
+        byte[] c,
+        long[] cLenP,
+        byte[] m,
+        long mLen,
+        byte[] ad,
+        long adLen,
+        byte[] nSec,
+        byte[] nPub,
+        byte[] k)
+        throws ZksnarkException {
       this.c = c;
       this.cLenP = cLenP;
       this.m = m;

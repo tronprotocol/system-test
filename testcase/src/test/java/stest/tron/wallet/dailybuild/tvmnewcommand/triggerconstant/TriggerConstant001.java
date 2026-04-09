@@ -6,11 +6,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
@@ -24,10 +22,10 @@ import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
-import stest.tron.wallet.common.client.utils.TronBaseTest;
 import stest.tron.wallet.common.client.utils.MultiNode;
+import stest.tron.wallet.common.client.utils.PublicMethod;
+import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 @MultiNode
@@ -56,9 +54,10 @@ public class TriggerConstant001 extends TronBaseTest {
   @BeforeClass(enabled = true)
   public void beforeClass() {
     initSolidityChannel();
-    PublicMethod.printAddress(contractExcKey);    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
-    blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);    channelRealSolidity =
-        ManagedChannelBuilder.forTarget(realSoliditynode).usePlaintext().build();
+    PublicMethod.printAddress(contractExcKey);
+    channelFull1 = ManagedChannelBuilder.forTarget(fullnode1).usePlaintext().build();
+    blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
+    channelRealSolidity = ManagedChannelBuilder.forTarget(realSoliditynode).usePlaintext().build();
     blockingStubRealSolidity = WalletSolidityGrpc.newBlockingStub(channelRealSolidity);
 
     {
@@ -70,11 +69,11 @@ public class TriggerConstant001 extends TronBaseTest {
               testNetAccountKey,
               blockingStubFull));
       PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "src/test/resources/soliditycode/TriggerConstant001.sol";
-  String contractName = "testConstantContract";
+      String filePath = "src/test/resources/soliditycode/TriggerConstant001.sol";
+      String contractName = "testConstantContract";
       HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  final String abi = retMap.get("abI").toString();
+      String code = retMap.get("byteCode").toString();
+      final String abi = retMap.get("abI").toString();
 
       contractAddressNoAbi =
           PublicMethod.deployContract(
@@ -121,7 +120,10 @@ public class TriggerConstant001 extends TronBaseTest {
     }
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a payable function without ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerConstantContract a payable function without ABI",
+      groups = {"contract", "daily"})
   public void test01TriggerConstantContract() {
 
     String txid = "";
@@ -172,7 +174,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a payable function" + " without ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a payable function" + " without ABI on solidity",
+      groups = {"contract", "daily"})
   public void test01TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -200,7 +203,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a payable function" + " without ABI on real solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a payable function" + " without ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test01TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -228,7 +232,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a non-payable function" + " without ABI", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a non-payable function" + " without ABI",
+      groups = {"contract", "daily"})
   public void test02TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -257,7 +262,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a non-payable function" + " without ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a non-payable function" + " without ABI on solidity",
+      groups = {"contract", "daily"})
   public void test02TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -286,7 +292,8 @@ public class TriggerConstant001 extends TronBaseTest {
   @Test(
       enabled = true,
       description =
-          "TriggerConstantContract a non-payable function" + " without ABI on real solidity", groups = {"contract", "daily"})
+          "TriggerConstantContract a non-payable function" + " without ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test02TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -312,7 +319,10 @@ public class TriggerConstant001 extends TronBaseTest {
     containsString("Attempt to call a state modifying opcode inside STATICCALL"));*/
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a view function without ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerConstantContract a view function without ABI",
+      groups = {"contract", "daily"})
   public void test03TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -330,7 +340,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -341,7 +351,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a view function" + " without ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a view function" + " without ABI on solidity",
+      groups = {"contract", "daily"})
   public void test03TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -358,7 +369,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -369,7 +380,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a view function" + " without ABI on real solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a view function" + " without ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test03TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -386,7 +398,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -395,7 +407,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a pure function without ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerConstantContract a pure function without ABI",
+      groups = {"contract", "daily"})
   public void test04TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -413,7 +428,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -424,7 +439,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a pure function" + " without ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a pure function" + " without ABI on solidity",
+      groups = {"contract", "daily"})
   public void test04TriggerConstantContractOnSolidity() {
 
     TransactionExtention transactionExtention =
@@ -442,7 +458,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -453,7 +469,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a pure function" + " without ABI on real solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a pure function" + " without ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test04TriggerConstantContractOnRealSolidity() {
 
     TransactionExtention transactionExtention =
@@ -471,7 +488,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -480,7 +497,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a payable function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerConstantContract a payable function with ABI",
+      groups = {"contract", "daily"})
   public void test05TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -510,7 +530,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a payable function" + " with ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a payable function" + " with ABI on solidity",
+      groups = {"contract", "daily"})
   public void test05TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -539,7 +560,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a payable function" + " with ABI on real solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a payable function" + " with ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test05TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -566,7 +588,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a non-payable function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerConstantContract a non-payable function with ABI",
+      groups = {"contract", "daily"})
   public void test06TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -596,7 +621,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a non-payable function" + " with ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a non-payable function" + " with ABI on solidity",
+      groups = {"contract", "daily"})
   public void test06TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -625,7 +651,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a non-payable function" + " with ABI on real solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a non-payable function" + " with ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test06TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -652,7 +679,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a view function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerConstantContract a view function with ABI",
+      groups = {"contract", "daily"})
   public void test07TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -670,7 +700,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -681,7 +711,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a view function" + " with ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a view function" + " with ABI on solidity",
+      groups = {"contract", "daily"})
   public void test07TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -698,7 +729,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -709,7 +740,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a view function" + " with ABI on real solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a view function" + " with ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test07TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -726,7 +758,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -735,7 +767,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
   }
 
-  @Test(enabled = true, description = "TriggerConstantContract a pure function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerConstantContract a pure function with ABI",
+      groups = {"contract", "daily"})
   public void test08TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -753,7 +788,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -764,7 +799,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a pure function" + " with ABI on solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a pure function" + " with ABI on solidity",
+      groups = {"contract", "daily"})
   public void test08TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -781,7 +817,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -792,7 +828,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a pure function" + " with ABI on real solidity", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a pure function" + " with ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test08TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -809,7 +846,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -818,22 +855,25 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
   }
 
-  @Test(enabled = true, description = "TriggerContract a payable function without ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a payable function without ABI",
+      groups = {"contract", "daily"})
   public void test09TriggerContract() {
     Account info;
 
     AccountResourceMessage resourceInfo =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
+    String txid = "";
 
     txid =
         PublicMethod.triggerContract(
@@ -852,10 +892,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -867,10 +907,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
     AccountResourceMessage resourceInfoafter =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -881,29 +921,32 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  Long returnnumber =
+    Long returnnumber =
         ByteArray.toLong(
             ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
   }
 
-  @Test(enabled = true, description = "TriggerContract a non-payable function without ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a non-payable function without ABI",
+      groups = {"contract", "daily"})
   public void test10TriggerContract() {
     Account info;
 
     AccountResourceMessage resourceInfo =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
+    String txid = "";
 
     txid =
         PublicMethod.triggerContract(
@@ -922,10 +965,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -937,10 +980,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
     AccountResourceMessage resourceInfoafter =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -951,14 +994,17 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  Long returnnumber =
+    Long returnnumber =
         ByteArray.toLong(
             ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
   }
 
-  @Test(enabled = true, description = "TriggerContract a view function without ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a view function without ABI",
+      groups = {"contract", "daily"})
   public void test11TriggerContract() {
 
     Account info;
@@ -966,15 +1012,15 @@ public class TriggerConstant001 extends TronBaseTest {
     AccountResourceMessage resourceInfo =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
+    String txid = "";
 
     txid =
         PublicMethod.triggerContract(
@@ -993,10 +1039,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -1008,10 +1054,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
     AccountResourceMessage resourceInfoafter =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -1022,14 +1068,17 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  Long returnnumber =
+    Long returnnumber =
         ByteArray.toLong(
             ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
   }
 
-  @Test(enabled = true, description = "TriggerContract a pure function without ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a pure function without ABI",
+      groups = {"contract", "daily"})
   public void test12TriggerContract() {
 
     Account info;
@@ -1037,15 +1086,15 @@ public class TriggerConstant001 extends TronBaseTest {
     AccountResourceMessage resourceInfo =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
+    String txid = "";
 
     txid =
         PublicMethod.triggerContract(
@@ -1064,10 +1113,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -1079,10 +1128,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
     AccountResourceMessage resourceInfoafter =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -1093,14 +1142,17 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  Long returnnumber =
+    Long returnnumber =
         ByteArray.toLong(
             ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
   }
 
-  @Test(enabled = true, description = "TriggerContract a pure function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a pure function with ABI",
+      groups = {"contract", "daily"})
   public void test18TriggerContract() {
 
     TransactionExtention transactionExtention =
@@ -1118,7 +1170,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1127,7 +1179,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
   }
 
-  @Test(enabled = true, description = "TriggerContract a payable function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a payable function with ABI",
+      groups = {"contract", "daily"})
   public void test19TriggerContract() {
 
     Account info;
@@ -1135,15 +1190,15 @@ public class TriggerConstant001 extends TronBaseTest {
     AccountResourceMessage resourceInfo =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
+    String txid = "";
     txid =
         PublicMethod.triggerContract(
             contractAddressWithAbi,
@@ -1161,10 +1216,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -1176,10 +1231,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
     AccountResourceMessage resourceInfoafter =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -1190,29 +1245,32 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  Long returnnumber =
+    Long returnnumber =
         ByteArray.toLong(
             ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
   }
 
-  @Test(enabled = true, description = "TriggerContract a non-payable function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a non-payable function with ABI",
+      groups = {"contract", "daily"})
   public void test20TriggerContract() {
     Account info;
 
     AccountResourceMessage resourceInfo =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
     info = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String txid = "";
+    String txid = "";
     txid =
         PublicMethod.triggerContract(
             contractAddressNoAbi,
@@ -1230,10 +1288,10 @@ public class TriggerConstant001 extends TronBaseTest {
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     Optional<TransactionInfo> infoById = null;
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
 
     logger.info("fee:" + fee);
@@ -1245,10 +1303,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Account infoafter = PublicMethod.queryAccount(contractExcKey, blockingStubFull);
     AccountResourceMessage resourceInfoafter =
         PublicMethod.getAccountResource(contractExcAddress, blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -1259,14 +1317,17 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-  Long returnnumber =
+    Long returnnumber =
         ByteArray.toLong(
             ByteArray.fromHexString(
                 ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())));
     Assert.assertTrue(1 == returnnumber);
   }
 
-  @Test(enabled = true, description = "TriggerContract a view function with ABI", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a view function with ABI",
+      groups = {"contract", "daily"})
   public void test21TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -1284,7 +1345,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1293,7 +1354,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
   }
 
-  @Test(enabled = true, description = "TriggerContract a view function with ABI on solidity", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a view function with ABI on solidity",
+      groups = {"contract", "daily"})
   public void test21TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1310,7 +1374,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1319,7 +1383,10 @@ public class TriggerConstant001 extends TronBaseTest {
     Assert.assertEquals(1, ByteArray.toLong(ByteArray.fromHexString(Hex.toHexString(result))));
   }
 
-  @Test(enabled = true, description = "TriggerContract a view function with ABI on real solidity", groups = {"contract", "daily"})
+  @Test(
+      enabled = true,
+      description = "TriggerContract a view function with ABI on real solidity",
+      groups = {"contract", "daily"})
   public void test21TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1336,7 +1403,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1347,7 +1414,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a view method with ABI ,method has " + "revert()", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a view method with ABI ,method has " + "revert()",
+      groups = {"contract", "daily"})
   public void test24TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -1365,7 +1433,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1379,7 +1447,8 @@ public class TriggerConstant001 extends TronBaseTest {
   @Test(
       enabled = true,
       description =
-          "TriggerConstantContract a view method with ABI ,method has " + "revert() on solidity", groups = {"contract", "daily"})
+          "TriggerConstantContract a view method with ABI ,method has " + "revert() on solidity",
+      groups = {"contract", "daily"})
   public void test24TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1396,7 +1465,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1411,7 +1480,8 @@ public class TriggerConstant001 extends TronBaseTest {
       enabled = true,
       description =
           "TriggerConstantContract a view method with ABI ,method has "
-              + "revert() on real solidity", groups = {"contract", "daily"})
+              + "revert() on real solidity",
+      groups = {"contract", "daily"})
   public void test24TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1428,7 +1498,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1441,7 +1511,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerContract a view method with ABI ,method has " + "revert()", groups = {"contract", "daily"})
+      description = "TriggerContract a view method with ABI ,method has " + "revert()",
+      groups = {"contract", "daily"})
   public void test25TriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -1459,7 +1530,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1472,7 +1543,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerContract a view method with ABI ,method has " + "revert() on solidity", groups = {"contract", "daily"})
+      description = "TriggerContract a view method with ABI ,method has " + "revert() on solidity",
+      groups = {"contract", "daily"})
   public void test25TriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1489,7 +1561,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1503,7 +1575,8 @@ public class TriggerConstant001 extends TronBaseTest {
   @Test(
       enabled = true,
       description =
-          "TriggerContract a view method with ABI ,method has " + "revert() on real solidity", groups = {"contract", "daily"})
+          "TriggerContract a view method with ABI ,method has " + "revert() on real solidity",
+      groups = {"contract", "daily"})
   public void test25TriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1520,7 +1593,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1533,7 +1606,8 @@ public class TriggerConstant001 extends TronBaseTest {
 
   @Test(
       enabled = true,
-      description = "TriggerConstantContract a view method without ABI,method has" + "revert()", groups = {"contract", "daily"})
+      description = "TriggerConstantContract a view method without ABI,method has" + "revert()",
+      groups = {"contract", "daily"})
   public void testTriggerConstantContract() {
 
     TransactionExtention transactionExtention =
@@ -1551,7 +1625,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubFull);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1566,7 +1640,8 @@ public class TriggerConstant001 extends TronBaseTest {
   @Test(
       enabled = true,
       description =
-          "TriggerConstantContract a view method without ABI,method has" + "revert() on solidity", groups = {"contract", "daily"})
+          "TriggerConstantContract a view method without ABI,method has" + "revert() on solidity",
+      groups = {"contract", "daily"})
   public void testTriggerConstantContractOnSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1583,7 +1658,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));
@@ -1599,7 +1674,8 @@ public class TriggerConstant001 extends TronBaseTest {
       enabled = true,
       description =
           "TriggerConstantContract a view method without ABI,method has"
-              + "revert() on real solidity", groups = {"contract", "daily"})
+              + "revert() on real solidity",
+      groups = {"contract", "daily"})
   public void testTriggerConstantContractOnRealSolidity() {
     TransactionExtention transactionExtention =
         PublicMethod.triggerConstantContractForExtentionOnSolidity(
@@ -1616,7 +1692,7 @@ public class TriggerConstant001 extends TronBaseTest {
             blockingStubRealSolidity);
 
     Transaction transaction = transactionExtention.getTransaction();
-  byte[] result = transactionExtention.getConstantResult(0).toByteArray();
+    byte[] result = transactionExtention.getConstantResult(0).toByteArray();
     System.out.println("message:" + transaction.getRet(0).getRet());
     System.out.println(
         ":" + ByteArray.toStr(transactionExtention.getResult().getMessage().toByteArray()));

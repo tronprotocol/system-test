@@ -10,43 +10,60 @@ import org.testng.annotations.Test;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.utils.ByteArray;
-import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.ECKey;
+import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
+
 @Slf4j
-public class ContractScenario013 extends TronBaseTest {  byte[] contractAddress = null;
+public class ContractScenario013 extends TronBaseTest {
+  byte[] contractAddress = null;
   String txid = "";
   Optional<TransactionInfo> infoById = null;
   ECKey ecKey1 = new ECKey(Utils.getRandom());
   byte[] contract013Address = ecKey1.getAddress();
-  String contract013Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());  /**
-   * constructor.
-   */
+  String contract013Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  /** constructor. */
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
-    PublicMethod.printAddress(contract013Key);  }
+    PublicMethod.printAddress(contract013Key);
+  }
 
-  @Test(enabled = true, groups = {"contract", "smoke"})
+  @Test(
+      enabled = true,
+      groups = {"contract", "smoke"})
   public void deployTronTrxAndSunContract() {
-    Assert.assertTrue(PublicMethod.sendcoin(contract013Address, 20000000000L, foundationAddress,
-        foundationKey, blockingStubFull));
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract013Address,
-        blockingStubFull);
-  Long energyLimit = accountResource.getEnergyLimit();
-  Long energyUsage = accountResource.getEnergyUsed();
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            contract013Address, 20000000000L, foundationAddress, foundationKey, blockingStubFull));
+    PublicMethod.waitProduceNextBlock(blockingStubFull);
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contract013Address, blockingStubFull);
+    Long energyLimit = accountResource.getEnergyLimit();
+    Long energyUsage = accountResource.getEnergyUsed();
 
     logger.info("before energy limit is " + Long.toString(energyLimit));
     logger.info("before energy usage is " + Long.toString(energyUsage));
-  String filePath = "./src/test/resources/soliditycode/contractScenario013.sol";
-  String contractName = "timetest";
+    String filePath = "./src/test/resources/soliditycode/contractScenario013.sol";
+    String contractName = "timetest";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
 
-    txid = PublicMethod.deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-        maxFeeLimit, 0L, 100, null, contract013Key, contract013Address, blockingStubFull);
+    txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract013Key,
+            contract013Address,
+            blockingStubFull);
     logger.info(txid);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
@@ -56,23 +73,35 @@ public class ContractScenario013 extends TronBaseTest {  byte[] contractAddress 
     Assert.assertFalse(infoById.get().getContractAddress().isEmpty());
   }
 
-  @Test(enabled = true, groups = {"contract", "smoke"})
+  @Test(
+      enabled = true,
+      groups = {"contract", "smoke"})
   public void triggerTronTrxAndSunContract() {
-    AccountResourceMessage accountResource = PublicMethod.getAccountResource(contract013Address,
-        blockingStubFull);
-  Long energyLimit = accountResource.getEnergyLimit();
-  Long energyUsage = accountResource.getEnergyUsed();
+    AccountResourceMessage accountResource =
+        PublicMethod.getAccountResource(contract013Address, blockingStubFull);
+    Long energyLimit = accountResource.getEnergyLimit();
+    Long energyUsage = accountResource.getEnergyUsed();
 
     logger.info("before energy limit is " + Long.toString(energyLimit));
     logger.info("before energy usage is " + Long.toString(energyUsage));
-  String filePath = "./src/test/resources/soliditycode/contractScenario013.sol";
-  String contractName = "timetest";
+    String filePath = "./src/test/resources/soliditycode/contractScenario013.sol";
+    String contractName = "timetest";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
-  String txid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            0L, 100, null, contract013Key, contract013Address, blockingStubFull);
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
+    String txid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            0L,
+            100,
+            null,
+            contract013Key,
+            contract013Address,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() == 0);
@@ -80,9 +109,17 @@ public class ContractScenario013 extends TronBaseTest {  byte[] contractAddress 
 
     contractAddress = infoById.get().getContractAddress().toByteArray();
 
-    txid = PublicMethod.triggerContract(contractAddress,
-        "time()", "#", false,
-        0, 100000000L, contract013Address, contract013Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "time()",
+            "#",
+            false,
+            0,
+            100000000L,
+            contract013Address,
+            contract013Key,
+            blockingStubFull);
     logger.info(txid);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
@@ -94,12 +131,7 @@ public class ContractScenario013 extends TronBaseTest {  byte[] contractAddress 
     Assert.assertFalse(infoById.get().getContractAddress().isEmpty());
   }
 
-  /**
-   * constructor.
-   */
-
+  /** constructor. */
   @AfterClass
-  public void shutdown() throws InterruptedException {  }
+  public void shutdown() throws InterruptedException {}
 }
-
-

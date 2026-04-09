@@ -1,7 +1,10 @@
 package stest.tron.wallet.fuzz;
 
-import net.jqwik.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
 import stest.tron.wallet.common.client.utils.Base58;
 
 class Base58PropertyTest {
@@ -18,8 +21,7 @@ class Base58PropertyTest {
     String encoded = Base58.encode(input);
     String alphabet = new String(Base58.ALPHABET);
     for (char c : encoded.toCharArray()) {
-      assertTrue(alphabet.indexOf(c) >= 0,
-          "Encoded string contains non-Base58 character: " + c);
+      assertTrue(alphabet.indexOf(c) >= 0, "Encoded string contains non-Base58 character: " + c);
     }
   }
 

@@ -14,14 +14,13 @@ import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.MultiNode;
 import stest.tron.wallet.common.client.utils.PublicMethod;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
-import stest.tron.wallet.common.client.utils.TronConstants;
 import stest.tron.wallet.common.client.utils.Utils;
 
 /**
  * Cross-node transaction broadcast tests.
  *
- * <p>Sends a transaction via node1 and verifies it is visible on node2,
- * confirming P2P transaction propagation.
+ * <p>Sends a transaction via node1 and verifies it is visible on node2, confirming P2P transaction
+ * propagation.
  */
 @Slf4j
 @MultiNode(reason = "Cross-node transaction broadcast verification")
@@ -47,14 +46,17 @@ public class TransactionBroadcastTest extends TronBaseTest {
     PublicMethod.printAddress(receiverKeyStr);
   }
 
-  @Test(enabled = true, description = "Transaction sent via node1 should be visible on node2",
+  @Test(
+      enabled = true,
+      description = "Transaction sent via node1 should be visible on node2",
       groups = {"daily"})
   public void test01TransactionPropagation() {
     long sendAmount = 1_000_000L; // 1 TRX
 
     // Send via node1
-    String txId = PublicMethod.sendcoinGetTransactionId(receiverAddress, sendAmount,
-        foundationAddress, foundationKey, blockingStubFull);
+    String txId =
+        PublicMethod.sendcoinGetTransactionId(
+            receiverAddress, sendAmount, foundationAddress, foundationKey, blockingStubFull);
     Assert.assertNotNull(txId, "Transaction should be created on node1");
     logger.info("Transaction sent via node1, txId: {}", txId);
 
@@ -66,11 +68,13 @@ public class TransactionBroadcastTest extends TronBaseTest {
     Account receiverAccount = PublicMethod.queryAccount(receiverAddress, blockingStubFull2);
     long balanceOnNode2 = receiverAccount.getBalance();
     logger.info("Receiver balance on node2: {}", balanceOnNode2);
-    Assert.assertEquals(balanceOnNode2, sendAmount,
-        "Receiver balance on node2 should match sent amount");
+    Assert.assertEquals(
+        balanceOnNode2, sendAmount, "Receiver balance on node2 should match sent amount");
   }
 
-  @Test(enabled = true, dependsOnMethods = "test01TransactionPropagation",
+  @Test(
+      enabled = true,
+      dependsOnMethods = "test01TransactionPropagation",
       description = "Multiple transactions propagate correctly",
       groups = {"daily"})
   public void test02MultipleTxPropagation() {
@@ -81,8 +85,9 @@ public class TransactionBroadcastTest extends TronBaseTest {
 
     // Send 3 transactions via node1
     for (int i = 0; i < 3; i++) {
-      Assert.assertTrue(PublicMethod.sendcoin(receiverAddress, sendAmount,
-          foundationAddress, foundationKey, blockingStubFull));
+      Assert.assertTrue(
+          PublicMethod.sendcoin(
+              receiverAddress, sendAmount, foundationAddress, foundationKey, blockingStubFull));
     }
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
@@ -91,7 +96,9 @@ public class TransactionBroadcastTest extends TronBaseTest {
     Account afterAccount = PublicMethod.queryAccount(receiverAddress, blockingStubFull2);
     long balanceAfter = afterAccount.getBalance();
     logger.info("Balance before: {}, after: {}", balanceBefore, balanceAfter);
-    Assert.assertEquals(balanceAfter - balanceBefore, sendAmount * 3,
+    Assert.assertEquals(
+        balanceAfter - balanceBefore,
+        sendAmount * 3,
         "All 3 transactions should propagate to node2");
   }
 

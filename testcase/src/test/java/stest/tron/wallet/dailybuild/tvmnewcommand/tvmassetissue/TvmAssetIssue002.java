@@ -20,8 +20,8 @@ import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.ByteArray;
 import stest.tron.wallet.common.client.utils.ECKey;
 import stest.tron.wallet.common.client.utils.PublicMethod;
-import stest.tron.wallet.common.client.utils.Utils;
 import stest.tron.wallet.common.client.utils.TronBaseTest;
+import stest.tron.wallet.common.client.utils.Utils;
 
 @Slf4j
 public class TvmAssetIssue002 extends TronBaseTest {
@@ -40,70 +40,92 @@ public class TvmAssetIssue002 extends TronBaseTest {
   private byte[] dev002Address = ecKey2.getAddress();
   private String dev002Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @BeforeClass(enabled = false)
-  public void beforeClass() {    PublicMethod.printAddress(dev001Key);
+  public void beforeClass() {
+    PublicMethod.printAddress(dev001Key);
     PublicMethod.printAddress(dev002Key);
   }
 
-  @Test(enabled = false, description = "tokenIssue illegal parameter verification", groups = {"contract", "daily"})
+  @Test(
+      enabled = false,
+      description = "tokenIssue illegal parameter verification",
+      groups = {"contract", "daily"})
   public void tokenIssue001IllegalParameterVerification() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "./src/test/resources/soliditycode/tvmAssetIssue001.sol";
-  String contractName = "tvmAssetIssue001";
+    String filePath = "./src/test/resources/soliditycode/tvmAssetIssue001.sol";
+    String contractName = "tvmAssetIssue001";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
     long callvalue = 2050000000L;
-  final String deployTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            callvalue, 0, 10000, "0", 0L, null, dev001Key, dev001Address,
+    final String deployTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            callvalue,
+            0,
+            10000,
+            "0",
+            0L,
+            null,
+            dev001Key,
+            dev001Address,
             blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(deployTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(deployTxid, blockingStubFull);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     if (deployTxid == null || infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
-          .toStringUtf8());
+      Assert.fail(
+          "deploy transaction failed with message: "
+              + infoById.get().getResMessage().toStringUtf8());
     }
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod
-        .getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
-    long contractAddressBalance = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getBalance();
+    long contractAddressBalance =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getBalance();
     Assert.assertEquals(callvalue, contractAddressBalance);
 
     /*String param = "0000000000000000000000000000000000007465737441737365744973737565"
-        + "0000000000000000000074657374417373657431353938333439363637393631"
-        + "0000000000000000000000000000000000000000000000000000000000989680"
-        + "0000000000000000000000000000000000000000000000000000000000000001";*/
+    + "0000000000000000000074657374417373657431353938333439363637393631"
+    + "0000000000000000000000000000000000000000000000000000000000989680"
+    + "0000000000000000000000000000000000000000000000000000000000000001";*/
     // assetName is trx
     String tokenName = PublicMethod.stringToHexString("trx");
-  String tokenAbbr = PublicMethod.stringToHexString(abbr);
-  String param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
+    String tokenAbbr = PublicMethod.stringToHexString(abbr);
+    String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
     logger.info("param: " + param);
-  String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-  String txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     long returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    Map<String, Long> assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    Map<String, Long> assetV2Map =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // assetName.length > 32 compile fail
+    // assetName.length > 32 compile fail
     /*tokenName = PublicMethod.stringToHexString("testAssetIssue_testAssetIssue_tes");
     tokenAbbr = PublicMethod.stringToHexString(abbr);
     param =
@@ -124,109 +146,148 @@ public class TvmAssetIssue002 extends TronBaseTest {
     // assetName is ""
     tokenName = PublicMethod.stringToHexString("");
     tokenAbbr = PublicMethod.stringToHexString(abbr);
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
     logger.info("param: " + param);
     methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // assetName is chinese
+    // assetName is chinese
     tokenName = PublicMethod.stringToHexString("名字");
     tokenAbbr = PublicMethod.stringToHexString(abbr);
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
     logger.info("param: " + param);
     methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // assetAbbr is null
+    // assetAbbr is null
     tokenName = PublicMethod.stringToHexString(name);
     tokenAbbr = PublicMethod.stringToHexString("");
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
     logger.info("param: " + param);
     methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // assetAbbr is chinese
+    // assetAbbr is chinese
     tokenName = PublicMethod.stringToHexString(name);
     tokenAbbr = PublicMethod.stringToHexString("简称");
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
     logger.info("param: " + param);
     methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // totalSupply is Long.MAX_VALUE+1
-    param = "a8547918"
-        + "74657374417373657449737375655f3136303034333636393333333600000000"
-        + "7472780000000000000000000000000000000000000000000000000000000000"
-        + "0000000000000000000000000000000000000000000000008000000000000000"
-        + "0000000000000000000000000000000000000000000000000000000000000006";
+    // totalSupply is Long.MAX_VALUE+1
+    param =
+        "a8547918"
+            + "74657374417373657449737375655f3136303034333636393333333600000000"
+            + "7472780000000000000000000000000000000000000000000000000000000000"
+            + "0000000000000000000000000000000000000000000000008000000000000000"
+            + "0000000000000000000000000000000000000000000000000000000000000006";
     logger.info("param: " + param);
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, true,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            true,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // totalSupply is -1
+    // totalSupply is -1
     tokenName = PublicMethod.stringToHexString(name);
     tokenAbbr = PublicMethod.stringToHexString("trx");
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + -1 + "," + 6;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + -1 + "," + 6;
     logger.info("param: " + param);
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     logger.info("totalSupply is -1");
     Assert.assertEquals(0, infoById.get().getResultValue());
@@ -234,20 +295,26 @@ public class TvmAssetIssue002 extends TronBaseTest {
     Assert.assertTrue(infoById.get().getFee() < 1000000000);
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // totalSupply is 0
+    // totalSupply is 0
     tokenName = PublicMethod.stringToHexString(name);
     tokenAbbr = PublicMethod.stringToHexString("trx");
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + 0 + "," + 6;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + 0 + "," + 6;
     logger.info("param: " + param);
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     logger.info("totalSupply is 0");
     Assert.assertEquals(0, infoById.get().getResultValue());
@@ -255,177 +322,254 @@ public class TvmAssetIssue002 extends TronBaseTest {
     Assert.assertTrue(infoById.get().getFee() < 1000000000);
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // precision is 7
+    // precision is 7
     tokenName = PublicMethod.stringToHexString(name);
     tokenAbbr = PublicMethod.stringToHexString(abbr);
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 7;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 7;
     logger.info("param: " + param);
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // precision is -1
+    // precision is -1
     tokenName = PublicMethod.stringToHexString(name);
     tokenAbbr = PublicMethod.stringToHexString(abbr);
-    param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + -1;
+    param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + -1;
     logger.info("param: " + param);
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-  // assetAbbr is trx will success
+    // assetAbbr is trx will success
     tokenName = PublicMethod.stringToHexString(name);
     tokenAbbr = PublicMethod.stringToHexString("trx");
     param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
     logger.info("param: " + param);
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
-    assetIssueId = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetIssuedID()
-        .toStringUtf8();
+    assetIssueId =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetIssuedID()
+            .toStringUtf8();
     logger.info("assetIssueId: " + assetIssueId);
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(returnAssetId, Long.parseLong(assetIssueId));
-    AssetIssueContract assetIssueById = PublicMethod
-        .getAssetIssueById(assetIssueId, blockingStubFull);
+    AssetIssueContract assetIssueById =
+        PublicMethod.getAssetIssueById(assetIssueId, blockingStubFull);
     Assert.assertEquals(name, ByteArray.toStr(assetIssueById.getName().toByteArray()));
     Assert.assertEquals("trx", ByteArray.toStr(assetIssueById.getAbbr().toByteArray()));
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(1, assetV2Map.size());
-  // created multiple times will fail
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    // created multiple times will fail
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(1, assetV2Map.size());
-  String assetIssueId1 = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetIssuedID()
-        .toStringUtf8();
+    String assetIssueId1 =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetIssuedID()
+            .toStringUtf8();
     Assert.assertEquals(assetIssueId, assetIssueId1);
   }
 
-  @Test(enabled = false, description = "tokenIssue trx balance insufficient", groups = {"contract", "daily"})
+  @Test(
+      enabled = false,
+      description = "tokenIssue trx balance insufficient",
+      groups = {"contract", "daily"})
   public void tokenIssue002TrxBalanceInsufficient() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "./src/test/resources/soliditycode/tvmAssetIssue001.sol";
-  String contractName = "tvmAssetIssue001";
+    String filePath = "./src/test/resources/soliditycode/tvmAssetIssue001.sol";
+    String contractName = "tvmAssetIssue001";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
     long callvalue = 1023999999L;
-  final String deployTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            callvalue, 0, 10000, "0", 0L, null, dev001Key, dev001Address,
+    final String deployTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            callvalue,
+            0,
+            10000,
+            "0",
+            0L,
+            null,
+            dev001Key,
+            dev001Address,
             blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(deployTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(deployTxid, blockingStubFull);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     if (deployTxid == null || infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
-          .toStringUtf8());
+      Assert.fail(
+          "deploy transaction failed with message: "
+              + infoById.get().getResMessage().toStringUtf8());
     }
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod
-        .getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
-    long contractAddressBalance = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getBalance();
+    long contractAddressBalance =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getBalance();
     Assert.assertEquals(callvalue, contractAddressBalance);
-  // trx balance insufficient
+    // trx balance insufficient
     String tokenName = PublicMethod.stringToHexString(name);
-  String tokenAbbr = PublicMethod.stringToHexString(abbr);
-  String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
+    String tokenAbbr = PublicMethod.stringToHexString(abbr);
+    String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 6;
     logger.info("param: " + param);
-  String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-  String txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    infoById = PublicMethod
-        .getTransactionInfoById(txid, blockingStubFull);
+    infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
     long returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
-    Map<String, Long> assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    Map<String, Long> assetV2Map =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
   }
 
-  @Test(enabled = false, description = "tokenIssue called multiple times in one contract", groups = {"contract", "daily"})
+  @Test(
+      enabled = false,
+      description = "tokenIssue called multiple times in one contract",
+      groups = {"contract", "daily"})
   public void tokenIssue003CalledMultipleTimesInOneContract() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "./src/test/resources/soliditycode/tvmAssetIssue002.sol";
-  String contractName = "tvmAssetIssue002";
+    String filePath = "./src/test/resources/soliditycode/tvmAssetIssue002.sol";
+    String contractName = "tvmAssetIssue002";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
     long callvalue = 1024000000L;
-  final String deployTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            callvalue, 0, 10000, "0", 0L, null, dev001Key, dev001Address,
+    final String deployTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            callvalue,
+            0,
+            10000,
+            "0",
+            0L,
+            null,
+            dev001Key,
+            dev001Address,
             blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(deployTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(deployTxid, blockingStubFull);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     if (deployTxid == null || infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
-          .toStringUtf8());
+      Assert.fail(
+          "deploy transaction failed with message: "
+              + infoById.get().getResMessage().toStringUtf8());
     }
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod
-        .getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
-    long contractAddressBalance = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getBalance();
+    long contractAddressBalance =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getBalance();
     Assert.assertEquals(callvalue, contractAddressBalance);
-  String tokenName = PublicMethod.stringToHexString(name);
-  String tokenAbbr = PublicMethod.stringToHexString(abbr);
-  String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 5;
+    String tokenName = PublicMethod.stringToHexString(name);
+    String tokenAbbr = PublicMethod.stringToHexString(abbr);
+    String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 5;
     logger.info("param: " + param);
-  String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-  String txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
@@ -433,217 +577,311 @@ public class TvmAssetIssue002 extends TronBaseTest {
     long returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(0, returnAssetId);
 
-    Map<String, Long> assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    Map<String, Long> assetV2Map =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(1, assetV2Map.size());
-    assetIssueId = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetIssuedID()
-        .toStringUtf8();
+    assetIssueId =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetIssuedID()
+            .toStringUtf8();
     logger.info("assetIssueId: " + assetIssueId);
-    long assetIssueValue = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map().get(assetIssueId);
+    long assetIssueValue =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetV2Map()
+            .get(assetIssueId);
     Assert.assertEquals(totalSupply, assetIssueValue);
-    AssetIssueContract assetIssueById = PublicMethod
-        .getAssetIssueById(assetIssueId, blockingStubFull);
+    AssetIssueContract assetIssueById =
+        PublicMethod.getAssetIssueById(assetIssueId, blockingStubFull);
     Assert.assertEquals(name, ByteArray.toStr(assetIssueById.getName().toByteArray()));
     Assert.assertEquals(abbr, ByteArray.toStr(assetIssueById.getAbbr().toByteArray()));
     Assert.assertEquals(totalSupply, assetIssueById.getTotalSupply());
     Assert.assertEquals(5, assetIssueById.getPrecision());
-    Assert.assertEquals(Base58.encode58Check(contractAddress),
+    Assert.assertEquals(
+        Base58.encode58Check(contractAddress),
         Base58.encode58Check(assetIssueById.getOwnerAddress().toByteArray()));
   }
 
-  @Test(enabled = false, description = "tokenIssue revert", groups = {"contract", "daily"})
+  @Test(
+      enabled = false,
+      description = "tokenIssue revert",
+      groups = {"contract", "daily"})
   public void tokenIssue004Revert() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "./src/test/resources/soliditycode/tvmAssetIssue003.sol";
-  String contractName = "tvmAssetIssue003";
+    String filePath = "./src/test/resources/soliditycode/tvmAssetIssue003.sol";
+    String contractName = "tvmAssetIssue003";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
     long callvalue = 2500000000L;
-  final String deployTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            callvalue, 0, 10000, "0", 0L, null, dev001Key, dev001Address,
+    final String deployTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            callvalue,
+            0,
+            10000,
+            "0",
+            0L,
+            null,
+            dev001Key,
+            dev001Address,
             blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(deployTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(deployTxid, blockingStubFull);
     logger.info("Deploy energytotal is " + infoById.get().getReceipt().getEnergyUsageTotal());
     if (deployTxid == null || infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
-          .toStringUtf8());
+      Assert.fail(
+          "deploy transaction failed with message: "
+              + infoById.get().getResMessage().toStringUtf8());
     }
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod
-        .getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
-    long contractAddressBalance = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getBalance();
+    long contractAddressBalance =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getBalance();
     Assert.assertEquals(callvalue, contractAddressBalance);
-  String tokenName = PublicMethod.stringToHexString(name);
-  String tokenAbbr = PublicMethod.stringToHexString(abbr);
-  String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 4;
+    String tokenName = PublicMethod.stringToHexString(name);
+    String tokenAbbr = PublicMethod.stringToHexString(abbr);
+    String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 4;
     logger.info("param: " + param);
-  String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-  String txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
 
-    Map<String, Long> assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    Map<String, Long> assetV2Map =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(1, assetV2Map.size());
-    assetIssueId = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetIssuedID()
-        .toStringUtf8();
+    assetIssueId =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetIssuedID()
+            .toStringUtf8();
     logger.info("assetIssueId: " + assetIssueId);
     long returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     Assert.assertEquals(returnAssetId, Long.parseLong(assetIssueId));
-    long assetIssueValue = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map().get(assetIssueId);
+    long assetIssueValue =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetV2Map()
+            .get(assetIssueId);
     Assert.assertEquals(totalSupply, assetIssueValue);
-    AssetIssueContract assetIssueById = PublicMethod
-        .getAssetIssueById(assetIssueId, blockingStubFull);
+    AssetIssueContract assetIssueById =
+        PublicMethod.getAssetIssueById(assetIssueId, blockingStubFull);
     Assert.assertEquals(name, ByteArray.toStr(assetIssueById.getName().toByteArray()));
     Assert.assertEquals(abbr, ByteArray.toStr(assetIssueById.getAbbr().toByteArray()));
     Assert.assertEquals(totalSupply, assetIssueById.getTotalSupply());
     Assert.assertEquals(4, assetIssueById.getPrecision());
-    Assert.assertEquals(Base58.encode58Check(contractAddress),
+    Assert.assertEquals(
+        Base58.encode58Check(contractAddress),
         Base58.encode58Check(assetIssueById.getOwnerAddress().toByteArray()));
-  String tokenName1 = PublicMethod.stringToHexString(name + "_rev");
-  String tokenAbbr1 = PublicMethod.stringToHexString(abbr + "_rev");
+    String tokenName1 = PublicMethod.stringToHexString(name + "_rev");
+    String tokenAbbr1 = PublicMethod.stringToHexString(abbr + "_rev");
     param =
-        "\"" + tokenName1 + "\",\"" + tokenAbbr1 + "\",\"" + 1000000 + "\",\"" + 3 + "\",\""
-            + Base58.encode58Check(dev002Address) + "\"";
+        "\""
+            + tokenName1
+            + "\",\""
+            + tokenAbbr1
+            + "\",\""
+            + 1000000
+            + "\",\""
+            + 3
+            + "\",\""
+            + Base58.encode58Check(dev002Address)
+            + "\"";
     logger.info("param: " + param);
-  String methodTokenIssueRevert = "tokenIssueAndTransfer(bytes32,bytes32,uint64,uint8,address)";
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssueRevert, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodTokenIssueRevert = "tokenIssueAndTransfer(bytes32,bytes32,uint64,uint8,address)";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssueRevert,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
 
-    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(1, assetV2Map.size());
-  String assetIssueId1 = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetIssuedID()
-        .toStringUtf8();
+    String assetIssueId1 =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetIssuedID()
+            .toStringUtf8();
     logger.info("assetIssueId1: " + assetIssueId1);
     Assert.assertEquals(assetIssueId, assetIssueId1);
-    assetIssueValue = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map().get(assetIssueId);
+    assetIssueValue =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull)
+            .getAssetV2Map()
+            .get(assetIssueId);
     Assert.assertEquals(totalSupply, assetIssueValue);
-    assetIssueById = PublicMethod
-        .getAssetIssueById(assetIssueId, blockingStubFull);
+    assetIssueById = PublicMethod.getAssetIssueById(assetIssueId, blockingStubFull);
     Assert.assertEquals(name, ByteArray.toStr(assetIssueById.getName().toByteArray()));
     Assert.assertEquals(abbr, ByteArray.toStr(assetIssueById.getAbbr().toByteArray()));
     Assert.assertEquals(totalSupply, assetIssueById.getTotalSupply());
     Assert.assertEquals(4, assetIssueById.getPrecision());
-    Assert.assertEquals(Base58.encode58Check(contractAddress),
+    Assert.assertEquals(
+        Base58.encode58Check(contractAddress),
         Base58.encode58Check(assetIssueById.getOwnerAddress().toByteArray()));
 
     long balance = PublicMethod.queryAccount(dev002Address, blockingStubFull).getBalance();
     Assert.assertEquals(200000000L, balance);
   }
 
-  @Test(enabled = false, description = "tokenIssue call another contract in one contract", groups = {"contract", "daily"})
+  @Test(
+      enabled = false,
+      description = "tokenIssue call another contract in one contract",
+      groups = {"contract", "daily"})
   public void tokenIssue005CallAnotherInOneContract() {
-    Assert.assertTrue(PublicMethod
-        .sendcoin(dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
+    Assert.assertTrue(
+        PublicMethod.sendcoin(
+            dev001Address, 3100_000_000L, fromAddress, foundationKey, blockingStubFull));
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-  String filePath = "./src/test/resources/soliditycode/tvmAssetIssue004.sol";
-  String contractName = "tvmAssetIssue004";
+    String filePath = "./src/test/resources/soliditycode/tvmAssetIssue004.sol";
+    String contractName = "tvmAssetIssue004";
     HashMap retMap = PublicMethod.getBycodeAbi(filePath, contractName);
-  String code = retMap.get("byteCode").toString();
-  String abi = retMap.get("abI").toString();
+    String code = retMap.get("byteCode").toString();
+    String abi = retMap.get("abI").toString();
     long callvalue = 1030000000L;
-  String deployTxid = PublicMethod
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
-            callvalue, 0, 10000, "0", 0L, null, dev001Key, dev001Address,
+    String deployTxid =
+        PublicMethod.deployContractAndGetTransactionInfoById(
+            contractName,
+            abi,
+            code,
+            "",
+            maxFeeLimit,
+            callvalue,
+            0,
+            10000,
+            "0",
+            0L,
+            null,
+            dev001Key,
+            dev001Address,
             blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
-    Optional<TransactionInfo> infoById = PublicMethod
-        .getTransactionInfoById(deployTxid, blockingStubFull);
+    Optional<TransactionInfo> infoById =
+        PublicMethod.getTransactionInfoById(deployTxid, blockingStubFull);
     if (deployTxid == null || infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage()
-          .toStringUtf8());
+      Assert.fail(
+          "deploy transaction failed with message: "
+              + infoById.get().getResMessage().toStringUtf8());
     }
     contractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethod
-        .getContract(contractAddress, blockingStubFull);
+    SmartContract smartContract = PublicMethod.getContract(contractAddress, blockingStubFull);
     Assert.assertNotNull(smartContract.getAbi());
 
     callvalue = 1024000000L;
-  String txid = PublicMethod.triggerContract(contractAddress, "getContractAddress()", "#", false,
-        callvalue, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            "getContractAddress()",
+            "#",
+            false,
+            callvalue,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
-  String addressHex =
-        "41" + ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())
-            .substring(24);
+    String addressHex =
+        "41"
+            + ByteArray.toHexString(infoById.get().getContractResult(0).toByteArray())
+                .substring(24);
     logger.info("address_hex: " + addressHex);
-  byte[] contractAddressA = ByteArray.fromHexString(addressHex);
+    byte[] contractAddressA = ByteArray.fromHexString(addressHex);
     logger.info("contractAddressA: " + Base58.encode58Check(contractAddressA));
-    contractAddressBalance = PublicMethod.queryAccount(contractAddressA, blockingStubFull)
-        .getBalance();
+    contractAddressBalance =
+        PublicMethod.queryAccount(contractAddressA, blockingStubFull).getBalance();
     Assert.assertEquals(callvalue, contractAddressBalance);
 
-    AccountResourceMessage resourceInfo = PublicMethod
-        .getAccountResource(dev001Address, blockingStubFull);
+    AccountResourceMessage resourceInfo =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
     Account info = PublicMethod.queryAccount(dev001Address, blockingStubFull);
-  Long beforeBalance = info.getBalance();
-  Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
-  Long beforeNetUsed = resourceInfo.getNetUsed();
-  Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
+    Long beforeBalance = info.getBalance();
+    Long beforeEnergyUsed = resourceInfo.getEnergyUsed();
+    Long beforeNetUsed = resourceInfo.getNetUsed();
+    Long beforeFreeNetUsed = resourceInfo.getFreeNetUsed();
     logger.info("beforeBalance:" + beforeBalance);
     logger.info("beforeEnergyUsed:" + beforeEnergyUsed);
     logger.info("beforeNetUsed:" + beforeNetUsed);
     logger.info("beforeFreeNetUsed:" + beforeFreeNetUsed);
-  String tokenName = PublicMethod.stringToHexString(name);
-  String tokenAbbr = PublicMethod.stringToHexString(abbr);
-  String param =
-        "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 2;
+    String tokenName = PublicMethod.stringToHexString(name);
+    String tokenAbbr = PublicMethod.stringToHexString(abbr);
+    String param = "\"" + tokenName + "\",\"" + tokenAbbr + "\"," + totalSupply + "," + 2;
     logger.info("param: " + param);
-  String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
-    txid = PublicMethod.triggerContract(contractAddress, methodTokenIssue, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodTokenIssue = "tokenIssue(bytes32,bytes32,uint64,uint8)";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddress,
+            methodTokenIssue,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
 
-    assetIssueId = PublicMethod.queryAccount(contractAddressA, blockingStubFull).getAssetIssuedID()
-        .toStringUtf8();
+    assetIssueId =
+        PublicMethod.queryAccount(contractAddressA, blockingStubFull)
+            .getAssetIssuedID()
+            .toStringUtf8();
     logger.info("assetIssueId: " + assetIssueId);
     long returnAssetId = ByteArray.toLong((infoById.get().getContractResult(0).toByteArray()));
     logger.info("returnAssetId: " + returnAssetId);
     Assert.assertEquals(returnAssetId, Long.parseLong(assetIssueId));
-    Map<String, Long> assetV2Map = PublicMethod.queryAccount(contractAddress, blockingStubFull)
-        .getAssetV2Map();
+    Map<String, Long> assetV2Map =
+        PublicMethod.queryAccount(contractAddress, blockingStubFull).getAssetV2Map();
     Assert.assertEquals(0, assetV2Map.size());
-    long assetIssueValue = PublicMethod.queryAccount(contractAddressA, blockingStubFull)
-        .getAssetV2Map().get(assetIssueId);
+    long assetIssueValue =
+        PublicMethod.queryAccount(contractAddressA, blockingStubFull)
+            .getAssetV2Map()
+            .get(assetIssueId);
     Assert.assertEquals(totalSupply, assetIssueValue);
-    AssetIssueContract assetIssueById = PublicMethod
-        .getAssetIssueById(assetIssueId, blockingStubFull);
+    AssetIssueContract assetIssueById =
+        PublicMethod.getAssetIssueById(assetIssueId, blockingStubFull);
     Assert.assertEquals(name, ByteArray.toStr(assetIssueById.getName().toByteArray()));
     Assert.assertEquals(abbr, ByteArray.toStr(assetIssueById.getAbbr().toByteArray()));
     Assert.assertEquals(totalSupply, assetIssueById.getTotalSupply());
     Assert.assertEquals(2, assetIssueById.getPrecision());
-    Assert.assertEquals(Base58.encode58Check(contractAddressA),
+    Assert.assertEquals(
+        Base58.encode58Check(contractAddressA),
         Base58.encode58Check(assetIssueById.getOwnerAddress().toByteArray()));
-  Long fee = infoById.get().getFee();
-  Long netUsed = infoById.get().getReceipt().getNetUsage();
-  Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
-  Long netFee = infoById.get().getReceipt().getNetFee();
+    Long fee = infoById.get().getFee();
+    Long netUsed = infoById.get().getReceipt().getNetUsage();
+    Long energyUsed = infoById.get().getReceipt().getEnergyUsage();
+    Long netFee = infoById.get().getReceipt().getNetFee();
     long energyUsageTotal = infoById.get().getReceipt().getEnergyUsageTotal();
     logger.info("fee:" + fee);
     logger.info("netUsed:" + netUsed);
@@ -651,12 +889,12 @@ public class TvmAssetIssue002 extends TronBaseTest {
     logger.info("netFee:" + netFee);
     logger.info("energyUsageTotal:" + energyUsageTotal);
     Protocol.Account infoafter = PublicMethod.queryAccount(dev001Address, blockingStubFull);
-    GrpcAPI.AccountResourceMessage resourceInfoafter = PublicMethod
-        .getAccountResource(dev001Address, blockingStubFull);
-  Long afterBalance = infoafter.getBalance();
-  Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
-  Long afterNetUsed = resourceInfoafter.getNetUsed();
-  Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
+    GrpcAPI.AccountResourceMessage resourceInfoafter =
+        PublicMethod.getAccountResource(dev001Address, blockingStubFull);
+    Long afterBalance = infoafter.getBalance();
+    Long afterEnergyUsed = resourceInfoafter.getEnergyUsed();
+    Long afterNetUsed = resourceInfoafter.getNetUsed();
+    Long afterFreeNetUsed = resourceInfoafter.getFreeNetUsed();
     logger.info("afterBalance:" + afterBalance);
     logger.info("afterEnergyUsed:" + afterEnergyUsed);
     logger.info("afterNetUsed:" + afterNetUsed);
@@ -665,32 +903,42 @@ public class TvmAssetIssue002 extends TronBaseTest {
     Assert.assertTrue(beforeEnergyUsed + energyUsed >= afterEnergyUsed);
     Assert.assertTrue(beforeFreeNetUsed + netUsed >= afterFreeNetUsed);
     Assert.assertTrue(beforeNetUsed + netUsed >= afterNetUsed);
-    long contractAddressBalance2 = PublicMethod.queryAccount(contractAddressA, blockingStubFull)
-        .getBalance();
+    long contractAddressBalance2 =
+        PublicMethod.queryAccount(contractAddressA, blockingStubFull).getBalance();
     Assert.assertEquals(contractAddressBalance - 1024000000L, contractAddressBalance2);
 
     param = "\"" + Base58.encode58Check(dev002Address) + "\"," + 100 + ",\"" + assetIssueId + "\"";
-  String methodTransferToken = "transferToken(address,uint256,trcToken)";
-    txid = PublicMethod.triggerContract(contractAddressA, methodTransferToken, param, false,
-        0, maxFeeLimit, dev001Address, dev001Key, blockingStubFull);
+    String methodTransferToken = "transferToken(address,uint256,trcToken)";
+    txid =
+        PublicMethod.triggerContract(
+            contractAddressA,
+            methodTransferToken,
+            param,
+            false,
+            0,
+            maxFeeLimit,
+            dev001Address,
+            dev001Key,
+            blockingStubFull);
     PublicMethod.waitProduceNextBlock(blockingStubFull);
     infoById = PublicMethod.getTransactionInfoById(txid, blockingStubFull);
     logger.info(infoById.toString());
     Assert.assertEquals(0, infoById.get().getResultValue());
 
-    long assetIssueValueAfter = PublicMethod.queryAccount(contractAddressA, blockingStubFull)
-        .getAssetV2Map().get(assetIssueId);
-    long dev002AssetValue = PublicMethod
-        .getAssetIssueValue(dev002Address, ByteString.copyFrom(assetIssueId.getBytes()),
-            blockingStubFull);
+    long assetIssueValueAfter =
+        PublicMethod.queryAccount(contractAddressA, blockingStubFull)
+            .getAssetV2Map()
+            .get(assetIssueId);
+    long dev002AssetValue =
+        PublicMethod.getAssetIssueValue(
+            dev002Address, ByteString.copyFrom(assetIssueId.getBytes()), blockingStubFull);
     Assert.assertEquals(assetIssueValue - 100L, assetIssueValueAfter);
     Assert.assertEquals(100L, dev002AssetValue);
   }
 
-  /**
-   * constructor.
-   */
+  /** constructor. */
   @AfterClass
   public void shutdown() throws InterruptedException {
-    PublicMethod.freeResource(dev001Address, dev001Key, fromAddress, blockingStubFull);  }
+    PublicMethod.freeResource(dev001Address, dev001Key, fromAddress, blockingStubFull);
+  }
 }
